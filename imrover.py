@@ -385,7 +385,7 @@ def main_traa2nuc(args):
                 gn_name = pair[args.colgene-1]
                 cpos = int(pair[args.colcpos-1])
             else:
-                gn_name, cpos = pair[args.colcomp].split(":")
+                gn_name, cpos = pair[args.colcomp-1].split(":")
 
             gene = name2gene[gn_name]
             print format_codon(gn_name, gene.cpos2codon(cpos))
