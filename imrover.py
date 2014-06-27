@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import re
 from itertools import chain
 """ A isoform location resolver """
 
@@ -34,6 +35,29 @@ standard_codon_table = {
 stop_codons  = [ 'TAA', 'TAG', 'TGA', ]
 start_codons = [ 'TTG', 'CTG', 'ATG', ]
 
+reverse_codon_table = {
+    'A': ['GCA', 'GCC', 'GCG', 'GCT'],
+    'C': ['TGT', 'TGC'],
+    'E': ['GAG', 'GAA'],
+    'D': ['GAC', 'GAT'],
+    'G': ['GGT', 'GGG', 'GGA', 'GGC'],
+    'F': ['TTT', 'TTC'],
+    'I': ['ATC', 'ATA', 'ATT'],
+    'H': ['CAT', 'CAC'],
+    'K': ['AAG', 'AAA'],
+    'M': ['ATG'],
+    'L': ['CTT', 'CTG', 'CTA', 'CTC', 'TTA', 'TTG'],
+    'N': ['AAC', 'AAT'],
+    'Q': ['CAA', 'CAG'],
+    'P': ['CCT', 'CCG', 'CCA', 'CCC'],
+    'S': ['AGC', 'AGT', 'TCT', 'TCG', 'TCC', 'TCA'],
+    'R': ['AGG', 'AGA', 'CGA', 'CGC', 'CGG', 'CGT'],
+    'T': ['ACA', 'ACG', 'ACT', 'ACC'],
+    'W': ['TGG'],
+    'V': ['GTA', 'GTC', 'GTG', 'GTT'],
+    'Y': ['TAT', 'TAC']
+}
+
 # site in codon follow the genomic order.
 # no matter the strand the positive or negative, first site has
 # the smallest genomic coordinate
@@ -45,7 +69,7 @@ class Codon():
         self.chrm   = "NA"
         self.locs   = (-1,-1,-1)
         self.strand = "NA"
-        self.seq    = "NA"
+        self.seq    = "NA"      # natural sequence, not the actural sequence, can be directly mapped to amino acids
         self.index  = -1
 
     def __repr__(self):
@@ -60,17 +84,6 @@ class Codon():
 
         return hash((self.chrm, self.sites[0].loc))
         
-    def natural_seq(self):
-        
-        if self.strand == '-':
-            return reverse_complement(self.seq())
-        else:
-            return self.seq()
-
-    def tr_aa(self):
-        
-        return standard_codon_table[self.natural_seq()]
-
 class Transcript():
 
     def __init__(self, chrm, strand, start, end, seq):
@@ -370,6 +383,53 @@ def main_srchalt(args):
 def format_codon(gn_name, codon):
     return "%s\t%s\t%s\t%d\t%d\t%d\t%s\t%s" % (gn_name, codon.index, codon.chrm, codon.locs[0], codon.locs[1], codon.locs[2], codon.seq, codon.strand)
 
+
+def codondiff(c1, c2):
+
+    diff = []
+    for i in xrange(3):
+        if c1[i] != c2[i]:
+            diff.append(i)
+
+    return diff
+
+def traa2nuc_mutation(args, gene, cpos, ref_aa, tgt_aa):
+
+    if args.alltrans:
+        tpts = gene.tpts
+    else:
+        tpts = [gene.longest_tpt()]
+
+    for tpt in tpts:
+
+        codon = tpt.cpos2codon(cpos)
+
+        # skip if reference codon sequence does not
+        # generate reference amino acid
+        if codon.seq not in reverse_codon_table[ref_aa]: # codon.seq is natural sequence
+            continue
+
+        tgt_codon_seqs = reverse_codon_table[tgt_aa]
+        tgt_codon_seqs.sort(key=lambda x: len(codondiff(x, codon.seq)))
+        tgt_codon_seq = tgt_codon_seqs[0]
+        diff = codondiff(tgt_codon_seq, codon.seq)
+        if (len(diff) == 1):
+            if codon.strand == "+":
+                baseloc = codon.locs[diff[0]]
+                refbase = codon.seq[diff[0]]
+                varbase = tgt_codon_seq[diff[0]]
+            else:
+                baseloc = codon.locs[2-diff[0]]
+                refbase = complement(codon.seq[diff[0]])
+                varbase = complement(tgt_codon_seq[diff[0]])
+            mutloc = "%s:%d\t%s\t%s" % (codon.chrm, baseloc, refbase, varbase)
+        else:
+            mutloc = "-1\tNA\tNA"
+
+        candidates = ','.join(tgt_codon_seqs)
+        return "%s\t%s=>%s\t%s\t%s" % (format_codon(gene.name, codon), ref_aa, tgt_aa, mutloc, candidates)
+
+
 def main_traa2nuc(args):
 
     name2gene, thash = parse_annotation(args.annotation_file)
@@ -388,13 +448,32 @@ def main_traa2nuc(args):
                 gn_name, cpos = pair[args.colcomp-1].split(":")
 
             gene = name2gene[gn_name]
-            print format_codon(gn_name, gene.cpos2codon(cpos))
+
+            if cpos.isdigit():
+                print "%s\t%s" % (line.strip(), format_codon(gn_name, gene.cpos2codon(cpos)))
+            else:
+
+                m = re.match(r'([A-Z])(\d+)([A-Z])', cpos)
+                ref_aa = m.group(1)
+                tgt_aa = m.group(3)
+                cpos = m.group(2)
+                print "%s\t%s" % (line.strip(), traa2nuc_mutation(args, gene, m.group(2), m.group(1), m.group(3)))
                 
 
     if args.cpos:
         gn_name, cpos = args.cpos.split(":")
         gene = name2gene[gn_name]
-        print format_codon(gn_name, gene.cpos2codon(cpos))
+        if cpos.isdigit():
+            print format_codon(gn_name, gene.cpos2codon(cpos))
+        else:
+            
+            m = re.match(r'([A-Z])(\d+)([A-Z])', cpos)
+            ref_aa = m.group(1)
+            tgt_aa = m.group(3)
+            cpos = m.group(2)
+
+            print traa2nuc_mutation(args, gene, m.group(2), m.group(1), m.group(3))
+
 
 def main_trnuc2aa(args):
 
@@ -2743,9 +2822,10 @@ python isoform_resolver.py tr.aa2nuc -c KRAS:12 -a hg19.map
     psr_traa2nuc.add_argument('--delim', default="\t", 
                      help="table delimiter [\\t]")
     psr_traa2nuc.add_argument('--skipheader', action='store_true', help='skip header')
-    psr_traa2nuc.add_argument('--colgene', type=int, default=-1, help='column for chromosome (1-based)')
+    psr_traa2nuc.add_argument('--colgene', type=int, default=-1, help='column for gene (1-based)')
     psr_traa2nuc.add_argument("--colcpos", type=int, default=-1, help='column for position (1-based)')
     psr_traa2nuc.add_argument("--colcomp", type=int, default=1, help='column for composite (1-based), i.e., gene:pos')
+    psr_traa2nuc.add_argument("--alltrans", action="store_true", help="consider all transcripts")
     psr_traa2nuc.add_argument('-c', dest="cpos", default=None, help='codon position., Format: MET:1010')
     add_std_arguments(psr_traa2nuc)
     psr_traa2nuc.set_defaults(func=main_traa2nuc)
