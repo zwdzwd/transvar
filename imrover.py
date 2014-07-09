@@ -73,8 +73,10 @@ class Codon():
         self.index  = -1
 
     def __repr__(self):
-
-        return '<Codon %s:%d,%d,%d (%s)>' % (self.chrm, self.locs[0], self.locs[1], self.locs[2], self.strand)
+        if self.locs:
+            return '<Codon %s:%d,%d,%d (%s)>' % (self.chrm, self.locs[0], self.locs[1], self.locs[2], self.strand)
+        else:
+            return '<Codon unknown>'
 
     def __eq__(self, other):
 
@@ -101,6 +103,9 @@ class Transcript():
             return "<Transcript for %s: %s(%s):%d-%d>" % (self.gene.name, self.chrm, self.strand, self.start, self.end)
         else:
             return "<Empty Transcript>"
+
+    def is_standard(self):
+        return self == self.gene.std_tpt
 
     def cpos2codon(self, cpos):
 
@@ -381,7 +386,10 @@ def main_srchalt(args):
 
 
 def format_codon(gn_name, codon):
-    return "%s\t%s\t%s\t%d\t%d\t%d\t%s\t%s" % (gn_name, codon.index, codon.chrm, codon.locs[0], codon.locs[1], codon.locs[2], codon.seq, codon.strand)
+    if codon.locs:
+        return "%s\t%s\t%s\t%d\t%d\t%d\t%s\t%s" % (gn_name, codon.index, codon.chrm, codon.locs[0], codon.locs[1], codon.locs[2], codon.seq, codon.strand)
+    else:
+        return "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA"
 
 
 def codondiff(c1, c2):
@@ -452,7 +460,6 @@ def main_traa2nuc(args):
             if cpos.isdigit():
                 print "%s\t%s" % (line.strip(), format_codon(gn_name, gene.cpos2codon(cpos)))
             else:
-
                 m = re.match(r'([A-Z])(\d+)([A-Z])', cpos)
                 ref_aa = m.group(1)
                 tgt_aa = m.group(3)
@@ -484,12 +491,22 @@ def main_trnuc2aa(args):
             args.npos_list.readline()
         for line in args.npos_list:
             pair = line.strip().split(args.delim)
-            chrm = pair[args.colchrm-1]
-            pos  = int(pair[args.colnpos-1])
+            if args.colchrm > 0:
+                chrm = pair[args.colchrm-1]
+                pos  = int(pair[args.colnpos-1])
+            elif args.colnuc > 0:
+                nuc_str = pair[args.colnuc-1].split(':')
+                chrm = nuc_str[0]
+                pos = int(nuc_str[1])
+
             tpts = thash.get_transcripts(chrm, pos, args.standard)
             if tpts:
-                assert(len(tpts)==1)
                 tpt = tpts[0]
+                if len(tpts) > 1:
+                    for _tpt in tpts:
+                        if _tpt.is_standard():
+                            tpt = _tpt
+                            break
                 codon = tpt.npos2codon(chrm, pos)
                 print "%s\t%s" % (line.strip(), format_codon(tpt.gene.name, codon))
             else:
@@ -501,6 +518,13 @@ def main_trnuc2aa(args):
         for tpt in tpts:
             codon = tpt.npos2codon(chrm, pos)
             print format_codon(tpt.gene.name, codon)
+
+
+
+
+
+
+
         
 
 """ 
@@ -2826,7 +2850,7 @@ python isoform_resolver.py tr.aa2nuc -c KRAS:12 -a hg19.map
     psr_traa2nuc.add_argument("--colcpos", type=int, default=-1, help='column for position (1-based)')
     psr_traa2nuc.add_argument("--colcomp", type=int, default=1, help='column for composite (1-based), i.e., gene:pos')
     psr_traa2nuc.add_argument("--alltrans", action="store_true", help="consider all transcripts")
-    psr_traa2nuc.add_argument('-c', dest="cpos", default=None, help='codon position., Format: MET:1010')
+    psr_traa2nuc.add_argument('-c', dest="cpos", default=None, help='codon position., Format: MET:1010, PIK3CA:E545K')
     add_std_arguments(psr_traa2nuc)
     psr_traa2nuc.set_defaults(func=main_traa2nuc)
 
@@ -2838,8 +2862,9 @@ python isoform_resolver.py tr.nuc2aa -n chr12:25398285 -a hg19.map
     psr_trnuc2aa.add_argument('--delim', default="\t", 
                      help="table delimiter [\\t]")
     psr_trnuc2aa.add_argument('--skipheader', action='store_true', help='skip header')
-    psr_trnuc2aa.add_argument('--colchrm', type=int, help='column for chromosome (1-based)')
-    psr_trnuc2aa.add_argument("--colnpos", type=int, help='column for position (1-based)')
+    psr_trnuc2aa.add_argument('--colchrm', type=int, default=-1, help='column for chromosome (1-based)')
+    psr_trnuc2aa.add_argument("--colnpos", type=int, default=-1, help='column for position (1-based)')
+    psr_trnuc2aa.add_argument("--colnuc", type=int, default=-1, help="column for chrm:pos")
     psr_trnuc2aa.add_argument('-n', dest="npos", default=None, help="genomic position to test. Format: chr12:25398285")
     psr_trnuc2aa.add_argument('--standard', action="store_true")
     add_std_arguments(psr_trnuc2aa)
