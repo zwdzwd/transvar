@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 import re
 from itertools import chain
-""" A isoform location resolver """
+""" Ioan (IsOform ANnotator) """
 
 def complement(base):
 
@@ -2840,7 +2840,7 @@ if __name__ == '__main__':
 
 
     psr_traa2nuc = psrs.add_parser("tr.aa2nuc", help='translate from amino acid (codon) position(s) to nucleotide position(s)', epilog="""
-python isoform_resolver.py tr.aa2nuc -c KRAS:12 -a hg19.map
+ioan tr.aa2nuc -c KRAS:12 -a hg19.map
 """)
     psr_traa2nuc.add_argument('-t', dest="cpos_list", default=None, type = FileType('r'), help='codon position table')
     psr_traa2nuc.add_argument('--delim', default="\t", 
@@ -2856,7 +2856,7 @@ python isoform_resolver.py tr.aa2nuc -c KRAS:12 -a hg19.map
 
 
     psr_trnuc2aa = psrs.add_parser('tr.nuc2aa', help='translate from nucleotide position(s) to amino acid (codon) position(s)', epilog="""
-python isoform_resolver.py tr.nuc2aa -n chr12:25398285 -a hg19.map
+ioan tr.nuc2aa -n chr12:25398285 -a hg19.map
 """)
     psr_trnuc2aa.add_argument('-t', dest="npos_list", type = FileType('r'), default=None, help='nucleotide position table')
     psr_trnuc2aa.add_argument('--delim', default="\t", 
