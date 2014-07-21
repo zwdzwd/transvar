@@ -1,0 +1,176 @@
+""" 
+annotate a codon position or an amino acid change
+"""
+import sys, argparse, re
+from transcripts import *
+
+def codon_mutation(args, gene, pos, ref, alt):
+
+    if alt not in reverse_codon_table:
+        return "NA\tunknown alternative: %s" % alt
+
+    if args.alltrans:
+        tpts = gene.tpts
+    else:
+        tpts = [gene.longest_tpt()]
+
+    for tpt in tpts:
+
+        codon = tpt.cpos2codon(pos)
+
+        # skip if reference codon sequence does not
+        # generate reference amino acid
+        if codon.seq not in reverse_codon_table[ref]: # codon.seq is natural sequence
+            continue
+
+        tgt_codon_seqs = reverse_codon_table[alt]
+        tgt_codon_seqs.sort(key=lambda x: len(codondiff(x, codon.seq)))
+        tgt_codon_seq = tgt_codon_seqs[0]
+        diff = codondiff(tgt_codon_seq, codon.seq)
+        if (len(diff) == 1):
+            if codon.strand == "+":
+                baseloc = codon.locs[diff[0]]
+                refbase = codon.seq[diff[0]]
+                varbase = tgt_codon_seq[diff[0]]
+            else:
+                baseloc = codon.locs[2-diff[0]]
+                refbase = complement(codon.seq[diff[0]])
+                varbase = complement(tgt_codon_seq[diff[0]])
+            mutloc = "%s:%d\t%s\t%s" % (codon.chrm, baseloc, refbase, varbase)
+        else:
+            mutloc = "-1\tNA\tNA\tno one-base transition"
+
+        candidates = ','.join(tgt_codon_seqs)
+
+        return "%s\t%s=>%s\t%s\t%s" % (codon.format(), ref, alt, mutloc, candidates)
+
+    return 'NA\tno transcripts matching reference amino acid'
+
+def main_list(args, name2gene):
+
+    if args.skipheader:
+        args.codon_list.readline()
+
+    for line in args.codon_list:
+
+        fields = line.strip().split(args.d)
+        if args.col_g > 0 and args.col_p > 0: # separate columns
+            gn_name = fields[args.col_g-1].strip()
+            pos = int(fields[args.col_p-1])
+            ref = fields[args.col_r-1].strip() if args.col_r > 0 else None
+            alt = fields[args.col_v-1].strip() if args.col_v > 0 else None
+            if gn_name not in name2gene:
+                sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
+                continue
+            gene = name2gene[gn_name]
+
+        else:                   # <gene>:<pos> format
+            m = re.match(r'([^:]*):([A-Z*]?)(\d+)([A-Z*]?)',
+                         fields[args.col_gp-1])
+            gn_name = m.group(1)
+            ref = m.group(2)
+            pos = int(m.group(3))
+            alt = m.group(4)
+            if gn_name not in name2gene:
+                sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
+                continue
+            gene = name2gene[gn_name]
+
+        codon = gene.cpos2codon(pos)
+        prnstr = line.strip()
+        if alt:                 # with mutation
+            prnstr += '\t'
+            prnstr += codon_mutation(args, gene, pos, ref, alt)
+        else:                   # without mutation
+            prnstr += '\t'
+            prnstr += codon.format()
+
+        print prnstr
+
+    return
+
+def main_one(args, name2gene):
+
+    m = re.match(r'([^:]*):([A-Z*]?)(\d+)([A-Z*]?)', args.codon)
+    gn_name = m.group(1)
+    ref = m.group(2)
+    pos = int(m.group(3))
+    alt = m.group(4)
+    if gn_name not in name2gene:
+        sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
+        return
+    gene = name2gene[gn_name]
+    codon = gene.cpos2codon(pos)
+    prnstr = args.codon
+    if alt:                 # with mutation
+        prnstr += '\t'
+        prnstr += codon_mutation(args, gene, pos, ref, alt)
+    else:                   # without mutation
+        prnstr += '\t'
+        prnstr += codon.format()
+
+    print prnstr
+
+
+def main(args):
+
+    name2gene, thash = parse_annotation(args.annotation_file)
+
+    if args.codon_list:
+        main_list(args, name2gene)
+
+    if args.codon:
+        main_one(args, name2gene)
+
+def add_parser_codonanno(subparsers):
+
+    parser = subparsers.add_parser("codonanno", help=__doc__)
+    parser.add_argument('-a',
+                        required = True,
+                        dest='annotation_file', 
+                        help='protein annotation file')
+    parser.add_argument('-c',
+                        dest="codon",
+                        default=None,
+                        help='<gene>:[<ref>]<pos>[<alt>], E.g., MET:1010, PIK3CA:E545K')
+    parser.add_argument('-l',
+                        dest="codon_list", 
+                        default=None,
+                        type = argparse.FileType('r'), 
+                        help='codon list file')
+    parser.add_argument('-d',
+                        default="\t",
+                        help="table delimiter [\\t]")
+    parser.add_argument('-g', 
+                        dest='col_g',
+                        type=int,
+                        default=-1,
+                        help='column for gene (1-based)')
+    parser.add_argument('-p',
+                        dest='col_p',
+                        type=int,
+                        default=-1,
+                        help='column for position (1-based)')
+    parser.add_argument('-r',
+                        dest='col_r',
+                        type=int,
+                        default=-1,
+                        help='column for reference amino acid (1-based)')
+    parser.add_argument('-v',
+                        dest='col_v',
+                        type=int,
+                        default=-1,
+                        help='column for variant amino acid (1-based)')
+    parser.add_argument('-gp',
+                        dest='col_gp',
+                        type=int,
+                        default=1,
+                        help='column for <gene>:<ref><pos><alt> (1-based)')
+    parser.add_argument("--alltrans",
+                        action="store_true",
+                        help="consider all transcripts")
+    parser.add_argument('--skipheader',
+                        action='store_true',
+                        help='skip header')
+    parser.set_defaults(func=main)
+
