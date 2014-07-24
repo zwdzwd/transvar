@@ -27,8 +27,8 @@ def main_list(args, thash):
         if args.col_c > 0 and args.col_p > 0: # separate columns
             chrm = fields[args.col_c-1]
             pos = int(fields[args.col_p-1])
-            ref = fields[args.col_r-1]
-            alt = fields[args.col_v-1]
+            ref = fields[args.col_r-1].strip() if args.col_r > 0 else None
+            alt = fields[args.col_v-1].strip() if args.col_v > 0 else None
         else:                   # <chrm>:<pos> format
             m = re.match(r'([^:]*):([ATGC]?)(\d+)([ATGC]?)',
                          fields[args.col_cp-1])
@@ -118,7 +118,7 @@ def add_parser_nucanno(subparsers):
                         type = argparse.FileType('r'),
                         default=None,
                         help='nucleotide position table')
-    parser.add_argument('--d',
+    parser.add_argument('-d',
                         default="\t", 
                         help="table delimiter [\\t]")
     parser.add_argument('-c',
