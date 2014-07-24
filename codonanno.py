@@ -56,7 +56,12 @@ def main_list(args, name2gene):
         fields = line.strip().split(args.d)
         if args.col_g > 0 and args.col_p > 0: # separate columns
             gn_name = fields[args.col_g-1].strip()
-            pos = int(fields[args.col_p-1])
+            posstr = fields[args.col_p-1].strip()
+            if posstr.isdigit() and int(posstr) > 0:
+                pos = int(posstr)
+            else:
+                sys.stderr.write("[Warning] abnormal position %s. skip.\n" % posstr)
+                continue
             ref = fields[args.col_r-1].strip() if args.col_r > 0 else None
             alt = fields[args.col_v-1].strip() if args.col_v > 0 else None
             if gn_name not in name2gene:
@@ -67,12 +72,18 @@ def main_list(args, name2gene):
         else:                   # <gene>:<pos> format
             m = re.match(r'([^:]*):([A-Z*]?)(\d+)([A-Z*]?)',
                          fields[args.col_gp-1])
+            if not m:
+                sys.stderr.write("[Warning] abnormal <gene>:<pos> format. skip.\n" % fields[args.col_gp-1])
+                continue
             gn_name = m.group(1)
             ref = m.group(2)
             pos = int(m.group(3))
+            if pos <= 0:
+                sys.stderr.write("[Warning] abnormal position %d. skip.\n" % pos)
+                continue
             alt = m.group(4)
             if gn_name not in name2gene:
-                sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
+                sys.stderr.write("Gene: %s not recognized. skip.\n" % gn_name)
                 continue
             gene = name2gene[gn_name]
 
