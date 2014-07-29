@@ -3,6 +3,7 @@ annotate nucleotide position(s) or mutations
 """
 import sys, argparse, re
 from transcripts import *
+from utils import parse_indices
 
 def nuc_mutation(codon, pos, ref, alt):
 
@@ -21,6 +22,7 @@ def main_list(args, thash):
     if args.skipheader:
         args.npos_list.readline()
 
+    outindices = parse_indices(args.outcol)
     for line in args.npos_list:
 
         fields = line.strip().split(args.d)
@@ -49,15 +51,13 @@ def main_list(args, thash):
                     break
 
         codon = tpt.npos2codon(chrm, pos)
-        prnstr = line.strip()
+        prncol = outindices.extract(fields)
         if alt:
-            prnstr += '\t'
-            prnstr += nuc_mutation(codon, pos, ref, alt)
+            prncol.append(nuc_mutation(codon, pos, ref, alt))
         else:
-            prnstr += '\t'
-            prnstr += codon.format()
+            prncol.append(codon.format())
 
-        print prnstr
+        print '\t'.join(prncol)
 
 def main_one(args, thash):
 
@@ -146,6 +146,10 @@ def add_parser_nucanno(subparsers):
                         type=int,
                         default=-1,
                         help="column for <chrm>:[<ref>]<pos>[<alt>] (1-based)")
+    parser.add_argument('-oc',
+                        dest='outcol',
+                        default='-',
+                        help='columns in the original table to be output (1-based) [everything]')
     parser.add_argument('--standard', action="store_true")
     parser.add_argument('--skipheader',
                         action='store_true',
