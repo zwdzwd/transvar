@@ -111,16 +111,23 @@ def main_one(args, name2gene):
         sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
         return
     gene = name2gene[gn_name]
-    codon = gene.cpos2codon(pos)
-    prnstr = args.codon
     if alt:                 # with mutation
+        prnstr = args.codon
         prnstr += '\t'
         prnstr += codon_mutation(args, gene, pos, ref, alt)
     else:                   # without mutation
-        prnstr += '\t'
-        prnstr += codon.format()
+        prnstr = ''
+        if args.alltrans:
+            for tpt in gene.tpts:
+                prnstr += '%s\t' % args.codon
+                prnstr += tpt.cpos2codon(pos).format()
+                prnstr += '\n'
+        else:
+            prnstr = '%s\t' % args.codon
+            prnstr += gene.cpos2codon(pos).format()
+            prnstr += '\n'
 
-    print prnstr
+    sys.stdout.write(prnstr)
 
 
 def main(args):
