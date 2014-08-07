@@ -50,12 +50,15 @@ def main_list(args, thash):
                     tpt = _tpt
                     break
 
-        codon = tpt.npos2codon(chrm, pos)
         prncol = outindices.extract(fields)
-        if alt:
-            prncol.append(nuc_mutation(codon, pos, ref, alt))
+        codon = tpt.npos2codon(chrm, pos)
+        if codon.gene:
+            if alt:
+                prncol.append(nuc_mutation(codon, pos, ref, alt))
+            else:
+                prncol.append(codon.format())
         else:
-            prncol.append(codon.format())
+            prncol.append('non-coding')
 
         print '\t'.join(prncol)
 
@@ -81,12 +84,15 @@ def main_one(args, thash):
 
     codon = tpt.npos2codon(chrm, pos)
     prnstr = args.npos
-    if alt:
-        prnstr += '\t'
-        prnstr += nuc_mutation(codon, pos, ref, alt)
+    if codon.gene:
+        if alt:
+            prnstr += '\t'
+            prnstr += nuc_mutation(codon, pos, ref, alt)
+        else:
+            prnstr += '\t'
+            prnstr += codon.format()
     else:
-        prnstr += '\t'
-        prnstr += codon.format()
+        prnstr += "non-coding"
 
     print prnstr
 
