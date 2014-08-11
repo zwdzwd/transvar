@@ -42,25 +42,28 @@ def main_list(args, thash):
         tpts = thash.get_transcripts(chrm, pos, args.standard)
         if not tpts:
             continue
-            
-        tpt = tpts[0]
-        if len(tpts) > 1:
-            for _tpt in tpts:
-                if _tpt.is_standard():
-                    tpt = _tpt
-                    break
 
-        prncol = outindices.extract(fields)
-        codon = tpt.npos2codon(chrm, pos)
-        if codon.gene:
-            if alt:
-                prncol.append(nuc_mutation(codon, pos, ref, alt))
-            else:
-                prncol.append(codon.format())
-        else:
-            prncol.append('non-coding')
+        if not args.alltrans:
+            tpt = tpts[0]
+            if len(tpts) > 1:
+                for _tpt in tpts:
+                    if _tpt.is_standard():
+                        tpt = _tpt
+                        break
+            tpts = [tpt]
 
-        print '\t'.join(prncol)
+        for tpt in tpts:
+            prncol = outindices.extract(fields)
+            c = tpt.npos2codon(chrm, pos)
+            if isinstance(c, Codon):
+                if alt:
+                    prncol.append(nuc_mutation(c, pos, ref, alt))
+                else:
+                    prncol.append(c.format())
+            elif isinstance(c, NonCoding):
+                prncol.append(c.format())
+
+            print '\t'.join(prncol)
 
 def main_one(args, thash):
 
@@ -75,26 +78,31 @@ def main_one(args, thash):
     if not tpts:
         return
 
-    tpt = tpts[0]
-    if len(tpts) > 1:
-        for _tpt in tpts:
-            if _tpt.is_standard():
-                tpt = _tpt
-                break
+    if not args.alltrans:
+        tpt = tpts[0]
+        if len(tpts) > 1:
+            for _tpt in tpts:
+                if _tpt.is_standard():
+                    tpt = _tpt
+                    break
+        tpts = [tpt]
 
-    codon = tpt.npos2codon(chrm, pos)
-    prnstr = args.npos
-    if codon.gene:
-        if alt:
-            prnstr += '\t'
-            prnstr += nuc_mutation(codon, pos, ref, alt)
-        else:
-            prnstr += '\t'
-            prnstr += codon.format()
-    else:
-        prnstr += "non-coding"
+    for tpt in tpts:
+        prnstr = args.npos
+        c = tpt.npos2codon(chrm, pos)
+        if isinstance(c, Codon):
+            if alt:
+                prnstr += '\t'
+                prnstr += nuc_mutation(c, pos, ref, alt)
+            else:
+                prnstr += '\t'
+                prnstr += c.format()
+        elif isinstance(c, NonCoding):
+            prnstr += '\t'+c.format()
+            if alt:
+                prnstr += "\t%s\t%s" % (ref, alt)
 
-    print prnstr
+        print prnstr
 
 
 def main(args):
@@ -160,5 +168,6 @@ def add_parser_nucanno(subparsers):
     parser.add_argument('--skipheader',
                         action='store_true',
                         help='skip header')
+    parser.add_argument('--alltrans', action='store_true', help='report results from all transcripts')
 
     parser.set_defaults(func=main)

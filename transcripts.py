@@ -91,12 +91,23 @@ class Codon():
         return hash((self.chrm, self.sites[0].loc))
 
     def format(self):
-
         if self.locs:
             return "%s\t%s\t%s\t%d\t%d\t%d\t%s\t%s" % (self.gene.name, self.index, self.chrm, self.locs[0], self.locs[1], self.locs[2], self.seq, self.strand)
         else:
             return "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA"
 
+class NonCoding():
+
+    def __init__(self):
+
+        self.gene = None
+        self.region = ''
+        self.closest_coding_pos = -1
+        self.relative_coding_pos = 0
+
+    def format(self):
+
+        return "%s\t%s\t%d\t%d" % (self.gene.name, self.region, self.closest_coding_pos, self.relative_coding_pos)
         
 class Transcript():
 
@@ -168,10 +179,24 @@ class Transcript():
 
     def npos2codon(self, chrm, npos):
         npos = int(npos)
-        if (chrm != self.chrm or 
-            self.cds_beg > npos or 
-            self.cds_end < npos):
-            return Codon()
+        if chrm != self.chrm:
+            raise Exception("Wrong chromosome.\n")
+        
+        if self.cds_beg > npos:
+            nc = NonCoding()
+            nc.region = "noncoding 5'end"
+            nc.gene = self.gene
+            nc.closest_coding_pos = 1
+            nc.relative_coding_pos = npos - self.cds_beg
+            return nc
+
+        if self.cds_end < npos:
+            nc = NonCoding()
+            nc.region = "noncoding 3'end"
+            nc.gene = self.gene
+            nc.closest_coding_pos = len(self.seq)
+            nc.relative_coding_pos = npos - self.cds_end
+            return nc
 
         if self.strand == "+":
             np = []
@@ -189,9 +214,19 @@ class Transcript():
                     codon.index  = i/3 + 1
                     codon.seq    = self.seq[i-i%3:i-i%3+3]
                     codon.locs   = np[i-i%3:i-i%3+3]
+                    codon.region = 'coding'
                     return codon
                 if npos < pos:
-                    return Codon()
+                    nc = NonCoding()
+                    nc.gene = self.gene
+                    nc.region = 'intronic'
+                    if npos - np[i-1] < pos - npos:
+                        nc.relative_coding_pos = npos - np[i-1]
+                        nc.closest_coding_pos = i # 1-based
+                    else:
+                        nc.relative_coding_pos = npos - pos
+                        nc.closest_coding_pos = i+1 # 1-based
+                    return nc
         else:
             np = []
             for beg, end in reversed(self.exons):
@@ -208,9 +243,19 @@ class Transcript():
                     codon.index  = i/3 + 1
                     codon.seq    = self.seq[i-i%3:i-i%3+3]
                     codon.locs   = tuple(reversed(np[i-i%3:i-i%3+3]))
+                    codon.region = 'coding'
                     return codon
                 if npos > pos:
-                    return Codon()
+                    nc = NonCoding()
+                    nc.gene = self.gene
+                    nc.region = 'intronic'
+                    if np[i-1] - npos < npos - pos:
+                        nc.relative_coding_pos = np[i-1] - npos
+                        nc.closest_coding_pos = i # 1-based
+                    else:
+                        nc.relative_coding_pos = pos - npos
+                        nc.closest_coding_pos = i+1 # 1-based
+                    return nc
 
 
 class Gene():
