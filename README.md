@@ -39,6 +39,12 @@ ioan codonanno -a hg19.map -c
  + input: 1) codon position 1; 2) codon position 2;
 
 
+#### Search list of mutations (codon level) for matching target mutation (codon level)
+This corresponds to, for example, when one needs to search a database of recurrent mutations or driver/hotspot mutations for a target mutation.
+
+
+
+
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
