@@ -220,6 +220,7 @@ class Transcript():
                     nc = NonCoding()
                     nc.gene = self.gene
                     nc.region = 'intronic'
+                    # print np[i-1], npos, pos
                     if npos - np[i-1] < pos - npos:
                         nc.relative_coding_pos = npos - np[i-1]
                         nc.closest_coding_pos = i # 1-based
@@ -249,6 +250,7 @@ class Transcript():
                     nc = NonCoding()
                     nc.gene = self.gene
                     nc.region = 'intronic'
+                    # print pos, npos, np[i-1]
                     if np[i-1] - npos < npos - pos:
                         nc.relative_coding_pos = np[i-1] - npos
                         nc.closest_coding_pos = i # 1-based
