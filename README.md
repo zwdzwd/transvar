@@ -33,6 +33,7 @@ ioan codonanno -a hg19.map -c PIK3CA:E545K
 ```
 #!bash
 ioan codonsearch -a hg19.map -c PIK3CA:E545K
+```
 
 #### Infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
