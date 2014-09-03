@@ -32,3 +32,14 @@ def parse_indices(indstr):
             indices.extend(int(rg)-1, int(rg))
 
     return indices
+
+
+def opengz(fn):
+    
+    if fn.endswith('.gz'):
+        import gzip
+        fh = gzip.open(fn)
+    else:
+        fh = open(fn)
+
+    return fh

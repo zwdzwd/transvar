@@ -12,16 +12,19 @@ from codoneq import add_parser_codoneq
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    # parser = argparse.ArgumentParser(description=__doc__)
 
-    subparsers = parser.add_subparsers()
-    add_parser_codonanno(subparsers)
-    add_parser_nucanno(subparsers)
-    add_parser_codoneq(subparsers)
-    add_parser_codonsearch(subparsers)
+    # subparsers = parser.add_subparsers()
+    # add_parser_codonanno(subparsers)
+    # add_parser_nucanno(subparsers)
+    # add_parser_codoneq(subparsers)
+    # add_parser_codonsearch(subparsers)
 
-    # psr_infrtrns = psrs.add_parser('infer.transcript', help='infer transcript from nucleotide and amino acid position')
+    # # psr_infrtrns = psrs.add_parser('infer.transcript', help='infer transcript from nucleotide and amino acid position')
 
-    args = parser.parse_args()
-    args.func(args)
+    # args = parser.parse_args()
+    # args.func(args)
 
+    from transcripts import parse_refseq_gff, parse_ensembl_gtf
+    # parse_refseq_gff('/home/wzhou1/reference/refseq/ref_GRCh37.p13_top_level.gff3.gz')
+    parse_ensembl_gtf('/home/wzhou1/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz')
