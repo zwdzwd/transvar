@@ -40,7 +40,7 @@ Given two amino acid positions and infer potential identity due to different usa
 
 ```
 #!bash
-ioan codonanno -a hg19.map -c 
+ioan codoneq -a hg19.map -c 
 ```
 
  + input: 1) codon position 1; 2) codon position 2;
