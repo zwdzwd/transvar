@@ -380,7 +380,7 @@ class Region():
 
 def parse_refseq_gff(gff_fn):
 
-    sys.stderr.write("Loading refseq gff file..\n")
+    sys.stderr.write("Loading RefSeq GFF3 file..\n")
     name2gene = {}
     id2ent = {}
 
@@ -412,11 +412,9 @@ def parse_refseq_gff(gff_fn):
             t.beg = int(fields[3])
             t.end = int(fields[4])
             t.name = info['Name']
-            tid = info['ID']
-            gene = id2ent[info['Parent']]
-            t.gene = gene
-            gene.tpts.append(t)
-            id2ent[tid] = t
+            t.gene = id2ent[info['Parent']]
+            t.gene.tpts.append(t)
+            id2ent[info['ID']] = t
         elif fields[2] == 'exon' and info['Parent'] in id2ent:
             t = id2ent[info['Parent']]
             if (isinstance(t, Gene)):
@@ -479,7 +477,7 @@ def parse_refseq_gff(gff_fn):
 def parse_ensembl_gtf(gtf_fn):
     """ gtf file is gffv2 """
 
-    sys.stderr.write("Loading Ensembl gtf file..\n")
+    sys.stderr.write("Loading Ensembl GTF file..\n")
     name2gene = {}
     gtf_fh = opengz(gtf_fn)
     id2ent = {}
@@ -498,9 +496,182 @@ def parse_ensembl_gtf(gtf_fn):
             id2ent[info['gene_id']] = g
             if info['gene_biotype'] == 'pseudogene':
                 g.pseudo = True
-        elif fields[2] == 'transcript'
+        elif fields[2] == 'transcript':
+            t = Transcript()
+            t.chrm = fields[0]
+            t.strand = fields[6]
+            t.beg = int(fields[3])
+            t.end = int(fields[4])
+            t.name = info['transcript_id']
+            t.gene = id2ent[info['gene_id']]
+            t.gene.tpts.append(t)
+            id2ent[t.name] = t
+        elif fields[2] == 'exon':
+            t = id2ent[info['transcript_id']]
+            t.cds.append((int(fields[3]), int(fields[4])))
 
-    return
+    # build thash
+    thash = THash()
+    names_no_tpts = []
+    for name, gene in name2gene.iteritems():
+        if not gene.tpts:
+            names_no_tpts.append(name)
+            continue
+        for t in gene.tpts:
+            t.exons.sort()
+            if t.cds:
+                t.cds.sort()
+                t.cds_beg = t.cds[0][0]
+                t.cds_end = t.cds[-1][1]
+            else:
+                t.cds_beg = t.beg
+                t.cds_end = t.end
+            thash.insert(t)
+            if len(t) == 0:     # if no exon, use cds
+                t.exons = t.cds[:]
+
+        gene.std_tpt = gene.longest_tpt()
+
+    # remove genes with no name
+    for name in names_no_tpts:
+        del name2gene[name]
+
+    sys.stderr.write("Loaded %d genes with transcripts.\n" % len(name2gene))
+    return name2gene, thash
+
+def parse_ccds_table(ccds_fn):
+
+    sys.stderr.write("Loading CCDS table txt..\n")
+    name2gene = {}
+    ccds_fh = open(ccds_fn)
+
+    ccds_fh.readline()
+    for line in ccds_fh:
+        fields = line.strip().split('\t')
+        if fields[5] != 'Public':
+            continue
+        gene_name = fields[2]
+        if gene_name not in name2gene:
+            name2gene[gene_name] = Gene(fields[2])
+
+        g = name2gene[gene_name]
+        t = Transcript()
+        t.chrm = fields[0]
+        t.strand = fields[6]
+        t.cds_beg = int(fields[7])
+        t.cds_end = int(fields[8])
+        t.name = fields[4]
+        t.cds = [(int(b), int(e)) for b,e in re.findall(r"[\s\[](\d+)-(\d+)[,\]]", fields[9])]
+
+    thash = THash()
+    for name, gene in name2gene.iteritems():
+        for t in gene.tpts:
+            thash.insert(t)
+            if len(t) == 0:     # if no exon, use cds
+                t.exons = t.cds[:]
+
+            gene.std_tpt = gene.longest_tpt()
+
+    sys.stderr.write("Loaded %d genes with transcripts.\n" % len(name2gene))
+    return name2gene, thash
+
+def parse_ucsc_table(kg_fn, alias_fn):
+
+    id2ent = {}
+    kg_fh = opengz(kg_fn)
+    thash = THash()
+    for line in kg_fh:
+        if line.startswith('#'): continue
+        fields = line.strip().split('\t')
+        g = Gene(fields[0])
+        id2ent[fields[0]] = g
+        t = Transcript()
+        t.chrm = fields[1]
+        t.strand = fields[2]
+        t.beg = int(fields[3])
+        t.end = int(fields[4])
+        t.cds_beg = int(fields[5])
+        t.cds_end = int(fields[6])
+        ex_begs, ex_ends = fields[8], fields[9]
+        for ex_beg, ex_end in zip(map(int, ex_begs.strip(',').split(',')),
+                                  map(int, ex_ends.strip(',').split(','))):
+            t.exons.append((ex_beg, ex_end))
+        t.exons.sort()
+        g.tpts.append(t)
+        t.gene = g
+        thash.insert(t)
+        
+    name2gene = {}
+    alias_fh = opengz(alias_fn)
+    for line in alias_fh:
+        if line.startswith('#'): continue
+        fields = line.strip().split('\t')
+        name2gene[fields[1]] = id2ent[fields[0]]
+        
+    sys.stderr.write("Loaded %d genes with transcripts.\n" % len(id2ent))
+    return name2gene, thash
+
+def parse_gencode_gtf(gencode_fn):
+
+    sys.stderr.write("Loading GENCODE GTF file..\n")
+    name2gene = {}
+    id2ent = {}
+    gencode_fh = opengz(gencode_fn)
+    for line in gencode_fh:
+        if line.startswith('#'): continue
+        fields = line.strip().split('\t')
+        info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+        if fields[2] == 'gene':
+            gene_name = info['gene_name']
+            g = Gene(gene_name)
+            g.beg = int(fields[3])
+            g.end = int(fields[4])
+            name2gene[gene_name] = g
+            id2ent[info['gene_id']] = g
+            if info['gene_type'] == 'pseudogene':
+                g.pseudo = True
+        elif fields[2] == 'transcript':
+            t = Transcript()
+            t.chrm = fields[0]
+            t.strand = fields[6]
+            t.beg = int(fields[3])
+            t.end = int(fields[4])
+            t.name = info['transcript_id']
+            t.gene = id2ent[info['gene_id']]
+            t.gene.tpts.append(t)
+            id2ent[t.name] = t
+        elif fields[2] == 'exon':
+            t = id2ent[info['transcript_id']]
+            t.cds.append((int(fields[3]), int(fields[4])))
+
+    # build thash
+    thash = THash()
+    names_no_tpts = []
+    for name, gene in name2gene.iteritems():
+        if not gene.tpts:
+            names_no_tpts.append(name)
+            continue
+        for t in gene.tpts:
+            t.exons.sort()
+            if t.cds:
+                t.cds.sort()
+                t.cds_beg = t.cds[0][0]
+                t.cds_end = t.cds[-1][1]
+            else:
+                t.cds_beg = t.beg
+                t.cds_end = t.end
+            thash.insert(t)
+            if len(t) == 0:     # if no exon, use cds
+                t.exons = t.cds[:]
+
+        gene.std_tpt = gene.longest_tpt()
+
+    # remove genes with no name
+    for name in names_no_tpts:
+        del name2gene[name]
+
+    sys.stderr.write("Loaded %d genes with transcripts.\n" % len(name2gene))
+    return name2gene, thash
 
 def codondiff(c1, c2):
 

@@ -25,6 +25,12 @@ if __name__ == '__main__':
     # args = parser.parse_args()
     # args.func(args)
 
-    from transcripts import parse_refseq_gff, parse_ensembl_gtf
+    # from transcripts import parse_refseq_gff, parse_ensembl_gtf, parse_ccds_table
     # parse_refseq_gff('/home/wzhou1/reference/refseq/ref_GRCh37.p13_top_level.gff3.gz')
-    parse_ensembl_gtf('/home/wzhou1/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz')
+    # parse_ensembl_gtf('/home/wzhou1/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz')
+    # parse_ccds_table('/home/wzhou1/reference/CCDS/Hs37.3/CCDS.current.txt')
+    # from transcripts import parse_ucsc_table
+    # parse_ucsc_table('/home/wzhou1/reference/UCSC/UCSC_knownGene_hg19.gz', '/home/wzhou1/reference/UCSC/UCSC_kgAlias.gz')
+    
+    from transcripts import parse_gencode_gtf
+    parse_gencode_gtf('/home/wzhou1/reference/GENCODE/gencode.v19.annotation.gtf.gz')
