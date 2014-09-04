@@ -3,7 +3,7 @@ annotate a codon position or an amino acid change
 """
 import sys, argparse, re
 from transcripts import *
-
+from utils import *
 def codon_mutation(args, gene, pos, ref, alt):
 
     if alt not in reverse_codon_table:
@@ -132,7 +132,7 @@ def main_one(args, name2gene):
 
 def main(args):
 
-    name2gene, thash = parse_annotation(args.annotation_file)
+    name2gene, thash = parse_annotation(args)
 
     if args.codon_list:
         main_list(args, name2gene)
@@ -143,10 +143,7 @@ def main(args):
 def add_parser_codonanno(subparsers):
 
     parser = subparsers.add_parser("codonanno", help=__doc__)
-    parser.add_argument('-a',
-                        required = True,
-                        dest='annotation_file', 
-                        help='protein annotation file')
+    parser_add_annotation(parser)
     parser.add_argument('-c',
                         dest="codon",
                         default=None,
