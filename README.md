@@ -1,4 +1,4 @@
-**Ioan** is a reverse annotator for resolving ambiguous mutation annotations. Ioan can read files in their .gz format.
+**Ioan** is a reverse annotator for resolving ambiguous mutation annotations. It is for discovering discrepancy in annotation due to difference in transcript usage. Ioan can read files in their .gz format.
 
 --------
 
@@ -17,6 +17,12 @@
 ```
 
 ### Usage
+
+#### search alternative identifiers
+
+
+#### search a list of mutations accounting of potential difference in transcript usage
+
 
 #### Find nucleotide position(s) given amino acid positions
 
