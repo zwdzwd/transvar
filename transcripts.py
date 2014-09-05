@@ -128,7 +128,17 @@ class Transcript():
         else:
             return reduce(lambda x,y: x+y,
                           [end-beg+1 for beg, end in self.exons], 0)
-        
+
+    def ensure_seq(self):
+        seq = Transcript.refseq.fetch_sequence(self.chrm, self.beg, self.end)
+        segs = []
+        for ex_beg, ex_end in self.exons:
+            beg = max(ex_beg, self.cds_beg)
+            end = min(ex_end, self.cds_end)
+            if beg <= end:
+                segs.append(seq[beg-self.beg:end+1-self.beg])
+        self.seq = ''.join(segs)
+
     def __repr__(self):
         if self.gene:
             return "<Transcript for %s: %s(%s):%d-%d>" % (self.gene.name, self.chrm, self.strand, self.beg, self.end)
@@ -144,6 +154,7 @@ class Transcript():
         i.e., (200,300) means the first base is 200
         the last base is 300
         """
+        self.ensure_seq()
         cpos = int(cpos)
         if self.strand == "+":
             np = []
@@ -164,7 +175,6 @@ class Transcript():
                 return codon
             else:
                 return Codon()
-
         else:
             np = []
             for beg, end in reversed(self.exons):
@@ -186,6 +196,7 @@ class Transcript():
                 return Codon()
 
     def npos2codon(self, chrm, npos):
+        self.ensure_seq()
         npos = int(npos)
         if chrm != self.chrm:
             raise Exception("Wrong chromosome.\n")
@@ -297,11 +308,9 @@ class Gene():
 
         return self.std_tpt.cpos2codon(cpos)
 
-def parse_ucsc_refgene_customized(map_file):
+def parse_ucsc_refgene_customized(map_file, name2gene):
 
-    name2gene = {}
-    thash = THash()
-
+    cnt = 0
     for line in open(map_file):
         fields = line.strip().split()
         gene_name = fields[0]
@@ -320,7 +329,7 @@ def parse_ucsc_refgene_customized(map_file):
         t.cds_beg = int(fields[5])
         t.cds_end = int(fields[6])
         ex_begs, ex_ends = fields[8], fields[9]
-        
+
         for ex_beg, ex_end in zip(map(int, ex_begs.split(',')),
                                   map(int, ex_ends.split(','))):
             t.exons.append((ex_beg, ex_end))
@@ -328,12 +337,11 @@ def parse_ucsc_refgene_customized(map_file):
         t.exons.sort() # keep exons sorted
         gene.tpts.append(t)
         t.gene = gene
-        thash.insert(t)
+        cnt += 1
 
-    for gene in name2gene.itervalues():
-        gene.std_tpt = gene.longest_tpt()
+    sys.stderr.write('[%s] Loaded %d transcripts from UCSC refgene (customized).\n' % (__name__, cnt))
 
-    return name2gene, thash
+    return
 
 class Region():
 
@@ -343,12 +351,12 @@ class Region():
         self.beg = beg
         self.end = end
 
-def parse_refseq_gff(gff_fn, name2gene, thash):
+def parse_refseq_gff(gff_fn, name2gene):
 
-    sys.stderr.write("Loading RefSeq GFF3 file..\n")
     id2ent = {}
     gff_fh = opengz(gff_fn)
     reg = None
+    cnt = 0
     for line in gff_fh:
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
@@ -359,7 +367,8 @@ def parse_refseq_gff(gff_fn, name2gene, thash):
                 reg = Region(info['Name'], int(fields[3]), int(fields[4]))
             else:
                 reg = None
-        elif reg and fields[2] == 'gene':
+        elif (reg and fields[2] == 'gene' and
+              ('pseudo' not in info or info['pseudo'] != 'true')):
             gene_name = info['Name']
             if gene_name in name2gene:
                 g = name2gene[gene_name]
@@ -369,8 +378,6 @@ def parse_refseq_gff(gff_fn, name2gene, thash):
             g.beg = int(fields[3])
             g.end = int(fields[4])
             id2ent[info['ID']] = g
-            if 'pseudo' in info and info['pseudo'] == 'true':
-                g.pseudo = True
         elif fields[2] == 'mRNA' and info['Parent'] in id2ent:
             t = Transcript()
             t.chrm = reg.name
@@ -382,6 +389,7 @@ def parse_refseq_gff(gff_fn, name2gene, thash):
             t.gene.tpts.append(t)
             t.source = 'RefSeq'
             id2ent[info['ID']] = t
+            cnt += 1
         elif fields[2] == 'exon' and info['Parent'] in id2ent:
             t = id2ent[info['Parent']]
             if (isinstance(t, Gene)):
@@ -395,6 +403,7 @@ def parse_refseq_gff(gff_fn, name2gene, thash):
                     g.gene_t.beg = g.beg
                     g.gene_t.end = g.end
                     g.gene_t.source = 'RefSeq'
+                    cnt += 1
                 t = g.gene_t
             t.exons.append((int(fields[3]), int(fields[4])))
         elif fields[2] == 'CDS' and info['Parent'] in id2ent:
@@ -410,21 +419,24 @@ def parse_refseq_gff(gff_fn, name2gene, thash):
                     g.gene_t.beg = g.beg
                     g.gene_t.end = g.end
                     g.gene_t.source = 'RefSeq'
+                    cnt += 1
                 t = g.gene_t
             t.cds.append((int(fields[3]), int(fields[4])))
 
-def parse_ensembl_gtf(gtf_fn):
+    sys.stderr.write("[%s] Loaded %d transcripts from RefSeq GFF3 file.\n" % (__name__, cnt))
+
+def parse_ensembl_gtf(gtf_fn, name2gene):
     """ gtf file is gffv2 """
 
-    sys.stderr.write("Loading Ensembl GTF file..\n")
     gtf_fh = opengz(gtf_fn)
     id2ent = {}
+    cnt = 0
     for line in gtf_fh:
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
         # info = dict([_.split('=') for _ in fields[8].split(';')])
-        if fields[2] == 'gene':
+        if fields[2] == 'gene' and info['gene_biotype'] == 'protein_coding':
             gene_name = info['gene_name']
             if gene_name in name2gene:
                 g = name2gene[gene_name]
@@ -434,9 +446,7 @@ def parse_ensembl_gtf(gtf_fn):
             g.beg = int(fields[3])
             g.end = int(fields[4])
             id2ent[info['gene_id']] = g
-            if info['gene_biotype'] == 'pseudogene':
-                g.pseudo = True
-        elif fields[2] == 'transcript':
+        elif fields[2] == 'transcript' and info['gene_biotype'] == 'protein_coding':
             t = Transcript()
             t.chrm = fields[0]
             t.strand = fields[6]
@@ -447,16 +457,18 @@ def parse_ensembl_gtf(gtf_fn):
             t.gene.tpts.append(t)
             t.source = 'Ensembl'
             id2ent[t.name] = t
-        elif fields[2] == 'exon':
+            cnt += 1
+        elif fields[2] == 'exon' and info['gene_biotype'] == 'protein_coding':
             t = id2ent[info['transcript_id']]
             t.cds.append((int(fields[3]), int(fields[4])))
 
+    sys.stderr.write("[%s] Loaded %d transcripts from Ensembl GTF file.\n" % (__name__, cnt))
 
-def parse_ccds_table(ccds_fn, name2gene, thash):
+def parse_ccds_table(ccds_fn, name2gene):
 
-    sys.stderr.write("Loading CCDS table txt..\n")
     ccds_fh = open(ccds_fn)
     ccds_fh.readline()
+    cnt = 0
     for line in ccds_fh:
         fields = line.strip().split('\t')
         if fields[5] != 'Public':
@@ -469,14 +481,23 @@ def parse_ccds_table(ccds_fn, name2gene, thash):
         t = Transcript()
         t.chrm = fields[0]
         t.strand = fields[6]
-        t.cds_beg = int(fields[7])
-        t.cds_end = int(fields[8])
+        t.cds_beg = int(fields[7])+1
+        t.cds_end = int(fields[8])+1
+
+        # without UTR information, take CDS boundary as the exon boundary
+        t.beg = t.cds_beg
+        t.end = t.cds_end
+
         t.name = fields[4]
-        t.cds = [(int(b), int(e)) for b,e in re.findall(r"[\s\[](\d+)-(\d+)[,\]]", fields[9])]
+        t.cds = [(int(b)+1, int(e)+1) for b,e in re.findall(r"[\s\[](\d+)-(\d+)[,\]]", fields[9])]
         t.source = 'CDDS'
+        t.gene = g
+        g.tpts.append(t)
+        cnt += 1
 
+    sys.stderr.write("[%s] Loaded %d transcripts from CCDS table.\n" % (__name__, cnt))
 
-def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene, thash):
+def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
 
     kg_fh = opengz(kg_fn)
     id2aliases = {}
@@ -490,17 +511,25 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene, thash):
             else:
                 id2aliases[fields[0]] = [fields[1]]
 
+    cnt = 0
     for line in kg_fh:
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         g = None
-        for alias in id2aliases[fields[0]]:
-            if alias in name2gene:
-                g = name2gene[alias]
-        if not g:
-            g = Gene(fields[0])
-        for alias in id2aliases[fields[0]]:
-            name2gene[alias] = g
+        if fields[0] in id2aliases:
+            for alias in id2aliases[fields[0]]:
+                if alias in name2gene:
+                    g = name2gene[alias]
+            if not g:
+                g = Gene(fields[0])
+            for alias in id2aliases[fields[0]]:
+                name2gene[alias] = g
+        else:
+            if fields[0] in name2gene:
+                g = name2gene[fields[0]]
+            else:
+                g = Gene(fields[0])
+            name2gene[fields[0]] = g
 
         t = Transcript()
         t.chrm = fields[1]
@@ -517,13 +546,15 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene, thash):
         t.exons.sort()
         g.tpts.append(t)
         t.gene = g
+        cnt += 1
 
+    sys.stderr.write("[%s] Loaded %d transcripts from UCSC knownGene table.\n" % (__name__, cnt))
 
-def parse_gencode_gtf(gencode_fn, name2gene, thash):
+def parse_gencode_gtf(gencode_fn, name2gene):
 
-    sys.stderr.write("Loading GENCODE GTF file..\n")
     id2ent = {}
     gencode_fh = opengz(gencode_fn)
+    cnt = 0
     for line in gencode_fh:
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
@@ -540,7 +571,7 @@ def parse_gencode_gtf(gencode_fn, name2gene, thash):
             id2ent[info['gene_id']] = g
             if info['gene_type'] == 'pseudogene':
                 g.pseudo = True
-        elif fields[2] == 'transcript':
+        elif fields[2] == 'transcript' and info['gene_type'] == 'protein_coding':
             t = Transcript()
             t.chrm = fields[0]
             t.strand = fields[6]
@@ -551,9 +582,15 @@ def parse_gencode_gtf(gencode_fn, name2gene, thash):
             t.gene.tpts.append(t)
             t.source = 'GENCODE'
             id2ent[t.name] = t
-        elif fields[2] == 'exon':
+            cnt += 1
+        elif fields[2] == 'exon' and info['gene_type'] == 'protein_coding':
+            t = id2ent[info['transcript_id']]
+            t.exons.append((int(fields[3]), int(fields[4])))
+        elif fields[2] == 'CDS' and info['gene_type'] == 'protein_coding':
             t = id2ent[info['transcript_id']]
             t.cds.append((int(fields[3]), int(fields[4])))
+
+    sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, cnt))
 
 def codondiff(c1, c2):
 

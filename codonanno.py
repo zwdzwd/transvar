@@ -4,6 +4,7 @@ annotate a codon position or an amino acid change
 import sys, argparse, re
 from transcripts import *
 from utils import *
+
 def codon_mutation(args, gene, pos, ref, alt):
 
     if alt not in reverse_codon_table:
@@ -149,7 +150,7 @@ def add_parser_codonanno(subparsers):
                         default=None,
                         help='<gene>:[<ref>]<pos>[<alt>], E.g., MET:1010, PIK3CA:E545K')
     parser.add_argument('-l',
-                        dest="codon_list", 
+                        dest="codon_list",
                         default=None,
                         type = argparse.FileType('r'), 
                         help='codon list file')
