@@ -97,6 +97,16 @@ class Codon():
         else:
             return "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA"
 
+
+def codondiff(c1, c2):
+
+    diff = []
+    for i in xrange(3):
+        if c1[i] != c2[i]:
+            diff.append(i)
+
+    return diff
+
 class NonCoding():
 
     def __init__(self):
@@ -328,6 +338,8 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
         t.seq    = fields[-1]
         t.cds_beg = int(fields[5])
         t.cds_end = int(fields[6])
+        t.source = 'UCSC_refGene'
+        t.name = '.'
         ex_begs, ex_ends = fields[8], fields[9]
 
         for ex_beg, ex_end in zip(map(int, ex_begs.split(',')),
@@ -459,6 +471,9 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             id2ent[t.name] = t
             cnt += 1
         elif fields[2] == 'exon' and info['gene_biotype'] == 'protein_coding':
+            t = id2ent[info['transcript_id']]
+            t.exons.append((int(fields[3]), int(fields[4])))
+        elif fields[2] == 'CDS' and info['gene_biotype'] == 'protein_coding':
             t = id2ent[info['transcript_id']]
             t.cds.append((int(fields[3]), int(fields[4])))
 
@@ -592,12 +607,4 @@ def parse_gencode_gtf(gencode_fn, name2gene):
 
     sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, cnt))
 
-def codondiff(c1, c2):
-
-    diff = []
-    for i in xrange(3):
-        if c1[i] != c2[i]:
-            diff.append(i)
-
-    return diff
 

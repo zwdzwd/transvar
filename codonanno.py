@@ -25,27 +25,27 @@ def codon_mutation(args, gene, pos, ref, alt):
             continue
 
         tgt_codon_seqs = reverse_codon_table[alt]
-        tgt_codon_seqs.sort(key=lambda x: len(codondiff(x, codon.seq)))
-        tgt_codon_seq = tgt_codon_seqs[0]
-        diff = codondiff(tgt_codon_seq, codon.seq)
-        if (len(diff) == 1):
-            if codon.strand == "+":
-                baseloc = codon.locs[diff[0]]
-                refbase = codon.seq[diff[0]]
-                varbase = tgt_codon_seq[diff[0]]
-            else:
-                baseloc = codon.locs[2-diff[0]]
-                refbase = complement(codon.seq[diff[0]])
-                varbase = complement(tgt_codon_seq[diff[0]])
-            mutloc = "%s:%d\t%s\t%s" % (codon.chrm, baseloc, refbase, varbase)
-        else:
-            mutloc = "-1\tNA\tNA\tno one-base transition"
-
+        diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
+        baseloc_list = []
+        refbase_list = []
+        varbase_list = []
+        for i, diff in enumerate(diffs):
+            if len(diff) == 1:
+                if codon.strand == "+":
+                    baseloc_list.append(str(codon.locs[diff[0]]))
+                    refbase_list.append(codon.seq[diff[0]])
+                    varbase_list.append(tgt_codon_seqs[i][diff[0]])
+                else:
+                    baseloc_list.append(str(codon.locs[2-diff[0]]))
+                    refbase_list.append(complement(codon.seq[diff[0]]))
+                    varbase_list.append(complement(tgt_codon_seqs[i][diff[0]]))
+        
+        mutloc = "%s\t%s\t%s" % (','.join(baseloc_list), ','.join(refbase_list), ','.join(varbase_list))
         candidates = ','.join(tgt_codon_seqs)
 
-        return "%s\t%s=>%s\t%s\t%s" % (codon.format(), ref, alt, mutloc, candidates)
+        return "%s\t%s\t%s\t%s=>%s\t%s\t%s" % (tpt.source, tpt.name, codon.format(), ref, alt, mutloc, candidates)
 
-    return 'NA\tno transcripts matching reference amino acid'
+    return 'no transcripts matching reference amino acid'
 
 def main_list(args, name2gene):
 
@@ -74,7 +74,7 @@ def main_list(args, name2gene):
             m = re.match(r'([^:]*):([A-Z*]?)(\d+)([A-Z*]?)',
                          fields[args.col_gp-1])
             if not m:
-                sys.stderr.write("[Warning] abnormal <gene>:<pos> format. skip.\n" % fields[args.col_gp-1])
+                sys.stderr.write("[Warning] abnormal input %s. skip.\n" % fields[args.col_gp-1])
                 continue
             gn_name = m.group(1)
             ref = m.group(2)
