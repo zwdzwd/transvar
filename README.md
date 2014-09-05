@@ -40,7 +40,7 @@ Given two amino acid positions and infer potential identity due to different usa
 
 ```
 #!bash
-ioan codoneq -c MET.p1010 MET.p992 --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz --ref ~/reference/hs37d5.fa
+$ ioan codoneq -c MET.p1010 MET.p992 --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz --ref ~/reference/hs37d5.fa
 
 MET 1010
 transcript [ENST00000397752] 1  codon: 116412043-116414935-116414936
