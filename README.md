@@ -22,9 +22,15 @@
 
 ```
 #!bash
-ioan codonanno -a hg19.map -c PIK3CA:E545K
+ioan codonanno --ref ~/reference/hs37d5.fa
+    --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt
+    -c PIK3CA:E545K
 ```
-
+outputs
+```
+PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
+ 3   178936091   178936092   178936093   GAG  +   E=>K 178936091  G  A       AAG,AAA
+```
  + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
  + output: 1) annotation;
 
@@ -40,8 +46,12 @@ Given two amino acid positions and infer potential identity due to different usa
 
 ```
 #!bash
-$ ioan codoneq -c MET.p1010 MET.p992 --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz --ref ~/reference/hs37d5.fa
-
+$ ioan codoneq -c MET.p1010 MET.p992
+     --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz
+     --ref ~/reference/hs37d5.fa
+```
+gives
+```
 MET 1010
 transcript [ENST00000397752] 1  codon: 116412043-116414935-116414936
 transcript [ENST00000318493] 2  codon: 116411989-116411990-116411991
