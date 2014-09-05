@@ -40,7 +40,17 @@ Given two amino acid positions and infer potential identity due to different usa
 
 ```
 #!bash
-ioan codoneq -a hg19.map -c 
+ioan codoneq -c MET.p1010 MET.p992 --ucsc2 ~/reference/hg19.map
+
+[transcripts] Loaded 30505 transcripts from UCSC refgene (customized).
+[utils] Loaded 19597 genes.
+MET 1010
+transcript [.] 0        codon: 116412043-116414935-116414936
+transcript [.] 1        codon: 116411989-116411990-116411991
+MET 992
+transcript [.] 0        codon: 116411989,116411990,116411991
+transcript [.] 1        codon: 116411935,116411936,116411937
+Genomic location might be the same.
 ```
 
  + input: 1) codon position 1; 2) codon position 2;
