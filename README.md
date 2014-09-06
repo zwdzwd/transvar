@@ -18,13 +18,14 @@
 
 ### Usage
 
-#### search alternative identifiers
+#### search alternative codon identifiers
+Given a codon identifier, search the transcript annotations for alternative (codon) identifiers
+```
+ioan codonsearch 
 
+```
 
-#### search a list of mutations accounting of potential difference in transcript usage
-
-
-#### Find nucleotide position(s) given amino acid positions
+#### reverse annotate amino acid mutation
 
 ```
 #!bash
@@ -35,19 +36,20 @@ ioan codonanno --ref ~/reference/hs37d5.fa
 outputs
 ```
 PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
- 3   178936091   178936092   178936093   GAG  +   E=>K 178936091  G  A       AAG,AAA
+ 3   178936091   178936092   178936093   GAG  +   E=>K \
+178936091  G  A       AAG,AAA
 ```
  + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
  + output: 1) annotation;
 
-#### Find amino acid position(s) given amino acid positions
+#### reverse annotate nucleotide mutation
 
 ```
 #!bash
 ioan codonsearch -a hg19.map -c PIK3CA:E545K
 ```
 
-#### Infer potential codon identity
+#### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
 
 ```
@@ -70,14 +72,7 @@ Genomic location might be the same.
 
  + input: 1) gene-codon position 1; 2) gene-codon position 2; 3) annotation database
 
-#### Search list of mutations (codon level) for matching target mutation (codon level)
-This corresponds to, for example, when one needs to search a database of recurrent mutations or driver/hotspot mutations for a target mutation.
 
-
-```
-#!bash
-ioan codonmatch -a hg19.map -c
-```
 
 
 ## About
