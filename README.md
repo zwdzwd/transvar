@@ -19,21 +19,43 @@
 
 #### transcript annotations
 
+The following list the transcript annotations supported by ioan. Ioan can take a combination of these transcript annotations as long as these annotations are based on the same version of reference assembly.
+
 ##### Ensembl (GTF)
 
-http://http://www.ensembl.org/info/data/ftp/index.html
+ + available [here](http://http://www.ensembl.org/info/data/ftp/index.html)
 
-can be used in ioan via ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
+ + used in ioan via option ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
 
-##### NCBI RefSeq (GFF3) [download link](ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz)
+##### NCBI RefSeq (GFF3)
 
-can be used in ioan via option ```--refseq ref_GRCh37.p13_top_level.gff3.gz```
+ + available [here](ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz)
 
-##### CCDS (table format)
+ + used in ioan via option ```--refseq ref_GRCh37.p13_top_level.gff3.gz```
 
-http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi
+##### CCDS (table)
 
-used in ioan via option ```--ccds CCDS.current.txt```
+ + available [here](http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi)
+
+ + used in ioan via option ```--ccds CCDS.current.txt```
+
+##### GENCODE (GTF)
+
+ + available [here](http://www.gencodegenes.org/releases/19.html)
+
+ + used in ioan via option ```--gencode gencode.v19.annotation.gtf.gz```
+
+##### UCSC knownGene (table)
+
+ + available [here](https://genome.ucsc.edu/cgi-bin/hgTables?command=start)
+
+ + used in ioan via option ```--kg UCSC_knownGene_hg19.gz --alias UCSC_kgAlias.gz```
+
+##### RefGene via UCSC (table)
+
+ + available [here](https://genome.ucsc.edu/cgi-bin/hgTables?command=start)
+
+ + used in ioan via option ```--ucsc2 hg19.map```
 
 ### Usage
 
