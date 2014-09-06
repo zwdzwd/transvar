@@ -1,4 +1,4 @@
-**Ioan** is a reverse annotator for inferring genomic characterization(s) given transcript-dependent mutation annotation(s). It is designed for discovering discrepancies in annotation due to differential transcript usage, hence resolving ambiguous mutation annotations. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read files in their .gz format.
+**Ioan** is a reverse annotator for inferring genomic characterization(s) of mutational events (e.g., chr3:178936091 G=>A) from transcript-dependent mutation annotation(s). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read files in their .gz format.
 
 --------
 
