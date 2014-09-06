@@ -80,7 +80,7 @@ PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
 
 
 #### reverse annotate nucleotide mutation
-Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```
+Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
 ioan nucanno -c BRAF:c.1781A>G
