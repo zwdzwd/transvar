@@ -18,12 +18,6 @@
 
 ### Usage
 
-#### search alternative codon identifiers
-Given a codon identifier, search the transcript annotations for alternative (codon) identifiers
-```
-ioan codonsearch 
-
-```
 
 #### reverse annotate amino acid mutation
 
@@ -41,6 +35,7 @@ PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
 ```
  + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
  + output: 1) annotation;
+
 
 #### reverse annotate nucleotide mutation
 
@@ -72,8 +67,13 @@ Genomic location might be the same.
 
  + input: 1) gene-codon position 1; 2) gene-codon position 2; 3) annotation database
 
+#### search alternative codon identifiers
+Given a codon identifier, search the transcript annotations for alternative (codon) identifiers
+```
+ioan codonsearch 
+```
 
-
+#### annotate genomic mutations
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
