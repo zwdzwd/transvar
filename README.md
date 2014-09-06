@@ -65,9 +65,9 @@ Ioan automatically recognizes the amino acid mutations. Acceptable mutation form
 
 ```
 #!bash
-$ ioan codonanno --ref ~/reference/hs37d5.fa \
+$ ioan revanno --ref ~/reference/hs37d5.fa \
     --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt \
-    -c PIK3CA:E545K
+    -i PIK3CA:E545K
 ```
 outputs
 ```
