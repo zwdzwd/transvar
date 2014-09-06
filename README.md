@@ -60,7 +60,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 ### Usage
 
 
-#### reverse annotate amino acid mutation
+#### reverse annotation of amino acid mutations
 Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
@@ -80,7 +80,7 @@ PIK3CA:E545K       CDDS       CCDS43171.1       PIK3CA
  + output: 1) annotation;
 
 
-#### reverse annotate nucleotide mutation
+#### reverse annotation of nucleotide mutations
 Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
