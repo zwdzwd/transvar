@@ -61,7 +61,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 
 #### reverse annotate amino acid mutation
-Ioan automatically recognizes the format of amino acid mutation. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA p.E545K``` or ```PIK3CA p.Glu545Lys```.
+Ioan automatically recognizes the format of amino acid mutation. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```.
 
 ```
 #!bash
@@ -80,10 +80,10 @@ PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
 
 
 #### reverse annotate nucleotide mutation
-
+Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```
 ```
 #!bash
-ioan nucanno -c BRAF.c1781A>G
+ioan nucanno -c BRAF:c.1781A>G
 ```
 
 
