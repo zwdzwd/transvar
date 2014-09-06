@@ -19,25 +19,21 @@
 
 #### transcript annotations
 
-##### Ensembl
-
-in GTF format, can be downloaded from 
+##### Ensembl (GTF)
 
 http://http://www.ensembl.org/info/data/ftp/index.html
 
 can be used in ioan via ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
 
-##### NCBI RefSeq
-
-in GFF3 format, can be downloaded from
-
-ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz
+##### NCBI RefSeq (GFF3) [download link](ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz)
 
 can be used in ioan via option ```--refseq ref_GRCh37.p13_top_level.gff3.gz```
 
-##### CCDS
+##### CCDS (table format)
 
+http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi
 
+used in ioan via option ```--ccds CCDS.current.txt```
 
 ### Usage
 
