@@ -41,8 +41,9 @@ PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
 
 ```
 #!bash
-ioan codonsearch -a hg19.map -c PIK3CA:E545K
+ioan nucanno -c BRAF.c1781A>G
 ```
+
 
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
