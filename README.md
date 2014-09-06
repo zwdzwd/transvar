@@ -102,8 +102,8 @@ Given two amino acid positions and infer potential identity due to different usa
 
 ```
 #!bash
-$ ioan codoneq -c MET.p1010 MET.p992
-     --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz
+$ ioan codoneq -c MET.p1010 MET.p992 \
+     --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz \
      --ref ~/reference/hs37d5.fa
 ```
 gives
