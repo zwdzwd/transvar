@@ -72,8 +72,8 @@ ioan codonanno --ref ~/reference/hs37d5.fa
 outputs
 ```
 #!text
-PIK3CA:E545K     CDDS      CCDS43171.1     PIK3CA    545
-    3     178936091     178936092     178936093
+PIK3CA:E545K       CDDS       CCDS43171.1       PIK3CA 
+    545    3     178936091     178936092     178936093
     GAG    +    E=>K    178936091    G    A       AAG,AAA
 ```
  + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
