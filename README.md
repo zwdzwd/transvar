@@ -108,6 +108,7 @@ $ ioan codoneq -c MET.p1010 MET.p992
 ```
 gives
 ```
+#!text
 MET 1010
 transcript [ENST00000397752] 1  codon: 116412043-116414935-116414936
 transcript [ENST00000318493] 2  codon: 116411989-116411990-116411991
