@@ -140,6 +140,10 @@ class Transcript():
                           [end-beg+1 for beg, end in self.exons], 0)
 
     def ensure_seq(self):
+        if self.seq: return
+        if not Transcript.refseq:
+            sys.stderr.write("Please provide reference through --ref.\n")
+            sys.exit(1)
         seq = Transcript.refseq.fetch_sequence(self.chrm, self.beg, self.end)
         segs = []
         for ex_beg, ex_end in self.exons:
@@ -148,6 +152,8 @@ class Transcript():
             if beg <= end:
                 segs.append(seq[beg-self.beg:end+1-self.beg])
         self.seq = ''.join(segs)
+        if self.strand == '-':
+            self.seq = reverse_complement(self.seq)
 
     def __repr__(self):
         if self.gene:

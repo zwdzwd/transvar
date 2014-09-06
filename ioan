@@ -4,8 +4,8 @@ from itertools import chain
 """ Ioan (IsOform ANnotator) """
 
 
-from codonanno import add_parser_codonanno
-from nucanno import add_parser_nucanno
+from revanno import add_parser_revanno
+from anno import add_parser_anno
 from codonsearch import add_parser_codonsearch
 from codoneq import add_parser_codoneq
 
@@ -15,22 +15,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
 
     subparsers = parser.add_subparsers()
-    add_parser_codonanno(subparsers)
-    add_parser_nucanno(subparsers)
+    add_parser_revanno(subparsers)
+    add_parser_anno(subparsers)
     add_parser_codoneq(subparsers)
     add_parser_codonsearch(subparsers)
 
-    # psr_infrtrns = psrs.add_parser('infer.transcript', help='infer transcript from nucleotide and amino acid position')
-
     args = parser.parse_args()
     args.func(args)
-
-    # from transcripts import parse_refseq_gff, parse_ensembl_gtf, parse_ccds_table
-    # parse_refseq_gff('/home/wzhou1/reference/refseq/ref_GRCh37.p13_top_level.gff3.gz')
-    # parse_ensembl_gtf('/home/wzhou1/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz')
-    # parse_ccds_table('/home/wzhou1/reference/CCDS/Hs37.3/CCDS.current.txt')
-    # from transcripts import parse_ucsc_table
-    # parse_ucsc_table('/home/wzhou1/reference/UCSC/UCSC_knownGene_hg19.gz', '/home/wzhou1/reference/UCSC/UCSC_kgAlias.gz')
-    
-    # from transcripts import parse_gencode_gtf
-    # parse_gencode_gtf('/home/wzhou1/reference/GENCODE/gencode.v19.annotation.gtf.gz')

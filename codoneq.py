@@ -1,32 +1,35 @@
-
-
+"""
+test whether two codon annotations may be the same nucleotide position.
+"""
+import sys, argparse, re
+from utils import *
 
 def main(args):
 
     codon1, codon2 = args.codons
-    name2gene = parse_annotation(args.annotation_file)
+    name2gene, thash = parse_annotation(args)
 
     gene_name, codon_pos = codon1.split('.p')
     print gene_name, codon_pos
     codon_pos = int(codon_pos)
     gene = name2gene[gene_name]
     locs1 = set()
-    for i, trans in enumerate(gene.transcripts):
-        aa_pos = trans.aa_pos2nuc_pos(codon_pos)
-        if aa_pos: 
-            print "transcript %d \tcodon: %s" % (i, "-".join(map(str,aa_pos)))
-            locs1.add(tuple(aa_pos))
+    for i, t in enumerate(gene.tpts):
+        codon = t.cpos2codon(codon_pos)
+        if codon.index > 0:
+            print "transcript [%s] %d \tcodon: %s" % (t.name, i, "-".join(map(str, codon.locs)))
+            locs1.add(codon.locs)
 
     gene_name, codon_pos = codon2.split('.p')
     print gene_name, codon_pos
     codon_pos = int(codon_pos)
     gene = name2gene[gene_name]
     locs2 = set()
-    for i, trans in enumerate(gene.transcripts):
-        aa_pos = trans.aa_pos2nuc_pos(codon_pos)
-        if aa_pos: 
-            print "transcript %d \tcodon: %s" % (i, "-".join(map(str,aa_pos)))
-            locs2.add(tuple(aa_pos))
+    for i, t in enumerate(gene.tpts):
+        codon = t.cpos2codon(codon_pos)
+        if codon.index > 0:
+            print "transcript [%s] %d \tcodon: %s" % (t.name, i, ",".join(map(str, codon.locs)))
+            locs2.add(codon.locs)
 
     if locs1 & locs2:
         print "Genomic location might be the same."
@@ -36,10 +39,7 @@ def main(args):
 
 def add_parser_codoneq(subparsers):
 
-    parser = subparsers.add_parser("codoneq", help="test whether two codon annotations may be the same nucleotide position", epilog="Example: prog -c MET.p1010 MET.p992 -a hg19.map")
+    parser = subparsers.add_parser("codoneq", help=__doc__)
     parser.add_argument("-c", nargs=2, help="two codons to test. Format: [gene_name].p[codon_location], e.g., MET.p1010", dest='codons')
-    parser.add_argument('-a', metavar='annotation',
-                        required = True,
-                        dest='annotation_file', 
-                        help='protein annotation file')
+    parser_add_annotation(parser)
     parser.set_defaults(func=main)

@@ -103,7 +103,10 @@ class THash():
 
 def parse_annotation(args):
 
-    trs.Transcript.refseq = RefGenome(args.ref)
+    if args.ref:
+        trs.Transcript.refseq = RefGenome(args.ref)
+    else:
+        trs.Transcript.refseq = None
 
     name2gene = {}
     if args.ensembl:
@@ -136,14 +139,10 @@ def parse_annotation(args):
 
     # index transcripts in a genee
     thash = THash()
-    # cnt = 0
     genes = set(name2gene.values())
     for g in genes:
-        # cnt += 1
-        # if cnt % 10000 == 0:
-        #     sys.stderr.write("\r%d genes processed\033[K" % cnt)
-
         for t in g.tpts:
+            t.exons.sort()
             if not (hasattr(t, 'cds_beg') and hasattr(t, 'cds_end')):
                 if t.cds:
                     t.cds.sort()
@@ -163,7 +162,7 @@ def parse_annotation(args):
 
 def parser_add_annotation(parser):
 
-    parser.add_argument('--ref', required=True, help='indexed reference fasta (with .fai)')
+    parser.add_argument('--ref', default=None, help='indexed reference fasta (with .fai)')
     parser.add_argument('--ensembl', default=None, help='Ensembl GTF transcript annotation')
     parser.add_argument('--gencode', default=None, help='GENCODE GTF transcript annotation')
     parser.add_argument('--kg', default=None, help='UCSC knownGene transcript annotation')

@@ -115,9 +115,9 @@ def main(args):
     if args.npos:
         main_one(args, thash)
     
-def add_parser_nucanno(subparsers):
+def add_parser_anno(subparsers):
 
-    parser = subparsers.add_parser('nucanno', help=__doc__)
+    parser = subparsers.add_parser('anno', help=__doc__)
     parser.add_argument('-a',
                         metavar='annotation',
                         required = True,
