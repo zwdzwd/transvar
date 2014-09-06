@@ -8,6 +8,7 @@
 
 ### Download and Install
 
+#### program
 ```
 #!bash
 
@@ -15,6 +16,28 @@
  $ unzip [downloaded zip]
  $ make
 ```
+
+#### transcript annotations
+
+##### Ensembl
+
+in GTF format, can be downloaded from 
+
+http://http://www.ensembl.org/info/data/ftp/index.html
+
+can be used in ioan via ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
+
+##### NCBI RefSeq
+
+in GFF3 format, can be downloaded from
+
+ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz
+
+can be used in ioan via option ```--refseq ref_GRCh37.p13_top_level.gff3.gz```
+
+##### CCDS
+
+
 
 ### Usage
 
