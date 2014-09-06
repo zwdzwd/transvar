@@ -19,7 +19,7 @@
 
 #### transcript annotations
 
-The following list the transcript annotations supported by ioan. Ioan can take a combination of these transcript annotations as long as these annotations are based on the same version of reference assembly.
+The following list the transcript annotations supported by ioan. Ioan can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 
 ##### Ensembl (GTF)
 
