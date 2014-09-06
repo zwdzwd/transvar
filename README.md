@@ -61,7 +61,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 
 #### reverse annotate amino acid mutation
-Ioan automatically recognizes the format of amino acid mutation. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```.
+Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```.
 
 ```
 #!bash
