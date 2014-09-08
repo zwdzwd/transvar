@@ -1,4 +1,4 @@
-**Ioan** is a reverse annotator for inferring genomic characterization(s) of mutational events (e.g., ```chr3:178936091 G=>A```) from transcript-dependent mutation annotation(s) (e.g., ```PIK3CA p.E545K```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read files in their .gz format. Ioan provides functionality of forward annotation as well.
+**Ioan** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read files in their .gz format. Ioan provides functionality of forward annotation as well.
 
 --------
 
@@ -60,44 +60,49 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 ### Usage
 
 
-#### reverse annotate amino acid mutation
+#### reverse annotation of amino acid mutations
 Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
 #!bash
-ioan codonanno --ref ~/reference/hs37d5.fa
-    --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt
-    -c PIK3CA:E545K
+$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt -i PIK3CA:E545K
 ```
 outputs
 ```
-PIK3CA:E545K    CDDS    CCDS43171.1     PIK3CA  545 \
- 3   178936091   178936092   178936093   GAG  +   E=>K \
-178936091  G  A       AAG,AAA
+#!text
+PIK3CA:E545K       CDDS       CCDS43171.1       PIK3CA 
+    545    3     178936091     178936092     178936093
+    GAG    +     E=>K    178936091    G    A       AAG,AAA
 ```
  + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
  + output: 1) annotation;
 
 
-#### reverse annotate nucleotide mutation
+#### reverse annotation of nucleotide mutations
 Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
-ioan nucanno -c BRAF:c.1781A>G
+$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt -i 'PIK3CA:c.1633G>A'
 ```
+outputs
 
+```
+#!text
+PIK3CA:c.1633G>A        CDDS    CCDS43171.1     PIK3CA
+    545     3       178936091       178936092       178936093
+    GAG     +       E=>K    178936091       G       A
+```
 
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
 
 ```
 #!bash
-$ ioan codoneq -c MET.p1010 MET.p992
-     --ensembl ~/reference/ensembl/Homo_sapiens.GRCh37.75.gtf.gz
-     --ref ~/reference/hs37d5.fa
+$ ioan codoneq -c MET.p1010 MET.p992 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa
 ```
 gives
 ```
+#!text
 MET 1010
 transcript [ENST00000397752] 1  codon: 116412043-116414935-116414936
 transcript [ENST00000318493] 2  codon: 116411989-116411990-116411991
@@ -112,11 +117,46 @@ Genomic location might be the same.
 
 #### search alternative codon identifiers
 Given a codon identifier, search the transcript annotations for alternative (codon) identifiers
-```
-ioan codonsearch 
-```
 
-#### annotate genomic mutations
+```
+#!bash
+$ ioan codonsearch -l input.table --ccds CCDS.current.txt --ref hs37d5.fa -m 1 -o 1
+```
+Example input.table
+```
+#!text
+CDKN2A.p58
+CDKN2A.p61
+CDKN2A.p69
+CDKN2A.p69
+ERBB2.p755
+ERBB2.p755
+```
+outputs
+```
+#!text
+CDKN2A.p58      73      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p61      76      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p69      84      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p69      55      CCDS6511.2[CDDS]/CCDS6510.1[CDDS],CCDS6511.2[CDDS]/CCDS56565.1[CDDS]
+ERBB2.p755      785     CCDS45667.1[CDDS]/CCDS32642.1[CDDS]
+ERBB2.p755      725     CCDS32642.1[CDDS]/CCDS45667.1[CDDS]
+```
+The third column indicates the potential transcript usage for the alternative identifier. Each transcript usage is denoted by <listing transcript>/<actual transcript>. Different potential choices are separated by ','.
+
+#### annotate mutations with genomic locations (forward annotation)
+
+```
+#!bash
+ioan anno --ccds CCDS.current.txt --ref hs37d5.fa -i 'chr3:178936091.G>A'
+```
+outputs
+```
+#!text
+chr3:178936091.G>A      CDDS    CCDS43171.1     PIK3CA
+    545     3       178936091       178936092       178936093
+    GAG     +       E=>K    178936091       G     A
+```
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
