@@ -120,6 +120,30 @@ Given a codon identifier, search the transcript annotations for alternative (cod
 ```
 ioan codonsearch 
 ```
+#!bash
+$ ioan codonsearch -l input.table --ccds CCDS.current.txt --ref hs37d5.fa -m 1 -o 1
+```
+
+input
+```
+#!text
+CDKN2A.p58
+CDKN2A.p61
+CDKN2A.p69
+CDKN2A.p69
+ERBB2.p755
+ERBB2.p755
+```
+
+```
+#!text
+CDKN2A.p58      73      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p61      76      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p69      84      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p69      55      CCDS6511.2[CDDS]/CCDS6510.1[CDDS],CCDS6511.2[CDDS]/CCDS56565.1[CDDS]
+ERBB2.p755      785     CCDS45667.1[CDDS]/CCDS32642.1[CDDS]
+ERBB2.p755      725     CCDS32642.1[CDDS]/CCDS45667.1[CDDS]
+```
 
 #### annotate genomic mutations
 
