@@ -117,14 +117,12 @@ Genomic location might be the same.
 
 #### search alternative codon identifiers
 Given a codon identifier, search the transcript annotations for alternative (codon) identifiers
-```
-ioan codonsearch 
+
 ```
 #!bash
 $ ioan codonsearch -l input.table --ccds CCDS.current.txt --ref hs37d5.fa -m 1 -o 1
 ```
-
-input
+Example input.table
 ```
 #!text
 CDKN2A.p58
@@ -134,7 +132,7 @@ CDKN2A.p69
 ERBB2.p755
 ERBB2.p755
 ```
-
+will output
 ```
 #!text
 CDKN2A.p58      73      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
