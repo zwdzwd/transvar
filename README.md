@@ -132,7 +132,7 @@ CDKN2A.p69
 ERBB2.p755
 ERBB2.p755
 ```
-will output
+outputs
 ```
 #!text
 CDKN2A.p58      73      CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
@@ -142,6 +142,7 @@ CDKN2A.p69      55      CCDS6511.2[CDDS]/CCDS6510.1[CDDS],CCDS6511.2[CDDS]/CCDS5
 ERBB2.p755      785     CCDS45667.1[CDDS]/CCDS32642.1[CDDS]
 ERBB2.p755      725     CCDS32642.1[CDDS]/CCDS45667.1[CDDS]
 ```
+The third column indicates the potential transcript usage for the alternative identifier. Each transcript usage is denoted by <listing transcript>/<actual transcript>. Different potential choices are separated by ','.
 
 #### annotate mutations with genomic locations (forward annotation)
 
