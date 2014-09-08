@@ -147,12 +147,12 @@ ERBB2.p755      725     CCDS32642.1[CDDS]/CCDS45667.1[CDDS]
 
 ```
 #!bash
-ioan anno -i chr3:178936091.G>A --ccds CCDS.current.txt --ref hs37d5.fa
+ioan anno --ccds CCDS.current.txt --ref hs37d5.fa -i 'chr3:178936091.G>A'
 ```
 outputs
 ```
 #!text
-
+chr3:178936091.G>A      CDDS    CCDS43171.1     PIK3CA  545     3       178936091       178936092       178936093       GAG     +       E=>K    178936091       G     A
 ```
 
 ## About
