@@ -4,18 +4,16 @@ annotate a codon position or an amino acid change
 import sys, argparse, re
 from transcripts import *
 from utils import *
-from mutation import parse_mutation_str
+from mutation import parser_add_mutation, parse_mutation_str, list_parse_mutation, mtemplate
 
-def codon_mutation(args, gene, pos, ref, alt):
+def codon_mutation(args, gene, pos, ref, alt, longest_only=False):
 
     if alt != '.' and alt not in reverse_codon_table:
-        sys.stderr.write("Unknown alternative: %s, ignore" % alt)
+        sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % alt)
         alt = '.'
 
-    if args.alltrans:
-        tpts = gene.tpts
-    else:
-        tpts = [gene.longest_tpt()]
+    if longest_only: tpts = [gene.longest_tpt()]
+    else: tpts = gene.tpts
 
     for tpt in tpts:
 
@@ -87,80 +85,95 @@ def nuc_mutation(args, gene, pos, ref, alt):
 
         yield tpt, codon, refaa, altaa, mutloc
 
+
 def main_list(args, name2gene):
 
-    if args.skipheader:
-        args.codon_list.readline()
-
-    for line in args.codon_list:
-
-        fields = line.strip().split(args.d)
-        if args.col_g > 0 and args.col_p > 0: # separate columns
-            gn_name = fields[args.col_g-1].strip()
-            posstr = fields[args.col_p-1].strip()
-            if posstr.isdigit() and int(posstr) > 0:
-                pos = int(posstr)
-            else:
-                sys.stderr.write("[Warning] abnormal position %s. skip.\n" % posstr)
-                continue
-            ref = fields[args.col_r-1].strip() if args.col_r > 0 else None
-            alt = fields[args.col_v-1].strip() if args.col_v > 0 else None
+        for op, is_codon, gn_name, pos, ref, alt in list_parse_mutation(args):
             if gn_name not in name2gene:
-                sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
+                sys.stderr.write("Gene %s is not recognized.\n" % gn_name)
                 continue
             gene = name2gene[gn_name]
 
-        else:                   # <gene>:<pos> format
-            m = re.match(r'([^:]*):([A-Z*]?)(\d+)([A-Z*]?)',
-                         fields[args.col_gp-1])
-            if not m:
-                sys.stderr.write("[Warning] abnormal input %s. skip.\n" % fields[args.col_gp-1])
-                continue
-            gn_name = m.group(1)
-            ref = m.group(2)
-            pos = int(m.group(3))
-            if pos <= 0:
-                sys.stderr.write("[Warning] abnormal position %d. skip.\n" % pos)
-                continue
-            alt = m.group(4)
-            if gn_name not in name2gene:
-                sys.stderr.write("Gene: %s not recognized. skip.\n" % gn_name)
-                continue
-            gene = name2gene[gn_name]
+            _main_core_(args, op, is_codon, gene, pos, ref, alt)
 
-        codon = gene.cpos2codon(pos)
-        prnstr = line.strip()
-        if alt:                 # with mutation
-            prnstr += '\t'
-            prnstr += codon_mutation(args, gene, pos, ref, alt)
-        else:                   # without mutation
-            prnstr += '\t'
-            prnstr += codon.format()
+    #     if args.col_g > 0 and args.col_p > 0: # separate columns
+    #         gn_name = fields[args.col_g-1].strip()
+    #         posstr = fields[args.col_p-1].strip()
+    #         if posstr.isdigit() and int(posstr) > 0:
+    #             pos = int(posstr)
+    #         else:
+    #             sys.stderr.write("[Warning] abnormal position %s. skip.\n" % posstr)
+    #             continue
+    #         ref = fields[args.col_r-1].strip() if args.col_r > 0 else None
+    #         alt = fields[args.col_v-1].strip() if args.col_v > 0 else None
+    #         if gn_name not in name2gene:
+    #             sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
+    #             continue
+    #         gene = name2gene[gn_name]
 
-        print prnstr
+    #     else:                   # <gene>:<pos> format
+    #         m = re.match(r'([^:]*):([A-Z*]?)(\d+)([A-Z*]?)',
+    #                      fields[args.col_gp-1])
+    #         if not m:
+    #             sys.stderr.write("[Warning] abnormal input %s. skip.\n" % fields[args.col_gp-1])
+    #             continue
+    #         gn_name = m.group(1)
+    #         ref = m.group(2)
+    #         pos = int(m.group(3))
+    #         if pos <= 0:
+    #             sys.stderr.write("[Warning] abnormal position %d. skip.\n" % pos)
+    #             continue
+    #         alt = m.group(4)
+    #         if gn_name not in name2gene:
+    #             sys.stderr.write("Gene: %s not recognized. skip.\n" % gn_name)
+    #             continue
+    #         gene = name2gene[gn_name]
 
-    return
+    #     codon = gene.cpos2codon(pos)
+    #     prnstr = line.strip()
+    #     if alt:                 # with mutation
+    #         prnstr += '\t'
+    #         prnstr += codon_mutation(args, gene, pos, ref, alt)
+    #     else:                   # without mutation
+    #         prnstr += '\t'
+    #         prnstr += codon.format()
 
-mtemplate = """{i}\t{t.source}\t{t.name}\t{c}\t{ref}=>{alt}\t{mutloc}"""
+    #     print prnstr
+
+    # return
+
+def _main_core_(args, op, is_codon, gene, pos, ref, alt):
+
+    found = False
+    if is_codon:                # in codon coordinate
+        for t, codon, mutloc in codon_mutation(args, gene, pos, ref, alt, args.longest_only):
+            found = True
+            s = op+'\t' if op else ''
+            s += mtemplate.format(t=t, c=codon.format(), mutloc=mutloc, alt=alt,
+                                  ref=ref if ref!='.' else standard_codon_table[codon.seq])
+            print s
+    else:                       # in nucleotide coordinate
+        for t, codon, refaa, altaa, mutloc in nuc_mutation(args, gene, pos, ref, alt):
+            found = True
+            s = op+'\t' if op else ''
+            s += mtemplate.format(t=t, c=codon.format(), mutloc=mutloc, ref=refaa, alt=altaa)
+            print s
+
+    if not found:
+        print notemplate.format(gene=gene, pos=pos, ref=ref, alt=alt)
 
 def main_one(args, name2gene):
 
     gn_name, mut_str = args.i.split(':', 1)
     is_codon, pos, ref, alt = parse_mutation_str(mut_str)
-    
-    if gn_name not in name2gene:
-        sys.stderr.write("Gene: %s not recognized.\n" % gn_name)
-        return
+    if not pos: return
 
+    if gn_name not in name2gene:
+        sys.stderr.write("Gene %s not recognized.\n" % gn_name)
+        return
     gene = name2gene[gn_name]
-    if is_codon:                # in codon coordinate
-        for t, codon, mutloc in codon_mutation(args, gene, pos, ref, alt):
-            print mtemplate.format(i=args.i, t=t, c=codon.format(),
-                                   mutloc=mutloc, ref=ref, alt=alt)
-    else:                       # in nucleotide coordinate
-        for t, codon, refaa, altaa, mutloc in nuc_mutation(args, gene, pos, ref, alt):
-            print mtemplate.format(i=args.i, t=t, c=codon.format(),
-                                   mutloc=mutloc, ref=refaa, alt=altaa)
+
+    _main_core_(args, args.i, is_codon, gene, pos, ref, alt)
 
 def main(args):
 
@@ -176,40 +189,8 @@ def add_parser_revanno(subparsers):
 
     parser = subparsers.add_parser("revanno", help=__doc__)
     parser_add_annotation(parser)
-    parser.add_argument('-i', default=None,
-                        help='<gene>:<mutation>, E.g., MET:1010, PIK3CA:E545K, PIK3CA:c.1633G>A')
-    parser.add_argument('-l', default=None,
-                        type = argparse.FileType('r'), 
-                        help='mutation list file')
-    parser.add_argument('-d', default="\t",
-                        help="table delimiter [\\t]")
-    parser.add_argument('-g', dest='col_g', type=int,
-                        default=-1, help='column for gene (1-based)')
-    parser.add_argument('-p',
-                        dest='col_p',
-                        type=int,
-                        default=-1,
-                        help='column for position (1-based)')
-    parser.add_argument('-r',
-                        dest='col_r',
-                        type=int,
-                        default=-1,
-                        help='column for reference amino acid (1-based)')
-    parser.add_argument('-v',
-                        dest='col_v',
-                        type=int,
-                        default=-1,
-                        help='column for variant amino acid (1-based)')
-    parser.add_argument('-gp',
-                        dest='col_gp',
-                        type=int,
-                        default=1,
-                        help='column for <gene>:<ref><pos><alt> (1-based)')
-    parser.add_argument("--alltrans",
-                        action="store_true",
-                        help="consider all transcripts")
-    parser.add_argument('--skipheader',
-                        action='store_true',
-                        help='skip header')
+    parser_add_mutation(parser)
+    parser.add_argument("--longest_only", action="store_true",
+                        help="consider only longest transcript")
     parser.set_defaults(func=main)
 

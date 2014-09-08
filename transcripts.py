@@ -157,7 +157,7 @@ class Transcript():
 
     def __repr__(self):
         if self.gene:
-            return "<Transcript for %s: %s(%s):%d-%d>" % (self.gene.name, self.chrm, self.strand, self.beg, self.end)
+            return "<Transcript %s %s: %s(%s):%d-%d>" % (self.name, self.gene.name, self.chrm, self.strand, self.beg, self.end)
         else:
             return "<Empty Transcript>"
 
@@ -214,8 +214,9 @@ class Transcript():
     def npos2codon(self, chrm, npos):
         self.ensure_seq()
         npos = int(npos)
-        if chrm != self.chrm:
-            raise Exception("Wrong chromosome.\n")
+
+        # no check chrm == self.chrm, due to differential
+        # naming convention: chr12 vs 12.
         
         if self.cds_beg > npos:
             nc = NonCoding()

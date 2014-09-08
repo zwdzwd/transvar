@@ -1,11 +1,48 @@
+"""
+search alternative codonpositions due to different transcript usage
+"""
+import sys, re, argparse
+from mutation import parser_add_mutation, parse_mutation_str, list_parse_mutation
+from transcripts import *
+from utils import *
+from revanno import codon_mutation
+from anno import pos2codon
+
+outformat="{altid}\t{tptstr}"
+
 def main(args):
 
-    name2gene = parse_annotation(args.annotation_file)
-    # print name2gene['TP53'].transcripts[0].aa_pos2nuc_pos(348), name2gene['TP53'].transcripts[0].cds_beg, name2gene['TP53'].transcripts[0].cds_end, name2gene['TP53'].transcripts[0].exons
-    # print name2gene['TP53'].transcripts[1].aa_pos2nuc_pos(393), name2gene['TP53'].transcripts[1].cds_beg, name2gene['TP53'].transcripts[1].cds_end, name2gene['TP53'].transcripts[1].exons
-    with open(args.codon_list) as f:
+    name2gene, thash = parse_annotation(args)
+
+    for op, is_codon, gn_name, pos, ref, alt in list_parse_mutation(args):
+        if gn_name not in name2gene:
+            sys.stderr.write("Gene %s is not recognized.\n" % gn_name)
+            continue
+        gene = name2gene[gn_name]
+
+        altid2transcripts = {}
+        if is_codon:
+            for t1, c1, mutloc in codon_mutation(args, gene, pos, ref, alt):
+                for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[0]):
+                    if t1 == t2: continue
+                    if c2.region == 'coding' and c2.index != c1.index:
+                        if c2.index in altid2transcripts:
+                            altid2transcripts[c2.index] += ',%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
+                        else:
+                            altid2transcripts[c2.index] = '%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
+        for altid, tptstr in altid2transcripts.iteritems():
+            if op: s = op+'\t'
+            else: s = ''
+            s += outformat.format(altid=altid, tptstr=tptstr)
+            print s
+
+def oldmain():
+
+    for line in args.l:
+        fields = line.strip().split(args.d)
+        op = '\t'.join(indices.extract(fields))
+
         for line in f:
-            gene_name, codon_pos = line.strip().split(':')
 
             # if line.strip() != "TP53:281":
                 # continue
@@ -58,11 +95,7 @@ def main(args):
 
 def add_parser_codonsearch(subparsers):
 
-    parser = subparsers.add_parser('codonsearch', help='search alternative codonpositions due to different transcript usage')
-    parser.add_argument('-c', dest='codon_list', help='a list of codons to search alternatives')
-    parser.add_argument('-a',
-                        metavar='annotation',
-                        required = True,
-                        dest='annotation_file', 
-                        help='protein annotation file')
+    parser = subparsers.add_parser('codonsearch', help=__doc__)
+    parser_add_mutation(parser)
+    parser_add_annotation(parser)
     parser.set_defaults(func=main)

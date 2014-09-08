@@ -2,6 +2,13 @@ import transcripts as trs
 import sys
 from faidx import RefGenome
 
+def normalize_chrm(chrm):
+
+    if not chrm.startswith('chr'):
+        chrm = 'chr'+chrm
+
+    return chrm
+
 class THash():
 
     def __init__(self):
@@ -16,24 +23,24 @@ class THash():
             self.key2transcripts[k] = [t]
 
     def insert(self, t):
-        k1 = (t.chrm, t.cds_beg / self.binsize)
-        k2 = (t.chrm, t.cds_end / self.binsize)
+        chrm = normalize_chrm(t.chrm)
+        k1 = (chrm, t.cds_beg / self.binsize)
+        k2 = (chrm, t.cds_end / self.binsize)
         if k1 == k2:
             self.add_transcript_by_key(k1, t)
         else:
             self.add_transcript_by_key(k1, t)
             self.add_transcript_by_key(k2, t)
 
-    def get_transcripts(self, chrm, pos, std_only):
-        k = int(pos) / self.binsize
-        if k not in key2transcripts: return []
-        l = []
-        for t in self.key2transcripts[k]:
-            if t.cds_beg <= pos and t.cds_end >= pos:
-                if std_only and t != t.gene.std_tpt:
-                    continue
-                l.append(t)
-        return l
+    def get_transcripts(self, chrm, pos, std_only=False):
+        chrm = normalize_chrm(chrm)
+        k = (chrm, int(pos) / self.binsize)
+        if k in self.key2transcripts:
+            for t in self.key2transcripts[k]:
+                if t.cds_beg <= pos and t.cds_end >= pos:
+                    if std_only and t != t.gene.std_tpt:
+                        continue
+                    yield t
 
     # def __init__(self):
     #     # chrm => bin => list of transcripts
