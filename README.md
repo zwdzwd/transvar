@@ -143,7 +143,17 @@ ERBB2.p755      785     CCDS45667.1[CDDS]/CCDS32642.1[CDDS]
 ERBB2.p755      725     CCDS32642.1[CDDS]/CCDS45667.1[CDDS]
 ```
 
-#### annotate genomic mutations
+#### annotate mutations with genomic locations (forward annotation)
+
+```
+#!bash
+ioan anno -i chr3:178936091.G>A --ccds CCDS.current.txt --ref hs37d5.fa
+```
+outputs
+```
+#!text
+
+```
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
