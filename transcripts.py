@@ -33,7 +33,7 @@ standard_codon_table = {
     'GTT': 'V', 'GTC': 'V', 'GTA': 'V', 'GTG': 'V', 'GCT': 'A',
     'GCC': 'A', 'GCA': 'A', 'GCG': 'A', 'GAT': 'D', 'GAC': 'D',
     'GAA': 'E', 'GAG': 'E', 'GGT': 'G', 'GGC': 'G', 'GGA': 'G',
-    'GGG': 'G', }
+    'GGG': 'G', 'TAA': '*', 'TAG': '*', 'TGA': '*'}
 stop_codons  = [ 'TAA', 'TAG', 'TGA', ]
 start_codons = [ 'TTG', 'CTG', 'ATG', ]
 
@@ -70,12 +70,16 @@ class Codon():
     def __init__(self):
 
         self.gene   = None
-        self.pos    = -1        # codon position
         self.chrm   = "NA"
         self.locs   = (-1,-1,-1)
         self.strand = "NA"
-        self.seq    = "NA"      # natural sequence, not the actural sequence, can be directly mapped to amino acids
+        self.seq    = '' # natural sequence, not the actural sequence, can be directly mapped to amino acids
         self.index  = -1
+
+    def refseq(self):
+
+        if self.strand == '+': return self.seq
+        else: return reverse_complement(self.seq)
 
     def __repr__(self):
         if self.locs:
@@ -140,11 +144,14 @@ class Transcript():
                           [end-beg+1 for beg, end in self.exons], 0)
 
     def ensure_seq(self):
-        if self.seq: return
+        """ return True when successful """
+        if self.seq: return True
         if not Transcript.refseq:
             sys.stderr.write("Please provide reference through --ref.\n")
             sys.exit(1)
         seq = Transcript.refseq.fetch_sequence(self.chrm, self.beg, self.end)
+
+        if not seq: return False
         segs = []
         for ex_beg, ex_end in self.exons:
             beg = max(ex_beg, self.cds_beg)
@@ -154,6 +161,7 @@ class Transcript():
         self.seq = ''.join(segs)
         if self.strand == '-':
             self.seq = reverse_complement(self.seq)
+        return True
 
     def __repr__(self):
         if self.gene:
@@ -170,7 +178,7 @@ class Transcript():
         i.e., (200,300) means the first base is 200
         the last base is 300
         """
-        self.ensure_seq()
+        if not self.ensure_seq(): return None
         cpos = int(cpos)
         if self.strand == "+":
             np = []
@@ -190,7 +198,7 @@ class Transcript():
                 codon.seq    = self.seq[ni-3:ni]
                 return codon
             else:
-                return Codon()
+                return None
         else:
             np = []
             for beg, end in reversed(self.exons):
@@ -209,7 +217,7 @@ class Transcript():
                 codon.seq    = self.seq[ni-3:ni]
                 return codon
             else:
-                return Codon()
+                return None
 
     def npos2codon(self, chrm, npos):
         self.ensure_seq()

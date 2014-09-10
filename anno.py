@@ -4,7 +4,8 @@ annotate nucleotide position(s) or mutations
 import sys, argparse, re
 from transcripts import *
 from utils import *
-from mutation import parse_mutation_str, mtemplate
+from mutation import parse_tok_mutation_str
+from record import *
 
 def pos2codon(thash, chrm, pos):
 
@@ -12,30 +13,60 @@ def pos2codon(thash, chrm, pos):
         c = t.npos2codon(chrm, pos)
         yield t, c
 
-def _main_core_(args, thash, op, chrm, pos, ref, alt):
+def pos2codon_longest(thash, chrm, pos):
 
-    for t, c in pos2codon(thash, chrm, pos):
+    longest = None
+    longest_c = None
+    for t, c in pos2codon(thash,chrm,pos):
+        if (not longest) or len(longest) < len(t):
+            longest = t
+            longest_c = c
 
+    if longest:
+        yield longest, longest_c
+
+def _main_core_(args, thash, q):
+
+    if args.longest:
+        tc_iter = pos2codon_longest(thash, q.chrm, q.pos)
+    else:
+        tc_iter = pos2codon(thash, q.chrm, q.pos)
+
+    for t, c in tc_iter:
         if isinstance(c, Codon):
 
-            ref_aa = standard_codon_table[c.seq]
-            if alt != '.':
-                if c.strand == "+":
-                    alt_seq = set_seq(c.seq, pos-c.locs[0], alt)
-                else:
-                    alt_seq = set_seq(c.seq, 2-(pos-c.locs[0]), complement(alt))
-                alt_aa = standard_codon_table[alt_seq]
-            else:
-                alt_aa = '.'
+            r = Record()
+            r.chrm = t.chrm
+            r.tname = t.name
+            r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
+            r.pos = '-'.join(map(str, c.locs))
 
-            s = op+'\t' if op else ''
-            s += mtemplate.format(t=t, c=c.format(), ref=ref_aa, alt=alt_aa,
-                                  mutloc='%d\t%s\t%s' % (pos, ref, alt))
+            r.taa_ref = standard_codon_table[c.seq]
+            r.taa_pos = c.index
+            if q.alt:
+                if c.strand == "+":
+                    alt_seq = set_seq(c.seq, q.pos-c.locs[0], alt)
+                else:
+                    alt_seq = set_seq(c.seq, 2-(q.pos-c.locs[0]), complement(alt))
+                r.taa_alt = standard_codon_table[alt_seq]
+
+            if c.strand == '+':
+                r.tnuc_pos = (c.index-1)*3 + c.locs.index(q.pos) + 1
+            else:
+                r.tnuc_pos = c.index*3 - c.locs.index(q.pos)
+
+            r.gnuc_pos = q.pos
+            r.gnuc_ref = c.refseq()[c.locs.index(q.pos)]
+            r.gnuc_alt = q.alt
+            r.format(q.op)
+
         elif isinstance(c, NonCoding):
-            s += mtemplate.format(t=t, c=c.format(), ref='.', alt='.',
-                                  mutloc='%d\t%s\t%s' % (pos, ref, alt))
-        
-        print s
+            r = Record()
+            r.chrm = t.chrm
+            r.tname = t.name
+            r.reg = '%s (%s noncoding)' % (t.gene.name, t.strand)
+            r.info = c.format()
+            r.format(q.op)
 
 def list_parse_genomic_mutation(args):
 
@@ -45,21 +76,34 @@ def list_parse_genomic_mutation(args):
 
     for line in args.l:
         fields = line.strip().split(args.d)
-        op = '\t'.join(indices.extract(fields))
+        q = Query()
+        q.op = '\t'.join(indices.extract(fields))
         if args.c > 0 and args.p > 0:
-            chrm = fields[args.c-1].strip()
-            pos = int(fields[args.p-1].strip())
-            yield op, chrm, pos, ref, alt
+            q.chrm = fields[args.c-1].strip()
+            q.pos = int(fields[args.p-1].strip())
+            if args.r > 0: q.ref = fields[args.r-1].strip()
+            if args.v > 0: q.alt = fields[args.v-1].strip()
+            if args.t > 0: q.tpt = fields[args.t-1].strip()
+            yield q
+        elif args.c > 0 and args.m > 0:
+            q.chrm = fields[args.c-1].strip()
+            if args.t > 0: q.tpt = fields[args.t-1].strip()
+            ret = parse_mutation_str(fields[args.m-1].strip())
+            if ret:
+                q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
+                yield q
+
         elif args.m > 0:
-            ret = parse_mutation_str(fields[args.m-1])
-            if ret: 
-                chrm, is_codon, pos, ref, alt = ret
-                yield op, chrm, pos, ref, alt
+            ret = parse_tok_mutation_str(fields[args.m-1].strip())
+            if ret:
+                q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
+                if args.t > 0: q.tpt = fields[args.t-1].strip()
+                yield q
 
 def main_list(args, thash):
 
-    for op, chrm, pos, ref, alt in list_parse_genomic_mutation(args):
-        _main_core_(args, thash, op, chrm, pos, ref, alt)
+    for q in list_parse_genomic_mutation(args):
+        _main_core_(args, thash, q)
 
 def oldmain():
     if args.skipheader:
@@ -110,11 +154,11 @@ def oldmain():
 
 
 def main_one(args, thash):
-
-    ret = parse_mutation_str(args.i)
-    if ret:
-        chrm, is_codon, pos, ref, alt = ret
-        _main_core_(args, thash, args.i, chrm, pos, ref, alt)
+    q = Query()
+    ret = parse_tok_mutation_str(args.i)
+    if not ret: return
+    q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
+    _main_core_(args, thash, q)
 
 def oldmainone():
     m = re.match(r'([^:]*):([ATGC]?)(\d+)([ATGC]?)', args.npos)
@@ -183,6 +227,8 @@ def add_parser_anno(subparsers):
                         help='column for reference base (1-based)')
     parser.add_argument('-v', type=int, default=-1,
                         help='column for variant base (1-based)')
+    parser.add_argument('-t', type=int, default=-1,
+                        help='columns for preferred transcript (1-based)')
     parser.add_argument("-m", type=int, default=-1,
                         help="column for mutation in format <chrm>:[<ref>]<pos>[<alt>] (1-based)")
     parser.add_argument('-o', default='-',
