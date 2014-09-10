@@ -88,9 +88,9 @@ outputs
 
 ```
 #!text
-PIK3CA:c.1633G>A        CDDS    CCDS43171.1     PIK3CA
-    545     3       178936091       178936092       178936093
-    GAG     +       E=>K    178936091       G       A
+PIK3CA:E545K    3       178936091-178936092-178936093   CCDS43171.1
+     PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
+ CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
 
 #### infer potential codon identity
