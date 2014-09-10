@@ -144,7 +144,9 @@ ERBB2.p755      725     CCDS32642.1[CDDS]/CCDS45667.1[CDDS]
 ```
 The third column indicates the potential transcript usage for the alternative identifier. Each transcript usage is denoted by <listing transcript>/<actual transcript>. Different potential choices are separated by ','.
 
-#### annotate mutations with genomic locations (forward annotation)
+#### annotate mutations from genomic locations
+
+This is the forward annotation
 
 ```
 #!bash
