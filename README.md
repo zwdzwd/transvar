@@ -61,18 +61,18 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 
 #### reverse annotation of amino acid mutations
-Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
+Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. Ioan takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
 #!bash
-$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt -i PIK3CA:E545K
+$ ioan revanno -i PIK3CA:E545K --ref hs37d5.fa --ensembl Homo_sapiens.GRCh37.75.gtf.gz
 ```
 outputs
 ```
 #!text
-PIK3CA:E545K       CDDS       CCDS43171.1       PIK3CA 
-    545    3     178936091     178936092     178936093
-    GAG    +     E=>K    178936091    G    A       AAG,AAA
+PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967 
+PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K 
+CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
  + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
  + output: 1) annotation;
