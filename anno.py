@@ -45,9 +45,9 @@ def _main_core_(args, thash, q):
             r.taa_pos = c.index
             if q.alt:
                 if c.strand == "+":
-                    alt_seq = set_seq(c.seq, q.pos-c.locs[0], alt)
+                    alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
                 else:
-                    alt_seq = set_seq(c.seq, 2-(q.pos-c.locs[0]), complement(alt))
+                    alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
                 r.taa_alt = standard_codon_table[alt_seq]
 
             if c.strand == '+':
@@ -157,6 +157,7 @@ def main_one(args, thash):
     q = Query()
     ret = parse_tok_mutation_str(args.i)
     if not ret: return
+    q.op = args.i
     q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
     _main_core_(args, thash, q)
 

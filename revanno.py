@@ -178,7 +178,7 @@ def main_one(args, name2gene):
     q = Query()
     ret = parse_tok_mutation_str(args.i)
     if not ret: return
-    q.is_codon, q.pos, q.ref, q.alt = ret
+    q.gn_name, q.is_codon, q.pos, q.ref, q.alt = ret
 
     if q.gn_name not in name2gene:
         sys.stderr.write("Gene %s not recognized.\n" % q.gn_name)
