@@ -81,8 +81,8 @@ RevAn may encounter cases where the ambiguity cannot be fully resolved. For exam
 ```
 #!text
 ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
-        X       108926078-108926079-108926080   CCDS14548.1
-     ACSL4 (-, coding)       X:G108926078A/c.399C>T/p.R133R  CddMuts=X:G108926078T,X:G108926078C,X:G108926078A;NCodonSeq=CGC;NCddSeqs=AGG,AGA,CGA,CGC,CGG,CGT
+      X       108926078-108926079-108926080   CCDS14548.1      ACSL4 (-, coding)       X:G108926078A/c.399C>T/p.R133R
+      CddMuts=X:G108926078T,X:G108926078C,X:G108926078A;NCodonSeq=CGC;NCddSeqs=AGG,AGA,CGA,CGC,CGG,CGT
 ```
 In those cases, RevAn prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
