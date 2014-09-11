@@ -57,7 +57,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
  + used in ioan via option ```--ucsc2 hg19.map```
 
-##### AceView
+##### AceView (GFF)
 
  + available [here](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html)
 
