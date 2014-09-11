@@ -92,6 +92,29 @@ PIK3CA:E545K    3       178936091-178936092-178936093   CCDS43171.1
      PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
  CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
+or one can batch process a list of mutation identifiers with optional transcript id to constraint the search
+```
+#!bash
+$ ioan revanno -l input_table -g 1 -m 4 -t 2 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa -o 2,3,5 | les
+```
+As suggested by the command, RevAn takes as input the 1st column as gene and 4th column as identifier. The 2nd column gives the transcript id from Ensembl to constrain the alternative identifier usage. The 3rd column and 5th columns are chosen to be output as a validation of RevAn's performance.
+```
+#!text
+ADAMTSL3        ENST00000286744 15:84442328     c.243G>A        p.W81*  Nonsense
+ADAMTSL3        ENST00000286744 15:84442326     c.241T>C        p.W81R  Missense
+ADAMTSL4        ENST00000369038 1:150530513     c.2270G>A       p.G757D Missense
+ADCY2   ENST00000338316 5:7802364       c.2662G>A       p.V888I Missense
+ADCY2   ENST00000338316 5:7802365       c.2663T>C       p.V888A Missense
+```
+and output
+```
+#!text
+ENST00000286744 15:84442328     p.W81*  15      84442326-84442327-84442328      ENST00000286744 ADAMTSL3 (+ coding)     15:G84442328A/c.243G>A/p.W81*   CddMuts=15:G84442328A;NCodonSeq=TGG;NCddSeqs=TGA
+ENST00000286744 15:84442326     p.W81R  15      84442326-84442327-84442328      ENST00000286744 ADAMTSL3 (+ coding)     15:T84442326C/c.241T>C/p.W81R   CddMuts=15:T84442326C;NCodonSeq=TGG;NCddSeqs=CGG
+ENST00000369038 1:150530513     p.G757D 1       150530512-150530513-150530514   ENST00000369038 ADAMTSL4 (+ coding)     1:G150530513A/c.2270G>A/p.G757D CddMuts=1:G150530513A;NCodonSeq=GGT;NCddSeqs=GAT
+ENST00000338316 5:7802364       p.V888I 5       7802364-7802365-7802366 ENST00000338316 ADCY2 (+ coding)        5:G7802364A/c.2662G>A/p.V888I   CddMuts=5:G7802364A;NCodonSeq=GTC;NCddSeqs=ATC
+ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST00000338316 ADCY2 (+ coding)        5:T7802365C/c.2663T>C/p.V888A   CddMuts=5:T7802365C;NCodonSeq=GTC;NCddSeqs=GCC
+```
 
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
