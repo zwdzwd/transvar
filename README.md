@@ -97,7 +97,7 @@ or one can batch process a list of mutation identifiers with optional transcript
 #!bash
 $ ioan revanno -l input_table -g 1 -m 4 -t 2 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa -o 2,3,5 | les
 ```
-As suggested by the command, RevAn takes as input the 1st column as gene and 4th column as identifier. The 2nd column gives the transcript id from Ensembl to constrain the alternative identifier usage. The 3rd column and 5th columns are chosen to be output as a validation of RevAn's performance.
+As suggested by the command, RevAn takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of RevAn's performance.
 ```
 #!text
 ADAMTSL3        ENST00000286744 15:84442328     c.243G>A        p.W81*  Nonsense
