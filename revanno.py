@@ -15,23 +15,23 @@ def codon_mutation(args, q):
         sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
         q.alt = ''
 
-    if args.longest: tpts = [q.gene.longest_tpt()]
+    if hasattr(args, 'longest') and args.longest:
+        tpts = [q.gene.longest_tpt()]
     else: tpts = q.gene.tpts
 
     for tpt in tpts:
 
         # when there's a transcript specification
-        if q.tpt and tpt.name != q.tpt:
-            continue
+        if q.tpt and tpt.name != q.tpt: continue
 
-        tpt.ensure_seq()
+        if not tpt.ensure_seq(): continue
         codon = tpt.cpos2codon(q.pos)
         if not codon: continue
 
         # skip if reference amino acid is given
         # and codon sequence does not generate reference aa
-        if q.ref and codon.seq not in reverse_codon_table[q.ref]: # codon.seq is natural sequence
-            continue
+        # codon.seq is natural sequence
+        if q.ref and codon.seq not in reverse_codon_table[q.ref]: continue
 
         mutloc = ''
         tnuc_pos = ''
@@ -86,27 +86,33 @@ def nuc_mutation(args, q):
 
         tpt.ensure_seq()
         # skip if reference base is given
-        if q.ref != tpt.seq[q.pos-1]:
-            continue
+        if (q.pos <= 0 or q.pos > len(tpt)): continue
 
         codon = tpt.cpos2codon((q.pos-1)/3+1)
         if not codon: continue
+        if (q.ref and q.ref != tpt.seq[q.pos-1]): continue
         if codon.strand == '+':
             gnuc_pos = codon.locs[0]+(q.pos-1)%3
+            gnuc_ref = q.ref if q.ref else codon.seq[(q.pos-1)%3]
+            if q.alt: gnuc_alt = q.alt
         else:
             gnuc_pos = codon.locs[-1]-(q.pos-1)%3
+            gnuc_ref = complement(q.ref if q.ref else codon.seq[(q.pos-1)%3])
+            if q.alt: gnuc_alt = complement(q.alt)
 
-        refaa = standard_codon_table[codon.seq]
+        cdd_mut = '%s:%s%d%s' % (tpt.chrm, gnuc_ref, gnuc_pos, gnuc_alt)
+        taa_ref = standard_codon_table[codon.seq]
+        taa_pos = codon.index
         if not q.alt:
             mutloc = ''
-            altaa = ''
+            taa_alt = ''
         else:
             mut_seq = list(codon.seq[:])
             mut_seq[(q.pos-1) % 3] = q.alt
-            altaa = standard_codon_table[''.join(mut_seq)]
-            mutloc = 'CddLocs=%d;CddRefs=%s;CddAlts=%s;NCodonSeq=%s;NCddSeqs=%s' % (loc, q.ref, q.alt, codon.seq, mut_seq)
+            taa_alt = standard_codon_table[''.join(mut_seq)]
+            mutloc = 'CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s' % (cdd_mut, codon.seq, ''.join(mut_seq))
 
-        yield tpt, codon, refaa, altaa, mutloc
+        yield tpt, codon, mutloc, (taa_pos, taa_ref, taa_alt), (gnuc_pos, gnuc_ref, gnuc_alt)
 
 
 def _main_core_(args, q):
@@ -139,17 +145,16 @@ def _main_core_(args, q):
 
     else:                       # in nucleotide coordinate
         found = False
-        for t, codon, taa_ref, taa_alt, mutloc in nuc_mutation(args, q):
+        for t, codon, mutloc, taa, gnuc in nuc_mutation(args, q):
             found = True
 
             r = Record()
             r.chrm = t.chrm
             r.tname = t.name
-            r.reg = '%s (coding)' % t.gene_name
+            r.reg = '%s (%s coding)' % (t.gene.name, t.strand)
             r.pos = '-'.join(map(str, codon.locs))
-            r.taa_ref = taa_ref if q.ref else standard_codon_table[codon.seq]
-            r.taa_alt = taa_alt
-            r.taa_pos = codon.index
+            r.taa_pos, r.taa_ref, r.taa_alt = taa
+            r.gnuc_pos, r.gnuc_ref, r.gnuc_alt = gnuc
             r.tnuc_pos = q.pos
             r.tnuc_ref = q.ref
             r.tnuc_alt = q.alt

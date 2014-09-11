@@ -220,7 +220,7 @@ class Transcript():
                 return None
 
     def npos2codon(self, chrm, npos):
-        self.ensure_seq()
+        if not self.ensure_seq(): return None
         npos = int(npos)
 
         # no check chrm == self.chrm, due to differential

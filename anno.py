@@ -32,8 +32,10 @@ def _main_core_(args, thash, q):
     else:
         tc_iter = pos2codon(thash, q.chrm, q.pos)
 
+    found = False
     for t, c in tc_iter:
         if isinstance(c, Codon):
+            found = True
 
             r = Record()
             r.chrm = t.chrm
@@ -41,7 +43,10 @@ def _main_core_(args, thash, q):
             r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
             r.pos = '-'.join(map(str, c.locs))
 
-            r.taa_ref = standard_codon_table[c.seq]
+            # at the ends of retained intron transcripts from ENSEMBL,
+            # codon sequence is not always of length 3
+            if c.seq in standard_codon_table:
+                r.taa_ref = standard_codon_table[c.seq]
             r.taa_pos = c.index
             if q.alt:
                 if c.strand == "+":
@@ -61,12 +66,23 @@ def _main_core_(args, thash, q):
             r.format(q.op)
 
         elif isinstance(c, NonCoding):
+            found = True
+
             r = Record()
             r.chrm = t.chrm
+            r.gnuc_pos = q.pos
             r.tname = t.name
             r.reg = '%s (%s noncoding)' % (t.gene.name, t.strand)
             r.info = c.format()
             r.format(q.op)
+
+    if not found:
+        r = Record()
+        r.gnuc_ref = q.ref
+        r.gnuc_alt = q.alt
+        r.gnuc_pos = q.pos
+        r.info = 'status=NoValidTranscriptFound'
+        r.format(q.op)
 
 def list_parse_genomic_mutation(args):
 
@@ -104,54 +120,6 @@ def main_list(args, thash):
 
     for q in list_parse_genomic_mutation(args):
         _main_core_(args, thash, q)
-
-def oldmain():
-    if args.skipheader:
-        args.npos_list.readline()
-
-    outindices = parse_indices(args.outcol)
-    for line in args.npos_list:
-
-        fields = line.strip().split(args.d)
-        if args.col_c > 0 and args.col_p > 0: # separate columns
-            chrm = fields[args.col_c-1]
-            pos = int(fields[args.col_p-1])
-            ref = fields[args.col_r-1].strip() if args.col_r > 0 else None
-            alt = fields[args.col_v-1].strip() if args.col_v > 0 else None
-        else:                   # <chrm>:<pos> format
-            m = re.match(r'([^:]*):([ATGC]?)(\d+)([ATGC]?)',
-                         fields[args.col_cp-1])
-            chrm = m.group(1)
-            ref = m.group(2)
-            pos = int(m.group(3))
-            alt = m.group(4)
-
-        tpts = thash.get_transcripts(chrm, pos, args.standard)
-        if not tpts:
-            continue
-
-        if not args.alltrans:
-            tpt = tpts[0]
-            if len(tpts) > 1:
-                for _tpt in tpts:
-                    if _tpt.is_standard():
-                        tpt = _tpt
-                        break
-            tpts = [tpt]
-
-        for tpt in tpts:
-            prncol = outindices.extract(fields)
-            c = tpt.npos2codon(chrm, pos)
-            if isinstance(c, Codon):
-                if alt:
-                    prncol.append(nuc_mutation(c, pos, ref, alt))
-                else:
-                    prncol.append(c.format())
-            elif isinstance(c, NonCoding):
-                prncol.append(c.format())
-
-            print '\t'.join(prncol)
-
 
 def main_one(args, thash):
     q = Query()

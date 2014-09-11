@@ -50,7 +50,7 @@ class RefGenome:
             elif 'chr'+chrom in self.faidx:
                 chrom = 'chr'+chrom
             else:
-                sys.stderr.write('Chromosome %s not found in reference' % chrom)
+                sys.stderr.write('Chromosome %s not found in reference\n' % chrom)
                 return None
 
         slen,offset,blen,bytelen=self.faidx[chrom]

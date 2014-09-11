@@ -4,19 +4,19 @@ from record import Query
 
 def parse_mutation_str(mut_str):
 
-    mp = re.match(r'(p)?(\.)?([A-Z*]?)(\d+)([A-Z*]?)$', mut_str)
-    mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC]?)>([ATGC]?)$', mut_str)
+    mp = re.match(r'(p)?(\.)?([A-Z*?]?)(\d+)([A-Z*?]?)$', mut_str)
+    mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
 
     if mn and not mp:
         is_codon = False
         pos = int(mn.group(3))
-        ref = mn.group(5) if mn.group(5) else ''
-        alt = mn.group(6) if mn.group(6) else ''
+        ref = mn.group(5) if mn.group(5) and mn.group(5) != '?' else ''
+        alt = mn.group(6) if mn.group(6) and mn.group(6) != '?' else ''
     elif mp:
         is_codon = True
-        ref = mp.group(3) if mp.group(3) else ''
+        ref = mp.group(3) if mp.group(3) and mp.group(3) != '?' else ''
         pos = int(mp.group(4))
-        alt = mp.group(5) if mp.group(5) else ''
+        alt = mp.group(5) if mp.group(5) and mp.group(5) != '?' else ''
     else:
         sys.stderr.write('Cannot infer mutation type "%s", skip.\n' % mut_str)
         return None

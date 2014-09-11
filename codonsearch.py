@@ -2,39 +2,78 @@
 search alternative codonpositions due to different transcript usage
 """
 import sys, re, argparse
-from mutation import parser_add_mutation, parse_mutation_str, list_parse_mutation
+from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from transcripts import *
 from utils import *
 from revanno import codon_mutation
 from anno import pos2codon
+from record import Query
 
-outformat="{altid}\t{tptstr}"
+outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
+
+def _main_core_(args, q, thash):
+
+
+    k2transcripts = {}
+    if q.is_codon:
+        for t1, c1, mutloc, tnuc, gnuc in codon_mutation(args, q):
+            for cind in xrange(3):
+                for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[cind]):
+                    if t1 == t2: continue
+                    if c2.region != 'coding': continue
+                    if c1.index == c2.index: continue
+                    if q.ref and q.ref != standard_codon_table[c2.seq]: continue
+                    altid = 'p.'
+                    if q.ref: altid += q.ref
+                    altid += str(c2.index)
+                    k = (altid, c1.chrm, tuple(c1.locs), tuple(c2.locs))
+                    if k in k2transcripts:
+                        k2transcripts[k] += ',%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
+                    else:
+                        k2transcripts[k] = '%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
+
+    for k, tptstr in k2transcripts.iteritems():
+        altid, chrm, c1, c2 = k
+        if q.op: s = q.op+'\t'
+        else: s = ''
+        s += outformat.format(altid=altid, tptstr=tptstr, chrm=chrm,
+                              codon1='-'.join(map(str,c1)), codon2='-'.join(map(str,c2)))
+        print s
 
 def main(args):
 
     name2gene, thash = parse_annotation(args)
 
-    for op, is_codon, gn_name, pos, ref, alt in list_parse_mutation(args):
-        if gn_name not in name2gene:
-            sys.stderr.write("Gene %s is not recognized.\n" % gn_name)
-            continue
-        gene = name2gene[gn_name]
+    if args.l:
+        main_list(args, name2gene, thash)
+    if args.i:
+        main_one(args, name2gene, thash)
 
-        altid2transcripts = {}
-        if is_codon:
-            for t1, c1, mutloc in codon_mutation(args, gene, pos, ref, alt):
-                for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[0]):
-                    if t1 == t2: continue
-                    if c2.region == 'coding' and c2.index != c1.index:
-                        if c2.index in altid2transcripts:
-                            altid2transcripts[c2.index] += ',%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
-                        else:
-                            altid2transcripts[c2.index] = '%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
-        for altid, tptstr in altid2transcripts.iteritems():
-            if op: s = op+'\t'
-            else: s = ''
-            s += outformat.format(altid=altid, tptstr=tptstr)
-            print s
+def main_list(args, name2gene, thash):
+
+    for q in list_parse_mutation(args):
+
+        if q.gn_name not in name2gene:
+            sys.stderr.write("Gene %s is not recognized.\n" % q.gn_name)
+            continue
+        q.gene = name2gene[q.gn_name]
+
+        _main_core_(args, q, thash)
+
+def main_one(args, name2gene, thash):
+
+    q = Query()
+    ret = parse_tok_mutation_str(args.i)
+    if not ret: return
+    q.op = args.i
+    q.gn_name, q.is_codon, q.pos, q.ref, q.alt = ret
+    if q.gn_name not in name2gene:
+        sys.stderr.write("Gene %s not recognized.\n" % q.gn_name)
+        return
+    q.gene = name2gene[q.gn_name]
+    q.op = args.i
+
+    _main_core_(args, q, thash)
 
 def oldmain():
 

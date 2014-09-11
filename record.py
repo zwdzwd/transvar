@@ -37,6 +37,7 @@ class Record():
         if hasattr(self, 'tnuc_ref') and self.tnuc_ref: s += self.tnuc_ref
         s += '>'
         if hasattr(self, 'tnuc_alt') and self.tnuc_alt: s += self.tnuc_alt
+        if s == 'c.>': return '.'
         return s
 
     def gnuc(self):
@@ -45,6 +46,7 @@ class Record():
         if hasattr(self, 'gnuc_ref') and self.gnuc_ref: s += self.gnuc_ref
         if hasattr(self, 'gnuc_pos') and self.gnuc_pos: s += str(self.gnuc_pos)
         if hasattr(self, 'gnuc_alt') and self.gnuc_alt: s += self.gnuc_alt
+        if s == '.:': return '.'
         return s
 
     def taa(self):
@@ -53,6 +55,7 @@ class Record():
         if hasattr(self, 'taa_ref') and self.taa_ref: s += self.taa_ref
         if hasattr(self, 'taa_pos') and self.taa_pos: s += str(self.taa_pos)
         if hasattr(self, 'taa_alt') and self.taa_alt: s += self.taa_alt
+        if s == 'p.': return '.'
         return s
 
     def format(self, op):
