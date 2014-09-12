@@ -47,8 +47,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 ##### [UCSC knownGene](https://genome.ucsc.edu/cgi-bin/hgTables?command=start) (flat table)
 
- + reference assembly: [GRCh37/hg19]()
-
+ + reference assembly: [GRCh37/hg19](https://onedrive.live.com/redir?resid=D99B59444B50F902!3730&authkey=!ANI0oFqFBXInYjo&ithint=file%2cgz), [gene aliases](https://onedrive.live.com/download?resid=D99B59444B50F902!3729&authkey=!ADcrMEY1zupH7s0&ithint=file%2cgz)
  + used in ioan via option `--kg UCSC_knownGene_hg19.gz --alias UCSC_kgAlias.gz`
 
 ##### [RefGene via UCSC](https://genome.ucsc.edu/cgi-bin/hgTables?command=start) (flat table)
