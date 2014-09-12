@@ -21,11 +21,11 @@
 
 The following list the transcript annotations supported by ioan. Ioan can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 
-##### Ensembl (GTF)
+##### [Ensembl](http://http://www.ensembl.org/info/data/ftp/index.html) (GTF)
 
- + available [here](http://http://www.ensembl.org/info/data/ftp/index.html)
+   + download: [[GRCh37]](https://onedrive.live.com/download?resid=D99B59444B50F902!3722&authkey=!AK4H1QkWAdK-0vY&ithint=file%2cgz)
 
- + used in ioan via option ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
+   + used in ioan via option ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
 
 ##### NCBI RefSeq (GFF3)
 
@@ -59,7 +59,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 ##### [AceView](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html) (GFF)
 
- + download [[**GRCh37**]](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
+ + download: [[GRCh37/hg19]](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
  + used in ioan via option `--aceview AceView.ncbi_37.genes_gff.gff`
 
 ### Usage
