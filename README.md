@@ -23,7 +23,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 ##### [Ensembl](http://http://www.ensembl.org/info/data/ftp/index.html) (GTF)
 
-   + download: [[GRCh37]](https://onedrive.live.com/download?resid=D99B59444B50F902!3722&authkey=!AK4H1QkWAdK-0vY&ithint=file%2cgz)
+   + download: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3722&authkey=!AK4H1QkWAdK-0vY&ithint=file%2cgz), [GRCh37/hg20](https://onedrive.live.com/download?resid=D99B59444B50F902!3723&authkey=!ALdvIJG6D88_GK0&ithint=file%2cgz)
 
    + used in ioan via option ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
 
