@@ -683,4 +683,4 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
         else:
             t.gene.tpts.remove(t)
 
-    sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, len(id2tpt)))
+    sys.stderr.write("[%s] Loaded %d transcripts from AceView GFF file.\n" % (__name__, len(id2tpt)))
