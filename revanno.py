@@ -84,6 +84,7 @@ def nuc_mutation(args, q):
 
     for tpt in tpts:
 
+        if q.tpt and tpt.name != q.tpt: continue
         tpt.ensure_seq()
         # skip if reference base is given
         if (q.pos <= 0 or q.pos > len(tpt)): continue
@@ -171,12 +172,12 @@ def _main_core_(args, q):
 
 def main_list(args, name2gene):
 
-        for q in list_parse_mutation(args):
-            if q.gn_name not in name2gene:
-                sys.stderr.write("Gene %s is not recognized.\n" % q.gn_name)
-                continue
-            q.gene = name2gene[q.gn_name]
-            _main_core_(args, q)
+    for q in list_parse_mutation(args):
+        if q.gn_name not in name2gene:
+            sys.stderr.write("Gene %s is not recognized.\n" % q.gn_name)
+            continue
+        q.gene = name2gene[q.gn_name]
+        _main_core_(args, q)
 
 def main_one(args, name2gene):
 

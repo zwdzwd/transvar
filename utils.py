@@ -134,6 +134,9 @@ def parse_annotation(args):
     if args.kg:
         trs.parse_ucsc_kg_table(args.kg, args.alias, name2gene)
 
+    if args.aceview:
+        trs.parse_aceview_transcripts(args.aceview, name2gene)
+
     # remove genes without transcripts
     names_no_tpts = []
     for name, gene in name2gene.iteritems():
@@ -148,6 +151,7 @@ def parse_annotation(args):
     thash = THash()
     genes = set(name2gene.values())
     for g in genes:
+        invalid_tpts = []
         for t in g.tpts:
             t.exons.sort()
             if not (hasattr(t, 'cds_beg') and hasattr(t, 'cds_end')):
@@ -155,9 +159,12 @@ def parse_annotation(args):
                     t.cds.sort()
                     t.cds_beg = t.cds[0][0]
                     t.cds_end = t.cds[-1][1]
-                else:
+                elif hasattr(t,'beg') and hasattr(t,'end'):
                     t.cds_beg = t.beg
                     t.cds_end = t.end
+                else:
+                    t.cds_beg = t.exons[0][0]
+                    t.cds_end = t.exons[-1][1]
 
             thash.insert(t)
             if len(t) == 0:     # if no exon, use cds
@@ -177,6 +184,7 @@ def parser_add_annotation(parser):
     parser.add_argument('--ucsc2', default=None,  help='customized UCSC transcript annotation')
     parser.add_argument('--refseq', default=None, help='RefSeq transcript annotation')
     parser.add_argument('--ccds', default=None, help='CCDS transcript annotation table')
+    parser.add_argument('--aceview', default=None, help='AceView GFF transcript annotation')
 
     return
 

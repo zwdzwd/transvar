@@ -622,4 +622,65 @@ def parse_gencode_gtf(gencode_fn, name2gene):
 
     sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, cnt))
 
+def parse_aceview_transcripts(aceview_gff_fn, name2gene):
 
+    id2tpt = {}
+    aceview_fh = opengz(aceview_gff_fn)
+    for line in aceview_fh:
+        if line.startswith('#'): continue
+        fields = line.strip().split('\t')
+        info = dict(re.findall(r'\s*(\S+) (\S+);', fields[8]))
+        if fields[2] == 'CDS':
+            gene_name = info['gene_id']
+            if gene_name in name2gene:
+                g = name2gene[gene_name]
+            else:
+                g = Gene(gene_name)
+                name2gene[gene_name] = g
+
+            if info['transcript_id'] in id2tpt:
+                t = id2tpt[info['transcript_id']]
+            else:
+                t = Transcript()
+                t.chrm = fields[0]
+                t.strand = fields[6]
+                t.name = info['transcript_id']
+                id2tpt[t.name] = t
+                t.gene = g
+                g.tpts.append(t)
+                t.source = 'AceView'
+
+            t.cds.append((int(fields[3]), int(fields[4])))
+
+        elif fields[2] == 'exon':
+            gene_name = info['gene_id']
+            if gene_name in name2gene:
+                g = name2gene[gene_name]
+            else:
+                g = Gene(gene_name)
+                name2gene[gene_name] = g
+
+            if info['transcript_id'] in id2tpt:
+                t = id2tpt[info['transcript_id']]
+            else:
+                t = Transcript()
+                t.chrm = fields[0]
+                t.strand = fields[6]
+                t.name = info['transcript_id']
+                id2tpt[t.name] = t
+                t.gene = g
+                g.tpts.append(t)
+                t.source = 'AceView'
+
+            t.exons.append((int(fields[3]), int(fields[4])))
+
+    # skip transcripts without CDS, e.g., LOC391566.aAug10-unspliced
+    for tid, t in id2tpt.iteritems():
+        if t.cds and t.exons:
+            t.exons.sort()
+            t.beg = t.exons[0][0]
+            t.end = t.exons[-1][1]
+        else:
+            t.gene.tpts.remove(t)
+
+    sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, len(id2tpt)))

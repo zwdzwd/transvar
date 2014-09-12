@@ -13,7 +13,6 @@ outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
 
 def _main_core_(args, q, thash):
 
-
     k2transcripts = {}
     if q.is_codon:
         for t1, c1, mutloc, tnuc, gnuc in codon_mutation(args, q):
@@ -27,16 +26,18 @@ def _main_core_(args, q, thash):
                     if q.ref: altid += q.ref
                     altid += str(c2.index)
                     k = (altid, c1.chrm, tuple(c1.locs), tuple(c2.locs))
+                    tpair = '%s[%s]/%s[%s]' % (t1.name, t1.source, t2.name, t2.source)
                     if k in k2transcripts:
-                        k2transcripts[k] += ',%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
+                        if tpair not in k2transcripts[k]:
+                            k2transcripts[k].append(tpair)
                     else:
-                        k2transcripts[k] = '%s[%s]/%s[%s]' % (t1.name, t2.source, t2.name, t2.source)
+                        k2transcripts[k] = [tpair]
 
-    for k, tptstr in k2transcripts.iteritems():
+    for k, tpairs in k2transcripts.iteritems():
         altid, chrm, c1, c2 = k
         if q.op: s = q.op+'\t'
         else: s = ''
-        s += outformat.format(altid=altid, tptstr=tptstr, chrm=chrm,
+        s += outformat.format(altid=altid, tptstr=','.join(tpairs), chrm=chrm,
                               codon1='-'.join(map(str,c1)), codon2='-'.join(map(str,c2)))
         print s
 
