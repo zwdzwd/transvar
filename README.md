@@ -23,7 +23,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
 ##### [Ensembl](http://http://www.ensembl.org/info/data/ftp/index.html) (GTF)
 
-   + download: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3722&authkey=!AK4H1QkWAdK-0vY&ithint=file%2cgz), [GRCh37/hg20](https://onedrive.live.com/download?resid=D99B59444B50F902!3723&authkey=!ALdvIJG6D88_GK0&ithint=file%2cgz)
+   + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3722&authkey=!AK4H1QkWAdK-0vY&ithint=file%2cgz), [GRCh38/hg20](https://onedrive.live.com/download?resid=D99B59444B50F902!3723&authkey=!ALdvIJG6D88_GK0&ithint=file%2cgz)
 
    + used in ioan via option ```--ensembl Homo_sapiens.GRCh37.75.gtf.gz```
 
@@ -45,21 +45,21 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
  + used in ioan via option ```--gencode gencode.v19.annotation.gtf.gz```
 
-##### UCSC knownGene (table)
+##### [UCSC knownGene](https://genome.ucsc.edu/cgi-bin/hgTables?command=start) (table)
 
- + available [here](https://genome.ucsc.edu/cgi-bin/hgTables?command=start)
+ + available [here]()
 
  + used in ioan via option ```--kg UCSC_knownGene_hg19.gz --alias UCSC_kgAlias.gz```
 
-##### RefGene via UCSC (table)
+##### [RefGene via UCSC](https://genome.ucsc.edu/cgi-bin/hgTables?command=start) (table)
 
- + available [here](https://genome.ucsc.edu/cgi-bin/hgTables?command=start)
+ + reference assembly: [GRCh37/hg19]()
 
  + used in ioan via option ```--ucsc2 hg19.map```
 
 ##### [AceView](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html) (GFF)
 
- + download: [[GRCh37/hg19]](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
+ + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
  + used in ioan via option `--aceview AceView.ncbi_37.genes_gff.gff`
 
 ### Usage
