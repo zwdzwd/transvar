@@ -57,10 +57,9 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 
  + used in ioan via option ```--ucsc2 hg19.map```
 
-##### AceView (GFF)
+##### [AceView](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html) (GFF)
 
- + available [here](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html)
- [GRCh37](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
+ + download [[**GRCh37**]](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
  + used in ioan via option `--aceview AceView.ncbi_37.genes_gff.gff`
 
 ### Usage
