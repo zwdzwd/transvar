@@ -60,7 +60,7 @@ The following list the transcript annotations supported by ioan. Ioan can take a
 ##### AceView (GFF)
 
  + available [here](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html)
-
+ [GRCh37](http://1drv.ms/1qKT6wT)
  + used in ioan via option `--aceview AceView.ncbi_37.genes_gff.gff`
 
 ### Usage
