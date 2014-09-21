@@ -1,6 +1,6 @@
 import transcripts as trs
 import sys
-from faidx import RefGenome
+import faidx
 
 def normalize_chrm(chrm):
 
@@ -106,14 +106,10 @@ class THash():
 #                 l.append(t)
 #             i += 1
 #             l.append(t)
-        
 
 def parse_annotation(args):
 
-    if args.ref:
-        trs.Transcript.refseq = RefGenome(args.ref)
-    else:
-        trs.Transcript.refseq = None
+    faidx.init_refgenome(args.ref if args.ref else None)
 
     name2gene = {}
     if args.ensembl:
@@ -233,3 +229,20 @@ def opengz(fn):
         fh = open(fn)
 
     return fh
+
+def err_die(msg, fn):
+
+    sys.stderr.write('[%s] %s\n' % (fn, msg))
+    sys.stderr.write('[%s] Abort\n' % fn)
+    sys.exit(1)
+
+def err_warn(msg, fn):
+    sys.stderr.write('[%s] Warning: %s\n' % (fn, msg))
+
+def err_raise(cls, msg, fn):
+    raise cls('[%s] Exception: %s' % (fn, msg))
+
+def err_print(msg):
+    sys.stderr.write('%s\n' % str(msg))
+
+

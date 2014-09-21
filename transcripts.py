@@ -1,5 +1,6 @@
 import sys, re
-from utils import opengz
+from utils import *
+import faidx
 
 def complement(base):
 
@@ -101,6 +102,12 @@ class Codon():
         else:
             return "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA"
 
+def reverse_tnuc_pos(codon, tnuc_pos):
+    
+    if codon.strand == '+':
+        return codon.locs[(tnuc_pos-1)%3]
+    else:
+        return codon.locs[2-(tnuc_pos-1)%3]
 
 def codondiff(c1, c2):
 
@@ -132,7 +139,7 @@ class Transcript():
 
         self.gene   = None
         self.seq    = None
-        self.name   = None
+        self.name   = '.'
         self.exons  = []
         self.cds    = []
 
@@ -146,10 +153,9 @@ class Transcript():
     def ensure_seq(self):
         """ return True when successful """
         if self.seq: return True
-        if not Transcript.refseq:
-            sys.stderr.write("Please provide reference through --ref.\n")
-            sys.exit(1)
-        seq = Transcript.refseq.fetch_sequence(self.chrm, self.beg, self.end)
+        if not faidx.refgenome:
+            err_die("Please provide reference through --ref.\n")
+        seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
         if not seq: return False
         segs = []
@@ -171,6 +177,27 @@ class Transcript():
 
     def is_standard(self):
         return self == self.gene.std_tpt
+
+    def tnuc_range2gnuc_range(self, tbeg, tend):
+
+        """ convert transcript range to genomic range
+        tbeg and tend are 1-based
+        """
+        if not self.ensure_seq(): return None
+        if self.strand == "+":
+            np = []
+            for beg, end in self.exons:
+                np += range(max(beg, self.cds_beg),
+                            min(self.cds_end, end)+1)
+            assert len(np) == len(self.seq)
+            return np[tbeg-1], np[tend-1]
+        else:
+            np = []
+            for beg, end in reversed(self.exons):
+                np += range(min(self.cds_end, end),
+                            max(beg, self.cds_beg)-1,-1)
+            assert len(np) == len(self.seq)
+            return np[tend-1], np[tbeg-1]
 
     def cpos2codon(self, cpos):
 
@@ -562,6 +589,7 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
             name2gene[fields[0]] = g
 
         t = Transcript()
+        t.name = fields[0]
         t.chrm = fields[1]
         t.strand = fields[2]
         t.beg = int(fields[3])

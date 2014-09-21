@@ -55,14 +55,19 @@ def _main_core_(args, thash, q):
                     alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
                 r.taa_alt = standard_codon_table[alt_seq]
 
-            if c.strand == '+':
-                r.tnuc_pos = (c.index-1)*3 + c.locs.index(q.pos) + 1
-            else:
-                r.tnuc_pos = c.index*3 - c.locs.index(q.pos)
-
             r.gnuc_pos = q.pos
             r.gnuc_ref = c.refseq()[c.locs.index(q.pos)]
             r.gnuc_alt = q.alt
+
+            if c.strand == '+':
+                r.tnuc_ref = r.gnuc_ref
+                r.tnuc_alt = r.gnuc_alt
+                r.tnuc_pos = (c.index-1)*3 + c.locs.index(q.pos) + 1
+            else:
+                r.tnuc_ref = complement(r.gnuc_ref)
+                r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
+                r.tnuc_pos = c.index*3 - c.locs.index(q.pos)
+
             r.format(q.op)
 
         elif isinstance(c, NonCoding):

@@ -79,3 +79,7 @@ class RefGenome:
     def __exit__(self, type, value, traceback):
         self.fasta_handle.close()
         self.faidx_handle.close()
+
+def init_refgenome(r=None):
+    global refgenome
+    refgenome = RefGenome(r)
