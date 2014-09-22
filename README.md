@@ -135,12 +135,13 @@ ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST0000
 To annotate a in frame, in phase insertion,
 ```
 #!bash
-ioan revanno --ref ~/reference/hs37d5.fa --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt -i 'ACIN1:c.1932_1933insATTCAC'
+$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt
+     -i 'ACIN1:c.1932_1933insATTCAC'
 ```
-returns
 ```
 #!text
-ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786      CCDS55905.1     ACIN1 (-, coding)       14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH     NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
+ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786      CCDS55905.1   ACIN1 (-, coding)       
+14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH     NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
 ```
 
 To annotate an out-of-phase, in-frame insertion
