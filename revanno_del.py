@@ -85,26 +85,7 @@ def nuc_mutation_del_coding_frameshift(args, q, tpt, r):
     beg_codon_beg = beg_codon_index*3 - 2
     old_seq = tpt.seq[beg_codon_beg-1:]
     new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+tpt.seq[q.end.pos:]
-    taa_pos = None
-    termlen = None
-    for i in xrange(len(new_seq)/3):
-        taa_ref_run = standard_codon_table[old_seq[3*i:3*i+3]]
-        taa_alt_run = standard_codon_table[new_seq[3*i:3*i+3]]
-        # print i, old_seq[3*i:3*i+3], new_seq[3*i:3*i+3], taa_ref_run, taa_alt_run, taa_pos
-        if taa_pos == None and taa_ref_run != taa_alt_run:
-            taa_pos = i
-            taa_ref = taa_ref_run
-            taa_alt = taa_alt_run
-        if taa_alt_run == '*':
-            if taa_pos == None:
-                err_die('Terminating codon encountered before difference.', __name__)
-                return None
-            termlen = i + 1 - taa_pos
-            break
-    if termlen == None:
-        err_die('No terminating codon before the end of the new transcript.', __name__)
-        return None
-    taa_pos += beg_codon_index
+    taa_pos, taa_ref, taa_alt, termlen = extend_taa_seq(beg_codon_index, old_seq, new_seq)
     r.taa_range = '%s%d%sfs*%d' % (taa_ref, taa_pos, taa_alt, termlen)
     r.tnuc_range = '%d_%ddel' % (q.beg.pos, q.end.pos)
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.beg.pos, q.end.pos)
@@ -196,12 +177,12 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
         natdelseq = refdelseq if tpt.strand == '+' else reverse_complement(refdelseq)
         r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (refdelseq, natdelseq)
     else:
-        err_die('Non-coding deletion range. not implemented yet')
+        raise UnImplementedError('Non-coding deletion range. not implemented yet')
 
 
 def nuc_mutation_del(args, q, tpt):
 
-    if q.tpt and tpt.name != q.tpt: return None
+    if q.tpt and tpt.name != q.tpt: raise IncompatibleTranscriptError("Transcript name unmatched")
     tpt.ensure_seq()
 
     r = Record()
@@ -215,7 +196,7 @@ def nuc_mutation_del(args, q, tpt):
         nuc_mutation_del_intronic(args, q, tpt, r)
     else:
         # one of the deletion start and end is in coding, the other in non-coding
-        err_die('Mixing coding and non-coding, not implemented yet')
+        raise UnImplementedError('Mixing coding and intronic, not implemented yet')
 
     return r
 
@@ -223,10 +204,12 @@ def _core_annotate_nuc_del(args, q, tpts):
 
     found = False
     for tpt in tpts:
-        r = nuc_mutation_del(args, q, tpt)
-        if r:
-            found = True
-            r.format(q.op)
+        try:
+            r = nuc_mutation_del(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        found = True
+        r.format(q.op)
 
     if not found:
         r = Record()
