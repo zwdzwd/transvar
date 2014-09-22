@@ -124,8 +124,8 @@ def parse_annotation(args):
     if args.gencode:
         trs.parse_gencode_gtf(args.gencode, name2gene)
 
-    if args.ucsc2:
-        trs.parse_ucsc_refgene_customized(args.ucsc2, name2gene)
+    if args.ucsc:
+        trs.parse_ucsc_refgene_customized(args.ucsc, name2gene)
 
     if args.kg:
         trs.parse_ucsc_kg_table(args.kg, args.alias, name2gene)
@@ -170,17 +170,35 @@ def parse_annotation(args):
 
     return name2gene, thash
 
-def parser_add_annotation(parser):
+def parser_add_annotation(parser, d):
 
-    parser.add_argument('--ref', default=None, help='indexed reference fasta (with .fai)')
-    parser.add_argument('--ensembl', default=None, help='Ensembl GTF transcript annotation')
-    parser.add_argument('--gencode', default=None, help='GENCODE GTF transcript annotation')
-    parser.add_argument('--kg', default=None, help='UCSC knownGene transcript annotation')
-    parser.add_argument('--alias', default=None, help='UCSC knownGene aliases (without providing aliases, only the knownGene id can be searched')
-    parser.add_argument('--ucsc2', default=None,  help='customized UCSC transcript annotation')
-    parser.add_argument('--refseq', default=None, help='RefSeq transcript annotation')
-    parser.add_argument('--ccds', default=None, help='CCDS transcript annotation table')
-    parser.add_argument('--aceview', default=None, help='AceView GFF transcript annotation')
+    parser.add_argument('--ref', nargs='?',
+                        default=d['reference'] if 'reference' in d else None,
+                        help='indexed reference fasta (with .fai) (config key: reference)')
+    parser.add_argument('--ensembl', nargs='?', default=None,
+                        const=d['ensembl'] if 'ensembl' in d else None,
+                        help='Ensembl GTF transcript annotation (config key: ensembl)')
+    parser.add_argument('--gencode', nargs='?', default=None,
+                        const=d['gencode'] if 'gencode' in d else None,
+                        help='GENCODE GTF transcript annotation (config key: gencode)')
+    parser.add_argument('--kg', nargs='?', default=None,
+                        const=d['known_gene'] if 'known_gene' in d else None,
+                        help='UCSC knownGene transcript annotation (config key: known_gene)')
+    parser.add_argument('--alias', nargs='?', default=None,
+                        const=d['known_gene_alias'] if 'known_gene_alias' in d else None,
+                        help='UCSC knownGene aliases (without providing aliases, only the knownGene id can be searched (config key: known_gene_alias)')
+    parser.add_argument('--ucsc', nargs='?', default=None,
+                        const=d['ucsc'] if 'ucsc' in d else None,
+                        help='customized UCSC transcript annotation table (config key: ucsc')
+    parser.add_argument('--refseq', nargs='?', default=None,
+                        const=d['refseq'] if 'refseq' in d else None,
+                        help='RefSeq transcript annotation (config key: refseq)')
+    parser.add_argument('--ccds', nargs='?', default=None,
+                        const=d['ccds'] if 'ccds' in d else None,
+                        help='CCDS transcript annotation table (config key: ccds)')
+    parser.add_argument('--aceview', nargs='?', default=None,
+                        const=d['aceview'] if 'aceview' in d else None,
+                        help='AceView GFF transcript annotation (config key: aceview')
 
     return
 

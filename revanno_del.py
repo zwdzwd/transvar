@@ -106,8 +106,8 @@ def nuc_mutation_del_coding(args, q, tpt, r):
 
 def nuc_mutation_del_intronic(args, q, tpt, r):
 
-    # deletion occurs entirely in non-coding region
-    # need only find genomic location of the deletion
+    """ deletion occurs entirely in non-coding region
+    need only find genomic location of the deletion """
     if q.beg.pos == q.end.pos: # with respect to one exome boundary
         codon = tpt.cpos2codon((q.beg.pos+2)/3)
         if not codon: return None
@@ -121,10 +121,10 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
                 pl = []
                 s = '-'.join(map(str, codon.locs[:i+1]))
                 if s: pl.append(s)
-                pl.append('(%d-%d)' % (gnuc_beg, gnuc_end))
+                pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
                 s = '-'.join(map(str, codon.locs[i+1:]))
                 if s: pl.append(s)
-                r.pos = '-'.join(pl)
+                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
             elif tpt.strand == '-':
                 ir = 2-i
@@ -134,10 +134,10 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
                 pl = []
                 s = '-'.join(map(str, codon.locs[:ir]))
                 if s: pl.append(s)
-                pl.append('(%d-%d)' % (gnuc_beg, gnuc_end))
+                pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
                 s = '-'.join(map(str, codon.locs[ir:]))
                 if s: pl.append(s)
-                r.pos = '-'.join(pl)
+                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
         elif q.beg.tpos < 0:
             if tpt.strand == '+':
@@ -147,10 +147,10 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
                 pl = []
                 s = '-'.join(map(str, codon.locs[:i]))
                 if s: pl.append(s)
-                pl.append('(%d-%d)' % (gnuc_beg, gnuc_end))
+                pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
                 s = '-'.join(map(str, codon.locs[i:]))
                 if s: pl.append(s)
-                r.pos = '-'.join(pl)
+                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
             elif tpt.strand == '-':
                 ir = 2-i
@@ -163,7 +163,7 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
                 pl.append('(%d-%d)' % (gnuc_beg, gnuc_end))
                 s = '-'.join(map(str, codon.locs[ir+1:]))
                 if s: pl.append(s)
-                r.pos = '-'.join(pl)
+                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
         r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
         r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
@@ -178,7 +178,6 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
         r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (refdelseq, natdelseq)
     else:
         raise UnImplementedError('Non-coding deletion range. not implemented yet')
-
 
 def nuc_mutation_del(args, q, tpt):
 

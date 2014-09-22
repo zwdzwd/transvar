@@ -133,9 +133,9 @@ def oldmain():
             print "%s.p%s\t%s\t%d\t%s" % (gene_name, codon_pos, gene.strand(), len(gene.transcripts), '\t'.join(aa_poses))
 
 
-def add_parser_codonsearch(subparsers):
+def add_parser_codonsearch(subparsers, d):
 
     parser = subparsers.add_parser('codonsearch', help=__doc__)
     parser_add_mutation(parser)
-    parser_add_annotation(parser)
+    parser_add_annotation(parser, d)
     parser.set_defaults(func=main)

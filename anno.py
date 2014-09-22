@@ -182,10 +182,10 @@ def main(args):
     if args.i:
         main_one(args, thash)
     
-def add_parser_anno(subparsers):
+def add_parser_anno(subparsers, d):
 
     parser = subparsers.add_parser('anno', help=__doc__)
-    parser_add_annotation(parser)
+    parser_add_annotation(parser, d)
     parser.add_argument('-i', default=None,
                         help="<chrm>:[<ref>]<pos>[<alt>], E.g., chr12:25398285")
     parser.add_argument('-l', default=None,

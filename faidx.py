@@ -82,4 +82,4 @@ class RefGenome:
 
 def init_refgenome(r=None):
     global refgenome
-    refgenome = RefGenome(r)
+    refgenome = RefGenome(r) if r else None

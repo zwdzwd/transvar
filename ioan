@@ -8,17 +8,20 @@ from revanno import add_parser_revanno
 from anno import add_parser_anno
 from codonsearch import add_parser_codonsearch
 from codoneq import add_parser_codoneq
-
+from config import add_parser_config, read_config
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=__doc__)
 
+    d = read_config()
     subparsers = parser.add_subparsers()
-    add_parser_revanno(subparsers)
-    add_parser_anno(subparsers)
-    add_parser_codoneq(subparsers)
-    add_parser_codonsearch(subparsers)
+    add_parser_revanno(subparsers, d)
+    add_parser_anno(subparsers, d)
+    add_parser_codoneq(subparsers, d)
+    add_parser_codonsearch(subparsers, d)
+
+    add_parser_config(subparsers)
 
     args = parser.parse_args()
     args.func(args)

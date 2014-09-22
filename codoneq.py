@@ -37,9 +37,9 @@ def main(args):
         print "Genomic location shouldn't be the same."
 
 
-def add_parser_codoneq(subparsers):
+def add_parser_codoneq(subparsers, d):
 
     parser = subparsers.add_parser("codoneq", help=__doc__)
     parser.add_argument("-c", nargs=2, help="two codons to test. Format: [gene_name].p[codon_location], e.g., MET.p1010", dest='codons')
-    parser_add_annotation(parser)
+    parser_add_annotation(parser, d)
     parser.set_defaults(func=main)

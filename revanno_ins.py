@@ -11,8 +11,7 @@ def nuc_mutation_ins_coding_inframe_inphase(args, q, tpt, r):
     taa_insseq = ''
     for i in xrange(len(q.insseq)/3):
         if standard_codon_table[q.insseq[i*3:i*3+3]] == '*':
-            nuc_mutation_ins_coding_outframe(args, q, tpt, r)
-            return
+            return nuc_mutation_ins_coding_outframe(args, q, tpt, r)
         taa_insseq += standard_codon_table[q.insseq[i*3:i*3+3]]
 
     # otherwise, a pure insertion
@@ -22,6 +21,13 @@ def nuc_mutation_ins_coding_inframe_inphase(args, q, tpt, r):
     r.taa_range = '%s%d_%s%dins%s' % (standard_codon_table[c1.seq], c1.index, 
                                       standard_codon_table[c2.seq], c2.index, 
                                       taa_insseq)
+    refinsseq = q.insseq if tpt.strand == '+' else reverse_complement(q.insseq)
+    gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
+    r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
+    r.tnuc_range = '%d_%dins%s' % (q.pos.pos, q.pos.pos+1, q.insseq)
+    r.pos = '%s:%d-(ins)-%d' % (r.chrm, gnuc_beg, gnuc_end)
+    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+    r.info = 'NatInsSeq=%s;RefInsSeq=%s;Phase=0' % (q.insseq, refinsseq)
 
 def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
 
@@ -30,8 +36,42 @@ def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
     codon = tpt.cpos2codon((q.pos.pos+2)/3)
     if not codon: raise IncompatibleTranscriptError()
 
-    i = q.pos.pos % 3
-    c1.seq 
+    codon_index = (q.pos.pos+2)/3
+    codon_beg = codon_index*3-2
+    codon_end = codon_index*3
+    # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
+    phase = q.pos.pos - codon_beg + 1
+    codon_subseq1 = tpt.seq[codon_beg-1:q.pos.pos]
+    codon_subseq2 = tpt.seq[q.pos.pos:codon_end]
+    new_seq = codon_subseq1+q.insseq+codon_subseq2
+    taa_insseq = ''
+    for i in xrange(len(new_seq)/3):
+        if standard_codon_table[new_seq[i*3:i*3+3]] == '*':
+            return nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r)
+        taa_insseq += standard_codon_table[new_seq[i*3:i*3+3]]
+
+    codon = tpt.cpos2codon(codon_index)
+    if not codon: raise IncompatibleTranscriptError()
+    taa_ref = standard_codon_table[codon.seq]
+    if taa_ref == taa_insseq[0]:
+        # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
+        taa_ref_after = standard_codon_table[tpt.seq[codon.index*3+2:codon.index*3+5]]
+        r.taa_range = '%s%d_%s%dins%s' % (taa_ref, codon.index,
+                                          taa_ref_after, codon.index+1, taa_insseq[1:])
+    elif taa_ref == taa_insseq[-1]:
+        # SdelinsHS becomes a pure insertion [codon_before]_[current_codon]insH
+        taa_ref_before = standard_codon_table[tpt.seq[codon.index*3-6:codon.index*3-3]]
+        r.taa_range = '%s%d_%s%dins%s' % (taa_ref_before, codon.index-1,
+                                          taa_ref, codon.index, taa_insseq[:-1])
+    else:
+        r.taa_range = '%s%ddelins%s' % (taa_ref, codon.index, taa_insseq)
+    refinsseq = q.insseq if tpt.strand == '+' else reverse_complement(q.insseq)
+    gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
+    r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
+    r.tnuc_range = '%d_%dins%s' % (q.pos.pos, q.pos.pos+1, q.insseq)
+    r.pos = '%s:%d-(ins)-%d' % (r.chrm, gnuc_beg, gnuc_end)
+    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+    r.info = 'NatInsSeq=%s(%s)%s;RefInsSeq=%s;Phase=%d' % (codon_subseq1, q.insseq, codon_subseq2, refinsseq, phase)
 
 def nuc_mutation_ins_coding_inframe(args, q, tpt, r):
 
@@ -57,9 +97,6 @@ def nuc_mutation_ins_coding_outframe(args, q, tpt, r):
     r.pos = '%s:%d-%d' % (r.chrm, gnuc_beg, gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
 
-    return
-
-
 def nuc_mutation_ins_coding(args, q, tpt, r):
 
     """ assuming insertion does not affect splicing """
@@ -69,6 +106,48 @@ def nuc_mutation_ins_coding(args, q, tpt, r):
         nuc_mutation_ins_coding_outframe(args, q, tpt, r)
 
     return
+
+def nuc_mutation_ins_intronic(args, q, tpt, r):
+
+    """ assuming insertion does not affect splicing """
+
+    codon = tpt.cpos2codon((q.pos.pos+2)/3)
+    if not codon: raise IncompatibleTranscriptError("No codon")
+    print q.pos.pos, codon.index
+    print codon.locs
+    i = q.pos.pos - (codon.index-1)*3 - 1
+    if tpt.strand == '-': i = 2-i
+    print i
+    if tpt.strand == '+':
+        gnuc_beg = codon.locs[i] + q.pos.tpos
+        gnuc_end = codon.locs[i] + q.pos.tpos + 1
+        if q.pos.tpos > 0: j = i+1
+        elif q.pos.tpos < 0: j = i
+        refinsseq = q.insseq
+    else:
+        gnuc_beg = codon.locs[i] - q.pos.tpos - 1
+        gnuc_end = codon.locs[i] - q.pos.tpos
+        if q.pos.tpos > 0: j = i
+        elif q.pos.tpos < 0: j = i+1
+        refinsseq = reverse_complement(q.insseq)
+    print gnuc_beg, gnuc_end
+    print j
+    if j>0 and j<3 and codon.locs[j-1]+1 == codon.locs[j]:
+        raise IncompatibleTranscriptError('Codon does not contain exon boundary')
+
+    pl = []
+    s = '-'.join(map(str, codon.locs[:j]))
+    if s: pl.append(s)
+    if not (j>0 and codon.locs[j-1] == gnuc_beg): pl.append('(%d)' % gnuc_beg)
+    pl.append('(ins)')
+    if not (j<3 and codon.locs[j] == gnuc_end): pl.append('(%d)' % gnuc_end)
+    s = '-'.join(map(str, codon.locs[j:]))
+    if s: pl.append(s)
+    r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+    r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
+    r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
+    r.tnuc_range = '%d%d_%d%dins%s' % (q.pos.pos, q.pos.tpos, q.pos.pos, q.pos.tpos+1, q.insseq)
+    r.info = 'RefInsSeq=%s;NatInsSeq=%s' % (refinsseq, q.insseq)
 
 def nuc_mutation_ins(args, q, tpt):
     

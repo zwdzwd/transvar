@@ -154,7 +154,7 @@ class Transcript():
         """ return True when successful """
         if self.seq: return True
         if not faidx.refgenome:
-            err_die("Please provide reference through --ref.\n")
+            err_die("Please provide reference through --ref [reference fasta].", __name__)
         seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
         if not seq: return False
