@@ -6,6 +6,7 @@ from transcripts import *
 from utils import *
 from record import *
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
+from revanno_del import _core_annotate_nuc_del
 
 def codon_mutation(args, q):
 
@@ -112,7 +113,7 @@ def nuc_mutation_snv_intronic(r, tpt, codon, q):
 
     r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
     i = q.cpos() - (codon.index-1)*3 - 1
-    if q.pos.tdir == '+':
+    if q.pos.tpos > 0:
         if tpt.strand == '+':
             if codon.locs[i]+1 == codon.locs[i+1]: return False
             r.gnuc_pos = codon.locs[i] + q.pos.tpos
@@ -124,20 +125,20 @@ def nuc_mutation_snv_intronic(r, tpt, codon, q):
             r.gnuc_pos = codon.locs[ir] - q.pos.tpos
             r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:ir])), r.gnuc_pos,
                                     '-'.join(map(str, codon.locs[ir:])))
-    elif q.pos.tdir == '-':
+    elif q.pos.tpos < 0:
         if tpt.strand == '+':
             if codon.locs[i-1]+1 == codon.locs[i]: return False
-            r.gnuc_pos = codon.locs[i] - q.pos.tpos
+            r.gnuc_pos = codon.locs[i] + q.pos.tpos
             r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:i])), r.gnuc_pos,
                                     '-'.join(map(str, codon.locs[i:])))
         elif tpt.strand == '-':
             ir = 2-i
             if codon.locs[ir]+1 == codon.locs[ir+1]: return False
-            r.gnuc_pos = codon.locs[ir] + q.pos.tpos
+            r.gnuc_pos = codon.locs[ir] - q.pos.tpos
             r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:ir+1])), r.gnuc_pos,
                                     '-'.join(map(str, codon.locs[ir+1:])))
     else:
-        raise Exception("Invalid tdir: %s" % q.pos.tdir)
+        raise Exception('Conflicting region: coding vs intronic')
 
     r.gnuc_ref = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_pos, r.gnuc_pos)
     if tpt.strand == '+':
@@ -165,143 +166,10 @@ def nuc_mutation_snv(args, q, tpt):
     r.chrm = tpt.chrm
     r.tname = tpt.name
 
-    if q.pos.tdir:          # coordinates are with respect to the exon boundary
-        if not nuc_mutation_snv_intronic(r, tpt, codon, q): return None
-    else:                # coding region
+    if q.pos.tpos == 0:                # coding region
         if not nuc_mutation_snv_coding(r, tpt, codon, q): return None
-
-    return r
-
-def nuc_mutation_del(args, q, tpt):
-
-    if q.tpt and tpt.name != q.tpt: return None
-    tpt.ensure_seq()
-
-    r = Record()
-    r.chrm = tpt.chrm
-    r.tname = tpt.name
-    r.muttype = 'del'
-
-    if q.beg.tdir and q.end.tdir:
-        # deletion occurs entirely in non-coding region
-        # need only find genomic location of the deletion
-        if q.beg.pos == q.end.pos:
-            codon = tpt.cpos2codon(q.beg.pos)
-            if not codon: return None
-            if q.beg.tdir == '+':
-                if tpt.strand == '+':
-                    if codon.locs[i] + 1 == codon.locs[i+1]: return False
-                    r.gnuc_pos = codon.locs[i] + q.pos.tpos
-                    r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:i+1])), r.gnuc_pos,
-                                            '-'.join(map(str, codon.locs[i+1:])))
-            else:
-                if codon.locs[i] + 1 == codon.locs[i+1]: return False
-                if r.gnuc_pos = codon.locs[ir]: return False
-        else:
-            err_die('Non-coding deletion range. not implemented yet')
-    elif not q.beg.tdir and not q.end.tdir:
-        if (q.end.pos - q.beg.pos) % 3 == 2: # in-frame
-            if q.beg.pos % 3 == 1: # start is the 1st base in codon
-                beg_codon_index = (q.beg.pos + 2) / 3
-                end_codon_index = (q.end.pos + 2) / 3
-                if beg_codon_index == end_codon_index:
-                    beg_codon = tpt.cpos2codon(beg_codon_index)
-                    end_codon = beg_codon
-                    r.taa_range = '%s%ddel' % (standard_codon_table[beg_codon.seq], 
-                                               beg_codon.index)
-                else:
-                    beg_codon = tpt.cpos2codon(beg_codon_index)
-                    end_codon = tpt.cpos2codon(end_codon_index)
-                    r.taa_range = '%s%d_%s%ddel' % (standard_codon_table[beg_codon.seq],
-                                                    beg_codon.index,
-                                                    standard_codon_table[end_codon.seq],
-                                                    end_codon.index)
-                natdelseq = tpt.seq[q.beg.pos-1:q.end.pos]
-                r.info = 'NatDelSeq=%s' % natdelseq
-                r.info += ';RefDelSeq=%s' % (natdelseq if tpt.strand == '+' else reverse_complement(natdelseq), )
-                r.tnuc_range = '%d_%ddel' % (q.beg.pos, q.end.pos)
-                if tpt.strand == '+':
-                    gnuc_beg = beg_codon.locs[0]
-                    gnuc_end = end_codon.locs[2]
-                else:
-                    gnuc_beg = end_codon.locs[0]
-                    gnuc_end = beg_codon.locs[2]
-                r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
-                r.pos = '%s:%d-%d' % (r.chrm, gnuc_beg, gnuc_end)
-                r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
-            else:               # start is the 2nd/3rd base in codon
-                r.muttype = 'delins'
-                beg_codon_index = (q.beg.pos + 2) / 3
-                end_codon_index = (q.end.pos + 2) / 3
-                beg_codon_beg = beg_codon_index*3 - 2
-                end_codon_end = end_codon_index*3
-                # print q.beg.pos, q.end.pos
-                # print beg_codon_index, end_codon_index
-                # print beg_codon_beg, end_codon_end
-                newcodonseq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+tpt.seq[q.end.pos:end_codon_end]
-                r.taa_alt = standard_codon_table[newcodonseq]
-                beg_codon_seq = tpt.seq[beg_codon_beg:beg_codon_beg+3]
-                end_codon_seq = tpt.seq[end_codon_end-3:end_codon_end]
-                r.taa_range = '%s%d_%s%d' % (standard_codon_table[beg_codon_seq], beg_codon_index, 
-                                             standard_codon_table[end_codon_seq], end_codon_index)
-                r.taa_range += 'delins%s' % r.taa_alt
-                beg_codon = tpt.cpos2codon(beg_codon_index)
-                end_codon = tpt.cpos2codon(end_codon_index)
-                r.tnuc_range = '%d_%ddel' % (q.beg.pos, q.end.pos)
-                natdelseq = tpt.seq[q.beg.pos-1:q.end.pos]
-                r.info = 'NatDelSeq=%s' % natdelseq
-                r.info += ';RefDelSeq=%s' % (natdelseq if tpt.strand == '+' else reverse_complement(natdelseq), )
-                gnuc_del_beg = reverse_tnuc_pos(beg_codon, q.beg.pos)
-                gnuc_del_end = reverse_tnuc_pos(end_codon, q.end.pos)
-                if tpt.strand == '+':
-                    gnuc_beg = gnuc_del_beg
-                    gnuc_end = gnuc_del_end
-                else:
-                    gnuc_beg = gnuc_del_end
-                    gnuc_end = gnuc_del_beg
-                r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
-                r.pos = '%s:%d-%d' % (r.chrm, gnuc_beg, gnuc_end)
-                r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
-                # print beg_codon, beg_codon.seq, end_codon, end_codon.seq
-        else:   # frame-shift
-            # assume frame-shift does not affect splicing
-            beg_codon_index = (q.beg.pos + 2) / 3
-            beg_codon_beg = beg_codon_index*3 - 2
-            old_seq = tpt.seq[beg_codon_beg-1:]
-            new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+tpt.seq[q.end.pos:]
-            taa_pos = None
-            termlen = None
-            for i in xrange(len(new_seq)/3):
-                taa_ref_run = standard_codon_table[old_seq[3*i:3*i+3]]
-                taa_alt_run = standard_codon_table[new_seq[3*i:3*i+3]]
-                # print i, old_seq[3*i:3*i+3], new_seq[3*i:3*i+3], taa_ref_run, taa_alt_run, taa_pos
-                if taa_pos == None and taa_ref_run != taa_alt_run:
-                    taa_pos = i
-                    taa_ref = taa_ref_run
-                    taa_alt = taa_alt_run
-                if taa_alt_run == '*':
-                    if taa_pos == None:
-                        err_die('Terminating codon encountered before difference.', __name__)
-                        return None
-                    termlen = i + 1 - taa_pos
-                    break
-            if termlen == None:
-                err_die('No terminating codon before the end of the new transcript.', __name__)
-                return None
-            taa_pos += beg_codon_index
-            r.taa_range = '%s%d%sfs*%d' % (taa_ref, taa_pos, taa_alt, termlen)
-            r.tnuc_range = '%d_%ddel' % (q.beg.pos, q.end.pos)
-            gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.beg.pos, q.end.pos)
-            r.gnuc_range = '%ddel' % gnuc_beg if gnuc_beg == gnuc_end else '%d_%ddel' % (gnuc_beg, gnuc_end)
-            natdelseq = tpt.seq[q.beg.pos-1:q.end.pos]
-            r.info = 'NatDelSeq=%s' % natdelseq
-            r.info += ';RefDelSeq=%s' % (natdelseq if tpt.strand == '+' else reverse_complement(natdelseq), )
-            r.pos = '%s:%d-%d' % (r.chrm, gnuc_beg, gnuc_end)
-            r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
-    else:
-        # one of the deletion start and end is in coding, the other in non-coding
-        err_die('Mixing coding and non-coding, not implemented yet')
-        
+    else:          # coordinates are with respect to the exon boundary
+        if not nuc_mutation_snv_intronic(r, tpt, codon, q): return None
 
     return r
 
@@ -361,22 +229,6 @@ def _core_annotate_nuc_snv(args, q, tpts):
         r.tnuc_pos = q.pos
         r.tnuc_ref = q.ref
         r.tnuc_alt = q.alt
-        r.info = 'NoValidTranscriptFound'
-        r.format(q.op)
-
-    return
-
-def _core_annotate_nuc_del(args, q, tpts):
-
-    found = False
-    for tpt in tpts:
-        r = nuc_mutation_del(args, q, tpt)
-        if r:
-            found = True
-            r.format(q.op)
-
-    if not found:
-        r = Record()
         r.info = 'NoValidTranscriptFound'
         r.format(q.op)
 

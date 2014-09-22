@@ -7,12 +7,11 @@ class Pos():
     def __init__(self):
 
         self.pos = ''
-        self.tpos = ''         # respect to exon boundary
-        self.tdir = ''         # whether +/- relative to exon boundary
+        self.tpos = 0         # respect to exon boundary, non-zero value indicates the position is relative to exon boundary
 
     def __repr__(self):
-        if self.tdir:
-            return '%s%s%s' % (str(self.pos), self.tdir, str(self.tpos))
+        if self.tpos:
+            return '%s%d' % (str(self.pos), self.tpos)
         else: return str(self.pos)
 
 def parse_pos(posstr):
@@ -20,15 +19,13 @@ def parse_pos(posstr):
     if posstr.isdigit():
         p = Pos()
         p.pos = int(posstr)
-        p.tpos = ''
-        p.tdir = ''
+        p.tpos = 0
     else:
-        m = re.match(r'(\d+)([+-])(\d+)', posstr)
+        m = re.match(r'(\d+)([+-]\d+)', posstr)
         if not m: err_raise(InvalidInputError, 'Invalid position string %s.' % posstr, __name__)
         p = Pos()
         p.pos = int(m.group(1))
-        p.tpos = int(m.group(3))
-        p.tdir = m.group(2)
+        p.tpos = int(m.group(2))
 
     return p
 
