@@ -151,7 +151,25 @@ ioan revanno --ref ~/reference/hs37d5.fa --ccds ~/reference/CCDS/Hs37.3/CCDS.cur
 returns
 ```
 #!text
-ACIN1:c.1930_1931insATTCAC      14      14:23548787-(ins)-23548788      CCDS9587.1      ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
+ACIN1:c.1930_1931insATTCAC      14     14:23548787-(ins)-23548788      CCDS9587.1
+      ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS
+     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
+```
+
+To annotate intronic insertion,
+
+```
+#!bash
+ioan revanno --ref ~/reference/hs37d5.fa --ccds 
+    ~/reference/CCDS/Hs37.3/CCDS.current.txt
+    -i 'ADAM33:c.991-3_991-2insC'
+```
+returns
+```
+#!text
+ADAM33:c.991-3_991-2insC        20      
+20:3654141-3654142-3654143-(3654145)-(ins)-(3654146)
+CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.      RefInsSeq=G;NatInsSeq=C
 ```
 
 #### infer potential codon identity
