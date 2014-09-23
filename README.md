@@ -90,7 +90,7 @@ ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
 ```
 In those cases, RevAn prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
-#### reverse annotation of nucleotide mutations
+#### reverse annotation of nucleotide SNV
 Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
@@ -126,6 +126,51 @@ ENST00000286744 15:84442326     p.W81R  15      84442326-84442327-84442328      
 ENST00000369038 1:150530513     p.G757D 1       150530512-150530513-150530514   ENST00000369038 ADAMTSL4 (+ coding)     1:G150530513A/c.2270G>A/p.G757D CddMuts=1:G150530513A;NCodonSeq=GGT;NCddSeqs=GAT
 ENST00000338316 5:7802364       p.V888I 5       7802364-7802365-7802366 ENST00000338316 ADCY2 (+ coding)        5:G7802364A/c.2662G>A/p.V888I   CddMuts=5:G7802364A;NCodonSeq=GTC;NCddSeqs=ATC
 ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST00000338316 ADCY2 (+ coding)        5:T7802365C/c.2663T>C/p.V888A   CddMuts=5:T7802365C;NCodonSeq=GTC;NCddSeqs=GCC
+```
+
+#### reverse annotation of nucleotide insertion
+
+`Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
+
+To annotate a in frame, in phase insertion,
+```
+#!bash
+$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt
+     -i 'ACIN1:c.1932_1933insATTCAC'
+```
+```
+#!text
+ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786      CCDS55905.1   ACIN1 (-, coding)       
+14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH     NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
+```
+
+To annotate an out-of-phase, in-frame insertion
+```
+#!bash
+ioan revanno --ref ~/reference/hs37d5.fa --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt -i 'ACIN1:c.1930_1931insATTCAC'
+```
+returns
+```
+#!text
+ACIN1:c.1930_1931insATTCAC      14     14:23548787-(ins)-23548788      CCDS9587.1
+      ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS
+     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
+```
+
+To annotate intronic insertion,
+
+```
+#!bash
+ioan revanno --ref ~/reference/hs37d5.fa --ccds 
+    ~/reference/CCDS/Hs37.3/CCDS.current.txt
+    -i 'ADAM33:c.991-3_991-2insC'
+```
+returns
+```
+#!text
+ADAM33:c.991-3_991-2insC        20      
+20:3654141-3654142-3654143-(3654145)-(ins)-(3654146)
+CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.      RefInsSeq=G;NatInsSeq=C
 ```
 
 #### infer potential codon identity
@@ -217,6 +262,10 @@ outputs
 chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
      PIK3CA (+, coding)      3:G178936091A/c.1633>/p.E545K   .
 ```
+
+### Technical notes
+
+Ioan follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
