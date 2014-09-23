@@ -126,6 +126,7 @@ def list_parse_mutation(args):
         args.l.readline()
 
     for line in args.l:
+        print line.strip()
         fields = line.strip().split(args.d)
         try:
             q = _list_parse_mutation(args, fields, indices)
@@ -133,8 +134,6 @@ def list_parse_mutation(args):
             err_print(str(e))
             continue
 
-        print line
-        print type(q), q.tok
         yield q
 
 def parser_add_mutation(parser):

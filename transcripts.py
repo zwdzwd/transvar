@@ -713,29 +713,39 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
 
     sys.stderr.write("[%s] Loaded %d transcripts from AceView GFF file.\n" % (__name__, len(id2tpt)))
 
-
 def extend_taa_seq(taa_pos_base, old_seq, new_seq):
 
     taa_pos = None
     termlen = None
     for i in xrange(len(new_seq)/3):
-        taa_ref_run = standard_codon_table[old_seq[3*i:3*i+3]]
-        taa_alt_run = standard_codon_table[new_seq[3*i:3*i+3]]
-        # print i, old_seq[3*i:3*i+3], new_seq[3*i:3*i+3], taa_ref_run, taa_alt_run, taa_pos
+        old_codon_seq = old_seq[3*i:3*i+3]
+        new_codon_seq = new_seq[3*i:3*i+3]
+        if (old_codon_seq not in standard_codon_table or 
+            new_codon_seq not in standard_codon_table): 
+            termlen = '?'
+            break
+
+        taa_ref_run = standard_codon_table[old_codon_seq]
+        taa_alt_run = standard_codon_table[new_codon_seq]
+        print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
         if taa_pos == None and taa_ref_run != taa_alt_run:
             taa_pos = i
             taa_ref = taa_ref_run
             taa_alt = taa_alt_run
         if taa_alt_run == '*':
             if taa_pos == None:
-                err_die('Terminating codon encountered before difference.', __name__)
-                return None
+                # Terminating codon encountered before difference
+                return None     # nothing occur to protein level
             termlen = i + 1 - taa_pos
             break
-    if termlen == None:
-        err_die('No terminating codon before the end of the new transcript.', __name__)
-        return None
-    taa_pos += taa_pos_base
 
-    return taa_pos, taa_ref, taa_alt, termlen
+    if termlen == None:
+        # No terminating codon before the end of the new transcript
+        termlen = '?'
+
+    if not taa_pos:
+        print 'oldseq', old_seq
+        print 'newseq', new_seq
+    taa_pos += taa_pos_base
+    return taa_pos, taa_ref, taa_alt, str(termlen)
 

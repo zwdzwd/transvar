@@ -33,10 +33,10 @@ def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
 
     """ insertion is after 1st or 2nd base of a codon """
 
-    codon = tpt.cpos2codon((q.pos.pos+2)/3)
+    codon_index = (q.pos.pos+2)/3
+    codon = tpt.cpos2codon(codon_index)
     if not codon: raise IncompatibleTranscriptError()
 
-    codon_index = (q.pos.pos+2)/3
     codon_beg = codon_index*3-2
     codon_end = codon_index*3
     # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
@@ -47,15 +47,15 @@ def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
     taa_insseq = ''
     for i in xrange(len(new_seq)/3):
         if standard_codon_table[new_seq[i*3:i*3+3]] == '*':
-            return nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r)
+            return nuc_mutation_ins_coding_outframe(args, q, tpt, r)
         taa_insseq += standard_codon_table[new_seq[i*3:i*3+3]]
 
-    codon = tpt.cpos2codon(codon_index)
     if not codon: raise IncompatibleTranscriptError()
     taa_ref = standard_codon_table[codon.seq]
+    #print codon_beg, len(tpt.seq), new_seq, codon_subseq1, codon_subseq2
     if taa_ref == taa_insseq[0]:
         # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
-        taa_ref_after = standard_codon_table[tpt.seq[codon.index*3+2:codon.index*3+5]]
+        taa_ref_after = standard_codon_table[tpt.seq[codon.index*3:codon.index*3+3]]
         r.taa_range = '%s%d_%s%dins%s' % (taa_ref, codon.index,
                                           taa_ref_after, codon.index+1, taa_insseq[1:])
     elif taa_ref == taa_insseq[-1]:
@@ -85,10 +85,18 @@ def nuc_mutation_ins_coding_outframe(args, q, tpt, r):
 
     beg_codon_index = (q.pos.pos + 2) / 3
     beg_codon_beg = beg_codon_index*3 - 2
+    if beg_codon_beg+3 > len(tpt.seq): raise IncompatibleTranscriptError()
+    #print beg_codon_beg, len(tpt.seq)
+    #print tpt.name, tpt.chrm, tpt.exons
+    #print tpt.seq
     old_seq = tpt.seq[beg_codon_beg-1:]
     new_seq = tpt.seq[beg_codon_beg-1:q.pos.pos]+q.insseq+tpt.seq[q.pos.pos:]
-    taa_pos, taa_ref, taa_alt, termlen = extend_taa_seq(beg_codon_index, old_seq, new_seq)
-    r.taa_range = '%s%d%sfs*%d' % (taa_ref, taa_pos, taa_alt, termlen)
+    ret = extend_taa_seq(beg_codon_index, old_seq, new_seq)
+    if ret:
+        taa_pos, taa_ref, taa_alt, termlen = ret
+        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+    else:
+        r.taa_range = 'synonymous'
     r.tnuc_range = '%d_%dins%s' % (q.pos.pos, q.pos.pos+1, q.insseq)
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
     refinsseq = q.insseq if tpt.strand == '+' else reverse_complement(q.insseq)
@@ -113,11 +121,11 @@ def nuc_mutation_ins_intronic(args, q, tpt, r):
 
     codon = tpt.cpos2codon((q.pos.pos+2)/3)
     if not codon: raise IncompatibleTranscriptError("No codon")
-    print q.pos.pos, codon.index
-    print codon.locs
+    #print q.pos.pos, codon.index
+    #print codon.locs
     i = q.pos.pos - (codon.index-1)*3 - 1
     if tpt.strand == '-': i = 2-i
-    print i
+    #print i
     if tpt.strand == '+':
         gnuc_beg = codon.locs[i] + q.pos.tpos
         gnuc_end = codon.locs[i] + q.pos.tpos + 1
@@ -130,8 +138,8 @@ def nuc_mutation_ins_intronic(args, q, tpt, r):
         if q.pos.tpos > 0: j = i
         elif q.pos.tpos < 0: j = i+1
         refinsseq = reverse_complement(q.insseq)
-    print gnuc_beg, gnuc_end
-    print j
+    #print gnuc_beg, gnuc_end
+    #print j
     if j>0 and j<3 and codon.locs[j-1]+1 == codon.locs[j]:
         raise IncompatibleTranscriptError('Codon does not contain exon boundary')
 
@@ -174,6 +182,9 @@ def _core_annotate_nuc_ins(args, q, tpts):
             r = nuc_mutation_ins(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        # except Exception:
+        #     print q.tok, q.insseq, q.pos.pos, len(tpt.seq)
+        #     raise Exception('dddd')
         found = True
         r.format(q.op)
 

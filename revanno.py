@@ -8,6 +8,7 @@ from record import *
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from revanno_del import _core_annotate_nuc_del
 from revanno_ins import _core_annotate_nuc_ins
+from revanno_mnv import _core_annotate_nuc_mnv
 
 def codon_mutation(args, q):
 

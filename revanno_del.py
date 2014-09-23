@@ -85,8 +85,13 @@ def nuc_mutation_del_coding_frameshift(args, q, tpt, r):
     beg_codon_beg = beg_codon_index*3 - 2
     old_seq = tpt.seq[beg_codon_beg-1:]
     new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+tpt.seq[q.end.pos:]
-    taa_pos, taa_ref, taa_alt, termlen = extend_taa_seq(beg_codon_index, old_seq, new_seq)
-    r.taa_range = '%s%d%sfs*%d' % (taa_ref, taa_pos, taa_alt, termlen)
+    if not old_seq: raise IncompatibleTranscriptError()
+    ret = extend_taa_seq(beg_codon_index, old_seq, new_seq)
+    if ret:
+        taa_pos, taa_ref, taa_alt, termlen = ret
+        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+    else:
+        r.taa_range = 'synonymous'
     r.tnuc_range = '%d_%ddel' % (q.beg.pos, q.end.pos)
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.beg.pos, q.end.pos)
     r.gnuc_range = '%ddel' % gnuc_beg if gnuc_beg == gnuc_end else '%d_%ddel' % (gnuc_beg, gnuc_end)
@@ -112,58 +117,79 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
         codon = tpt.cpos2codon((q.beg.pos+2)/3)
         if not codon: return None
         i = q.beg.pos - (codon.index-1)*3 - 1
-        print q.beg.pos, q.end.pos, codon
-        if q.beg.tpos > 0:
-            if tpt.strand == '+':
-                if codon.locs[i] + 1 == codon.locs[i+1]: return False
-                gnuc_beg = codon.locs[i] + q.beg.tpos
-                gnuc_end = codon.locs[i] + q.end.tpos
-                pl = []
-                s = '-'.join(map(str, codon.locs[:i+1]))
-                if s: pl.append(s)
-                pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
-                s = '-'.join(map(str, codon.locs[i+1:]))
-                if s: pl.append(s)
-                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+        if tpt.strand == '-': i = 2-i
+        if tpt.strand == '+':
+            gnuc_beg = codon.locs[i] + q.beg.tpos
+            gnuc_end = codon.locs[i] + q.end.tpos
+            if q.beg.tpos > 0: j = i+1
+            elif q.beg.tpos < 0: j = i
+        else:
+            gnuc_beg = codon.locs[i] - q.end.tpos
+            gnuc_end = codon.locs[i] - q.beg.tpos
+            if q.beg.tpos > 0: j = i
+            elif q.beg.tpos < 0: j = i+1
+        if j>0 and j<3 and codon.locs[j-1]+1 == codon.locs[j]:
+            raise IncompatibleTranscriptError('Codon does not contain exon boundary')
 
-            elif tpt.strand == '-':
-                ir = 2-i
-                if codon.locs[ir-1]+1 == codon.locs[ir]: return False
-                gnuc_beg = codon.locs[ir] - q.end.tpos
-                gnuc_end = codon.locs[ir] - q.beg.tpos
-                pl = []
-                s = '-'.join(map(str, codon.locs[:ir]))
-                if s: pl.append(s)
-                pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
-                s = '-'.join(map(str, codon.locs[ir:]))
-                if s: pl.append(s)
-                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+        pl = []
+        s = '-'.join(map(str, codon.locs[:j]))
+        if s: pl.append(s)
+        pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
+        s = '-'.join(map(str, codon.locs[j:]))
+        if s: pl.append(s)
+        r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
-        elif q.beg.tpos < 0:
-            if tpt.strand == '+':
-                if codon.locs[i-1]+1 == codon.locs[i]: return False
-                gnuc_beg = codon.locs[i] + q.beg.tpos
-                gnuc_end = codon.locs[i] + q.end.tpos
-                pl = []
-                s = '-'.join(map(str, codon.locs[:i]))
-                if s: pl.append(s)
-                pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
-                s = '-'.join(map(str, codon.locs[i:]))
-                if s: pl.append(s)
-                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+        # if q.beg.tpos > 0:
+        #     if tpt.strand == '+':
+        #         if codon.locs[i] + 1 == codon.locs[i+1]: return False
+        #         gnuc_beg = codon.locs[i] + q.beg.tpos
+        #         gnuc_end = codon.locs[i] + q.end.tpos
+        #         pl = []
+        #         s = '-'.join(map(str, codon.locs[:i+1]))
+        #         if s: pl.append(s)
+        #         pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
+        #         s = '-'.join(map(str, codon.locs[i+1:]))
+        #         if s: pl.append(s)
+        #         r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
-            elif tpt.strand == '-':
-                ir = 2-i
-                if codon.locs[ir]+1 == codon.locs[ir+1]: return False
-                gnuc_beg = codon.locs[ir] - q.end.tpos
-                gnuc_end = codon.locs[ir] - q.beg.tpos
-                pl = []
-                s = '-'.join(map(str, codon.locs[:ir+1]))
-                if s: pl.append(s)
-                pl.append('(%d-%d)' % (gnuc_beg, gnuc_end))
-                s = '-'.join(map(str, codon.locs[ir+1:]))
-                if s: pl.append(s)
-                r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+        #     elif tpt.strand == '-':
+        #         ir = 2-i
+        #         if codon.locs[ir-1]+1 == codon.locs[ir]: return False
+        #         gnuc_beg = codon.locs[ir] - q.end.tpos
+        #         gnuc_end = codon.locs[ir] - q.beg.tpos
+        #         pl = []
+        #         s = '-'.join(map(str, codon.locs[:ir]))
+        #         if s: pl.append(s)
+        #         pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
+        #         s = '-'.join(map(str, codon.locs[ir:]))
+        #         if s: pl.append(s)
+        #         r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+
+        # elif q.beg.tpos < 0:
+        #     if tpt.strand == '+':
+        #         if codon.locs[i-1]+1 == codon.locs[i]: return False
+        #         gnuc_beg = codon.locs[i] + q.beg.tpos
+        #         gnuc_end = codon.locs[i] + q.end.tpos
+        #         pl = []
+        #         s = '-'.join(map(str, codon.locs[:i]))
+        #         if s: pl.append(s)
+        #         pl.append('(%d)-(%d)' % (gnuc_beg, gnuc_end))
+        #         s = '-'.join(map(str, codon.locs[i:]))
+        #         if s: pl.append(s)
+        #         r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+
+        #     elif tpt.strand == '-':
+        #         ir = 2-i
+        #         if codon.locs[ir]+1 == codon.locs[ir+1]: return False
+        #         gnuc_beg = codon.locs[ir] - q.end.tpos
+        #         gnuc_end = codon.locs[ir] - q.beg.tpos
+        #         pl = []
+        #         s = '-'.join(map(str, codon.locs[:ir+1]))
+        #         if s: pl.append(s)
+        #         pl.append('(%d-%d)' % (gnuc_beg, gnuc_end))
+        #         s = '-'.join(map(str, codon.locs[ir+1:]))
+        #         if s: pl.append(s)
+        #         r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
 
         r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
         r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
@@ -178,6 +204,17 @@ def nuc_mutation_del_intronic(args, q, tpt, r):
         r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (refdelseq, natdelseq)
     else:
         raise UnImplementedError('Non-coding deletion range. not implemented yet')
+
+def nuc_mutation_del_mix(args, q, tpt, r):
+
+    if q.beg.tpos < 0 and q.end.tpos == 0:
+        coding_del = q.beg, q.end
+        intronic_del = q.beg.tpos, -1, q.beg
+    elif q.beg.tpos == 0 and q.end.tpos > 0:
+        coding_del = q.beg, q.end
+        intronic_del = 1, q.end.tpos, q.end
+
+    raise UnImplementedError('Mixing coding and intronic, not implemented yet')
 
 def nuc_mutation_del(args, q, tpt):
 
@@ -195,7 +232,7 @@ def nuc_mutation_del(args, q, tpt):
         nuc_mutation_del_intronic(args, q, tpt, r)
     else:
         # one of the deletion start and end is in coding, the other in non-coding
-        raise UnImplementedError('Mixing coding and intronic, not implemented yet')
+        nuc_mutation_del_mix(args, q, tpt, r)
 
     return r
 

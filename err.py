@@ -6,3 +6,6 @@ class IncompatibleTranscriptError(Exception):
 
 class UnImplementedError(Exception):
     pass
+
+class UndeterminedStopCodon(Exception):
+    pass
