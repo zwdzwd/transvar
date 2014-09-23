@@ -174,12 +174,13 @@ CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC
 ```
 
 #### reverse annotate nucleotide deletion
-Here is an example of a deletion that span from intronic to coding region.
+To annotate a deletion that span from intronic to coding region.
 ```
 #!bash
 ioan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
 ```
 ```
+#!text
 ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
    CCDS46444.1     ABCB11 (- coding & intronic)
     2:169833196_169833205del/c.1198-8_1199del/p.K400Tfs*4
