@@ -173,6 +173,21 @@ ADAM33:c.991-3_991-2insC        20
 CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.      RefInsSeq=G;NatInsSeq=C
 ```
 
+#### reverse annotate nucleotide deletion
+To annotate a deletion that span from intronic to coding region.
+```
+#!bash
+ioan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
+```
+```
+#!text
+ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
+   CCDS46444.1     ABCB11 (- coding & intronic)
+    2:169833196_169833205del/c.1198-8_1199del/p.K400Tfs*4
+   RefDelSeq=TTCTGGAGTG;NatDelSeq=CACTCCAGAA
+```
+
+
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
 
