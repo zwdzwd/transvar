@@ -4,14 +4,16 @@ from err import *
 
 class Pos():
 
-    def __init__(self):
+    def __init__(self, pos='', tpos=0):
 
-        self.pos = ''
-        self.tpos = 0         # respect to exon boundary, non-zero value indicates the position is relative to exon boundary
+        self.pos = pos
+        self.tpos = tpos         # respect to exon boundary, non-zero value indicates the position is relative to exon boundary
 
     def __repr__(self):
-        if self.tpos:
+        if self.tpos < 0:
             return '%s%d' % (str(self.pos), self.tpos)
+        elif self.tpos > 0:
+            return '%s+%d' % (str(self.pos), self.tpos)
         else: return str(self.pos)
 
 def parse_pos(posstr):
@@ -89,14 +91,14 @@ class QueryMNV(Query):
 template = "{r.chrm}\t{r.pos}\t{r.tname}\t{r.reg}\t{gnuc}/{tnuc}/{taa}\t{r.info}"
 class Record():
 
-    def __init__(self):
+    def __init__(self, muttype=''):
 
         self.tname = '.'        # transcript name
         self.chrm = '.'         # genomic chromosome
         self.pos = '.'          # genomic position string
         self.reg = '.'          # region
         self.info = '.'         # ;-separated key=value pair
-        self.muttype = ''
+        self.muttype = muttype
 
     def tnuc(self):
         """ format in HGVS nomenclature e.g., c.12345A>T """

@@ -9,3 +9,6 @@ class UnImplementedError(Exception):
 
 class UndeterminedStopCodon(Exception):
     pass
+
+class ReferenceUnavailableError(Exception):
+    pass

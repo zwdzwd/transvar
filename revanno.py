@@ -82,7 +82,7 @@ def codon_mutation(args, q):
 
 def nuc_mutation_snv_coding(r, tpt, codon, q):
 
-    r.reg = '%s (%s coding)' % (tpt.gene.name, tpt.strand)
+    #r.reg = '%s (%s coding)' % (tpt.gene.name, tpt.strand)
     r.pos = '-'.join(map(str, codon.locs))
     r.tnuc_pos = q.cpos()
     r.tnuc_ref = q.ref
@@ -115,63 +115,70 @@ def nuc_mutation_snv_intronic(r, tpt, codon, q):
 
     r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
     i = q.cpos() - (codon.index-1)*3 - 1
-    if q.pos.tpos > 0:
-        if tpt.strand == '+':
-            if codon.locs[i]+1 == codon.locs[i+1]: return False
-            r.gnuc_pos = codon.locs[i] + q.pos.tpos
-            r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:i+1])), r.gnuc_pos,
-                                    '-'.join(map(str, codon.locs[i+1:])))
-        elif tpt.strand == '-':
-            ir = 2-i
-            if codon.locs[ir-1]+1 == codon.locs[ir]: return False
-            r.gnuc_pos = codon.locs[ir] - q.pos.tpos
-            r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:ir])), r.gnuc_pos,
-                                    '-'.join(map(str, codon.locs[ir:])))
-    elif q.pos.tpos < 0:
-        if tpt.strand == '+':
-            if codon.locs[i-1]+1 == codon.locs[i]: return False
-            r.gnuc_pos = codon.locs[i] + q.pos.tpos
-            r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:i])), r.gnuc_pos,
-                                    '-'.join(map(str, codon.locs[i:])))
-        elif tpt.strand == '-':
-            ir = 2-i
-            if codon.locs[ir]+1 == codon.locs[ir+1]: return False
-            r.gnuc_pos = codon.locs[ir] - q.pos.tpos
-            r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:ir+1])), r.gnuc_pos,
-                                    '-'.join(map(str, codon.locs[ir+1:])))
-    else:
-        raise Exception('Conflicting region: coding vs intronic')
+    np = tpt.position_array()
+    check_exon_boundary(np, q.pos)
+    r.gnuc_pos = tnuc2gnuc2(np, q.pos, tpt)
+    r.gnuc_ref = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_pos, r.gnuc_pos)
+    r.pos = r.gnuc_pos
+
+    # if q.pos.tpos > 0:
+    #     if tpt.strand == '+':
+    #         if i>=0 and i<3 and codon.locs[i]+1 == codon.locs[i+1]: return False
+    #         r.gnuc_pos = codon.locs[i] + q.pos.tpos
+    #         r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:i+1])), r.gnuc_pos,
+    #                                 '-'.join(map(str, codon.locs[i+1:])))
+    #     elif tpt.strand == '-':
+    #         ir = 2-i
+    #         if codon.locs[ir-1]+1 == codon.locs[ir]: return False
+    #         r.gnuc_pos = codon.locs[ir] - q.pos.tpos
+    #         r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:ir])), r.gnuc_pos,
+    #                                 '-'.join(map(str, codon.locs[ir:])))
+    # elif q.pos.tpos < 0:
+    #     if tpt.strand == '+':
+    #         if codon.locs[i-1]+1 == codon.locs[i]: return False
+    #         r.gnuc_pos = codon.locs[i] + q.pos.tpos
+    #         r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:i])), r.gnuc_pos,
+    #                                 '-'.join(map(str, codon.locs[i:])))
+    #     elif tpt.strand == '-':
+    #         ir = 2-i
+    #         if codon.locs[ir]+1 == codon.locs[ir+1]: return False
+    #         r.gnuc_pos = codon.locs[ir] - q.pos.tpos
+    #         r.pos = '%s-(%d)-%s' % ('-'.join(map(str, codon.locs[:ir+1])), r.gnuc_pos,
+    #                                 '-'.join(map(str, codon.locs[ir+1:])))
+    # else:
+    #     raise Exception('Conflicting region: coding vs intronic')
 
     r.gnuc_ref = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_pos, r.gnuc_pos)
     if tpt.strand == '+':
-        if q.ref and r.gnuc_ref != q.ref: return False
+        if q.ref and r.gnuc_ref != q.ref: raise IncompatibleTranscriptError()
         r.gnuc_alt = q.alt if q.alt else ''
     else:
-        if q.ref and r.gnuc_ref != complement(q.ref): return False
+        if q.ref and r.gnuc_ref != complement(q.ref): raise IncompatibleTranscriptError()
         r.gnuc_alt = complement(q.alt) if q.alt else ''
     r.tnuc_pos = q.pos
     r.tnuc_ref = r.gnuc_ref if tpt.strand == '+' else complement(r.gnuc_ref)
     r.tnuc_alt = q.alt
 
-    return True
-
 def nuc_mutation_snv(args, q, tpt):
 
-    if q.tpt and tpt.name != q.tpt: return None
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError()
     tpt.ensure_seq()
 
-    if (q.cpos() <= 0 or q.cpos() > len(tpt)): return None
+    if (q.cpos() <= 0 or q.cpos() > len(tpt)):
+        raise IncompatibleTranscriptError()
     codon = tpt.cpos2codon((q.cpos()+2)/3)
-    if not codon: return None
+    if not codon:
+        raise IncompatibleTranscriptError()
 
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
 
     if q.pos.tpos == 0:                # coding region
-        if not nuc_mutation_snv_coding(r, tpt, codon, q): return None
+        nuc_mutation_snv_coding(r, tpt, codon, q)
     else:          # coordinates are with respect to the exon boundary
-        if not nuc_mutation_snv_intronic(r, tpt, codon, q): return None
+        nuc_mutation_snv_intronic(r, tpt, codon, q)
 
     return r
 
@@ -198,7 +205,7 @@ def _core_annotate_codon(args, q):
         r.taa_ref = q.ref
         r.taa_alt = q.alt
         r.taa_pos = q.pos
-        r.info = 'status=NoValidTranscriptFound'
+        r.info = 'NoValidTranscriptFound'
         r.format(q.op)
         
     return
@@ -221,10 +228,12 @@ def _core_annotate_nuc_snv(args, q, tpts):
 
     found = False
     for tpt in tpts:
-        r = nuc_mutation_snv(args, q, tpt)
-        if r:
-            found = True
-            r.format(q.op)
+        try:
+            r = nuc_mutation_snv(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        found = True
+        r.format(q.op)
 
     if not found:
         r = Record()
@@ -248,7 +257,9 @@ def main_list(args, name2gene):
 
     for q in list_parse_mutation(args):
         if q.tok not in name2gene:
-            sys.stderr.write("Gene %s is not recognized.\n" % q.tok)
+            r = Record()
+            r.info = "GeneNotRecognized"
+            r.format(q.op)
             continue
         q.gene = name2gene[q.tok]
         _main_core_(args, q)
@@ -259,8 +270,11 @@ def main_one(args, name2gene):
     if not q: return
 
     if q.tok not in name2gene:
-        sys.stderr.write("Gene %s not recognized.\n" % q.tok)
+        r = Record()
+        r.info = 'GeneNotRecognized'
+        r.format(q.op)
         return
+
     q.gene = name2gene[q.tok]
     q.op = args.i
 

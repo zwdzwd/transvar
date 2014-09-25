@@ -91,7 +91,7 @@ def nuc_mutation_ins_coding_outframe(args, q, tpt, r):
     #print tpt.seq
     old_seq = tpt.seq[beg_codon_beg-1:]
     new_seq = tpt.seq[beg_codon_beg-1:q.pos.pos]+q.insseq+tpt.seq[q.pos.pos:]
-    ret = extend_taa_seq(beg_codon_index, old_seq, new_seq)
+    ret = extend_taa_seq(beg_codon_index, old_seq, new_seq, tpt)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
         r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)

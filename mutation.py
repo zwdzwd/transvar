@@ -126,7 +126,7 @@ def list_parse_mutation(args):
         args.l.readline()
 
     for line in args.l:
-        print line.strip()
+        # print line.strip()
         fields = line.strip().split(args.d)
         try:
             q = _list_parse_mutation(args, fields, indices)

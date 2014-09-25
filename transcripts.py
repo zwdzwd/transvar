@@ -1,5 +1,6 @@
 import sys, re
 from utils import *
+from err import *
 import faidx
 
 def complement(base):
@@ -130,6 +131,31 @@ class NonCoding():
     def format(self):
 
         return "%s\t%s\t%d\t%d" % (self.gene.name, self.region, self.closest_coding_pos, self.relative_coding_pos)
+
+def tnuc2gnuc(np, tnuc_pos):
+    """ np is the position array
+    take integer as input
+    """
+    if tnuc_pos >= len(np):
+        raise IncompatibleTranscriptError()
+    return np[tnuc_pos-1]
+
+def tnuc2gnuc2(np, tnuc_pos, tpt):
+    """ take Pos as input """
+    if tpt.strand == '-':
+        return tnuc2gnuc(np, tnuc_pos.pos) - tnuc_pos.tpos
+    else:
+        return tnuc2gnuc(np, tnuc_pos.pos) + tnuc_pos.tpos
+
+def check_exon_boundary(np, pos):
+    """ check consistency with exon boundary """
+
+    if pos.tpos > 0:
+        if abs(tnuc2gnuc(np, pos.pos) - tnuc2gnuc(np, pos.pos+1)) == 1:
+            raise IncompatibleTranscriptError()
+    elif pos.tpos < 0:
+        if abs(tnuc2gnuc(np, pos.pos) - tnuc2gnuc(np, pos.pos-1)) == 1:
+            raise IncompatibleTranscriptError()
         
 class Transcript():
 
@@ -178,25 +204,38 @@ class Transcript():
     def is_standard(self):
         return self == self.gene.std_tpt
 
-    def tnuc_range2gnuc_range(self, tbeg, tend):
-
-        """ convert transcript range to genomic range
-        tbeg and tend are 1-based
-        """
-        if not self.ensure_seq(): return None
+    def position_array(self):
         if self.strand == "+":
             np = []
             for beg, end in self.exons:
                 np += range(max(beg, self.cds_beg),
                             min(self.cds_end, end)+1)
-            assert len(np) == len(self.seq)
+        else:
+            np = []
+            for beg, end in reversed(self.exons):
+                np += range(min(self.cds_end, end),
+                            max(beg, self.cds_beg)-1,-1)
+
+        return np
+
+    def tnuc_range2gnuc_range(self, tbeg, tend):
+
+        """ convert transcript range to genomic range
+        tbeg and tend are 1-based
+        """
+        if not self.ensure_seq():
+            raise ReferenceUnavailableError() # return None
+        if self.strand == "+":
+            np = []
+            for beg, end in self.exons:
+                np += range(max(beg, self.cds_beg),
+                            min(self.cds_end, end)+1)
             return np[tbeg-1], np[tend-1]
         else:
             np = []
             for beg, end in reversed(self.exons):
                 np += range(min(self.cds_end, end),
                             max(beg, self.cds_beg)-1,-1)
-            assert len(np) == len(self.seq)
             return np[tend-1], np[tbeg-1]
 
     def cpos2codon(self, cpos):
@@ -713,21 +752,29 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
 
     sys.stderr.write("[%s] Loaded %d transcripts from AceView GFF file.\n" % (__name__, len(id2tpt)))
 
-def extend_taa_seq(taa_pos_base, old_seq, new_seq):
+def extend_taa_seq(taa_pos_base, old_seq, new_seq, tpt):
 
     taa_pos = None
     termlen = None
-    for i in xrange(len(new_seq)/3):
-        old_codon_seq = old_seq[3*i:3*i+3]
-        new_codon_seq = new_seq[3*i:3*i+3]
+    seq_end = tpt.cds_end
+    i = 0
+    while True:
+        ci = i*3
+        old_codon_seq = old_seq[ci:ci+3]
+        new_codon_seq = new_seq[ci:ci+3]
+        # if sequence comes to ends, extend sequence from reference file
         if (old_codon_seq not in standard_codon_table or 
-            new_codon_seq not in standard_codon_table): 
-            termlen = '?'
-            break
+            new_codon_seq not in standard_codon_table):
+            seq_inc = faidx.refgenome.fetch_sequence(tpt.chrm, seq_end+1, seq_end+100)
+            old_seq += seq_inc
+            new_seq += seq_inc
+            old_codon_seq = old_seq[ci:ci+3]
+            new_codon_seq = new_seq[ci:ci+3]
+            seq_end += 100
 
         taa_ref_run = standard_codon_table[old_codon_seq]
         taa_alt_run = standard_codon_table[new_codon_seq]
-        print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
+        #print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
         if taa_pos == None and taa_ref_run != taa_alt_run:
             taa_pos = i
             taa_ref = taa_ref_run
@@ -738,12 +785,9 @@ def extend_taa_seq(taa_pos_base, old_seq, new_seq):
                 return None     # nothing occur to protein level
             termlen = i + 1 - taa_pos
             break
+        i += 1
 
-    if termlen == None:
-        # No terminating codon before the end of the new transcript
-        termlen = '?'
-
-    if not taa_pos:
+    if taa_pos == None:
         print 'oldseq', old_seq
         print 'newseq', new_seq
     taa_pos += taa_pos_base
