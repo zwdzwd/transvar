@@ -194,8 +194,9 @@ ADAM33:c.991-3_991-2insC   20   20:3654141-3654142-3654143-(3654145)-(ins)-(3654
 In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`.
 
 #### reverse annotation of nucleotide deletion
-Similar to insertions, deletion can be in-frame or frame-shift. The consequence of deletion to amino acid sequence may appear a simple deletion or a block substitution (in the case where in-frame deletion is out of phase, i.e., partially delete codons). 
-To annotate an **in-frame deletion**,
+Similar to insertions, deletion can be in-frame or frame-shift. The consequence of deletion to amino acid sequence may appear a simple deletion or a block substitution (in the case where in-frame deletion is out of phase, i.e., partially delete codons).
+
+Example: to annotate an **in-frame deletion**,
 ```
 #!bash
 $ revan revanno --ccds -i 'A4GNT:c.694_696delTTG'
@@ -212,11 +213,12 @@ Example: to annotate a **in-frame, out-of-phase deletion**,
 $ revan revanno --ccds -i 'ABHD15.c.431_433delGTG'
 ```
 ```
+#!text
 ABHD15.c.431_433delGTG  17   27893552-27893554    CCDS32602.1     ABHD15 (- coding)
     17:27893552_27893554del/c.431_433del/p.C144_V145delinsF RefDelSeq=CAC;NatDelSeq=GTG
 ```
 
-To annotate a **frame-shift deletion**,
+Example: to annotate a **frame-shift deletion**,
 ```
 #!bash
 $ revan revanno --ccds -i 'AADACL3.c.374delG'
@@ -227,7 +229,7 @@ AADACL3.c.374delG    1    12785494-12785494    CCDS41252.1   AADACL3 (+ coding)
     1:12785494_12785494del/c.374del/p.C125Ffs*17    RefDelSeq=G;NatDelSeq=G
 ```
 
-To annotate a deletion that span from intronic to coding region,
+Example: to annotate a deletion that span from intronic to coding region,
 ```
 #!bash
 revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
