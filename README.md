@@ -93,9 +93,9 @@ RevAn may encounter **ambiguous cases** where the ambiguity cannot be fully reso
 ```
 #!text
 ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
-      X       108926078-108926079-108926080   CCDS14548.1
-      ACSL4 (-, coding)       X:G108926078A/c.399C>T/p.R133R
-      CddMuts=X:G108926078T,X:G108926078C,X:G108926078A;NCodonSeq=CGC;NCddSeqs=AGG,AGA,CGA,CGC,CGG,CGT
+    X       108926078-108926079-108926080   CCDS14548.1
+    ACSL4 (-, coding)       X:G108926078A/c.399C>T/p.R133R
+    CddMuts=X:G108926078T,X:G108926078C,X:G108926078A;NCodonSeq=CGC;NCddSeqs=AGG,AGA,CGA,CGC,CGG,CGT
 ```
 In those cases, RevAn prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
@@ -139,48 +139,55 @@ ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST0000
 
 #### reverse annotation of nucleotide insertion
 
-`Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
-
-To annotate a in frame, in phase insertion,
+Nucleotide insertion may be in-frame or frame-shift. To annotate a in-frame, in-phase insertion,
 ```
 #!bash
-$ revan revanno --ref hs37d5.fa --ccds CCDS.current.txt
-     -i 'ACIN1:c.1932_1933insATTCAC'
+$ revan revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
 ```
 ```
 #!text
-ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786      CCDS55905.1   ACIN1 (-, coding)       
-14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH     NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
+ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786
+    CCDS55905.1    ACIN1 (-, coding)       
+    14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH
+    NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
 ```
+`Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
 
 To annotate an out-of-phase, in-frame insertion
 ```
 #!bash
-revan revanno --ref ~/reference/hs37d5.fa --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt -i 'ACIN1:c.1930_1931insATTCAC'
+revan revanno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
 ```
-returns
 ```
 #!text
 ACIN1:c.1930_1931insATTCAC      14     14:23548787-(ins)-23548788      CCDS9587.1
-      ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS
-     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
+    ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS
+    NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
+```
+
+To annotate a frame-shift mutation, 
+```
+#!bash
+revan revanno --ccds -i 'AAAS:c.1225_1226insG'
+```
+```
+#!text
+AAAS:c.1225_1226insG    12      12:53702089-53702090    CCDS8856.1      AAAS (-, coding)
+    12:53702089_53702090insC/c.1225_1226insG/p.E409Gfs*17   NatInsSeq=G;RefInsSeq=C
 ```
 
 To annotate intronic insertion,
-
 ```
 #!bash
-revan revanno --ref ~/reference/hs37d5.fa --ccds 
-    ~/reference/CCDS/Hs37.3/CCDS.current.txt
-    -i 'ADAM33:c.991-3_991-2insC'
+revan revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
 ```
-returns
 ```
 #!text
-ADAM33:c.991-3_991-2insC        20      
-20:3654141-3654142-3654143-(3654145)-(ins)-(3654146)
-CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.      RefInsSeq=G;NatInsSeq=C
+ADAM33:c.991-3_991-2insC   20   20:3654141-3654142-3654143-(3654145)-(ins)-(3654146)
+    CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.
+    RefInsSeq=G;NatInsSeq=C
 ```
+In this case, amino acid identifier is not applicable, represented in a `.`.
 
 #### reverse annotate nucleotide deletion
 To annotate a deletion that span from intronic to coding region.
