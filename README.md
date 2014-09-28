@@ -169,7 +169,7 @@ ACIN1:c.1930_1931insATTCAC      14     14:23548787-(ins)-23548788      CCDS9587.
     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
 ```
 
-To annotate a frame-shift mutation, 
+To annotate a frame-shift insertion,
 ```
 #!bash
 revan revanno --ccds -i 'AAAS:c.1225_1226insG'
@@ -191,10 +191,20 @@ ADAM33:c.991-3_991-2insC   20   20:3654141-3654142-3654143-(3654145)-(ins)-(3654
     CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.
     RefInsSeq=G;NatInsSeq=C
 ```
-In this case, amino acid identifier is not applicable, represented in a `.`.
+In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`.
 
-#### reverse annotate nucleotide deletion
-To annotate a deletion that span from intronic to coding region.
+#### reverse annotation of nucleotide deletion
+Similar to insertions, deletion can be in-frame or frame-shift. The consequence of deletion to amino acid sequence may appear a simple deletion or a block substitution (in the case where in-frame deletion is out of phase, i.e., partially delete codons). 
+To annotate an in-frame deletion,
+```
+#!bash
+revan revanno --ccds -i 'A4GNT:c.694_696delTTG'
+```
+```
+A4GNT:c.694_696delTTG   3       137843433-137843435     CCDS3097.1      A4GNT (- coding)        3:137843433_137843435del/c.694_696del/p.L232del RefDelSeq=CAA;NatDelSeq=TTG
+```
+
+To annotate a deletion that span from intronic to coding region,
 ```
 #!bash
 revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
