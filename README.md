@@ -269,7 +269,7 @@ A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7242.1
       A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
 ```
 
-Block substitution does not necessarily results in block substitution in amino acid. For example,
+Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion.
 ```
 #!bash
 $ revan revanno --ccds -i 'CSRNP1.c.1212_1224>GGAGGAGGAA'
@@ -279,7 +279,6 @@ $ revan revanno --ccds -i 'CSRNP1.c.1212_1224>GGAGGAGGAA'
 CSRNP1.c.1212_1224>GGAGGAGGAA   3    39185092-39185104   CCDS2682.1   CSRNP1 (-, coding) 
     3:39185092_39185104TTCCTCCTCCTCC>TTCCTCCTCC/c.1212_1224GGAGGAGGAGGAA>GGAGGAGGAA/p.E408del .
 ```
-results in a deletion.
 
 Example: to annotate a block substitution in **intronic region**,
 ```
