@@ -1,4 +1,4 @@
-**Ioan** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read transcript annotation files in their .gz format. Ioan also provides functionality of forward annotation.
+**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read transcript annotation files in their .gz format. Ioan also provides functionality of forward annotation.
 
 --------
 
@@ -44,7 +44,7 @@ The following table summarize the option(s) to use each database in the annotati
  | GENCODE | `--gencode` | `--gencode gencode.v19.annotation.gtf.gz`  |
  | UCSC knownGene | `-kg` | `--kg kg_hg19.gz --alias kgAlias.gz` |
 
-If one download transcripts through `revan config`, RevAn would use the downloaded definition by default. For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
+If one download transcripts through `revan config`, RevAn would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
 ```revan config -k ccds -v [annotation file]```. 
 The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
