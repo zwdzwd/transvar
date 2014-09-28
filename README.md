@@ -82,6 +82,8 @@ For all mutation types, one can batch process a list of mutation identifiers wit
 $ revan revanno -l input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
 ```
 As suggested by the command, RevAn takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of RevAn's performance.
+
+Input:
 ```
 #!text
 ADAMTSL3        ENST00000286744 15:84442328     c.243G>A        p.W81*  Nonsense
@@ -90,7 +92,7 @@ ADAMTSL4        ENST00000369038 1:150530513     c.2270G>A       p.G757D Missense
 ADCY2   ENST00000338316 5:7802364       c.2662G>A       p.V888I Missense
 ADCY2   ENST00000338316 5:7802365       c.2663T>C       p.V888A Missense
 ```
-and output
+Output:
 ```
 #!text
 ENST00000286744 15:84442328     p.W81*  15      84442326-84442327-84442328      ENST00000286744 ADAMTSL3 (+ coding)     15:G84442328A/c.243G>A/p.W81*   CddMuts=15:G84442328A;NCodonSeq=TGG;NCddSeqs=TGA
