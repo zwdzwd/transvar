@@ -59,7 +59,7 @@ def nuc_mutation_del_coding_inframe_outphase(args, q, tpt, r):
     for i in xrange(len(tnuc_delseq)/3):
         aa = standard_codon_table[tnuc_delseq[i*3:i*3+3]]
         taa_delseq += aa
-    print taa_delseq, end_codon_seq, beg_codon_seq, r.taa_alt
+    # print taa_delseq, end_codon_seq, beg_codon_seq, r.taa_alt
     if r.taa_alt == taa_delseq[-1]:
         # G100_S200delinsS becomes a pure deletion G100_D199del
         if len(taa_delseq) == 2:

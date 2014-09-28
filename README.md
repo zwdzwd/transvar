@@ -229,7 +229,7 @@ AADACL3.c.374delG    1    12785494-12785494    CCDS41252.1   AADACL3 (+ coding)
     1:12785494_12785494del/c.374del/p.C125Ffs*17    RefDelSeq=G;NatDelSeq=G
 ```
 
-Example: to annotate a deletion that span from intronic to coding region,
+Example: to annotate a **deletion that span from intronic to coding region**,
 ```
 #!bash
 revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
