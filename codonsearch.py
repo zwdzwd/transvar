@@ -22,7 +22,7 @@ def _main_core_(args, q, thash):
                     if c2.region != 'coding': continue
                     if c1.index == c2.index: continue
                     if q.ref and q.ref != standard_codon_table[c2.seq]: continue
-                    altid = 'p.'
+                    altid = t1.gene.name+'.p.'
                     if q.ref: altid += q.ref
                     altid += str(c2.index)
                     k = (altid, c1.chrm, tuple(c1.locs), tuple(c2.locs))
@@ -63,75 +63,17 @@ def main_list(args, name2gene, thash):
 
 def main_one(args, name2gene, thash):
 
-    q = Query()
-    ret = parse_tok_mutation_str(args.i)
-    if not ret: return
+    q = parse_tok_mutation_str(args.i)
     q.op = args.i
-    q.gn_name, q.is_codon, q.pos, q.ref, q.alt = ret
-    if q.gn_name not in name2gene:
-        sys.stderr.write("Gene %s not recognized.\n" % q.gn_name)
+    if q.tok not in name2gene:
+        sys.stderr.write("Gene %s not recognized.\n" % q.tok)
         return
-    q.gene = name2gene[q.gn_name]
+        return
+
+    q.gene = name2gene[q.tok]
     q.op = args.i
 
     _main_core_(args, q, thash)
-
-def oldmain():
-
-    for line in args.l:
-        fields = line.strip().split(args.d)
-        op = '\t'.join(indices.extract(fields))
-
-        for line in f:
-
-            # if line.strip() != "TP53:281":
-                # continue
-
-            gene = name2gene[gene_name]
-            codon_pos = int(codon_pos)
-            loc2trans = {}
-            locs = set()
-            for i, trans in enumerate(gene.transcripts):
-                nucpos = trans.aa_pos2nuc_pos(codon_pos)
-                if nucpos:
-                    locs.add(tuple(nucpos))
-
-                    if tuple(nucpos) in loc2trans:
-                        loc2trans[tuple(nucpos)].append(trans)
-                    else:
-                        loc2trans[tuple(nucpos)] = [trans]
-
-                    # print trans, trans.cds_beg, trans.cds_end, nucpos, trans.exons
-
-            aa_poses = set()
-            aa_pos2trans = {}
-            for loc in locs:
-                for i, trans in enumerate(gene.transcripts):
-                    result = trans.nuc_pos2aa_pos(loc[0])
-                    if not result:
-                        continue
-                    aa_pos, codon_loc = result
-                    # print i, trans, "nucleotide loc: ", loc, "aa loc: ", result
-
-                    # if aa_pos <=0:
-                    #     print trans, trans.cds_beg, trans.cds_end, loc, aa_pos
-                    #     print trans.exons
-                    #     import sys
-                    #     sys.exit(1)
-
-                    if aa_pos != codon_pos:
-                        # aa_poses.add("%s:%d:%d" % (gene_name, aa_pos, codon_loc))
-                        aa_poses.add("%s.p%d" % (gene_name, aa_pos))
-
-                        aa_pos_str = "%s.p%d" % (gene_name, aa_pos)
-                        if aa_pos_str in aa_pos2trans:
-                            aa_pos2trans[aa_pos_str].append((trans))
-                        else:
-                            aa_pos2trans[aa_pos_str] = [(aa_pos2trans, trans)]
-
-
-            print "%s.p%s\t%s\t%d\t%s" % (gene_name, codon_pos, gene.strand(), len(gene.transcripts), '\t'.join(aa_poses))
-
 
 def add_parser_codonsearch(subparsers, d):
 
