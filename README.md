@@ -16,11 +16,11 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/revan/get/v1.0.zip
- $ unzip v1.0.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.01.zip
+ $ unzip v1.01.zip
  $ cd [unzipped dir]
  $ ./revan config --download_hg19_anno
- $ ./revan revanno --ccds -i 'PIK3CA.p.E545K'
+ $ ./revan revanno --ucsc -i 'PIK3CA.p.E545K'
 ```
 
 ### Download and Install
@@ -33,6 +33,10 @@
  $ unzip [downloaded zip]
  $ make
 ```
+
+#### reference genome
+For most annotation database, RevAn requires a samtools indexed reference genome in fasta format, which is available at, e.g., http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit.
+Once downloaded and indexed one could specify the default location by `revan config -k ref -v hg19.fa` so that there is no need to specify the location of reference on each subsequent usage.
 
 #### transcript annotations
 
