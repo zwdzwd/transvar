@@ -61,7 +61,7 @@ Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to `[install 
 The following table summarize the option(s) to use each database in the annotation
 
  | Database | Format | Default  | Non-default     |
- |:-------|:--------|:---------|
+ |:-------|:--------|:---------|:----|
  | CCDS | CCDS flat text | `--ccds` | `--ccds CCDS.current.txt` |
  | UCSC RefGene | UCSC flat text | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
  | Ensembl | Ensembl GTF | `--ensembl`  | `--ensembl Homo_sapiens.GRCh37.75.gtf.gz`  |
