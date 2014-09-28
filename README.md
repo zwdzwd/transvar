@@ -12,6 +12,16 @@
 
 --------
 
+### Quick start
+
+```
+#!bash
+ $ wget https://bitbucket.org/wanding/revan/get/v1.0.zip
+ $ unzip [download zip]
+ $ revan config --download_hg19_anno
+ $ revan revanno --ccds -i 'PIK3CA.p.E545K'
+```
+
 ### Download and Install
 
 #### program
