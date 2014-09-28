@@ -36,7 +36,7 @@
 
 #### reference genome assembly
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), RevAn requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
-Once downloaded and indexed one could use in RevAn through the `--ref` option. One also has the option of specifying the default location by 
+Once downloaded and indexed one could use in RevAn through the `--ref` option. One also has the option of specifying the default location to `revan.cfg` by 
 ```
 #!bash
 revan config -k ref -v hg19.fa
