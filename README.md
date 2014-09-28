@@ -409,9 +409,9 @@ chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
 
 RevAn follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
 
-### Bug report and feature request
+## Bug report and feature request
 
-If you find any bugs (there is very likely due to the complexity of genomics) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
+If you find any bugs (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
