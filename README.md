@@ -187,6 +187,18 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
    RefDelSeq=TTCTGGAGTG;NatDelSeq=CACTCCAGAA
 ```
 
+#### reverse annotate nucleotide block substitution
+```
+#!bash
+ioan revanno --ccds -i 'A1CF:c.508_509CC>TT'
+```
+```
+#!text
+A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7241.1
+      A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
+A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7242.1
+      A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
+```
 
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
