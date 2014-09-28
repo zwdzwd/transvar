@@ -1,4 +1,4 @@
-**Ioan** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read transcript annotation files in their .gz format. Ioan also provides functionality of forward annotation.
+**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read transcript annotation files in their .gz format. Ioan also provides functionality of forward annotation.
 
 --------
 
@@ -21,48 +21,32 @@
 
 The following list the transcript annotations supported by ioan. Ioan can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 
-##### [Ensembl](http://http://www.ensembl.org/info/data/ftp/index.html) (GTF)
-
-   + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3722&authkey=!AK4H1QkWAdK-0vY&ithint=file%2cgz), [GRCh38/hg20](https://onedrive.live.com/download?resid=D99B59444B50F902!3723&authkey=!ALdvIJG6D88_GK0&ithint=file%2cgz)
-
-   + used in ioan via option `--ensembl Homo_sapiens.GRCh37.75.gtf.gz`
-
-##### [NCBI RefSeq](ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/) (GFF3)
-
- + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3728&authkey=!AKMcl0ngrzc0lxw&ithint=file%2cgz), [GRCh38/hg20](https://onedrive.live.com/download?resid=D99B59444B50F902!3727&authkey=!AJpDX4g-I7RJ0Vk&ithint=file%2cgz)
-
- + used in ioan via option `--refseq ref_GRCh37.p13_top_level.gff3.gz`
-
-##### [CCDS](http://www.ncbi.nlm.nih.gov/CCDS/CcdsBrowse.cgi) (flat table)
-
- + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3726&authkey=!AJW85YlmJq7sHrk&ithint=file%2ctxt)
-
- + used in ioan via option `--ccds CCDS.current.txt`
-
-##### [GENCODE](http://www.gencodegenes.org/releases/19.html) (GTF)
-
- + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3725&authkey=!AKKxaR0pjclUiQM&ithint=file%2cgz)
-
- + used in ioan via option `--gencode gencode.v19.annotation.gtf.gz`
-
-##### [UCSC knownGene](https://genome.ucsc.edu/cgi-bin/hgTables?command=start) (flat table)
-
- + reference assembly: [GRCh37/hg19](https://onedrive.live.com/redir?resid=D99B59444B50F902!3730&authkey=!ANI0oFqFBXInYjo&ithint=file%2cgz), [gene aliases](https://onedrive.live.com/download?resid=D99B59444B50F902!3729&authkey=!ADcrMEY1zupH7s0&ithint=file%2cgz)
- + used in ioan via option `--kg UCSC_knownGene_hg19.gz --alias UCSC_kgAlias.gz`
-
-##### [RefGene via UCSC](https://genome.ucsc.edu/cgi-bin/hgTables?command=start) (flat table)
-
- + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3724&authkey=!AMA2ySxnh_iOWyE&ithint=file%2cmap)
-
- + used in ioan via option `--ucsc2 hg19.map`
-
-##### [AceView](http://www.ncbi.nlm.nih.gov/IEB/Research/Acembly/Download/Downloads.html) (GFF)
-
- + reference assembly: [GRCh37/hg19](https://onedrive.live.com/download?resid=D99B59444B50F902!3720&authkey=!ACeTSb36uYBDBW0&ithint=file%2cgz)
- + used in ioan via option e.g., `--aceview AceView.ncbi_37.genes_gff.gff.gz`
+```
+#!bash
+revan config --download_hg19_anno
+```
+will automatically download annotation from
+Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to `[install dir]/download` directory.
 
 ### Usage
 
+#### specify transcript annotation
+
+The following table summarize the option(s) to use each database in the annotation
+
+ | Database | Default  | Non-default     |
+ |:-------|:--------|:---------|
+ | CCDS | `--ccds` | `--ccds CCDS.current.txt` |
+ | UCSC RefGene | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
+ | Ensembl | `--ensembl`  | `--ensembl Homo_sapiens.GRCh37.75.gtf.gz`  |
+ | RefSeq | `--refseq`  | `--refseq ref_GRCh37.p13_top_level.gff3.gz`   |
+ | AceView | `--aceview` | `--aceview AceView.ncbi_37.genes_gff.gff.gz`  |
+ | GENCODE | `--gencode` | `--gencode gencode.v19.annotation.gtf.gz`  |
+ | UCSC knownGene | `-kg` | `--kg kg_hg19.gz --alias kgAlias.gz` |
+
+If one download transcripts through `revan config`, RevAn would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
+```revan config -k ccds -v [annotation file]```. 
+The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
 #### reverse annotation of amino acid mutations
 Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. Ioan takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
@@ -187,6 +171,18 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
    RefDelSeq=TTCTGGAGTG;NatDelSeq=CACTCCAGAA
 ```
 
+#### reverse annotate nucleotide block substitution
+```
+#!bash
+ioan revanno --ccds -i 'A1CF:c.508_509CC>TT'
+```
+```
+#!text
+A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7241.1
+      A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
+A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7242.1
+      A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
+```
 
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
