@@ -145,7 +145,7 @@ PIK3CA:E545K    3    178936091-178936092-178936093   CCDS43171.1
 
 #### reverse annotation of nucleotide insertion
 
-Nucleotide insertion may be in-frame or frame-shift. To annotate a in-frame, in-phase insertion,
+Example: to annotate a *in-frame, in-phase insertion*,
 ```
 #!bash
 $ revan revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
@@ -159,7 +159,7 @@ ACIN1:c.1932_1933insATTCAC    14     14:23548785-(ins)-23548786
 ```
 `Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
 
-To annotate an out-of-phase, in-frame insertion
+Example: to annotate an **out-of-phase, in-frame insertion**,
 ```
 #!bash
 revan revanno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
@@ -171,7 +171,7 @@ ACIN1:c.1930_1931insATTCAC   14     14:23548787-(ins)-23548788      CCDS9587.1
     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
 ```
 
-To annotate a frame-shift insertion,
+Example: to annotate a **frame-shift insertion**,
 ```
 #!bash
 revan revanno --ccds -i 'AAAS:c.1225_1226insG'
@@ -182,7 +182,7 @@ AAAS:c.1225_1226insG    12   12:53702089-53702090    CCDS8856.1    AAAS (-, codi
     12:53702089_53702090insC/c.1225_1226insG/p.E409Gfs*17   NatInsSeq=G;RefInsSeq=C
 ```
 
-To annotate intronic insertion,
+Example: to annotate an **intronic insertion**,
 ```
 #!bash
 $ revan revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
