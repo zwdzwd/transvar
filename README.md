@@ -415,5 +415,9 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
 
 If you find any bug (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
 
+## Reference
+
+We are working on submitting an application note on this topic:-).
+
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
