@@ -306,6 +306,7 @@ A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, cod
 
 #### search alternative codon identifiers
 
+An identifier is regarded as an alternative if the underlying codon overlap with the one from the original identifier.
 Example: to search alternative identifiers of CDKN2A.p.58 (without knowing reference allele),
 ```
 #!bash
@@ -318,6 +319,7 @@ CDKN2A.p.58    CDKN2A.p.72   9    21971184-21971185-21971186   21971185-21971186
 CDKN2A.p.58    CDKN2A.p.73   9    21971184-21971185-21971186   21971182-21971183-21971184
     CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
 ```
+The pair of transcript id listed corresponds to the transcripts based on which, the original and alternative identifiers are defined. Multiple pairs of transcript definitions are appended following a `,`.
 
 Example: to search alternative identifiers of DHODH:G152R (knowing reference allele `G`, alternative allele here will be ignored),
 ```
@@ -333,7 +335,7 @@ DHODH:G152R     DHODH.p.G16   16      72050942-72050943-72050944      72050942-7
 ```
 RevAn outputs genomic positions of codons based on original transcript (4th column in the output) and alternative transcript (5th column in the output). The potential transcript usages are also appended.
 
-Example: to run `revan codonsearch` to batch process a list of mutation identifiers.
+Example: to run `revan codonsearch` to **batch process** a list of mutation identifiers.
 ```
 #!bash
 $ revan codonsearch -l input.table --ccds -m 1 -o 1
@@ -411,7 +413,7 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
 
 ## Bug report and feature request
 
-If you find any bugs (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
+If you find any bug (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
