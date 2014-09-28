@@ -16,8 +16,8 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/revan/get/v1.01.zip
- $ unzip v1.01.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.02.zip
+ $ unzip v1.02.zip
  $ cd [unzipped dir]
  $ ./revan config --download_hg19_anno
  $ ./revan revanno --ucsc -i 'PIK3CA.p.E545K'
@@ -29,7 +29,7 @@
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/revan/get/v1.0.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.02.zip
  $ unzip [downloaded zip]
  $ make
 ```
