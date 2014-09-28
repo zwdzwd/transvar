@@ -292,7 +292,7 @@ A1CF:c.1460+2_1460+3TG>CC    10    52570797-52570798   CCDS7241.1    A1CF (-, in
     10:52570797_52570798CA>GG/c.1460+2_1460+3TG>CC/.        .
 ```
 
-When block substitution occurs to splice site, RevAn put a tag in the info fields and does not output amino acid change.
+When block substitution occurs **across splice site**, RevAn put a tag in the info fields and does not predict amino acid change.
 ```
 #!bash
 $ revan revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
