@@ -38,6 +38,7 @@
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), RevAn requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
 Once downloaded and indexed one could specify the default location by 
 ```
+#!bash
 revan config -k ref -v hg19.fa
 ```
 so that there is no need to specify the location of reference on subsequent usages.
@@ -59,15 +60,15 @@ Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to `[install 
 
 The following table summarize the option(s) to use each database in the annotation
 
- | Database | Default  | Non-default     |
+ | Database | Format | Default  | Non-default     |
  |:-------|:--------|:---------|
- | CCDS | `--ccds` | `--ccds CCDS.current.txt` |
- | UCSC RefGene | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
- | Ensembl | `--ensembl`  | `--ensembl Homo_sapiens.GRCh37.75.gtf.gz`  |
- | RefSeq | `--refseq`  | `--refseq ref_GRCh37.p13_top_level.gff3.gz`   |
- | AceView | `--aceview` | `--aceview AceView.ncbi_37.genes_gff.gff.gz`  |
- | GENCODE | `--gencode` | `--gencode gencode.v19.annotation.gtf.gz`  |
- | UCSC knownGene | `-kg` | `--kg kg_hg19.gz --alias kgAlias.gz` |
+ | CCDS | CCDS flat text | `--ccds` | `--ccds CCDS.current.txt` |
+ | UCSC RefGene | UCSC flat text | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
+ | Ensembl | Ensembl GTF | `--ensembl`  | `--ensembl Homo_sapiens.GRCh37.75.gtf.gz`  |
+ | RefSeq | RefSeq GFF3 | `--refseq`  | `--refseq ref_GRCh37.p13_top_level.gff3.gz`   |
+ | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi_37.genes_gff.gff.gz`  |
+ | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.annotation.gtf.gz`  |
+ | UCSC knownGene | knownGene table | `-kg` | `--kg kg_hg19.gz --alias kgAlias.gz` |
 
 If one download transcripts through `revan config`, RevAn would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
 ```revan config -k ccds -v [annotation file]```. 
