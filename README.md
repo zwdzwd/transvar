@@ -303,27 +303,6 @@ A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, cod
 ```
 
 ---
-#### infer potential codon identity
-Given two amino acid positions and infer potential identity due to different usage of transcripts.
-
-```
-#!bash
-$ revan codoneq -c MET.p1010 MET.p992 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa
-```
-gives
-```
-#!text
-MET 1010
-transcript [ENST00000397752] 1  codon: 116412043-116414935-116414936
-transcript [ENST00000318493] 2  codon: 116411989-116411990-116411991
-MET 992
-transcript [ENST00000397752] 1  codon: 116411989,116411990,116411991
-transcript [ENST00000318493] 2  codon: 116411935,116411936,116411937
-Genomic location might be the same.
-
-```
-
- + input: 1) gene-codon position 1; 2) gene-codon position 2; 3) annotation database
 
 #### search alternative codon identifiers
 
@@ -387,6 +366,28 @@ ERBB2.p755      ERBB2.p.725   17      37880219-37880220-37880221      37880219-3
 ERBB2.p755      ERBB2.p.785   17      37881024-37881025-37881026      37881024-37881025-37881026      CCDS45667.1[CDDS]/CCDS32642.1[CDDS],CCDS45667.1[CDDS]/CCDS32642.1[CDDS],CCDS45667.1[CDDS]/CCDS32642.1[CDDS]
 ```
 The third column indicates the potential transcript usage for the alternative identifier. Each transcript usage is denoted by <listing transcript>/<actual transcript>. Different potential choices are separated by ','.
+
+---
+#### infer potential codon identity
+
+Example: to check if MET.p1010 and MET.p992 may be refering to one mutation due to different usage of transcripts,
+```
+#!bash
+$ revan codonsearch --refseq -i MET.p1010
+```
+gives
+```
+MET.p.1010      MET.p.1047      7       116412043-116414935-116414936   116412043-116414935-116414936   NM_000245.2[RefSeq]/XM_005250353.1[RefSeq]
+MET.p.1010      MET.p.580       7       116412043-116414935-116414936   116412043-116414935-116414936   NM_000245.2[RefSeq]/XM_005250354.1[RefSeq]
+MET.p.1010      MET.p.991       7       116411932-116411933-116411934   116411932-116411933-116411934   XM_005250353.1[RefSeq]/NM_001127500.1[RefSeq]
+MET.p.1010      MET.p.1029      7       116411989-116411990-116411991   116411989-116411990-116411991   NM_001127500.1[RefSeq]/XM_005250353.1[RefSeq]
+MET.p.1010      MET.p.543       7       116411932-116411933-116411934   116411932-116411933-116411934   XM_005250353.1[RefSeq]/XM_005250354.1[RefSeq]
+MET.p.1010      MET.p.992       7       116411989-116411990-116411991   116411989-116411990-116411991   NM_001127500.1[RefSeq]/NM_000245.2[RefSeq]
+MET.p.1010      MET.p.973       7       116411932-116411933-116411934   116411932-116411933-116411934   XM_005250353.1[RefSeq]/NM_000245.2[RefSeq]
+MET.p.1010      MET.p.1028      7       116412043-116414935-116414936   116412043-116414935-116414936   NM_000245.2[RefSeq]/NM_001127500.1[RefSeq]
+MET.p.1010      MET.p.562       7       116411989-116411990-116411991   116411989-116411990-116411991   NM_001127500.1[RefSeq]/XM_005250354.1[RefSeq]
+```
+since MET.p.992 is in the list, the two identifiers might be due to the same genomic mutation.
 
 #### annotate mutations from genomic locations
 
