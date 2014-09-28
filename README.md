@@ -255,6 +255,8 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
 ---
 
 #### reverse annotation of nucleotide block substitution
+
+Example: to annotate a block substitution in **coding region**,
 ```
 #!bash
 $ revan revanno --ccds -i 'A1CF:c.508_509CC>TT'
@@ -279,7 +281,27 @@ CSRNP1.c.1212_1224>GGAGGAGGAA   3    39185092-39185104   CCDS2682.1   CSRNP1 (-,
 ```
 results in a deletion.
 
+Example: to annotate a block substitution in **intronic region**,
+```
+#!bash
+$ revan revanno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
+```
+```
+#!text
+A1CF:c.1460+2_1460+3TG>CC    10    52570797-52570798   CCDS7241.1    A1CF (-, intronic)
+    10:52570797_52570798CA>GG/c.1460+2_1460+3TG>CC/.        .
+```
+
 When block substitution occurs to splice site, RevAn put a tag in the info fields and does not output amino acid change.
+```
+#!bash
+$ revan revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
+```
+```
+#!text
+A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
+    10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite
+```
 
 ---
 #### infer potential codon identity

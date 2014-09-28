@@ -16,6 +16,7 @@ def nuc_mutation_mnv_coding_inframe(args, q, tpt, r):
     new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+q.altseq+tpt.seq[q.end.pos:end_codon_end]
     old_taa_seq = translate_seq(old_seq)
     new_taa_seq = translate_seq(new_seq)
+    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
     if old_taa_seq == new_taa_seq:
         r.taa_range = '(=)'
     else:
@@ -112,8 +113,11 @@ def nuc_mutation_mnv(args, q, tpt):
     if region_in_exon(np, q.beg, q.end):
         nuc_mutation_mnv_coding(args, q, tpt, r)
     elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
-        print q.beg, q.end, r.gnuc_range, tpt.chrm
-        raise UnImplementedError('Block mutation occurs across splice site')
+        r.info = 'CrossSplitSite'
+        r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
+        # raise UnImplementedError('Block mutation occurs across splice site')
+    else:
+        r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
 
     return r
 
