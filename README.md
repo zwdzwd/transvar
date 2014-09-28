@@ -1,4 +1,10 @@
-**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. RevAn fully supports HGVS nomenclature and can handle single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions at both coding region and intronic/UTR regions. RevAn supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc and can read transcript annotation files in their .gz format. RevAn also provides functionality of forward annotation.
+**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. RevAn has the following features:
+
+ + support to uncertainty in HGVS nomenclature
+ + can handle single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
+ + support to mutations at both coding region and intronic/UTR regions
+ + RevAn supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
+ + RevAn also provides functionality of forward annotation.
 
 --------
 
