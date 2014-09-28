@@ -84,33 +84,34 @@ $ revan revanno -i PIK3CA:E545K --ensembl
 outputs
 ```
 #!text
-PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967 
-PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K 
-CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
+PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967
+    PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K 
+    CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
 
-RevAn may encounter cases where the ambiguity cannot be fully resolved. For example,
+RevAn may encounter **ambiguous cases** where the ambiguity cannot be fully resolved. For example,
 ```
 #!text
 ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
-      X       108926078-108926079-108926080   CCDS14548.1      ACSL4 (-, coding)       X:G108926078A/c.399C>T/p.R133R
+      X       108926078-108926079-108926080   CCDS14548.1
+      ACSL4 (-, coding)       X:G108926078A/c.399C>T/p.R133R
       CddMuts=X:G108926078T,X:G108926078C,X:G108926078A;NCodonSeq=CGC;NCddSeqs=AGG,AGA,CGA,CGC,CGG,CGT
 ```
 In those cases, RevAn prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
-#### reverse annotation of nucleotide SNV
+#### reverse annotation of Single Nucleotide Variation (SNV)
+
 RevAn infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
-$ revan revanno --ref hs37d5.fa --ccds CCDS.current.txt -i 'PIK3CA:c.1633G>A'
+$ revan revanno --ccds -i 'PIK3CA:c.1633G>A'
 ```
 outputs
-
 ```
 #!text
 PIK3CA:E545K    3       178936091-178936092-178936093   CCDS43171.1
-     PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
- CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
+    PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
+    CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
 or one can batch process a list of mutation identifiers with optional transcript id to constraint the search
 ```
