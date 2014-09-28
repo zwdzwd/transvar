@@ -144,8 +144,9 @@ PIK3CA:E545K    3    178936091-178936092-178936093   CCDS43171.1
 ```
 
 #### reverse annotation of nucleotide insertion
+An insertion may result in 1) a pure insertion of amino acids; 2) a block substitution of amino acids (when insertion occur after 1st or 2nd base in a codon; or 3) a frame-shift. Following HGVS nomenclature, RevAn labels the first different amino acid and the length of the peptide util stop codon, assuming no change in the splicing.
 
-Example: to annotate a *in-frame, in-phase insertion*,
+Example: to annotate a **in-frame, in-phase insertion**,
 ```
 #!bash
 $ revan revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
