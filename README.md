@@ -79,7 +79,7 @@ The configuration file is located either at the `[install dir]/revan.cfg` or `~/
 For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search,
 ```
 #!bash
-$ revan revanno -l input_table -g 1 -m 4 -t 2 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa -o 2,3,5 | les
+$ revan revanno -l input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
 ```
 As suggested by the command, RevAn takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of RevAn's performance.
 ```
