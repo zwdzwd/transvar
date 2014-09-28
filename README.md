@@ -44,9 +44,9 @@ The following table summarize the option(s) to use each database in the annotati
  | GENCODE | `--gencode` | `--gencode gencode.v19.annotation.gtf.gz`  |
  | UCSC knownGene | `-kg` | `--kg kg_hg19.gz --alias kgAlias.gz` |
 
-If one download transcripts through `revan config`, RevAn would use the downloaded definition by default. For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [your annotation file]`. Or one can set the default annotation by 
-```revan config -k ccds -v [your annotation file]```. 
-The configuration file is located either at the `[installation dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
+If one download transcripts through `revan config`, RevAn would use the downloaded definition by default. For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
+```revan config -k ccds -v [annotation file]```. 
+The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
 #### reverse annotation of amino acid mutations
 Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. Ioan takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
