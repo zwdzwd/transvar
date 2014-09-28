@@ -136,7 +136,7 @@ $ revan revanno --ccds -i 'PIK3CA:c.1633G>A'
 outputs
 ```
 #!text
-PIK3CA:E545K    3       178936091-178936092-178936093   CCDS43171.1
+PIK3CA:E545K    3    178936091-178936092-178936093   CCDS43171.1
     PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
     CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
@@ -150,7 +150,7 @@ $ revan revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
 ```
 ```
 #!text
-ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786
+ACIN1:c.1932_1933insATTCAC    14     14:23548785-(ins)-23548786
     CCDS55905.1    ACIN1 (-, coding)       
     14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH
     NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
@@ -164,7 +164,7 @@ revan revanno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
 ```
 ```
 #!text
-ACIN1:c.1930_1931insATTCAC      14     14:23548787-(ins)-23548788      CCDS9587.1
+ACIN1:c.1930_1931insATTCAC   14     14:23548787-(ins)-23548788      CCDS9587.1
     ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS
     NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
 ```
@@ -176,14 +176,14 @@ revan revanno --ccds -i 'AAAS:c.1225_1226insG'
 ```
 ```
 #!text
-AAAS:c.1225_1226insG    12      12:53702089-53702090    CCDS8856.1      AAAS (-, coding)
+AAAS:c.1225_1226insG    12   12:53702089-53702090    CCDS8856.1    AAAS (-, coding)
     12:53702089_53702090insC/c.1225_1226insG/p.E409Gfs*17   NatInsSeq=G;RefInsSeq=C
 ```
 
 To annotate intronic insertion,
 ```
 #!bash
-revan revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
+$ revan revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
 ```
 ```
 #!text
@@ -195,13 +195,36 @@ In the case of intronic insertions, amino acid identifier is not applicable, rep
 
 #### reverse annotation of nucleotide deletion
 Similar to insertions, deletion can be in-frame or frame-shift. The consequence of deletion to amino acid sequence may appear a simple deletion or a block substitution (in the case where in-frame deletion is out of phase, i.e., partially delete codons). 
-To annotate an in-frame deletion,
+To annotate an **in-frame deletion**,
 ```
 #!bash
-revan revanno --ccds -i 'A4GNT:c.694_696delTTG'
+$ revan revanno --ccds -i 'A4GNT:c.694_696delTTG'
 ```
 ```
-A4GNT:c.694_696delTTG   3       137843433-137843435     CCDS3097.1      A4GNT (- coding)        3:137843433_137843435del/c.694_696del/p.L232del RefDelSeq=CAA;NatDelSeq=TTG
+#!text
+A4GNT:c.694_696delTTG   3   137843433-137843435     CCDS3097.1    A4GNT (- coding)
+    3:137843433_137843435del/c.694_696del/p.L232del RefDelSeq=CAA;NatDelSeq=TTG
+```
+
+Example: to annotate a **in-frame, out-of-phase deletion**,
+```
+#!bash
+$ revan revanno --ccds -i 'ABHD15.c.431_433delGTG'
+```
+```
+ABHD15.c.431_433delGTG  17   27893552-27893554    CCDS32602.1     ABHD15 (- coding)
+    17:27893552_27893554del/c.431_433del/p.C144_V145delinsF RefDelSeq=CAC;NatDelSeq=GTG
+```
+
+To annotate a **frame-shift deletion**,
+```
+#!bash
+$ revan revanno --ccds -i 'AADACL3.c.374delG'
+```
+```
+#!text
+AADACL3.c.374delG    1    12785494-12785494    CCDS41252.1   AADACL3 (+ coding)
+    1:12785494_12785494del/c.374del/p.C125Ffs*17    RefDelSeq=G;NatDelSeq=G
 ```
 
 To annotate a deletion that span from intronic to coding region,
