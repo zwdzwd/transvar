@@ -52,14 +52,17 @@ def main(args):
 
 def main_list(args, name2gene, thash):
 
-    for q in list_parse_mutation(args):
+    for q, line in list_parse_mutation(args):
 
-        if q.gn_name not in name2gene:
-            sys.stderr.write("Gene %s is not recognized.\n" % q.gn_name)
+        if q.tok not in name2gene:
+            sys.stderr.write("Gene %s is not recognized.\n" % q.tok)
             continue
-        q.gene = name2gene[q.gn_name]
-
-        _main_core_(args, q, thash)
+        q.gene = name2gene[q.tok]
+        try:
+            _main_core_(args, q, thash)
+        except UnImplementedError as e:
+            err_print(line)
+            raise e
 
 def main_one(args, name2gene, thash):
 

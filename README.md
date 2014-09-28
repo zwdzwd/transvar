@@ -354,7 +354,7 @@ DHODH:G152R     DHODH.p.G16   16      72050942-72050943-72050944      72050942-7
 ```
 RevAn outputs genomic positions of codons based on original transcript (4th column in the output) and alternative transcript (5th column in the output). The potential transcript usages are also appended.
 
-One can also run `revan codonsearch` to batch process a list of mutation identifiers.
+Example: to run `revan codonsearch` to batch process a list of mutation identifiers.
 ```
 #!bash
 $ revan codonsearch -l input.table --ccds -m 1 -o 1
