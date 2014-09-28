@@ -128,6 +128,7 @@ ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
 ```
 In those cases, RevAn prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
+---
 #### reverse annotation of single nucleotide variation (SNV)
 
 RevAn infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
