@@ -74,6 +74,8 @@ If one download transcripts through `revan config`, RevAn would use the download
 ```revan config -k ccds -v [annotation file]```. 
 The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
+---
+
 #### batch processing
 
 For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search. Take SNV for example,
@@ -102,6 +104,7 @@ ENST00000338316 5:7802364       p.V888I 5       7802364-7802365-7802366 ENST0000
 ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST00000338316 ADCY2 (+ coding)        5:T7802365C/c.2663T>C/p.V888A   CddMuts=5:T7802365C;NCodonSeq=GTC;NCddSeqs=GCC
 ```
 
+---
 
 #### reverse annotation of single amino acid substitution
 Mutation formats acceptable in RevAn are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. RevAn takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
@@ -143,6 +146,7 @@ PIK3CA:E545K    3    178936091-178936092-178936093   CCDS43171.1
     PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
     CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
+---
 
 #### reverse annotation of nucleotide insertion
 An insertion may result in: 1) a pure insertion of amino acids; 2) a block substitution of amino acids, when insertion occur after 1st or 2nd base in a codon; or 3) a frame-shift. Following HGVS nomenclature, RevAn labels the first different amino acid and the length of the peptide util stop codon, assuming no change in the splicing.
@@ -197,6 +201,8 @@ ADAM33:c.991-3_991-2insC   20   20:3654141-3654142-3654143-(3654145)-(ins)-(3654
 ```
 In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`.
 
+---
+
 #### reverse annotation of nucleotide deletion
 Similar to insertions, deletion can be in-frame or frame-shift. The consequence of deletion to amino acid sequence may appear a simple deletion or a block substitution (in the case where in-frame deletion is out of phase, i.e., partially delete codons).
 
@@ -246,7 +252,9 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
    RefDelSeq=TTCTGGAGTG;NatDelSeq=CACTCCAGAA
 ```
 
-#### reverse annotate nucleotide block substitution
+---
+
+#### reverse annotation of nucleotide block substitution
 ```
 #!bash
 $ revan revanno --ccds -i 'A1CF:c.508_509CC>TT'
@@ -259,6 +267,21 @@ A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7242.1
       A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
 ```
 
+Block substitution does not necessarily results in block substitution in amino acid. For example,
+```
+#!bash
+$ revan revanno --ccds -i 'CSRNP1.c.1212_1224>GGAGGAGGAA'
+```
+```
+#!text
+CSRNP1.c.1212_1224>GGAGGAGGAA   3    39185092-39185104   CCDS2682.1   CSRNP1 (-, coding) 
+    3:39185092_39185104TTCCTCCTCCTCC>TTCCTCCTCC/c.1212_1224GGAGGAGGAGGAA>GGAGGAGGAA/p.E408del .
+```
+results in a deletion.
+
+When block substitution occurs to splice site, RevAn put a tag in the info fields and does not output amino acid change.
+
+---
 #### infer potential codon identity
 Given two amino acid positions and infer potential identity due to different usage of transcripts.
 

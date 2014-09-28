@@ -255,14 +255,18 @@ def _main_core_(args, q):
 
 def main_list(args, name2gene):
 
-    for q in list_parse_mutation(args):
+    for q, line in list_parse_mutation(args):
         if q.tok not in name2gene:
             r = Record()
             r.info = "GeneNotRecognized"
             r.format(q.op)
             continue
         q.gene = name2gene[q.tok]
-        _main_core_(args, q)
+        try:
+            _main_core_(args, q)
+        except UnImplementedError as e:
+            err_print(line)
+            raise e
 
 def main_one(args, name2gene):
 

@@ -135,7 +135,7 @@ def list_parse_mutation(args):
             err_print(str(e))
             continue
 
-        yield q
+        yield q, line
 
 def parser_add_mutation(parser):
 

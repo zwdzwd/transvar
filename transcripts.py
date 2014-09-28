@@ -162,7 +162,7 @@ def region_in_exon(np, beg, end):
     if beg.tpos != 0: return False
     if end.tpos != 0: return False
     for i in xrange(beg.pos, end.pos-1):
-        if np[i] + 1 != np[i+1]:
+        if abs(np[i] - np[i+1]) != 1:
             return False
     return True
 
