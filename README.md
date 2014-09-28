@@ -388,7 +388,7 @@ MET.p.1010      MET.p.973       7       116411932-116411933-116411934   11641193
 MET.p.1010      MET.p.1028      7       116412043-116414935-116414936   116412043-116414935-116414936   NM_000245.2[RefSeq]/NM_001127500.1[RefSeq]
 MET.p.1010      MET.p.562       7       116411989-116411990-116411991   116411989-116411990-116411991   NM_001127500.1[RefSeq]/XM_005250354.1[RefSeq]
 ```
-since MET.p.992 is in the list, the two identifiers might be due to the same genomic mutation.
+Since MET.p.992 is in the list, the two identifiers might be due to the same genomic mutation.
 
 #### annotate mutations from genomic locations
 
@@ -408,6 +408,10 @@ chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
 ### Technical notes
 
 RevAn follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+
+### Bug report and feature request
+
+If you find any bugs (there is very likely due to the complexity of genomics) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
