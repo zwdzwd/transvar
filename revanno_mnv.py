@@ -112,7 +112,7 @@ def nuc_mutation_mnv(args, q, tpt):
     if region_in_exon(np, q.beg, q.end):
         nuc_mutation_mnv_coding(args, q, tpt, r)
     elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
-        raise Unimplementederror('Block mutation occurs across splice site')
+        raise UnImplementedError('Block mutation occurs across splice site')
 
     return r
 

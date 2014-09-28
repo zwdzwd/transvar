@@ -76,7 +76,7 @@ The configuration file is located either at the `[install dir]/revan.cfg` or `~/
 
 #### batch processing
 
-For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search,
+For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search. Take SNV for example,
 ```
 #!bash
 $ revan revanno -l input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
@@ -116,7 +116,7 @@ PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967
     CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
 
-RevAn may encounter **ambiguous cases** where the ambiguity cannot be fully resolved. For example,
+One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
 ```
 #!text
 ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
@@ -232,7 +232,7 @@ AADACL3.c.374delG    1    12785494-12785494    CCDS41252.1   AADACL3 (+ coding)
 Example: to annotate a **deletion that span from intronic to coding region**,
 ```
 #!bash
-revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
+$ revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
 ```
 ```
 #!text
@@ -245,7 +245,7 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
 #### reverse annotate nucleotide block substitution
 ```
 #!bash
-revan revanno --ccds -i 'A1CF:c.508_509CC>TT'
+$ revan revanno --ccds -i 'A1CF:c.508_509CC>TT'
 ```
 ```
 #!text
