@@ -1,4 +1,4 @@
-**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. Ioan supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. Ioan can read transcript annotation files in their .gz format. Ioan also provides functionality of forward annotation.
+**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. RevAn supports transcript annotation from commonly-used databases including Ensembl, NCBI RefSeq, GENCODE, CCDS, UCSC etc. RevAn can read transcript annotation files in their .gz format. RevAn also provides functionality of forward annotation.
 
 --------
 
@@ -12,14 +12,14 @@
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/ioan/get/v1.0.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.0.zip
  $ unzip [downloaded zip]
  $ make
 ```
 
 #### transcript annotations
 
-The following list the transcript annotations supported by ioan. Ioan can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
+The following list the transcript annotations supported by revan. RevAn can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 
 ```
 #!bash
@@ -49,11 +49,11 @@ If one download transcripts through `revan config`, RevAn would use the download
 The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
 #### reverse annotation of amino acid mutations
-Ioan automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. Ioan takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
+RevAn automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. RevAn takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
 #!bash
-$ ioan revanno -i PIK3CA:E545K --ref hs37d5.fa --ensembl Homo_sapiens.GRCh37.75.gtf.gz
+$ revan revanno -i PIK3CA:E545K --ref hs37d5.fa --ensembl Homo_sapiens.GRCh37.75.gtf.gz
 ```
 outputs
 ```
@@ -75,10 +75,10 @@ ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
 In those cases, RevAn prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
 #### reverse annotation of nucleotide SNV
-Ioan infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
+RevAn infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
-$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt -i 'PIK3CA:c.1633G>A'
+$ revan revanno --ref hs37d5.fa --ccds CCDS.current.txt -i 'PIK3CA:c.1633G>A'
 ```
 outputs
 
@@ -91,7 +91,7 @@ PIK3CA:E545K    3       178936091-178936092-178936093   CCDS43171.1
 or one can batch process a list of mutation identifiers with optional transcript id to constraint the search
 ```
 #!bash
-$ ioan revanno -l input_table -g 1 -m 4 -t 2 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa -o 2,3,5 | les
+$ revan revanno -l input_table -g 1 -m 4 -t 2 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa -o 2,3,5 | les
 ```
 As suggested by the command, RevAn takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of RevAn's performance.
 ```
@@ -119,7 +119,7 @@ ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST0000
 To annotate a in frame, in phase insertion,
 ```
 #!bash
-$ ioan revanno --ref hs37d5.fa --ccds CCDS.current.txt
+$ revan revanno --ref hs37d5.fa --ccds CCDS.current.txt
      -i 'ACIN1:c.1932_1933insATTCAC'
 ```
 ```
@@ -131,7 +131,7 @@ ACIN1:c.1932_1933insATTCAC      14      14:23548785-(ins)-23548786      CCDS5590
 To annotate an out-of-phase, in-frame insertion
 ```
 #!bash
-ioan revanno --ref ~/reference/hs37d5.fa --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt -i 'ACIN1:c.1930_1931insATTCAC'
+revan revanno --ref ~/reference/hs37d5.fa --ccds ~/reference/CCDS/Hs37.3/CCDS.current.txt -i 'ACIN1:c.1930_1931insATTCAC'
 ```
 returns
 ```
@@ -145,7 +145,7 @@ To annotate intronic insertion,
 
 ```
 #!bash
-ioan revanno --ref ~/reference/hs37d5.fa --ccds 
+revan revanno --ref ~/reference/hs37d5.fa --ccds 
     ~/reference/CCDS/Hs37.3/CCDS.current.txt
     -i 'ADAM33:c.991-3_991-2insC'
 ```
@@ -161,7 +161,7 @@ CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC
 To annotate a deletion that span from intronic to coding region.
 ```
 #!bash
-ioan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
+revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
 ```
 ```
 #!text
@@ -174,7 +174,7 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
 #### reverse annotate nucleotide block substitution
 ```
 #!bash
-ioan revanno --ccds -i 'A1CF:c.508_509CC>TT'
+revan revanno --ccds -i 'A1CF:c.508_509CC>TT'
 ```
 ```
 #!text
@@ -189,7 +189,7 @@ Given two amino acid positions and infer potential identity due to different usa
 
 ```
 #!bash
-$ ioan codoneq -c MET.p1010 MET.p992 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa
+$ revan codoneq -c MET.p1010 MET.p992 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa
 ```
 gives
 ```
@@ -211,7 +211,7 @@ Given a codon identifier, search the transcript annotations for alternative (cod
 
 ```
 #!bash
-$ ioan codonsearch -i DHODH:G152R --ref ~/reference/hs37d5.fa --refseq ~/reference/refseq/ref_GRCh37.p13_top_level.gff3.gz
+$ revan codonsearch -i DHODH:G152R --ref ~/reference/hs37d5.fa --refseq ~/reference/refseq/ref_GRCh37.p13_top_level.gff3.gz
 ```
 outputs
 ```
@@ -222,10 +222,10 @@ DHODH:G152R     p.G16   16      72050942-72050943-72050944      72050942-7205094
 ```
 RevAn outputs genomic positions of codons based on original transcript (4th column in the output) and alternative transcript (5th column in the output). The potential transcript usages are also appended.
 
-One can also run `ioan codonsearch` to batch process a list of mutation identifiers.
+One can also run `revan codonsearch` to batch process a list of mutation identifiers.
 ```
 #!bash
-$ ioan codonsearch -l input.table --ccds CCDS.current.txt --ref hs37d5.fa -m 1 -o 1
+$ revan codonsearch -l input.table --ccds CCDS.current.txt --ref hs37d5.fa -m 1 -o 1
 ```
 Example input.table
 ```
@@ -265,7 +265,7 @@ This is the forward annotation
 
 ```
 #!bash
-ioan anno --ccds CCDS.current.txt --ref hs37d5.fa -i 'chr3:178936091.G>A'
+revan anno --ccds CCDS.current.txt --ref hs37d5.fa -i 'chr3:178936091.G>A'
 ```
 outputs
 ```
@@ -276,7 +276,7 @@ chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
 
 ### Technical notes
 
-Ioan follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+RevAn follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
