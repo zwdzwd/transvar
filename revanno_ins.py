@@ -152,7 +152,7 @@ def nuc_mutation_ins_intronic(args, q, tpt, r):
     s = '-'.join(map(str, codon.locs[j:]))
     if s: pl.append(s)
     r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
-    r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
+    r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
     r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
     r.tnuc_range = '%d%d_%d%dins%s' % (q.pos.pos, q.pos.tpos, q.pos.pos, q.pos.tpos+1, q.insseq)
     r.info = 'RefInsSeq=%s;NatInsSeq=%s' % (refinsseq, q.insseq)

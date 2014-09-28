@@ -24,10 +24,13 @@ def nuc_mutation_mnv_coding_inframe(args, q, tpt, r):
         # an insertion or deletion on the protein level
         old_taa_seq1, new_taa_seq1, head_trim, tail_trim = double_trim(old_taa_seq, new_taa_seq)
         if not old_taa_seq1:
+            _beg_index = beg_codon_index + head_trim - 1
+            _end_index = beg_codon_index + head_trim
+            _beg_aa = standard_codon_table[tpt.seq[_beg_index*3-3:_beg_index*3]]
+            _end_aa = standard_codon_table[tpt.seq[_end_index*3-3:_end_index*3]]
             r.taa_range = '%s%d_%s%dins%s' % (
-                beg_codon_index + head_trim, old_taa_seq1[0],
-                beg_codon_index + head_trim + 1, old_taa_seq1[1], 
-                new_taa_seq1)
+                _beg_aa, _beg_index,
+                _end_aa, _end_index, new_taa_seq1)
         elif not new_taa_seq1:
             if len(old_taa_seq1) == 1:
                 r.taa_range = '%s%ddel' % (old_taa_seq1[0], beg_codon_index + head_trim)

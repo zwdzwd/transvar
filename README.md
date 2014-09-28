@@ -23,7 +23,11 @@
  $ ./revan revanno --ucsc -i 'PIK3CA.p.E545K'
 ```
 
-### Download and Install
+### Download and install
+
+#### dependency
+
+Just Python >= 2.6
 
 #### program
 ```
@@ -151,7 +155,7 @@ PIK3CA:E545K    3    178936091-178936092-178936093   CCDS43171.1
 #### reverse annotation of nucleotide insertion
 An insertion may result in: 1) a pure insertion of amino acids; 2) a block substitution of amino acids, when insertion occur after 1st or 2nd base in a codon; or 3) a frame-shift. Following HGVS nomenclature, RevAn labels the first different amino acid and the length of the peptide util stop codon, assuming no change in the splicing.
 
-Example: to annotate a **in-frame, in-phase insertion**,
+Example: to annotate an **in-frame, in-phase insertion**,
 ```
 #!bash
 $ revan revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
@@ -196,7 +200,7 @@ $ revan revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
 ```
 #!text
 ADAM33:c.991-3_991-2insC   20   20:3654141-3654142-3654143-(3654145)-(ins)-(3654146)
-    CCDS13058.1     ADAM33 (- intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.
+    CCDS13058.1     ADAM33 (-, intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.
     RefInsSeq=G;NatInsSeq=C
 ```
 In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`.
@@ -410,6 +414,11 @@ chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
 ### Technical notes
 
 RevAn follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+
+## Future work
+
+ + nucleotide level duplication
+ + amino acid level insertion and deletion
 
 ## Bug report and feature request
 
