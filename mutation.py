@@ -41,14 +41,14 @@ def parse_mutation_str(mut_str):
             q = QueryMNV()
             q.beg = parse_pos(_beg)
             q.end = parse_pos(_end) if _end else q.beg
-            q.refseq = _ref.upper() if _ref else ''
-            q.altseq = _alt.upper() if _alt else ''
+            if _d and not _d.isdigit(): q.refseq = _d.upper()
+            q.altseq = _i.upper() if _i else ''
         elif _is_sub:
             q = QueryMNV()
             q.beg = parse_pos(_beg)
             q.end = parse_pos(_end) if _end else q.beg
-            if _d and not _d.isdigit(): q.refseq = _d.upper()
-            q.altseq = _i.upper() if _i else ''
+            q.refseq = _ref.upper() if _ref else ''
+            q.altseq = _alt.upper() if _alt else ''
         else:
             err_raise(InvalidInputError,
                       'Invalid nucleotide mutation: "%s".' % mut_str, __name__)

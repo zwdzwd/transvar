@@ -264,3 +264,26 @@ def err_print(msg):
     sys.stderr.write('%s\n' % str(msg))
 
 
+def double_trim(seq1, seq2):
+
+    # trim head
+    head_trim = 0
+    while seq1 and seq2:
+        if seq1[0] == seq2[0]:
+            head_trim += 1
+            seq1 = seq1[1:]
+            seq2 = seq2[1:]
+        else:
+            break
+
+    # trim tail
+    tail_trim = 0
+    while seq1 and seq2:
+        if seq1[-1] == seq2[-1]:
+            tail_trim += 1
+            seq1 = seq1[:-1]
+            seq2 = seq2[:-1]
+        else:
+            break
+
+    return (seq1, seq2, head_trim, tail_trim)

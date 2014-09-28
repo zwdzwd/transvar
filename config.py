@@ -5,9 +5,51 @@ import os
 cfg_fns = [os.path.join(os.path.dirname(__file__), 'revan.cfg'),
            os.path.expanduser('~/.revan.cfg')]
 
+def download_url(url, file_name):
+
+    import urllib2
+    # file_name = url.split('/')[-1]
+    u = urllib2.urlopen(url)
+    f = open(file_name, 'wb')
+    meta = u.info()
+    file_size = int(meta.getheaders("Content-Length")[0]) / (1024.0 * 1024.0)
+    print "Downloading: %s (%1.1f MB)" % (file_name, file_size)
+
+    file_size_dl = 0
+    block_sz = 8192*2
+    while True:
+        buffer = u.read(block_sz)
+        if not buffer:
+            break
+
+        file_size_dl += len(buffer)
+        f.write(buffer)
+        status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+        status = status + chr(8)*(len(status)+1)
+        print status,
+
+    f.close()
+
 def download_hg19_annotations(config):
 
-    pass
+    fns = [
+        ('refseq', 'hg19.refseq.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/ref_GRCh37.p13_top_level.gff3.gz?dl=1'),
+        ('ccds', 'hg19.ccds.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/CCDS.current.txt?dl=1'),
+        ('ensembl', 'hg19.ensembl.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/Homo_sapiens.GRCh37.75.gtf.gz?dl=1'),
+        ('gencode', 'hg19.gencode.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/gencode.v19.annotation.gtf.gz?dl=1'),
+        ('ucsc', 'hg19.ucsc.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
+        ('aceview', 'hg19.aceview.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/AceView.ncbi_37.genes_gff.gff.gz?dl=1'),
+        ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
+        ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1')
+        ]
+
+    pdir = os.path.join(os.path.dirname(__file__), 'download')
+    if not os.path.exists(pdir): os.makedirs(pdir)
+
+    for k, fn, url in fns:
+        fnn = os.path.join(pdir, fn)
+        download_url(url, fnn)
+        config.set('DEFAULT', k, fnn)
 
 def download_hg19_reference(config):
 
@@ -22,7 +64,8 @@ def main(args):
 
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
-    config.set('DEFAULT', args.k, args.v)
+    if args.k and args.v:
+        config.set('DEFAULT', args.k, args.v)
     d = config.defaults()
 
     if args.download_hg19:

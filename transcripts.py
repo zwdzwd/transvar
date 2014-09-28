@@ -156,7 +156,27 @@ def check_exon_boundary(np, pos):
     elif pos.tpos < 0:
         if abs(tnuc2gnuc(np, pos.pos) - tnuc2gnuc(np, pos.pos-1)) == 1:
             raise IncompatibleTranscriptError()
-        
+
+def region_in_exon(np, beg, end):
+
+    if beg.tpos != 0: return False
+    if end.tpos != 0: return False
+    for i in xrange(beg.pos, end.pos-1):
+        if np[i] + 1 != np[i+1]:
+            return False
+    return True
+
+def region_in_intron(np, beg, end):
+
+    if beg.tpos == 0 or end.tpos == 0: return False
+    if beg.pos == end.pos and beg.tpos*end.tpos > 0:
+        return True
+    if beg.pos+1 == end.pos and beg.tpos>0 and end.tpos<0:
+        return True
+    if end.pos+1 == beg.pos and beg.tpos<0 and end.tpos>0:
+        return True
+    return False
+
 class Transcript():
 
     def __init__(self):
@@ -793,3 +813,16 @@ def extend_taa_seq(taa_pos_base, old_seq, new_seq, tpt):
     taa_pos += taa_pos_base
     return taa_pos, taa_ref, taa_alt, str(termlen)
 
+def translate_seq(seq):
+
+    if len(seq) % 3 != 0:
+        raise Exception('coding sequence not multiplicative of 3')
+
+    aa_seq = []
+    for i in xrange(len(seq)/3):
+        aa = standard_codon_table[seq[i*3:i*3+3]]
+        aa_seq.append(aa)
+        if aa == '*':
+            break
+
+    return ''.join(aa_seq)

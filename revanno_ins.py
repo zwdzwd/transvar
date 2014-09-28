@@ -1,4 +1,4 @@
-
+""" in-frame and frameshift must be separated for coding sequence """
 from transcripts import *
 from utils import *
 from record import *
@@ -11,7 +11,7 @@ def nuc_mutation_ins_coding_inframe_inphase(args, q, tpt, r):
     taa_insseq = ''
     for i in xrange(len(q.insseq)/3):
         if standard_codon_table[q.insseq[i*3:i*3+3]] == '*':
-            return nuc_mutation_ins_coding_outframe(args, q, tpt, r)
+            return nuc_mutation_ins_coding_frameshift(args, q, tpt, r)
         taa_insseq += standard_codon_table[q.insseq[i*3:i*3+3]]
 
     # otherwise, a pure insertion
@@ -47,7 +47,7 @@ def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
     taa_insseq = ''
     for i in xrange(len(new_seq)/3):
         if standard_codon_table[new_seq[i*3:i*3+3]] == '*':
-            return nuc_mutation_ins_coding_outframe(args, q, tpt, r)
+            return nuc_mutation_ins_coding_frameshift(args, q, tpt, r)
         taa_insseq += standard_codon_table[new_seq[i*3:i*3+3]]
 
     if not codon: raise IncompatibleTranscriptError()
@@ -81,7 +81,7 @@ def nuc_mutation_ins_coding_inframe(args, q, tpt, r):
     else:
         nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r)
 
-def nuc_mutation_ins_coding_outframe(args, q, tpt, r):
+def nuc_mutation_ins_coding_frameshift(args, q, tpt, r):
 
     beg_codon_index = (q.pos.pos + 2) / 3
     beg_codon_beg = beg_codon_index*3 - 2
@@ -96,7 +96,7 @@ def nuc_mutation_ins_coding_outframe(args, q, tpt, r):
         taa_pos, taa_ref, taa_alt, termlen = ret
         r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
     else:
-        r.taa_range = 'synonymous'
+        r.taa_range = '(=)'
     r.tnuc_range = '%d_%dins%s' % (q.pos.pos, q.pos.pos+1, q.insseq)
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
     refinsseq = q.insseq if tpt.strand == '+' else reverse_complement(q.insseq)
@@ -111,7 +111,7 @@ def nuc_mutation_ins_coding(args, q, tpt, r):
     if len(q.insseq) % 3 == 0:
         nuc_mutation_ins_coding_inframe(args, q, tpt, r)
     else:
-        nuc_mutation_ins_coding_outframe(args, q, tpt, r)
+        nuc_mutation_ins_coding_frameshift(args, q, tpt, r)
 
     return
 
@@ -159,7 +159,8 @@ def nuc_mutation_ins_intronic(args, q, tpt, r):
 
 def nuc_mutation_ins(args, q, tpt):
     
-    if q.tpt and tpt.name != q.tpt: raise IncompatibleTranscriptError("Transcript name unmatched")
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError("Transcript name unmatched")
     tpt.ensure_seq()
 
     r = Record()
@@ -182,9 +183,6 @@ def _core_annotate_nuc_ins(args, q, tpts):
             r = nuc_mutation_ins(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
-        # except Exception:
-        #     print q.tok, q.insseq, q.pos.pos, len(tpt.seq)
-        #     raise Exception('dddd')
         found = True
         r.format(q.op)
 

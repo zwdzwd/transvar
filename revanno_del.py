@@ -119,7 +119,7 @@ def nuc_mutation_del_coding_frameshift(args, q, tpt, r):
         taa_pos, taa_ref, taa_alt, termlen = ret
         r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
     else:
-        r.taa_range = 'synonymous'
+        r.taa_range = '(=)'
     r.tnuc_range = '%d_%ddel' % (q.beg.pos, q.end.pos)
 
     r.gnuc_beg, r.gnuc_end = tpt.tnuc_range2gnuc_range(q.beg.pos, q.end.pos)
@@ -141,155 +141,11 @@ def nuc_mutation_del_coding(args, q, tpt, r):
     else:   # frame-shift
         nuc_mutation_del_coding_frameshift(args, q, tpt, r)
 
-def _nuc_mutation_del_intronic(args, q, tpt, r):
-
-    codon = tpt.cpos2codon((q.beg.pos+2)/3)
-    if not codon: return None
-    i = q.beg.pos - (codon.index-1)*3 - 1
-    if tpt.strand == '-': i = 2-i
-    if tpt.strand == '+':
-        r.gnuc_beg = codon.locs[i] + q.beg.tpos
-        r.gnuc_end = codon.locs[i] + q.end.tpos
-        if q.beg.tpos > 0: j = i+1
-        elif q.beg.tpos < 0: j = i
-    else:
-        r.gnuc_beg = codon.locs[i] - q.end.tpos
-        r.gnuc_end = codon.locs[i] - q.beg.tpos
-        if q.beg.tpos > 0: j = i
-        elif q.beg.tpos < 0: j = i+1
-    if j>0 and j<3 and codon.locs[j-1]+1 == codon.locs[j]:
-        raise IncompatibleTranscriptError('Codon does not contain exon boundary')
-
-    pl = []
-    s = '-'.join(map(str, codon.locs[:j]))
-    if s: pl.append(s)
-    pl.append('(%d)-(%d)' % (r.gnuc_beg, r.gnuc_end))
-    s = '-'.join(map(str, codon.locs[j:]))
-    if s: pl.append(s)
-    r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
-
-    r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
-    r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
-
-    r.refdelseq = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_beg, r.gnuc_end)
-    r.natdelseq = r.refdelseq if tpt.strand == '+' else reverse_complement(r.refdelseq)
-    if q.delseq and r.natdelseq != q.delseq:
-        raise IncompatibleTranscriptError()
-
-    if q.gnuc_beg == r.gnuc_end:
-        r.tnuc_range = '%sdel' % (q.beg, )
-    r.tnuc_range = '%s_%sdel' % (q.beg, q.end)
-
-    r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (r.refdelseq, r.natdelseq)
-
-def nuc_mutation_del_intronic(args, q, tpt, r):
-
-    """ deletion occurs entirely in non-coding region
-    need only find genomic location of the deletion """
-    if q.beg.pos == q.end.pos+43241: # with respect to one exome boundary
-        _nuc_mutation_del_intronic(args, q, tpt, r)
-    else:
-        np = tpt.position_array()
-        check_exon_boundary(np, q.beg)
-        check_exon_boundary(np, q.end)
-
-        gnuc_beg = tnuc2gnuc2(np, q.beg, tpt)
-        gnuc_end = tnuc2gnuc2(np, q.end, tpt)
-        r.gnuc_beg = min(gnuc_beg, gnuc_end)
-        r.gnuc_end = max(gnuc_beg, gnuc_end)
-        r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
-        tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1
-        tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1
-        gnuc_coding_beg = tnuc2gnuc(np, tnuc_coding_beg)
-        gnuc_coding_end = tnuc2gnuc(np, tnuc_coding_end)
-
-        refdelseq = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_beg, r.gnuc_end)
-        natdelseq = refdelseq if tpt.strand == '+' else reverse_complement(refdelseq)
-        if q.delseq and natdelseq != q.delseq:
-            raise IncompatibleTranscriptError()
-
-        reg = ''
-
-        # if deletion affects coding region
-        if tnuc_coding_beg <= tnuc_coding_end:
-            q_coding = copy(q)
-            q_coding.beg = Pos(tnuc_coding_beg)
-            q_coding.end = Pos(tnuc_coding_end)
-
-            # set deletion sequence in the coding region
-            # [gnuc_beg] --- [gnuc_coding_beg] ===---=== [gnuc_coding_end] --- [gnuc_end]
-            delseq_beg = abs(gnuc_coding_beg - gnuc_beg)
-            delseq_end = len(q.delseq) + abs(gnuc_coding_end - gnuc_end)
-            q_coding.delseq = q.delseq[delseq_beg:delseq_end]
-
-            r_coding = Record('del')
-            nuc_mutation_del_coding(args, q_coding, tpt, r_coding)
-            r.taa_range = r_coding.taa_range
-            reg += ',coding' if reg else 'coding'
-        else:
-            r.taa_range = ''
-
-        if r.gnuc_beg == r.gnuc_end:
-            r.tnuc_range = '%sdel' % (q.beg, )
-        else:
-            r.tnuc_range = '%s_%sdel' % (q.beg, q.end)
-
-        if q.beg.tpos != 0 or q.end.tpos != 0:
-            reg += ',intronic' if reg else 'intronic'
-        r.reg = '%s (%s %s)' % (tpt.gene.name, tpt.strand, reg)
-        r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (refdelseq, natdelseq)
-        r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
-
-def nuc_mutation_del_mix(args, q, tpt, r):
-
-    q_coding = copy(q)
-    q_intronic = copy(q)
-    if q.beg.tpos < 0 and q.end.tpos == 0:
-        q_intronic.beg = q.beg
-        q_intronic.end = Pos()
-        q_intronic.end.pos = q.beg.pos
-        q_intronic.end.tpos = -1
-        q_coding.delseq = q.delseq[-q.beg.tpos:]
-        q_intronic.delseq = q.delseq[:-q.beg.tpos]
-    elif q.beg.tpos == 0 and q.end.tpos > 0:
-        q_intronic.beg = Pos()
-        q_intronic.beg.pos = q.end.pos
-        q_intronic.beg.tpos = 1
-        q_intronic.end = q.end
-        q_coding.delseq = q.delseq[:-q.end.tpos]
-        q_intronic.delseq = q.delseq[-q.end.tpos:]
-
-    #print q_coding.delseq, q_intronic.delseq, q.delseq
-    r_coding = Record('del')
-    nuc_mutation_del_coding(args, q_coding, tpt, r_coding)
-    r_intronic = Record('del')
-    nuc_mutation_del_intronic(args, q_intronic, tpt, r_intronic)
-
-    # combine record intronic record with coding record
-    #r_intronic.format(q.op)
-    #r_coding.format(q.op)
-    #print r_intronic.gnuc_beg, r_intronic.gnuc_end
-    #print r_coding.gnuc_beg, r_coding.gnuc_end
-    if r_intronic.gnuc_beg == r_coding.gnuc_end + 1:
-        r.gnuc_beg = r_coding.gnuc_beg
-        r.gnuc_end = r_intronic.gnuc_end
-        r.refdelseq = r_coding.refdelseq + r_intronic.refdelseq
-    elif r_intronic.gnuc_end + 1 == r_coding.gnuc_beg:
-        """ intronic -- coding """
-        r.gnuc_beg = r_intronic.gnuc_beg
-        r.gnuc_end = r_coding.gnuc_end
-        r.refdelseq = r_intronic.refdelseq + r_coding.refdelseq
-    r.natdelseq = r.refdelseq if tpt.strand == '+' else reverse_complement(r.refdelseq)
-    r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
-    r.tnuc_range = '%s_%sdel' % (q.beg, q.end)
-    r.taa_range = r_coding.taa_range
-    r.pos = '%s:%d-%d' % (tpt.chrm, r.gnuc_beg, r.gnuc_end)
-    r.reg = '%s (%s coding & intronic)' % (tpt.gene.name, tpt.strand)
-    r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (r.refdelseq, r.natdelseq)
 
 def nuc_mutation_del(args, q, tpt):
 
-    if q.tpt and tpt.name != q.tpt: raise IncompatibleTranscriptError("Transcript name unmatched")
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError("Transcript name unmatched")
     tpt.ensure_seq()
 
     r = Record()
@@ -297,14 +153,59 @@ def nuc_mutation_del(args, q, tpt):
     r.tname = tpt.name
     r.muttype = 'del'
 
-    nuc_mutation_del_intronic(args, q, tpt, r)
-    # if q.beg.tpos == 0 and q.end.tpos == 0:
-    #     nuc_mutation_del_coding(args, q, tpt, r)
-    # elif q.beg.tpos != 0 and q.end.tpos != 0:
-    #     nuc_mutation_del_intronic(args, q, tpt, r)
+    # if q.beg.pos == q.end.pos+43241: # with respect to one exome boundary
+    #     _nuc_mutation_del_intronic(args, q, tpt, r)
     # else:
-    #     # one of the deletion start and end is in coding, the other in non-coding
-    #     nuc_mutation_del_mix(args, q, tpt, r)
+    np = tpt.position_array()
+    check_exon_boundary(np, q.beg)
+    check_exon_boundary(np, q.end)
+
+    gnuc_beg = tnuc2gnuc2(np, q.beg, tpt)
+    gnuc_end = tnuc2gnuc2(np, q.end, tpt)
+    r.gnuc_beg = min(gnuc_beg, gnuc_end)
+    r.gnuc_end = max(gnuc_beg, gnuc_end)
+    r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
+    tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1
+    tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1
+    gnuc_coding_beg = tnuc2gnuc(np, tnuc_coding_beg)
+    gnuc_coding_end = tnuc2gnuc(np, tnuc_coding_end)
+
+    refdelseq = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_beg, r.gnuc_end)
+    natdelseq = refdelseq if tpt.strand == '+' else reverse_complement(refdelseq)
+    if q.delseq and natdelseq != q.delseq:
+        raise IncompatibleTranscriptError()
+
+    reg = ''
+
+    # if deletion affects coding region
+    if tnuc_coding_beg <= tnuc_coding_end:
+        q_coding = copy(q)
+        q_coding.beg = Pos(tnuc_coding_beg)
+        q_coding.end = Pos(tnuc_coding_end)
+
+        # set deletion sequence in the coding region
+        # [gnuc_beg] --- [gnuc_coding_beg] ===---=== [gnuc_coding_end] --- [gnuc_end]
+        delseq_beg = abs(gnuc_coding_beg - gnuc_beg)
+        delseq_end = len(q.delseq) + abs(gnuc_coding_end - gnuc_end)
+        q_coding.delseq = q.delseq[delseq_beg:delseq_end]
+
+        r_coding = Record('del')
+        nuc_mutation_del_coding(args, q_coding, tpt, r_coding)
+        r.taa_range = r_coding.taa_range
+        reg += ',coding' if reg else 'coding'
+    else:
+        r.taa_range = ''
+
+    if r.gnuc_beg == r.gnuc_end:
+        r.tnuc_range = '%sdel' % (q.beg, )
+    else:
+        r.tnuc_range = '%s_%sdel' % (q.beg, q.end)
+
+    if q.beg.tpos != 0 or q.end.tpos != 0:
+        reg += ',intronic' if reg else 'intronic'
+    r.reg = '%s (%s %s)' % (tpt.gene.name, tpt.strand, reg)
+    r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (refdelseq, natdelseq)
+    r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
 
     return r
 
