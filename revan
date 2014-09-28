@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import re, argparse
 from itertools import chain
-""" Ioan (IsOform ANnotator) """
+""" RevAn (Reverse Annotator) """
 
 
 from revanno import add_parser_revanno
