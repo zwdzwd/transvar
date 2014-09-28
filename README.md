@@ -1,4 +1,4 @@
-**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```, which are extensively used in clinical settings). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. RevAn has the following features:
+**RevAn** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. RevAn has the following features:
 
  + supports uncertainty in HGVS nomenclature
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
@@ -39,7 +39,7 @@ For most annotation database (the only exception may be the UCSC table which is 
 Once downloaded and indexed, one could use the reference in RevAn through the `--ref` option followed by the fasta filename. One also has the option of specifying the default location to `revan.cfg` by:
 ```
 #!bash
-revan config -k ref -v hg19.fa
+revan config -k reference -v hg19.fa
 ```
 so that there is no need to specify the location of reference on subsequent usages.
 
@@ -75,11 +75,11 @@ If one download transcripts through `revan config`, RevAn would use the download
 The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
 #### reverse annotation of single amino acid substitution
-RevAn automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. RevAn takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
+Mutation formats acceptable in RevAn are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. RevAn takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
 #!bash
-$ revan revanno -i PIK3CA:E545K --ref hs37d5.fa --ensembl Homo_sapiens.GRCh37.75.gtf.gz
+$ revan revanno -i PIK3CA:E545K --ensembl
 ```
 outputs
 ```
