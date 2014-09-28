@@ -306,7 +306,7 @@ A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, cod
 
 #### search alternative codon identifiers
 
-Example: to search alternative identifiers
+Example: to search alternative identifiers of CDKN2A.p.58 (without knowing reference allele),
 ```
 #!bash
 $ revan codonsearch --ccds -i CDKN2A.p.58
@@ -319,7 +319,7 @@ CDKN2A.p.58    CDKN2A.p.73   9    21971184-21971185-21971186   21971182-21971183
     CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
 ```
 
-Example: to search alternative identifiers of DHODH:G152R
+Example: to search alternative identifiers of DHODH:G152R (knowing reference allele `G`),
 ```
 #!bash
 $ revan codonsearch -i DHODH:G152R --refseq
