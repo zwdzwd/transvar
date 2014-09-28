@@ -64,11 +64,11 @@ The following table summarize the option(s) to use each database in the annotati
  |:-------|:--------|:---------|:----|
  | CCDS | CCDS flat text | `--ccds` | `--ccds CCDS.current.txt` |
  | UCSC RefGene | UCSC flat text | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
- | Ensembl | Ensembl GTF | `--ensembl`  | `--ensembl Homo_sapiens.GRCh37.75.gtf.gz`  |
- | RefSeq | RefSeq GFF3 | `--refseq`  | `--refseq ref_GRCh37.p13_top_level.gff3.gz`   |
- | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi_37.genes_gff.gff.gz`  |
- | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.annotation.gtf.gz`  |
- | UCSC knownGene | knownGene table | `-kg` | `--kg kg_hg19.gz --alias kgAlias.gz` |
+ | Ensembl | Ensembl GTF | `--ensembl`  | `--ensembl GRCh37.75.gtf.gz`  |
+ | RefSeq | RefSeq GFF3 | `--refseq`  | `--refseq GRCh37.p13.gff3.gz`   |
+ | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi37.gff.gz`  |
+ | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.gtf.gz`  |
+ | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
 
 If one download transcripts through `revan config`, RevAn would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
 ```revan config -k ccds -v [annotation file]```. 
