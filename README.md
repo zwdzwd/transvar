@@ -113,7 +113,7 @@ PIK3CA:E545K    3       178936091-178936092-178936093   CCDS43171.1
     PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
     CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
-or one can batch process a list of mutation identifiers with optional transcript id to constraint the search
+For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search
 ```
 #!bash
 $ revan revanno -l input_table -g 1 -m 4 -t 2 --ensembl Homo_sapiens.GRCh37.75.gtf.gz --ref hs37d5.fa -o 2,3,5 | les
