@@ -36,7 +36,7 @@
 
 #### reference genome assembly
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), RevAn requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
-Once downloaded and indexed one could use in RevAn through the `--ref` option. One also has the option of specifying the default location to `revan.cfg` by 
+Once downloaded and indexed, one could use the reference in RevAn through the `--ref` option followed by the fasta filename. One also has the option of specifying the default location to `revan.cfg` by:
 ```
 #!bash
 revan config -k ref -v hg19.fa
@@ -74,7 +74,7 @@ If one download transcripts through `revan config`, RevAn would use the download
 ```revan config -k ccds -v [annotation file]```. 
 The configuration file is located either at the `[install dir]/revan.cfg` or `~/.revan.cfg` if the installation directory is inaccessible.
 
-#### reverse annotation of amino acid mutations
+#### reverse annotation of single amino acid substitution
 RevAn automatically recognizes the amino acid mutations. Acceptable mutation formats are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. RevAn takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
@@ -88,8 +88,6 @@ PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967
 PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K 
 CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
 ```
- + input: 1) transcript annotation file; 2) codon position; 3) (optional) mutation information;
- + output: 1) annotation;
 
 RevAn may encounter cases where the ambiguity cannot be fully resolved. For example,
 ```
