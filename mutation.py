@@ -9,10 +9,11 @@ def parse_mutation_str(mut_str):
     mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
 
     if mp:
-        is_codon = True
-        ref = mp.group(3) if mp.group(3) and mp.group(3) != '?' else ''
-        pos = int(mp.group(4))
-        alt = mp.group(5) if mp.group(5) and mp.group(5) != '?' else ''
+        q = QuerySNV()
+        q.is_codon = True
+        q.ref = mp.group(3) if mp.group(3) and mp.group(3) != '?' else ''
+        q.pos = int(mp.group(4))
+        q.alt = mp.group(5) if mp.group(5) and mp.group(5) != '?' else ''
     elif mn:
         (_, _, _beg, _end_s, _end, _, _is_del, _d,
          _is_ins, _i, _is_sub, _ref, _alt) = mn.groups()
@@ -52,11 +53,11 @@ def parse_mutation_str(mut_str):
         else:
             err_raise(InvalidInputError,
                       'Invalid nucleotide mutation: "%s".' % mut_str, __name__)
+        q.is_codon = False
     else:
         err_raise(InvalidInputError,
                   'Invalid mutation: "%s".' % mut_str, __name__)
 
-    q.is_codon = False
     return q
 
 def parse_tok_mutation_str(s):
