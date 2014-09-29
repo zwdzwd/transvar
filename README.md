@@ -468,7 +468,7 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
 ## Future work
 
  + nucleotide level duplication
- + amino acid level insertion and deletion
+ + refine amino acid level insertion and deletion
  + forward annoation of insertion deletion
 
 ## Bug report and feature request
