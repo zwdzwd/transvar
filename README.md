@@ -43,7 +43,7 @@ For most annotation database (the only exception may be the UCSC table which is 
 Once downloaded and indexed, one could use the reference in RevAn through the `--ref` option followed by the fasta filename. One also has the option of specifying the default location to `revan.cfg` by:
 ```
 #!bash
-revan config -k reference -v hg19.fa
+$ revan config -k reference -v hg19.fa
 ```
 so that there is no need to specify the location of reference on subsequent usages.
 
@@ -53,7 +53,7 @@ The following list the transcript annotations supported by revan. RevAn can take
 
 ```
 #!bash
-revan config --download_hg19_anno
+$ revan config --download_hg19_anno
 ```
 will automatically download annotation from
 Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to `[install dir]/download` directory.
@@ -316,7 +316,7 @@ Similar to insertion, the annotation of duplication assumes no change in splicin
 Example: to annotate a duplication coding region,
 ```
 #!bash
-revan revanno --ccds -i 'CHD7:c.1669_1674dup'
+$ revan revanno --ccds -i 'CHD7:c.1669_1674dup'
 ```
 ```
 #!text
@@ -328,7 +328,7 @@ CHD7:c.1669_1674dup    8    61693562-61693567 (dup) CCDS47865.1     CHD7 (+, Cod
 Example: a duplication on the nucleotide level may lead to frame-shift or block substitution on the amino acid level,
 ```
 #!bash
-revan revanno --ccds -i 'CHD7:c.1668_1669dup'
+$ revan revanno --ccds -i 'CHD7:c.1668_1669dup'
 ```
 ```
 #!text
@@ -339,7 +339,7 @@ CHD7:c.1668_1669dup    8    61693561-61693562 (dup) CCDS47865.1     CHD7 (+, Cod
 Example: to annotate a duplication in intronic region,
 ```
 #!bash
-revan revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
+$ revan revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
 ```
 ```
 #!text
