@@ -314,6 +314,7 @@ A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, cod
 $ revan revanno --ccds -i 'AATK.p.P1331_A1332insTP'
 ```
 ```
+#!text
 AATK    c.3993_3994insACGCCC    p.P1331_A1332insTP      17:79093270-79093271    17
     79093268-79093273 (insertion)   CCDS45807.1     AATK (-, coding)
     17:79093268-79093273ins6/c.3991-3996ins6/p.P1331_A1332insTP     Uncertain
@@ -325,6 +326,7 @@ AATK    c.3993_3994insACGCCC    p.P1331_A1332insTP      17:79093270-79093271    
 $ revan revanno --ccds -i 'AADACL4.p.W263_I267delWRDAI'
 ```
 ```
+#!text
 AADACL4   c.788_802del15  p.W263_I267delWRDAI   1:12726310-12726324
      1       12726309-12726323 (deletion)    CCDS30590.1     AADACL4 (+, coding)
      1:12726309-12726323/c.787-801/p.W263_I267delWRDAI     Uncertain
@@ -336,6 +338,7 @@ AADACL4   c.788_802del15  p.W263_I267delWRDAI   1:12726310-12726324
 $ revan revanno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
 ```
 ```
+#!text
 ABCC3:p.Y556_V557delinsRRR   17   48745254-48745259 (block substitution)  CCDS32681.1
     ABCC3 (+, coding)
     17:48745254-48745259TACGTG>AGGAGGAGG/c.1666-1671TACGTG>AGGAGGAGG/p.Y556_V557delinsRRR
