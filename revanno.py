@@ -64,7 +64,7 @@ def main_list(args, name2gene):
             err_print(line)
             raise e
         except Exception as e:
-            err_print(line)
+            err_print('line:'+line)
             raise e
 
 def main_one(args, name2gene):

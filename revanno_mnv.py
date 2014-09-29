@@ -158,8 +158,8 @@ def codon_mutation_mnv(args, q, tpt):
     tnuc_beg = q.beg*3-2
     tnuc_end = q.end*3
     r.gnuc_beg, r.gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.refrefseq = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_beg, r.gnuc_end)
-    r.natrefseq = reverse_complement(r.refrefseq) if tpt.strand == '-' else r.refrefseq
+    r.natrefseq = tpt.seq[tnuc_beg-1:tnuc_end]
+    r.refrefseq = reverse_complement(r.natrefseq) if tpt.strand == '-' else r.natrefseq
     taa_natrefseq = translate_seq(r.natrefseq)
     if q.beg_aa and q.beg_aa != taa_natrefseq[0]:
         raise IncompatibleTranscriptError('reference sequence unmatched')

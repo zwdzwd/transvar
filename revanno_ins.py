@@ -210,8 +210,8 @@ def codon_mutation_ins(args, q, tpt):
     tnuc_beg = q.beg*3-2
     tnuc_end = q.end*3
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.tnuc_range = '%d-%d' % (tnuc_beg, tnuc_end)
-    r.gnuc_range = '%d-%d' % (gnuc_beg, gnuc_end)
+    r.tnuc_range = '%d-%dins%d' % (tnuc_beg-1, tnuc_end, len(q.insseq)*3)
+    r.gnuc_range = '%d-%dins%d' % (gnuc_beg-1, gnuc_end, len(q.insseq)*3)
     r.pos = '%d-%d (insertion)' % (gnuc_beg, gnuc_end)
 
     return r

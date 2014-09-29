@@ -251,9 +251,9 @@ $ revan revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
 ```
 #!text
 ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
-   CCDS46444.1     ABCB11 (- coding & intronic)
+    CCDS46444.1     ABCB11 (- coding & intronic)
     2:169833196_169833205del/c.1198-8_1199del/p.K400Tfs*4
-   RefDelSeq=TTCTGGAGTG;NatDelSeq=CACTCCAGAA
+    RefDelSeq=TTCTGGAGTG;NatDelSeq=CACTCCAGAA
 ```
 
 ---
@@ -304,6 +304,53 @@ $ revan revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
 #!text
 A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
     10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite
+```
+---
+
+#### reverse annotation of amino acid insertion
+
+```
+#!bash
+$ revan revanno --ccds -i 'AATK.p.P1331_A1332insTP'
+```
+```
+AATK    c.3993_3994insACGCCC    p.P1331_A1332insTP      17:79093270-79093271    17
+    79093268-79093273 (insertion)   CCDS45807.1     AATK (-, coding)
+    17:79093268-79093273ins6/c.3991-3996ins6/p.P1331_A1332insTP     Uncertain
+```
+
+#### reverse annotation of amino acid deletion
+```
+#!bash
+$ revan revanno --ccds -i 'AADACL4.p.W263_I267delWRDAI'
+```
+```
+AADACL4   c.788_802del15  p.W263_I267delWRDAI   1:12726310-12726324
+     1       12726309-12726323 (deletion)    CCDS30590.1     AADACL4 (+, coding)
+     1:12726309-12726323/c.787-801/p.W263_I267delWRDAI     Uncertain
+```
+
+#### reverse annotation of amino acid block substitution
+```
+#!bash
+$ revan revanno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
+```
+```
+ABCC3:p.Y556_V557delinsRRR   17   48745254-48745259 (block substitution)  CCDS32681.1
+    ABCC3 (+, coding)
+    17:48745254-48745259TACGTG>AGGAGGAGG/c.1666-1671TACGTG>AGGAGGAGG/p.Y556_V557delinsRRR
+    CddNatAlt=AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT;Uncertain
+```
+
+#### reverse annotation of amino acid frame shift
+
+```
+#!bash
+$ revan revanno --ccds -i 'A1BG.p.G132fs*2'
+```
+```
+A1BG.p.G132fs*2 19      58863866-58863867-58863868      CCDS12976.1     A1BG (-, coding)
+    19:58863860-58863868/c.394-402/p.G132fs*2       RoughEstimateFromFrameShift
 ```
 
 ---
