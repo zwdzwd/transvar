@@ -192,3 +192,49 @@ def _core_annotate_nuc_ins(args, q, tpts):
         r.format(q.op)
 
     return
+
+
+def codon_mutation_ins(args, q, tpt):
+    
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError("Transcript name unmatched")
+    tpt.ensure_seq()
+
+    r = Record()
+    r.chrm = tpt.chrm
+    r.tname = tpt.name
+
+    if q.beg*3 > len(tpt) or q.end*3 > len(tpt):
+        raise IncompatibleTranscriptError('codon nonexistent')
+
+    tnuc_beg = q.beg*3-2
+    tnuc_end = q.end*3
+    gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
+    r.tnuc_range = '%d-%d' % (tnuc_beg, tnuc_end)
+    r.gnuc_range = '%d-%d' % (gnuc_beg, gnuc_end)
+    r.pos = '%d-%d (insertion)' % (gnuc_beg, gnuc_end)
+
+    return r
+
+def _core_annotate_codon_ins(args, q, tpts):
+
+    found = False
+    for tpt in tpts:
+        try:
+            r = codon_mutation_ins(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        r.muttype = 'ins'
+        r.taa_range = '%s%s_%s%sins%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.insseq)
+        r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+        r.info = 'Uncertain' if r.info == '.' else (r.info+';Uncertain')
+        r.format(q.op)
+        found = True
+
+    if not found:
+        r = Record()
+        r.taa_range = '%s%s_%s%sins%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.insseq)
+        r.info = 'NoValidTranscriptFound'
+        r.format(q.op)
+
+

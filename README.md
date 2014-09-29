@@ -342,9 +342,9 @@ RevAn outputs genomic positions of codons based on original transcript (4th colu
 Example: to run `revan codonsearch` to **batch process** a list of mutation identifiers.
 ```
 #!bash
-$ revan codonsearch -l input.table --ccds -m 1 -o 1
+$ revan codonsearch -l input.txt --ccds -m 1 -o 1
 ```
-Example input.table
+Example input table
 ```
 #!text
 CDKN2A.p61
@@ -419,6 +419,7 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
 
  + nucleotide level duplication
  + amino acid level insertion and deletion
+ + forward annoation of insertion deletion
 
 ## Bug report and feature request
 

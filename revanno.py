@@ -6,108 +6,27 @@ from transcripts import *
 from utils import *
 from record import *
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
-from revanno_snv import _core_annotate_nuc_snv
-from revanno_del import _core_annotate_nuc_del
-from revanno_ins import _core_annotate_nuc_ins
-from revanno_mnv import _core_annotate_nuc_mnv
-
-def codon_mutation(args, q):
-
-    """ find all the mutations given a codon position, yield records """
-
-    if q.alt and q.alt not in reverse_codon_table:
-        sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
-        q.alt = ''
-
-    if hasattr(args, 'longest') and args.longest:
-        tpts = [q.gene.longest_tpt()]
-    else: tpts = q.gene.tpts
-
-    for tpt in tpts:
-
-        # when there's a transcript specification
-        if q.tpt and tpt.name != q.tpt: continue
-
-        if not tpt.ensure_seq(): continue
-        codon = tpt.cpos2codon(q.pos)
-        if not codon: continue
-
-        # skip if reference amino acid is given
-        # and codon sequence does not generate reference aa
-        # codon.seq is natural sequence
-        if q.ref and codon.seq not in reverse_codon_table[q.ref]: continue
-
-        mutloc = ''
-        tnuc_pos = ''
-        tnuc_ref = ''
-        tnuc_alt = ''
-        gnuc_ref = ''
-        gnuc_alt = ''
-        gnuc_pos = ''
-
-        # if alternative amino acid is given
-        # filter the target mutation set to those give the
-        # alternative aa
-        if q.alt:
-            tgt_codon_seqs = reverse_codon_table[q.alt]
-            diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
-            baseloc_list = []
-            refbase_list = []
-            varbase_list = []
-            cdd_muts = []
-            for i, diff in enumerate(diffs):
-                if len(diff) == 1:
-                    tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
-                    tnuc_ref = codon.seq[diff[0]]
-                    tnuc_alt = tgt_codon_seqs[i][diff[0]]
-
-                    if codon.strand == "+":
-                        gnuc_ref = codon.seq[diff[0]]
-                        gnuc_alt = tgt_codon_seqs[i][diff[0]]
-                        gnuc_pos = codon.locs[diff[0]]
-                        cdd_muts.append('%s:%s%d%s' % (\
-                                tpt.chrm, gnuc_ref, gnuc_pos, gnuc_alt))
-                    else:
-                        gnuc_ref = complement(codon.seq[diff[0]])
-                        gnuc_alt = complement(tgt_codon_seqs[i][diff[0]])
-                        gnuc_pos = codon.locs[2-diff[0]]
-                        cdd_muts.append('%s:%s%d%s' % (\
-                                tpt.chrm, gnuc_ref, gnuc_pos, gnuc_alt))
-
-            mutloc = "CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s" % (\
-                ','.join(cdd_muts), codon.seq, ','.join(tgt_codon_seqs))
-
-        yield (tpt, codon, mutloc, 
-               (tnuc_pos, tnuc_ref, tnuc_alt), 
-               (gnuc_pos, gnuc_ref, gnuc_alt))
+from revanno_snv import _core_annotate_nuc_snv, _core_annotate_codon_snv
+from revanno_del import _core_annotate_nuc_del, _core_annotate_codon_del
+from revanno_ins import _core_annotate_nuc_ins, _core_annotate_codon_ins
+from revanno_mnv import _core_annotate_nuc_mnv, _core_annotate_codon_mnv
+from revanno_fs import _core_annotate_codon_fs
 
 def _core_annotate_codon(args, q):
 
-    found = False
-    for t, codon, mutloc, tnuc, gnuc in codon_mutation(args, q):
-        found = True
-        r = Record()
-        r.chrm = t.chrm
-        r.tname = t.name
-        r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
-        r.pos = '-'.join(map(str, codon.locs))
-        r.taa_ref = q.ref if q.ref else standard_codon_table[codon.seq]
-        r.taa_alt = q.alt
-        r.taa_pos = q.pos
-        r.tnuc_pos, r.tnuc_ref, r.tnuc_alt = tnuc
-        r.gnuc_pos, r.gnuc_ref, r.gnuc_alt = gnuc
-        r.info = mutloc
-        r.format(q.op)
+    if args.longest: tpts = [q.gene.longest_tpt()]
+    else: tpts = q.gene.tpts
 
-    if not found:
-        r = Record()
-        r.taa_ref = q.ref
-        r.taa_alt = q.alt
-        r.taa_pos = q.pos
-        r.info = 'NoValidTranscriptFound'
-        r.format(q.op)
-        
-    return
+    if isinstance(q, QuerySNV):
+        return _core_annotate_codon_snv(args, q, tpts)
+    elif isinstance(q, QueryDEL):
+        return _core_annotate_codon_del(args, q, tpts)
+    elif isinstance(q, QueryINS):
+        return _core_annotate_codon_ins(args, q, tpts)
+    elif isinstance(q, QueryMNV):
+        return _core_annotate_codon_mnv(args, q, tpts)
+    elif isinstance(q, QueryFrameShift):
+        return _core_annotate_codon_fs(args, q, tpts)
 
 def _core_annotate_nuc(args, q):
 

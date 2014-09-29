@@ -5,7 +5,7 @@ import sys, re, argparse
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from transcripts import *
 from utils import *
-from revanno import codon_mutation
+from revanno_snv import __core_annotate_codon_snv
 from anno import pos2codon
 from record import Query
 
@@ -15,7 +15,7 @@ def _main_core_(args, q, thash):
 
     k2transcripts = {}
     if q.is_codon:
-        for t1, c1, mutloc, tnuc, gnuc in codon_mutation(args, q):
+        for t1, c1 in __core_annotate_codon_snv(args, q):
             for cind in xrange(3):
                 for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[cind]):
                     if t1 == t2: continue

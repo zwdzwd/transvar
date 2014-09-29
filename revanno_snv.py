@@ -55,7 +55,7 @@ def nuc_mutation_snv_intronic(r, tpt, codon, q):
 def nuc_mutation_snv(args, q, tpt):
 
     if q.tpt and tpt.name != q.tpt:
-        raise IncompatibleTranscriptError()
+        raise IncompatibleTranscriptError('transcript id unmatched')
     tpt.ensure_seq()
 
     if (q.cpos() <= 0 or q.cpos() > len(tpt)):
@@ -95,3 +95,99 @@ def _core_annotate_nuc_snv(args, q, tpts):
         r.format(q.op)
 
     return
+
+def codon_mutation_snv(args, q, tpt):
+
+    """ find all the mutations given a codon position, yield records """
+
+    if q.alt and q.alt not in reverse_codon_table:
+        sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
+        q.alt = ''
+
+    # when there's a transcript specification
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError('transcript id unmatched')
+
+    tpt.ensure_seq()
+
+    if (q.pos <= 0 or q.pos > len(tpt)):
+        raise IncompatibleTranscriptError('codon nonexistent')
+    codon = tpt.cpos2codon(q.pos)
+    if not codon:
+        raise IncompatibleTranscriptError('codon nonexistent')
+
+    # skip if reference amino acid is given
+    # and codon sequence does not generate reference aa
+    # codon.seq is natural sequence
+    if q.ref and codon.seq not in reverse_codon_table[q.ref]:
+        raise IncompatibleTranscriptError('reference amino acid unmatched')
+
+    r = Record()
+    r.chrm = tpt.chrm
+    r.tname = tpt.name
+    r.pos = '-'.join(map(str, codon.locs))
+    # if alternative amino acid is given
+    # filter the target mutation set to those give the
+    # alternative aa
+    if q.alt:
+        tgt_codon_seqs = reverse_codon_table[q.alt]
+        diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
+        baseloc_list = []
+        refbase_list = []
+        varbase_list = []
+        cdd_muts = []
+        for i, diff in enumerate(diffs):
+            if len(diff) == 1:
+                r.tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
+                r.tnuc_ref = codon.seq[diff[0]]
+                r.tnuc_alt = tgt_codon_seqs[i][diff[0]]
+
+                if codon.strand == "+":
+                    r.gnuc_ref = codon.seq[diff[0]]
+                    r.gnuc_alt = tgt_codon_seqs[i][diff[0]]
+                    r.gnuc_pos = codon.locs[diff[0]]
+                    cdd_muts.append('%s:%s%d%s' % (
+                            tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+                else:
+                    r.gnuc_ref = complement(codon.seq[diff[0]])
+                    r.gnuc_alt = complement(tgt_codon_seqs[i][diff[0]])
+                    r.gnuc_pos = codon.locs[2-diff[0]]
+                    cdd_muts.append('%s:%s%d%s' % (
+                            tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+
+        r.info = "CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s" % (\
+            ','.join(cdd_muts), codon.seq, ','.join(tgt_codon_seqs))
+
+    return r, codon
+
+def __core_annotate_codon_snv(args, q):
+    for tpt in q.gene.tpts:
+        try:
+            r, c = codon_mutation_snv(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        yield tpt, c
+
+def _core_annotate_codon_snv(args, q, tpts):
+
+    found = False
+    for tpt in tpts:
+        try:
+            r, c = codon_mutation_snv(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        r.taa_pos = q.pos
+        r.taa_ref = q.ref
+        r.taa_alt = q.alt
+        r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+        r.format(q.op)
+        found = True
+
+    if not found:
+        r = Record()
+        r.taa_pos = q.pos
+        r.taa_ref = q.ref
+        r.taa_alt = q.alt
+        r.info = 'NoValidTranscriptFound'
+        r.format(q.op)
+

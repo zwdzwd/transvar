@@ -66,9 +66,22 @@ class QueryDEL(Query):
     def __init__(self):
 
         super(QueryDEL, self).__init__()
-        self.beg = None
-        self.end = None
+        self.beg = ''
+        self.end = ''
         self.delseq = ''
+        # for amino acid
+        self.beg_aa = ''
+        self.end_aa = ''
+
+class QueryFrameShift(Query):
+
+    def __init__(self):
+
+        super(QueryFrameShift, self).__init__()
+        self.pos = None
+        self.ref = ''
+        self.alt = ''
+        self.stop_index = ''
 
 class QueryINS(Query):
 
@@ -77,14 +90,21 @@ class QueryINS(Query):
         super(QueryINS, self).__init__()
         self.pos = ''           # position of base before
         self.insseq = ''
+        # for amino acid level query
+        self.beg = ''
+        self.beg_aa = ''
+        self.end = ''
+        self.end_aa = ''
 
 class QueryMNV(Query):
 
     def __init__(self):
 
         super(QueryMNV, self).__init__()
-        self.beg = None
-        self.end = None
+        self.beg = ''
+        self.beg_aa = ''
+        self.end = ''
+        self.end_aa = ''
         self.refseq = ''
         self.altseq = ''
 

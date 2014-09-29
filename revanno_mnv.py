@@ -141,3 +141,67 @@ def _core_annotate_nuc_mnv(args, q, tpts):
         r.format(q.op)
 
     return
+
+def codon_mutation_mnv(args, q, tpt):
+    
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError("Transcript name unmatched")
+    tpt.ensure_seq()
+
+    r = Record()
+    r.chrm = tpt.chrm
+    r.tname = tpt.name
+
+    if q.beg*3 > len(tpt) or q.end*3 > len(tpt):
+        raise IncompatibleTranscriptError('codon nonexistent')
+
+    tnuc_beg = q.beg*3-2
+    tnuc_end = q.end*3
+    r.gnuc_beg, r.gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
+    r.refrefseq = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_beg, r.gnuc_end)
+    r.natrefseq = reverse_complement(r.refrefseq) if tpt.strand == '-' else r.refrefseq
+    taa_natrefseq = translate_seq(r.natrefseq)
+    if q.beg_aa and q.beg_aa != taa_natrefseq[0]:
+        raise IncompatibleTranscriptError('reference sequence unmatched')
+    if q.end_aa and q.end_aa != taa_natrefseq[-1]:
+        raise IncompatibleTranscriptError('reference sequence unmatched')
+    if q.refseq and taa_natrefseq != q.refseq:
+        raise IncompatibleTranscriptError('reference sequence unmatched')
+    # reverse translate
+    tnuc_altseq = []
+    cdd_altseq = []
+    for aa in q.altseq:
+        tnuc_altseq.append(reverse_codon_table[aa][0])
+        cdd_altseq.append('/'.join(reverse_codon_table[aa]))
+    r.nataltseq = ''.join(tnuc_altseq)
+    r.refaltseq = reverse_complement(r.nataltseq) if tpt.strand == '-' else r.nataltseq
+    r.tnuc_range = '%d-%d%s>%s' % (tnuc_beg, tnuc_end, r.natrefseq, r.nataltseq)
+    r.gnuc_range = '%d-%d%s>%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq, r.refaltseq)
+    r.pos = '%d-%d (block substitution)' % (r.gnuc_beg, r.gnuc_end)
+    r.info = 'CddNatAlt=%s' % ('+'.join(cdd_altseq), )
+
+    return r
+
+def _core_annotate_codon_mnv(args, q, tpts):
+
+    found = False
+    for tpt in tpts:
+        try:
+            r = codon_mutation_mnv(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        r.muttype = 'delins'
+        r.taa_range = '%s%s_%s%sdel%sins%s' % (
+            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.refseq, q.altseq)
+        r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+        r.info = 'Uncertain' if r.info == '.' else (r.info+';Uncertain')
+        r.format(q.op)
+        found = True
+
+    if not found:
+        r = Record()
+        r.taa_range = '%s%s_%s%sdel%sins%s' % (
+            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.refseq, q.altseq)
+        r.info = 'NoValidTranscriptFound'
+        r.format(q.op)
+
