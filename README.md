@@ -345,13 +345,14 @@ ABCC3:p.Y556_V557delinsRRR   17   48745254-48745259 (block substitution)  CCDS32
     CddNatAlt=AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT;Uncertain
 ```
 
-#### reverse annotation of amino acid frame shift
+#### reverse annotation of amino acid frame-shift
 
 ```
 #!bash
 $ revan revanno --ccds -i 'A1BG.p.G132fs*2'
 ```
 ```
+#!text
 A1BG.p.G132fs*2 19      58863866-58863867-58863868      CCDS12976.1     A1BG (-, coding)
     19:58863860-58863868/c.394-402/p.G132fs*2       RoughEstimateFromFrameShift
 ```
