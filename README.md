@@ -146,9 +146,8 @@ $ revan revanno --ccds -i 'PIK3CA:c.1633G>A'
 outputs
 ```
 #!text
-PIK3CA:E545K    3    178936091-178936092-178936093   CCDS43171.1
-    PIK3CA (+, coding)      3:G178936091A/c.1633G>A/p.E545K
-    CddMuts=3:G178936091A;NCodonSeq=GAG;NCddSeqs=AAG,AAA
+PIK3CA:c.1633G>A     3     178936091-178936092-178936093   CCDS43171.1
+	PIK3CA (+ coding)  3:G178936091A/c.1633G>A/p.E545K NCodonSeq=GAG;NAltCodonSeq=AAG
 ```
 ---
 
@@ -511,9 +510,8 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
 
 ## Future work
 
- + nucleotide level duplication 
- + refine amino acid level insertion and deletion
- + forward annoation of insertion deletion
+ + forward annotation of binding sites
+ + forward annotation of insertion/deletion
  + forward annotation of structural variation breakpoints 
 
 ## Bug report and feature request
