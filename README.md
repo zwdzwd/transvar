@@ -470,6 +470,7 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
  + nucleotide level duplication
  + refine amino acid level insertion and deletion
  + forward annoation of insertion deletion
+ + forward annotation of structural variation breakpoints 
 
 ## Bug report and feature request
 
@@ -477,7 +478,7 @@ If you find any bug (very likely due to the complexity of genomics:-)) or you wi
 
 ## Reference
 
-We are working on submitting an application note on this topic:-).
+We are working on an application note on this topic :-).
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
