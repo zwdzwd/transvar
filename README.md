@@ -16,8 +16,8 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/revan/get/v1.02.zip
- $ unzip v1.02.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.03.zip
+ $ unzip v1.03.zip
  $ cd [unzipped dir]
  $ ./revan config --download_hg19_anno
  $ ./revan revanno --ucsc -i 'PIK3CA.p.E545K'
@@ -33,7 +33,7 @@ Just Python >= 2.6
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/revan/get/v1.02.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.03.zip
  $ unzip [downloaded zip]
  $ make
 ```
