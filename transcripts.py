@@ -158,6 +158,7 @@ def check_exon_boundary(np, pos):
             raise IncompatibleTranscriptError()
 
 def region_in_exon(np, beg, end):
+    """ region in tnuc positions """
 
     if beg.tpos != 0: return False
     if end.tpos != 0: return False
@@ -167,6 +168,7 @@ def region_in_exon(np, beg, end):
     return True
 
 def region_in_intron(np, beg, end):
+    """ region in tnuc positions """
 
     if beg.tpos == 0 or end.tpos == 0: return False
     if beg.pos == end.pos and beg.tpos*end.tpos > 0:
@@ -176,6 +178,13 @@ def region_in_intron(np, beg, end):
     if end.pos+1 == beg.pos and beg.tpos<0 and end.tpos>0:
         return True
     return False
+
+def tnuc_range2gnuc_range_(np, tbeg, tend):
+
+    """ convert transcript range to genomic range
+    tbeg and tend are 1-based
+    """
+    return min(np[tbeg-1], np[tend-1]), max(np[tbeg-1], np[tend-1])
 
 class Transcript():
 
@@ -195,6 +204,39 @@ class Transcript():
         else:
             return reduce(lambda x,y: x+y,
                           [end-beg+1 for beg, end in self.exons], 0)
+
+    def region(self, gnuc_beg, gnuc_end):
+        """ annotate genomic region with respect to this transcript """
+        # check if gnuc_beg and gnuc_end are inside the genomic region
+        pexon = None
+        overlapping_exons = []
+        for exon in self.exons:
+            if (exon[0] <= gnuc_beg and exon[1] >= gnuc_end):
+                _cds_beg = min(self.cds_beg, self.cds_end)
+                _cds_end = max(self.cds_beg, self.cds_end)
+                
+                if gnuc_beg > _cds_beg and gnuc_end < _cds_end:
+                    return 'Coding'
+                elif gnuc_beg < _cds_beg and gnuc_end < _cds_beg:
+                    return "5'UTR" if self.strand == '+' else "3'UTR"
+                elif gnuc_beg > _cds_end and gnuc_end > _cds_end:
+                    return "3'UTR" if self.strand == '+' else "5'UTR"
+                elif gnuc_beg < _cds_beg:
+                    return "5'UTR;coding" if self.strand == '+' else "3'UTR;coding"
+                elif gnuc_end > _cds_end:
+                    return "coding;3'UTR" if self.strand == '+' else "coding;5'UTR"
+                else:
+                    return "Unknown"
+            if exon[0] >= gnuc_beg and exon[0] <= gnuc_end:
+                overlapping_exons.append(exon)
+            if pexon and gnuc_beg > pexon[1] and gnuc_end < exon[0]:
+                return 'Intronic'
+            pexon = exon
+
+        if overlapping_exons:
+            return 'Intronic;Exonic'
+        else:
+            return 'Unknown'
 
     def ensure_seq(self):
         """ return True when successful """
@@ -243,20 +285,8 @@ class Transcript():
         """ convert transcript range to genomic range
         tbeg and tend are 1-based
         """
-        if not self.ensure_seq():
-            raise ReferenceUnavailableError() # return None
-        if self.strand == "+":
-            np = []
-            for beg, end in self.exons:
-                np += range(max(beg, self.cds_beg),
-                            min(self.cds_end, end)+1)
-            return np[tbeg-1], np[tend-1]
-        else:
-            np = []
-            for beg, end in reversed(self.exons):
-                np += range(min(self.cds_end, end),
-                            max(beg, self.cds_beg)-1,-1)
-            return np[tend-1], np[tbeg-1]
+        np = self.position_array()
+        return tnuc_range2gnuc_range_(np, tbeg, tend)
 
     def cpos2codon(self, cpos):
 
@@ -826,3 +856,4 @@ def translate_seq(seq):
             break
 
     return ''.join(aa_seq)
+

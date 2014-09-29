@@ -16,8 +16,8 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/revan/get/v1.03.zip
- $ unzip v1.03.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.04.zip
+ $ unzip v1.04.zip
  $ cd [unzipped dir]
  $ ./revan config --download_hg19_anno
  $ ./revan revanno --ucsc -i 'PIK3CA.p.E545K'
@@ -33,7 +33,7 @@ Just Python >= 2.6
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/revan/get/v1.03.zip
+ $ wget https://bitbucket.org/wanding/revan/get/v1.04.zip
  $ unzip [downloaded zip]
  $ make
 ```
@@ -302,9 +302,52 @@ $ revan revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
 ```
 ```
 #!text
-A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
-    10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite
+	A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
+	10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite
 ```
+
+---
+
+#### reverse annotation of nucleotide duplication
+
+Duplication can be thought of as insertion where the inserted sequence is identical to the sequence flanking the breakpoint.
+Similar to insertion, the annotation of duplication assumes no change in splicing.
+
+Example: to annotate a duplication coding region,
+```
+#!bash
+revan revanno --ccds -i 'CHD7:c.1669_1674dup'
+```
+```
+#!text
+CHD7:c.1669_1674dup    8    61693562-61693567 (dup) CCDS47865.1     CHD7 (+, Coding)
+    8:61693562-61693567dupTCCCCG/c.1669_1674dup/p.S557_P558dupSP
+    RefDupSeq=TCCCCG;NatDupSeq=TCCCCG
+```
+
+Example: a duplication on the nucleotide level may lead to frame-shift or block substitution on the amino acid level,
+```
+#!bash
+revan revanno --ccds -i 'CHD7:c.1668_1669dup'
+```
+```
+#!text
+CHD7:c.1668_1669dup    8    61693561-61693562 (dup) CCDS47865.1     CHD7 (+, Coding)
+    8:61693561-61693562dupTT/c.1668_1669dup/p.S557Ffs*8   RefDupSeq=TT;NatDupSeq=TT
+```
+
+Example: to annotate a duplication in intronic region,
+```
+#!bash
+revan revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
+```
+```
+#!text
+CHD7:c.1666-5_1666-3dup 8   61693554-61693556 (dup) CCDS47865.1   CHD7 (+, Intronic)
+    8:61693554-61693556dupCTC/c.1666-5_1666-3dup/.  RefDupSeq=CTC;NatDupSeq=CTC
+```
+
+
 ---
 
 #### reverse annotation of amino acid insertion
@@ -468,7 +511,7 @@ RevAn follows in full the HGVS nomenclature while annotating protein level mutat
 
 ## Future work
 
- + nucleotide level duplication
+ + nucleotide level duplication 
  + refine amino acid level insertion and deletion
  + forward annoation of insertion deletion
  + forward annotation of structural variation breakpoints 

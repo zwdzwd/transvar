@@ -9,6 +9,8 @@ def parse_mutation_str(mut_str):
     # mp = re.match(r'(p)?(\.)?([A-Z\*\?]+)?(\d+)(_(\d+))?', mut_str)
     # mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
     mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
+    # with duplication
+    mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
 
     if mp:
         print mp.groups()
@@ -74,7 +76,7 @@ def parse_mutation_str(mut_str):
         q.is_codon = True
     elif mn:
         (_, _, _beg, _end_s, _end, _, _is_del, _d,
-         _is_ins, _i, _is_sub, _ref, _alt) = mn.groups()
+         _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mn.groups()
         if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:
             q = QuerySNV()
             q.pos = parse_pos(_beg)
@@ -108,6 +110,11 @@ def parse_mutation_str(mut_str):
             q.end = parse_pos(_end) if _end else q.beg
             q.refseq = _ref.upper() if _ref else ''
             q.altseq = _alt.upper() if _alt else ''
+        elif _is_dup:
+            q = QueryDUP()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            q.dupseq = _dupseq.upper() if _dupseq else ''
         else:
             err_raise(InvalidInputError,
                       'Invalid nucleotide mutation: "%s".' % mut_str, __name__)

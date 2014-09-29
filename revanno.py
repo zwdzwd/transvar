@@ -11,6 +11,7 @@ from revanno_del import _core_annotate_nuc_del, _core_annotate_codon_del
 from revanno_ins import _core_annotate_nuc_ins, _core_annotate_codon_ins
 from revanno_mnv import _core_annotate_nuc_mnv, _core_annotate_codon_mnv
 from revanno_fs import _core_annotate_codon_fs
+from revanno_dup import _core_annotate_nuc_dup
 
 def _core_annotate_codon(args, q):
 
@@ -41,6 +42,8 @@ def _core_annotate_nuc(args, q):
         return _core_annotate_nuc_ins(args, q, tpts)
     elif isinstance(q, QueryMNV):
         return _core_annotate_nuc_mnv(args, q, tpts)
+    elif isinstance(q, QueryDUP):
+        return _core_annotate_nuc_dup(args, q, tpts)
 
 def _main_core_(args, q):
 

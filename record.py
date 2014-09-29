@@ -108,6 +108,17 @@ class QueryMNV(Query):
         self.refseq = ''
         self.altseq = ''
 
+class QueryDUP(Query):
+
+    def __init__(self):
+
+        super(QueryDUP, self).__init__()
+        self.beg = ''
+        self.beg_aa = ''
+        self.end = ''
+        self.end_aa = ''
+        self.dupseq = ''
+
 template = "{r.chrm}\t{r.pos}\t{r.tname}\t{r.reg}\t{gnuc}/{tnuc}/{taa}\t{r.info}"
 class Record():
 
