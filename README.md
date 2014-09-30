@@ -517,7 +517,7 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Bug report and feature request
 
-If you find any bug (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
+If you find any bug (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <wzhou1@mdanderson.org>. Thank you.
 
 ## Reference
 
