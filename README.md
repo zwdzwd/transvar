@@ -4,6 +4,7 @@
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
+ + supports UniProt protein id as transcript id
  + functionality of forward annotation.
 
 --------

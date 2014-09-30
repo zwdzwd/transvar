@@ -134,8 +134,8 @@ class Record():
     def tnuc(self):
         """ format in HGVS nomenclature e.g., c.12345A>T """
         s = 'c.'
-        if self.muttype:
-            if hasattr(self, 'tnuc_range') and self.tnuc_range: s += self.tnuc_range
+        if hasattr(self, 'tnuc_range') and self.tnuc_range:
+            s += self.tnuc_range
             if s == 'c.': return '.'
         else:
             if hasattr(self, 'tnuc_pos') and self.tnuc_pos: s += str(self.tnuc_pos)
@@ -146,16 +146,16 @@ class Record():
         return s
 
     def gnuc(self):
+        
         """ format in chr1:A12345T """
         s = self.chrm+':'
-        if self.muttype:
-            if hasattr(self, 'gnuc_range') and self.gnuc_range: s += self.gnuc_range
-            if s == '.:': return '.'
+        if hasattr(self, 'gnuc_range') and self.gnuc_range:
+            s += self.gnuc_range
         else:
             if hasattr(self, 'gnuc_ref') and self.gnuc_ref: s += self.gnuc_ref
             if hasattr(self, 'gnuc_pos') and self.gnuc_pos: s += str(self.gnuc_pos)
             if hasattr(self, 'gnuc_alt') and self.gnuc_alt: s += self.gnuc_alt
-            if s == '.:': return '.'
+        if s == '.:': return '.'
         return s
 
     def taa(self):

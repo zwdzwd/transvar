@@ -5,26 +5,26 @@ from record import *
 def parse_mutation_str(mut_str):
     mut_str = mut_str.strip()
     # mp = re.match(r'(p)?(\.)?([A-Z*?]?)(\d+)([A-Z*?]?)$', mut_str)
-    mp = re.match(r'(p)?(\.)?([A-Z*?]+)(\d+)(_([A-Z*?]+)(\d+))?(del([A-Z*?\d]+)?)?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?$', mut_str)
+    mp = re.match(r'(p)?(\.)?([A-Z*?]+)?(\d+)(_([A-Z*?]+)(\d+))?(del([A-Z*?\d]+)?)?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?$', mut_str)
     # mp = re.match(r'(p)?(\.)?([A-Z\*\?]+)?(\d+)(_(\d+))?', mut_str)
     # mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
-    mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
+    # mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
     # with duplication
     mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
 
     if mp:
-        print mp.groups()
+        #print mp.groups()
         (_, _, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
          _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i) = mp.groups()
         if _is_fs:
-            print 'fs'
+            #print 'fs'
             q = QueryFrameShift()
             q.pos = int(_beg_i)
             q.ref = _beg_aa
             q.alt = _alt if _alt else ''
             q.stop_index = int(_stop_i)
         elif _is_del and not _is_ins:
-            print 'del'
+            #print 'del'
             q = QueryDEL()
             q.beg = int(_beg_i)
             q.end = int(_end_i) if _end_i else q.beg
@@ -34,13 +34,13 @@ def parse_mutation_str(mut_str):
         elif (_is_del and _is_ins and 
               (_d == '1' or (_d and len(_d) == 1) or not _end_s)
               and len(_i) == 1):
-            print 'snv'
+            #print 'snv'
             q = QuerySNV()
             q.pos = int(_beg_i)
             q.ref = _beg_aa
             q.alt = _alt
         elif _is_del and _is_ins:
-            print 'mnv'
+            #print 'mnv'
             q = QueryMNV()
             q.beg = int(_beg_i)
             q.end = int(_end_i) if _end_i else q.beg
@@ -49,7 +49,7 @@ def parse_mutation_str(mut_str):
             q.refseq = _d.upper() if _d else ''
             q.altseq = _i.upper() if _i else ''
         elif _is_ins and not _is_del:
-            print 'ins'
+            #print 'ins'
             q = QueryINS()
             q.beg = int(_beg_i)
             q.beg_aa = _beg_aa
@@ -57,13 +57,13 @@ def parse_mutation_str(mut_str):
             q.end_aa = _end_aa
             q.insseq = _i.upper() if _i else ''
         elif not _end_s and (not _beg_aa or len(_beg_aa) == 1):
-            print 'snv'
+            #print 'snv'
             q = QuerySNV()
             q.pos = int(_beg_i)
             q.ref = _beg_aa
             q.alt = _alt.upper() if _alt else ''
         else:
-            print 'mnv'
+            #print 'mnv'
             q = QueryMNV()
             q.beg = int(_beg_i)
             q.end = int(_end_i) if _end_i else q.beg

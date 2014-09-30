@@ -41,7 +41,8 @@ def download_hg19_annotations(config):
         ('ucsc', 'hg19.ucsc.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
         ('aceview', 'hg19.aceview.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/AceView.ncbi_37.genes_gff.gff.gz?dl=1'),
         ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
-        ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1')
+        ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
+        ('uniprot', 'uniprot.idmapping.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1'),
         ]
 
     pdir = os.path.join(os.path.dirname(__file__), 'download')

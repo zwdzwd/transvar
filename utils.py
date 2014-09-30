@@ -168,7 +168,21 @@ def parse_annotation(args):
 
         g.std_tpt = g.longest_tpt()
 
-    return name2gene, thash
+
+    if args.uniprot:
+        tid2uniprot = trs.parse_uniprot_mapping(args.uniprot)
+        name2protein = {}
+        for name, gene in name2gene.iteritems():
+            for tpt in gene.tpts:
+                if tpt.name in tid2uniprot:
+                    uniprot = tid2uniprot[tpt.name]
+                    if uniprot not in name2protein:
+                        name2protein[uniprot] = trs.Gene(uniprot)
+                    prot = name2protein[uniprot]
+                    prot.tpts.append(tpt)
+        return name2protein, thash
+    else:
+        return name2gene, thash
 
 def parser_add_annotation(parser, d):
 
@@ -198,7 +212,10 @@ def parser_add_annotation(parser, d):
                         help='CCDS transcript annotation table (config key: ccds)')
     parser.add_argument('--aceview', nargs='?', default=None,
                         const=d['aceview'] if 'aceview' in d else None,
-                        help='AceView GFF transcript annotation (config key: aceview')
+                        help='AceView GFF transcript annotation (config key: aceview)')
+    parser.add_argument('--uniprot', nargs='?', default=None,
+                        const=d['uniprot'] if 'uniprot' in d else None,
+                        help='use uniprot ID rather than gene id (config key: uniprot)')
 
     return
 

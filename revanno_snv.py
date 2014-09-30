@@ -127,8 +127,8 @@ def codon_mutation_snv(args, q, tpt):
     r.tname = tpt.name
     r.pos = '-'.join(map(str, codon.locs))
     # if alternative amino acid is given
-    # filter the target mutation set to those give the
-    # alternative aa
+    # filter the target mutation set to those give
+    # the alternative aa
     if q.alt:
         tgt_codon_seqs = reverse_codon_table[q.alt]
         diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
@@ -147,16 +147,19 @@ def codon_mutation_snv(args, q, tpt):
                     r.gnuc_alt = tgt_codon_seqs[i][diff[0]]
                     r.gnuc_pos = codon.locs[diff[0]]
                     cdd_muts.append('%s:%s%d%s' % (
-                            tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+                        tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
                 else:
                     r.gnuc_ref = complement(codon.seq[diff[0]])
                     r.gnuc_alt = complement(tgt_codon_seqs[i][diff[0]])
                     r.gnuc_pos = codon.locs[2-diff[0]]
                     cdd_muts.append('%s:%s%d%s' % (
-                            tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+                        tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
 
         r.info = "CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s" % (\
             ','.join(cdd_muts), codon.seq, ','.join(tgt_codon_seqs))
+    else:
+        r.gnuc_range = '%d-%d' % (codon.locs[0], codon.locs[2])
+        r.tnuc_range = '%d-%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
 
     return r, codon
 

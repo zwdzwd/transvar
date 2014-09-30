@@ -454,7 +454,7 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
     cnt = 0
     for line in open(map_file):
         fields = line.strip().split()
-        gene_name = fields[0]
+        gene_name = fields[0].upper()
         if gene_name in name2gene:
             gene = name2gene[gene_name]
         else:
@@ -580,7 +580,7 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
         # info = dict([_.split('=') for _ in fields[8].split(';')])
         if fields[2] == 'gene' and info['gene_biotype'] == 'protein_coding':
-            gene_name = info['gene_name']
+            gene_name = info['gene_name'].upper()
             if gene_name in name2gene:
                 g = name2gene[gene_name]
             else:
@@ -619,9 +619,9 @@ def parse_ccds_table(ccds_fn, name2gene):
         fields = line.strip().split('\t')
         if fields[5] != 'Public':
             continue
-        gene_name = fields[2]
+        gene_name = fields[2].upper()
         if gene_name not in name2gene:
-            name2gene[gene_name] = Gene(fields[2])
+            name2gene[gene_name] = Gene(gene_name)
 
         g = name2gene[gene_name]
         t = Transcript()
@@ -707,7 +707,7 @@ def parse_gencode_gtf(gencode_fn, name2gene):
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
         if fields[2] == 'gene':
-            gene_name = info['gene_name']
+            gene_name = info['gene_name'].upper()
             if gene_name in name2gene:
                 g = name2gene[gene_name]
             else:
@@ -748,7 +748,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*(\S+) (\S+);', fields[8]))
         if fields[2] == 'CDS':
-            gene_name = info['gene_id']
+            gene_name = info['gene_id'].upper()
             if gene_name in name2gene:
                 g = name2gene[gene_name]
             else:
@@ -770,7 +770,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
             t.cds.append((int(fields[3]), int(fields[4])))
 
         elif fields[2] == 'exon':
-            gene_name = info['gene_id']
+            gene_name = info['gene_id'].upper()
             if gene_name in name2gene:
                 g = name2gene[gene_name]
             else:
@@ -801,6 +801,17 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
             t.gene.tpts.remove(t)
 
     sys.stderr.write("[%s] Loaded %d transcripts from AceView GFF file.\n" % (__name__, len(id2tpt)))
+
+def parse_uniprot_mapping(fn):
+
+    tid2uniprot = {}
+    for line in opengz(fn):
+        fields = line.strip().split('\t')
+        tid2uniprot[fields[2]] = fields[0]
+
+    err_print('[%s] Loaded %d transcript with UniProt mapping.' % (__name__, len(tid2uniprot)))
+
+    return tid2uniprot
 
 def extend_taa_seq(taa_pos_base, old_seq, new_seq, tpt):
 

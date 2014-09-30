@@ -55,6 +55,7 @@ def _main_core_(args, q):
 def main_list(args, name2gene):
 
     for q, line in list_parse_mutation(args):
+        q.tok = q.tok.upper()
         if q.tok not in name2gene:
             r = Record()
             r.info = "GeneNotRecognized"
@@ -73,6 +74,7 @@ def main_list(args, name2gene):
 def main_one(args, name2gene):
 
     q = parse_tok_mutation_str(args.i)
+    q.tok = q.tok.upper()
     if not q: return
 
     if q.tok not in name2gene:
