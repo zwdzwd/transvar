@@ -79,6 +79,20 @@ If one download transcripts through `transvar config`, TransVar would use the do
 ```transvar config -k ccds -v [annotation file]```. 
 The configuration file is located either at the `[install dir]/transvar.cfg` or `~/.transvar.cfg` if the installation directory is inaccessible.
 
+#### reverse annotation of protein sites
+
+One could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
+
+```
+#!bash
+transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
+```
+```
+#!text
+Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
+    C6ORF57 (+, coding)  6:71289191-71289193/c.139-141/p.47   .
+```
+
 ---
 
 #### batch processing
