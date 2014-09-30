@@ -1,9 +1,9 @@
-""" configure revan """
+""" configure TransVar """
 import ConfigParser
 import os
 
-cfg_fns = [os.path.join(os.path.dirname(__file__), 'revan.cfg'),
-           os.path.expanduser('~/.revan.cfg')]
+cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
+           os.path.expanduser('~/.transvar.cfg')]
 
 def download_url(url, file_name):
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import re, argparse
 from itertools import chain
-""" RevAn (Reverse Annotator) """
+""" TransVar (annotator for Transcript-dependent Variants) """
 
 
 from revanno import add_parser_revanno
