@@ -79,20 +79,6 @@ If one download transcripts through `transvar config`, TransVar would use the do
 ```transvar config -k ccds -v [annotation file]```. 
 The configuration file is located either at the `[install dir]/transvar.cfg` or `~/.transvar.cfg` if the installation directory is inaccessible.
 
-#### reverse annotation of protein sites
-
-One could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
-
-```
-#!bash
-transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
-```
-```
-#!text
-Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
-    C6ORF57 (+, coding)  6:71289191-71289193/c.139-141/p.47   .
-```
-
 ---
 
 #### batch processing
@@ -125,6 +111,21 @@ ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST0000
 
 ---
 
+
+#### reverse annotation of protein sites
+
+One could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
+
+```
+#!bash
+transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
+```
+```
+#!text
+Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
+    C6ORF57 (+, coding)  6:71289191-71289193/c.139-141/p.47   .
+```
+---
 #### reverse annotation of single amino acid substitution
 Mutation formats acceptable in TransVar are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. TransVar takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
