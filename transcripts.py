@@ -840,8 +840,8 @@ def extend_taa_seq(taa_pos_base, old_seq, new_seq, tpt):
             new_codon_seq = new_seq[ci:ci+3]
             seq_end += 100
 
-        taa_ref_run = standard_codon_table[old_codon_seq]
-        taa_alt_run = standard_codon_table[new_codon_seq]
+        taa_ref_run = codon2aa(old_codon_seq)
+        taa_alt_run = codon2aa(new_codon_seq)
         #print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
         if taa_pos == None and taa_ref_run != taa_alt_run:
             taa_pos = i
@@ -868,7 +868,7 @@ def translate_seq(seq):
 
     aa_seq = []
     for i in xrange(len(seq)/3):
-        aa = standard_codon_table[seq[i*3:i*3+3]]
+        aa = codon2aa(seq[i*3:i*3+3])
         aa_seq.append(aa)
         if aa == '*':
             break
