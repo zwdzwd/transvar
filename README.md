@@ -125,6 +125,7 @@ transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
 Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
     C6ORF57 (+, coding)  6:71289191-71289193/c.139-141/p.47   .
 ```
+
 ---
 #### reverse annotation of single amino acid substitution
 Mutation formats acceptable in TransVar are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. TransVar takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
@@ -528,7 +529,8 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
  + forward annotation of binding sites
  + forward annotation of insertion/deletion
- + forward annotation of structural variation breakpoints 
+ + forward annotation of structural variation breakpoints
+ + support uncertain insertion such as '4424_4425ins80'
 
 ## Bug report and feature request
 

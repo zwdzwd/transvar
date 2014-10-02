@@ -39,6 +39,11 @@ standard_codon_table = {
 stop_codons  = [ 'TAA', 'TAG', 'TGA', ]
 start_codons = [ 'TTG', 'CTG', 'ATG', ]
 
+def codon2aa(codonseq):
+    if codonseq not in standard_codon_table:
+        raise IncompatibleTranscriptError('Invalid codon sequence')
+    return standard_codon_table[codonseq]
+
 reverse_codon_table = {
     'A': ['GCA', 'GCC', 'GCG', 'GCT'],
     'C': ['TGT', 'TGC'],
@@ -239,7 +244,9 @@ class Transcript():
             return 'Unknown'
 
     def ensure_seq(self):
-        """ return True when successful """
+        """ return True when successful,
+        potential reason include patch chromosomes
+        """
         if self.seq: return True
         if not faidx.refgenome:
             err_die("Please provide reference through --ref [reference fasta].", __name__)

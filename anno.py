@@ -181,6 +181,20 @@ def main(args):
 
     if args.i:
         main_one(args, thash)
+
+# def main(args):
+
+#     name2gene, thash = parse_annotation(args)
+#     for line in args.l:
+#         fields = line.strip().split('\t')
+#         name = fields[int(args.i)-1]
+#         tn = fields[int(args.t)-1]
+#         if name in name2gene:
+#             gene = name2gene[name]
+#             ts = [t for t in gene.tpts if tn == t.name]
+#             if ts:
+#                 o = len([t for t in gene.tpts if len(t) > len(ts[0])])
+#                 print o
     
 def add_parser_anno(subparsers, d):
 

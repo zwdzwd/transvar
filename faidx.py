@@ -1,6 +1,8 @@
 """ faidx python code adapted from Allen Yu 
 http://www.allenyu.info/item/24-quickly-fetch-sequence-from-samtools-faidx-indexed-fasta-sequences.html """
 import sys
+from err import *
+
 class RefGenome:
 
     def __init__(self, fasta_file):       
@@ -50,8 +52,8 @@ class RefGenome:
             elif 'chr'+chrom in self.faidx:
                 chrom = 'chr'+chrom
             else:
-                sys.stderr.write('Chromosome %s not found in reference\n' % chrom)
-                return None
+                # sys.stderr.write('Chromosome %s not found in reference\n' % chrom)
+                raise UnknownChromosomeError('Chromosome %s not found in reference\n' % chrom)
 
         slen,offset,blen,bytelen=self.faidx[chrom]
         start = start-1 #To 0-base

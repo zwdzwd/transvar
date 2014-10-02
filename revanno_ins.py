@@ -10,16 +10,16 @@ def nuc_mutation_ins_coding_inframe_inphase(args, q, tpt, r):
     # check stop codon
     taa_insseq = ''
     for i in xrange(len(q.insseq)/3):
-        if standard_codon_table[q.insseq[i*3:i*3+3]] == '*':
+        if codon2aa(q.insseq[i*3:i*3+3]) == '*':
             return nuc_mutation_ins_coding_frameshift(args, q, tpt, r)
-        taa_insseq += standard_codon_table[q.insseq[i*3:i*3+3]]
+        taa_insseq += codon2aa(q.insseq[i*3:i*3+3])
 
     # otherwise, a pure insertion
     c1 = tpt.cpos2codon((q.pos.pos+2)/3)
     c2 = tpt.cpos2codon((q.pos.pos+3)/3)
     if not c1 or not c2: raise IncompatibleTranscriptError()
-    r.taa_range = '%s%d_%s%dins%s' % (standard_codon_table[c1.seq], c1.index, 
-                                      standard_codon_table[c2.seq], c2.index, 
+    r.taa_range = '%s%d_%s%dins%s' % (codon2aa(c1.seq), c1.index, 
+                                      codon2aa(c2.seq), c2.index, 
                                       taa_insseq)
     refinsseq = q.insseq if tpt.strand == '+' else reverse_complement(q.insseq)
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
@@ -46,21 +46,21 @@ def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
     new_seq = codon_subseq1+q.insseq+codon_subseq2
     taa_insseq = ''
     for i in xrange(len(new_seq)/3):
-        if standard_codon_table[new_seq[i*3:i*3+3]] == '*':
+        if codon2aa(new_seq[i*3:i*3+3]) == '*':
             return nuc_mutation_ins_coding_frameshift(args, q, tpt, r)
-        taa_insseq += standard_codon_table[new_seq[i*3:i*3+3]]
+        taa_insseq += codon2aa(new_seq[i*3:i*3+3])
 
     if not codon: raise IncompatibleTranscriptError()
-    taa_ref = standard_codon_table[codon.seq]
+    taa_ref = codon2aa(codon.seq)
     #print codon_beg, len(tpt.seq), new_seq, codon_subseq1, codon_subseq2
     if taa_ref == taa_insseq[0]:
         # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
-        taa_ref_after = standard_codon_table[tpt.seq[codon.index*3:codon.index*3+3]]
+        taa_ref_after = codon2aa(tpt.seq[codon.index*3:codon.index*3+3])
         r.taa_range = '%s%d_%s%dins%s' % (taa_ref, codon.index,
                                           taa_ref_after, codon.index+1, taa_insseq[1:])
     elif taa_ref == taa_insseq[-1]:
         # SdelinsHS becomes a pure insertion [codon_before]_[current_codon]insH
-        taa_ref_before = standard_codon_table[tpt.seq[codon.index*3-6:codon.index*3-3]]
+        taa_ref_before = codon2aa(tpt.seq[codon.index*3-6:codon.index*3-3])
         r.taa_range = '%s%d_%s%dins%s' % (taa_ref_before, codon.index-1,
                                           taa_ref, codon.index, taa_insseq[:-1])
     else:
@@ -182,6 +182,8 @@ def _core_annotate_nuc_ins(args, q, tpts):
         try:
             r = nuc_mutation_ins(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
             continue
         found = True
         r.format(q.op)
