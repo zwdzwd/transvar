@@ -17,8 +17,8 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/transvar/get/v1.11.zip
- $ unzip v1.11.zip
+ $ wget https://bitbucket.org/wanding/transvar/get/v1.12.zip
+ $ unzip v1.12.zip
  $ cd [unzipped dir]
  $ ./transvar config --download_hg19_anno
  $ ./transvar revanno --ucsc -i 'PIK3CA.p.E545K'
@@ -34,7 +34,7 @@ Just Python >= 2.6
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/transvar/get/v1.11.zip
+ $ wget https://bitbucket.org/wanding/transvar/get/v1.12.zip
  $ unzip [downloaded zip]
  $ make
 ```
