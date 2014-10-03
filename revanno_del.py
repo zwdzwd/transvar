@@ -13,16 +13,13 @@ def nuc_mutation_del_coding_inframe_inphase(args, q, tpt, r):
         beg_codon = tpt.cpos2codon(beg_codon_index)
         if not beg_codon: raise IncompatibleTranscriptError()
         end_codon = beg_codon
-        r.taa_range = '%s%ddel' % (standard_codon_table[beg_codon.seq], 
-                                   beg_codon.index)
+        r.taa_range = '%s%ddel' % (codon2aa(beg_codon.seq), beg_codon.index)
     else:
         beg_codon = tpt.cpos2codon(beg_codon_index)
         end_codon = tpt.cpos2codon(end_codon_index)
         if not beg_codon or not end_codon: raise IncompatibleTranscriptError()
-        r.taa_range = '%s%d_%s%ddel' % (standard_codon_table[beg_codon.seq],
-                                        beg_codon.index,
-                                        standard_codon_table[end_codon.seq],
-                                        end_codon.index)
+        r.taa_range = '%s%d_%s%ddel' % (codon2aa(beg_codon.seq), beg_codon.index,
+                                        codon2aa(end_codon.seq), end_codon.index)
     r.natdelseq = tpt.seq[q.beg.pos-1:q.end.pos]
     r.refdelseq = r.natdelseq if tpt.strand == '+' else reverse_complement(r.natdelseq)
     r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (r.refdelseq, r.natdelseq)
@@ -51,13 +48,13 @@ def nuc_mutation_del_coding_inframe_outphase(args, q, tpt, r):
     # print beg_codon_beg, end_codon_end
     newcodonseq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+tpt.seq[q.end.pos:end_codon_end]
     if len(newcodonseq) != 3: raise IncompatibleTranscriptError()
-    r.taa_alt = standard_codon_table[newcodonseq]
+    r.taa_alt = codon2aa(newcodonseq)
     beg_codon_seq = tpt.seq[beg_codon_beg-1:beg_codon_beg+2]
     end_codon_seq = tpt.seq[end_codon_end-3:end_codon_end]
     tnuc_delseq = tpt.seq[beg_codon_beg-1:end_codon_end]
     taa_delseq = ''
     for i in xrange(len(tnuc_delseq)/3):
-        aa = standard_codon_table[tnuc_delseq[i*3:i*3+3]]
+        aa = codon2aa(tnuc_delseq[i*3:i*3+3])
         taa_delseq += aa
     # print taa_delseq, end_codon_seq, beg_codon_seq, r.taa_alt
     if r.taa_alt == taa_delseq[-1]:
@@ -217,6 +214,9 @@ def _core_annotate_nuc_del(args, q, tpts):
             r = nuc_mutation_del(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except UnknownChromosomeError:
+            continue
+
         found = True
         r.format(q.op)
 
@@ -256,6 +256,8 @@ def _core_annotate_codon_del(args, q, tpts):
         try:
             r = codon_mutation_del(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
             continue
         r.muttype = 'del'
         r.taa_range = '%s%s_%s%sdel%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.delseq)

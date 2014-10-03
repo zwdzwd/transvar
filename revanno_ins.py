@@ -226,6 +226,8 @@ def _core_annotate_codon_ins(args, q, tpts):
             r = codon_mutation_ins(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except UnknownChromosomeError:
+            continue
         r.muttype = 'ins'
         r.taa_range = '%s%s_%s%sins%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.insseq)
         r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)

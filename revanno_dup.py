@@ -72,6 +72,8 @@ def _core_annotate_nuc_dup(args, q, tpts):
             r = nuc_mutation_dup(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except UnknownChromosomeError:
+            continue
         found = True
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
         r.format(q.op)

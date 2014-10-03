@@ -864,7 +864,7 @@ def extend_taa_seq(taa_pos_base, old_seq, new_seq, tpt):
 def translate_seq(seq):
 
     if len(seq) % 3 != 0:
-        raise Exception('coding sequence not multiplicative of 3')
+        raise IncompatibleTranscriptError('translated coding sequence not multiplicative of 3, most likely a truncated sequence.')
 
     aa_seq = []
     for i in xrange(len(seq)/3):

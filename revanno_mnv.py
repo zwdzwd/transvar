@@ -26,8 +26,8 @@ def nuc_mutation_mnv_coding_inframe(args, q, tpt, r):
         if not old_taa_seq1:
             _beg_index = beg_codon_index + head_trim - 1
             _end_index = beg_codon_index + head_trim
-            _beg_aa = standard_codon_table[tpt.seq[_beg_index*3-3:_beg_index*3]]
-            _end_aa = standard_codon_table[tpt.seq[_end_index*3-3:_end_index*3]]
+            _beg_aa = codon2aa(tpt.seq[_beg_index*3-3:_beg_index*3])
+            _end_aa = codon2aa(tpt.seq[_end_index*3-3:_end_index*3])
             r.taa_range = '%s%d_%s%dins%s' % (
                 _beg_aa, _beg_index,
                 _end_aa, _end_index, new_taa_seq1)
@@ -59,7 +59,7 @@ def nuc_mutation_mnv_coding_frameshift(orgs, q, tpt, r):
     beg_codon_beg = beg_codon_index * 3 - 2
     old_seq = tpt.seq[beg_codon_beg-1:]
     new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+q.altseq+tpt.seq[q.end.pos:]
-    print old_seq[:10], new_seq[:10]
+
     ret = extend_taa_seq(beg_codon_beg, old_seq, new_seq, tpt)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
@@ -132,6 +132,8 @@ def _core_annotate_nuc_mnv(args, q, tpts):
             r = nuc_mutation_mnv(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except UnknownChromosomeError:
+            continue
         found = True
         r.format(q.op)
 
@@ -189,6 +191,8 @@ def _core_annotate_codon_mnv(args, q, tpts):
         try:
             r = codon_mutation_mnv(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
             continue
         r.muttype = 'delins'
         r.taa_range = '%s%s_%s%sdel%sins%s' % (

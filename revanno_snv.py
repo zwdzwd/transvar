@@ -21,7 +21,7 @@ def nuc_mutation_snv_coding(r, tpt, codon, q):
         r.gnuc_ref = complement(q.ref if q.ref else codon.seq[(q.cpos()-1)%3])
         if q.alt: r.gnuc_alt = complement(q.alt)
 
-    r.taa_ref = standard_codon_table[codon.seq]
+    r.taa_ref = codon2aa(codon.seq)
     r.taa_pos = codon.index
     if not q.alt:
         r.info = ''
@@ -29,7 +29,7 @@ def nuc_mutation_snv_coding(r, tpt, codon, q):
     else:
         mut_seq = list(codon.seq[:])
         mut_seq[(q.cpos()-1) % 3] = q.alt
-        r.taa_alt = standard_codon_table[''.join(mut_seq)]
+        r.taa_alt = codon2aa(''.join(mut_seq))
         r.info = 'NCodonSeq=%s;NAltCodonSeq=%s' % (codon.seq, ''.join(mut_seq))
 
 def nuc_mutation_snv_intronic(r, tpt, codon, q):
@@ -82,6 +82,8 @@ def _core_annotate_nuc_snv(args, q, tpts):
         try:
             r = nuc_mutation_snv(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
             continue
         found = True
         r.format(q.op)
@@ -169,6 +171,8 @@ def __core_annotate_codon_snv(args, q):
             r, c = codon_mutation_snv(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except UnknownChromosomeError:
+            continue
         yield tpt, c
 
 def _core_annotate_codon_snv(args, q, tpts):
@@ -178,6 +182,8 @@ def _core_annotate_codon_snv(args, q, tpts):
         try:
             r, c = codon_mutation_snv(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
             continue
         r.taa_pos = q.pos
         r.taa_ref = q.ref
