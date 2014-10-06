@@ -23,7 +23,7 @@ def codon_mutation_fs(args, q, tpt):
     # skip if reference amino acid is given
     # and codon sequence does not generate reference aa
     # codon.seq is natural sequence
-    if q.ref and codon.seq not in reverse_codon_table[q.ref]:
+    if q.ref and codon.seq not in aa2codon(q.ref):
         raise IncompatibleTranscriptError('reference amino acid unmatched')
 
     r = Record('FS')
@@ -52,6 +52,8 @@ def _core_annotate_codon_fs(args, q, tpts):
         try:
             r = codon_mutation_fs(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
             continue
         r.taa_range = '%s%d%sfs*%d' % (q.ref, q.pos, q.alt, q.stop_index)
         r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)

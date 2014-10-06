@@ -68,6 +68,11 @@ reverse_codon_table = {
     '*': ['TAA', 'TAG', 'TGA']
 }
 
+def aa2codon(aa):
+    if aa not in reverse_codon_table:
+        raise IncompatibleTranscriptError('Invalid amino acid')
+    return reverse_codon_table[aa]
+
 # site in codon follow the genomic order.
 # no matter the strand the positive or negative, first site has
 # the smallest genomic coordinate

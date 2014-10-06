@@ -173,8 +173,8 @@ def codon_mutation_mnv(args, q, tpt):
     tnuc_altseq = []
     cdd_altseq = []
     for aa in q.altseq:
-        tnuc_altseq.append(reverse_codon_table[aa][0])
-        cdd_altseq.append('/'.join(reverse_codon_table[aa]))
+        tnuc_altseq.append(aa2codon(aa)[0])
+        cdd_altseq.append('/'.join(aa2codon(aa)))
     r.nataltseq = ''.join(tnuc_altseq)
     r.refaltseq = reverse_complement(r.nataltseq) if tpt.strand == '-' else r.nataltseq
     r.tnuc_range = '%d-%d%s>%s' % (tnuc_beg, tnuc_end, r.natrefseq, r.nataltseq)

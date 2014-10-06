@@ -121,7 +121,7 @@ def codon_mutation_snv(args, q, tpt):
     # skip if reference amino acid is given
     # and codon sequence does not generate reference aa
     # codon.seq is natural sequence
-    if q.ref and codon.seq not in reverse_codon_table[q.ref]:
+    if q.ref and codon.seq not in aa2codon(q.ref):
         raise IncompatibleTranscriptError('reference amino acid unmatched')
 
     r = Record()
@@ -132,7 +132,7 @@ def codon_mutation_snv(args, q, tpt):
     # filter the target mutation set to those give
     # the alternative aa
     if q.alt:
-        tgt_codon_seqs = reverse_codon_table[q.alt]
+        tgt_codon_seqs = aa2codon(q.alt)
         diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
         baseloc_list = []
         refbase_list = []
