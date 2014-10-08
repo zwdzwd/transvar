@@ -5,7 +5,7 @@ from record import *
 def parse_mutation_str(mut_str):
     mut_str = mut_str.strip()
     # mp = re.match(r'(p)?(\.)?([A-Z*?]?)(\d+)([A-Z*?]?)$', mut_str)
-    mp = re.match(r'(p)?(\.)?([A-Z*?]+)?(\d+)(_([A-Z*?]+)(\d+))?(del([A-Z*?\d]+)?)?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?$', mut_str)
+    mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?$', mut_str)
     # mp = re.match(r'(p)?(\.)?([A-Z\*\?]+)?(\d+)(_(\d+))?', mut_str)
     # mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
     # mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)

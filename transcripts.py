@@ -300,6 +300,19 @@ class Transcript():
         np = self.position_array()
         return tnuc_range2gnuc_range_(np, tbeg, tend)
 
+    def taa2aa(self, taa):
+        if not self.ensure_seq(): return None
+        if taa*3 > len(self.seq):
+            raise IncompatibleTranscriptError('Incompatible reference amino acid')
+        return codon2aa(self.seq[taa*3-3:taa*3])
+
+    def taa_range2aa_seq(self, taa_beg, taa_end):
+
+        if taa_beg*3 > len(self) or taa_end*3 > len(self):
+            raise IncompatibleTranscriptError('codon nonexistent')
+
+        return translate_seq(self.seq[taa_beg*3-3:taa_end*3])
+
     def cpos2codon(self, cpos):
 
         """ all coordinates, exons, cds are 1-based

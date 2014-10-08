@@ -20,6 +20,9 @@ def codon_mutation_fs(args, q, tpt):
     if not codon:
         raise IncompatibleTranscriptError('codon nonexistent')
 
+    # if hasattr(q, 'beg_aa') and q.beg_aa and q.beg_aa != codon2aa(codon.seq):
+    #     raise IncompatibleTranscriptError('Unmatched reference amino acid')
+
     # skip if reference amino acid is given
     # and codon sequence does not generate reference aa
     # codon.seq is natural sequence

@@ -240,6 +240,9 @@ def codon_mutation_del(args, q, tpt):
     if q.beg*3 > len(tpt) or q.end*3 > len(tpt):
         raise IncompatibleTranscriptError('codon nonexistent')
 
+    if q.delseq and tpt.taa_range2aa_seq(q.beg, q.end) != q.delseq:
+        raise IncompatibleTranscriptError('unmatched reference')
+    
     tnuc_beg = q.beg*3-2
     tnuc_end = q.end*3
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
@@ -260,7 +263,9 @@ def _core_annotate_codon_del(args, q, tpts):
         except UnknownChromosomeError:
             continue
         r.muttype = 'del'
-        r.taa_range = '%s%s_%s%sdel%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.delseq)
+        r.taa_range = '%s%s_%s%sdel%s' % (q.beg_aa if q.beg_aa else '', str(q.beg),
+                                          q.end_aa if q.end_aa else '', str(q.end),
+                                          q.delseq)
         r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
         r.info = 'Uncertain' if r.info == '.' else (r.info+';Uncertain')
         r.format(q.op)
