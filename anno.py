@@ -4,7 +4,7 @@ annotate nucleotide position(s) or mutations
 import sys, argparse, re
 from transcripts import *
 from utils import *
-from mutation import parse_tok_mutation_str
+from mutation import parse_tok_mutation_str, list_parse_mutation, parser_add_mutation
 from record import *
 
 def pos2codon(thash, chrm, pos):
@@ -28,9 +28,9 @@ def pos2codon_longest(thash, chrm, pos):
 def _main_core_(args, thash, q):
 
     if args.longest:
-        tc_iter = pos2codon_longest(thash, q.chrm, q.pos)
+        tc_iter = pos2codon_longest(thash, q.tok, q.pos)
     else:
-        tc_iter = pos2codon(thash, q.chrm, q.pos)
+        tc_iter = pos2codon(thash, q.tok, q.pos)
 
     found = False
     for t, c in tc_iter:
@@ -89,49 +89,46 @@ def _main_core_(args, thash, q):
         r.info = 'status=NoValidTranscriptFound'
         r.format(q.op)
 
-def list_parse_genomic_mutation(args):
+# def list_parse_genomic_mutation(args):
+    
+#     indices = parse_indices(args.o)
+#     if args.skipheader:
+#         args.l.readline()
 
-    indices = parse_indices(args.o)
-    if args.skipheader:
-        args.l.readline()
+#     for line in args.l:
+#         fields = line.strip().split(args.d)
+#         if args.c > 0 and args.p > 0:
+#             q = QuerySNV()
+#             q.chrm = fields[args.c-1].strip()
+#             q.pos = parse_pos(fields[args.p-1].strip())
+#             if args.r > 0: q.ref = fields[args.r-1].strip()
+#             if args.v > 0: q.alt = fields[args.v-1].strip()
+#             if args.t > 0: q.tpt = fields[args.t-1].strip()
+#             q.op = '\t'.join(indices.extract(fields))
+#             yield q
 
-    for line in args.l:
-        fields = line.strip().split(args.d)
-        q = Query()
-        q.op = '\t'.join(indices.extract(fields))
-        if args.c > 0 and args.p > 0:
-            q.chrm = fields[args.c-1].strip()
-            q.pos = int(fields[args.p-1].strip())
-            if args.r > 0: q.ref = fields[args.r-1].strip()
-            if args.v > 0: q.alt = fields[args.v-1].strip()
-            if args.t > 0: q.tpt = fields[args.t-1].strip()
-            yield q
-        elif args.c > 0 and args.m > 0:
-            q.chrm = fields[args.c-1].strip()
-            if args.t > 0: q.tpt = fields[args.t-1].strip()
-            ret = parse_mutation_str(fields[args.m-1].strip())
-            if ret:
-                q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
-                yield q
+#         elif args.c > 0 and args.m > 0:
+#             q.chrm = fields[args.c-1].strip()
+#             if args.t > 0: q.tpt = fields[args.t-1].strip()
+#             q = parse_mutation_str(fields[args.m-1].strip())
+#             q.op = '\t'.join(indices.extract(fields))
+#             yield q
 
-        elif args.m > 0:
-            ret = parse_tok_mutation_str(fields[args.m-1].strip())
-            if ret:
-                q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
-                if args.t > 0: q.tpt = fields[args.t-1].strip()
-                yield q
+#         elif args.m > 0:
+#             q = parse_tok_mutation_str(fields[args.m-1].strip())
+#             if args.t > 0: q.tpt = fields[args.t-1].strip()
+#             q.chrm = q.tok
+#             q.op = '\t'.join(indices.extract(fields))
+#             yield q
 
 def main_list(args, thash):
 
-    for q in list_parse_genomic_mutation(args):
+    for q, line in list_parse_mutation(args):
         _main_core_(args, thash, q)
 
 def main_one(args, thash):
-    q = Query()
-    ret = parse_tok_mutation_str(args.i)
-    if not ret: return
+    q = parse_tok_mutation_str(args.i)
     q.op = args.i
-    q.chrm, q.is_codon, q.pos, q.ref, q.alt = ret
     _main_core_(args, thash, q)
 
 def oldmainone():
@@ -200,29 +197,31 @@ def add_parser_anno(subparsers, d):
 
     parser = subparsers.add_parser('anno', help=__doc__)
     parser_add_annotation(parser, d)
-    parser.add_argument('-i', default=None,
-                        help="<chrm>:[<ref>]<pos>[<alt>], E.g., chr12:25398285")
-    parser.add_argument('-l', default=None,
-                        type = argparse.FileType('r'),
-                        help='mutation list file')
-    parser.add_argument('-d', default="\t", 
-                        help="table delimiter of mutation list [\\t]")
-    parser.add_argument('-c', type=int, default=-1,
-                        help='column for chromosome (1-based)')
-    parser.add_argument("-p", type=int, default=-1,
-                        help='column for position (1-based)')
-    parser.add_argument('-r', type=int, default=-1,
-                        help='column for reference base (1-based)')
-    parser.add_argument('-v', type=int, default=-1,
-                        help='column for variant base (1-based)')
-    parser.add_argument('-t', type=int, default=-1,
-                        help='columns for preferred transcript (1-based)')
-    parser.add_argument("-m", type=int, default=-1,
-                        help="column for mutation in format <chrm>:[<ref>]<pos>[<alt>] (1-based)")
-    parser.add_argument('-o', default='-',
-                        help='columns in the original table to be output (1-based)')
-    parser.add_argument('--skipheader', action='store_true',
-                        help='skip header')
-    parser.add_argument('--longest', action="store_true", help='use longest transcript instead of reporting all transcripts')
+    parser_add_mutation(parser)
+    # parser.add_argument('-i', default=None,
+    #                     help="<chrm>:[<ref>]<pos>[<alt>], E.g., chr12:25398285")
+    # parser.add_argument('-l', default=None,
+    #                     type = argparse.FileType('r'),
+    #                     help='mutation list file')
+    # parser.add_argument('-d', default="\t", 
+    #                     help="table delimiter of mutation list [\\t]")
+    # parser.add_argument('-c', type=int, default=-1,
+    #                     help='column for chromosome (1-based)')
+    # parser.add_argument("-p", type=int, default=-1,
+    #                     help='column for position (1-based)')
+    # parser.add_argument('-r', type=int, default=-1,
+    #                     help='column for reference base (1-based)')
+    # parser.add_argument('-v', type=int, default=-1,
+    #                     help='column for variant base (1-based)')
+    # parser.add_argument('-t', type=int, default=-1,
+    #                     help='columns for preferred transcript (1-based)')
+    # parser.add_argument("-m", type=int, default=-1,
+    #                     help="column for mutation in format <chrm>:[<ref>]<pos>[<alt>] (1-based)")
+    # parser.add_argument('-o', default='-',
+    #                     help='columns in the original table to be output (1-based)')
+    # parser.add_argument('--skipheader', action='store_true',
+    #                     help='skip header')
+    parser.add_argument('--longest', action="store_true",
+                        help='use longest transcript instead of reporting all transcripts')
 
     parser.set_defaults(func=main)

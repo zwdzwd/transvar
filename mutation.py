@@ -205,14 +205,14 @@ def list_parse_mutation(args):
 def parser_add_mutation(parser):
 
     parser.add_argument('-i', default=None,
-                        help='<gene>:<mutation>, E.g., MET:1010, PIK3CA:E545K, PIK3CA:c.1633G>A')
+                        help='<gene/chrm>:<mutation>, E.g., MET:1010, PIK3CA:E545K, PIK3CA:c.1633G>A, chr12:25398285')
     parser.add_argument('-l', default=None,
                         type = argparse.FileType('r'), 
                         help='mutation list file')
     parser.add_argument('-d', default="\t",
                         help="table delimiter [\\t]")
     parser.add_argument('-g', type=int,
-                        default=-1, help='column for gene (1-based)')
+                        default=-1, help='column for gene/chromosome (1-based)')
     parser.add_argument('-p', type=int, default=-1,
                         help='column for amino acid position (1-based)')
     parser.add_argument('-n', type=int, default=-1,
@@ -224,7 +224,7 @@ def parser_add_mutation(parser):
     parser.add_argument('-t', type=int, default=-1,
                         help='columns for preferred transcript (1-based)')
     parser.add_argument('-m', type=int, default=1,
-                        help='column for <gene>:<mutation> (1-based)')
+                        help='column for <gene/chrm>:<mutation> (1-based)')
     parser.add_argument('-o', default='-', 
                         help='columns to be printed in output (1-based), e.g., 3,4,5-10')
     parser.add_argument('--skipheader', action='store_true',

@@ -216,8 +216,8 @@ def codon_mutation_ins(args, q, tpt):
     if hasattr(q, 'end_aa') and q.end_aa and q.end_aa != tpt.taa2aa(q.end):
         raise IncompatibleTranscriptError('Unmatched reference amino acid')
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.tnuc_range = '%d-%dins%d' % (tnuc_beg-1, tnuc_end, len(q.insseq)*3)
-    r.gnuc_range = '%d-%dins%d' % (gnuc_beg-1, gnuc_end, len(q.insseq)*3)
+    r.tnuc_range = '(%d-%d)ins%d' % (tnuc_beg-1, tnuc_end, len(q.insseq)*3)
+    r.gnuc_range = '(%d-%d)ins%d' % (gnuc_beg-1, gnuc_end, len(q.insseq)*3)
     r.pos = '%d-%d (insertion)' % (gnuc_beg, gnuc_end)
 
     return r

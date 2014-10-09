@@ -107,3 +107,4 @@ def add_parser_revanno(subparsers, d):
                         help="consider only longest transcript")
     parser.set_defaults(func=main)
 
+
