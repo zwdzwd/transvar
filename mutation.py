@@ -116,8 +116,14 @@ def parse_mutation_str(mut_str):
             q.end = parse_pos(_end) if _end else q.beg
             q.dupseq = _dupseq.upper() if _dupseq else ''
         else:
-            err_raise(InvalidInputError,
-                      'Invalid nucleotide mutation: "%s".' % mut_str, __name__)
+            # use only the beg and end
+            # treat input as a region
+            q = Query()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            q.ref = _ref.upper() if _ref else ''
+            # err_raise(InvalidInputError,
+            #           'Invalid nucleotide mutation: "%s".' % mut_str, __name__)
         q.is_codon = False
     else:
         err_raise(InvalidInputError,

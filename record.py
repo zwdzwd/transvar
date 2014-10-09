@@ -35,6 +35,9 @@ class Query(object):
 
     def __init__(self):
 
+        """ for a region by default, no mutation information included """
+        self.beg = ''
+        self.end = ''
         self.op = None
         self.is_codon = True
         self.gn_name = None
@@ -48,6 +51,14 @@ class Query(object):
         else:
             err_warn('Abnormal position %s. skip.\n' % pos_str, __name__)
             return False
+
+class QueryREG(Query):
+
+    def __init__(self):
+
+        super(QueryREG, self).__init__()
+        self.beg = ''
+        self.end = ''
 
 class QuerySNV(Query):
 
