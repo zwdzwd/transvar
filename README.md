@@ -1,6 +1,7 @@
 **TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar has the following features:
 
- + supports uncertainty in HGVS nomenclature
+ + supports HGVS nomenclature
+ + supports annotation of a region based on a transcript dependent characterzation
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
@@ -142,7 +143,7 @@ P28222.p.146_148refDRY   6   78172677-78172685    CCDS4986.1
     HTR1B (-, coding)  6:g.78172677_78172685/c.436_444/p.146_148
     PRefSeq=DRY;NRefSeq=GACCGCTAC;RefSeq=GTAGCGGTC
 ```
-One can also use wildcard `x` (lowercase) in specifying the motif.
+One can also use wildcard `x` (lowercase) in the motif.
 ```
 #!bash
 transvar revanno -i 'HTR1B.p.365_369refNPxxY' --ccds
