@@ -105,7 +105,7 @@ def codon_revanno_reg(args, q, tpt):
         raise IncompatibleTranscriptError('reference sequence unmatched')
     r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
     r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
-    r.taa_range = '%d_%d' % (q.beg, q.end)
+    r.taa_range = '%d_%d' % (q.beg, q.end) if q.beg != q.end else '%d' % q.beg
     r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
     r.info = 'PRefSeq=%s;NRefSeq=%s;RefSeq=%s' % (printseq(taa_natrefseq),

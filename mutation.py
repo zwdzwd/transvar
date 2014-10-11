@@ -5,7 +5,7 @@ from record import *
 def parse_mutation_str(mut_str):
     mut_str = mut_str.strip()
     # mp = re.match(r'(p)?(\.)?([A-Z*?]?)(\d+)([A-Z*?]?)$', mut_str)
-    mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?([A-Z*]*)$', mut_str)
+    mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?(ref([A-Z*]*))?$', mut_str)
     # mp = re.match(r'(p)?(\.)?([A-Z\*\?]+)?(\d+)(_(\d+))?', mut_str)
     # mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
     # mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
@@ -15,7 +15,7 @@ def parse_mutation_str(mut_str):
     if mp:
         #print mp.groups()
         (_, _, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
-         _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i, _ref) = mp.groups()
+         _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i, _has_ref, _ref) = mp.groups()
         if _is_fs:
             #print 'fs'
             q = QueryFrameShift()
@@ -49,21 +49,21 @@ def parse_mutation_str(mut_str):
             q.refseq = _d.upper() if _d else ''
             q.altseq = _i.upper() if _i else ''
         elif _is_ins and not _is_del:
-            #print 'ins'
+            # print 'ins'
             q = QueryINS()
             q.beg = int(_beg_i)
             q.beg_aa = _beg_aa
             q.end = int(_end_i)
             q.end_aa = _end_aa
             q.insseq = _i.upper() if _i else ''
-        elif not _end_s and (not _beg_aa or len(_beg_aa) == 1):
-            #print 'snv'
+        elif not _end_s and (not _beg_aa or len(_beg_aa) == 1) and _alt:
+            # print 'snv'
             q = QuerySNV()
             q.pos = int(_beg_i)
             q.ref = _beg_aa
-            q.alt = _alt.upper() if _alt else ''
+            q.alt = _alt.upper()
         elif _i:
-            #print 'mnv'
+            # print 'mnv'
             q = QueryMNV()
             q.beg = int(_beg_i)
             q.end = int(_end_i) if _end_i else q.beg
@@ -72,6 +72,7 @@ def parse_mutation_str(mut_str):
             q.refseq = _d.upper() if _d else ''
             q.altseq = _i.upper() if _i else ''
         else:
+            # print 'reg'
             q = QueryREG()
             q.beg = int(_beg_i)
             q.end = int(_end_i) if _end_i else q.beg

@@ -17,8 +17,8 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/transvar/get/v1.15.zip
- $ unzip v1.15.zip
+ $ wget https://bitbucket.org/wanding/transvar/get/v1.16.zip
+ $ unzip v1.16.zip
  $ cd [unzipped dir]
  $ ./transvar config --download_hg19_anno
  $ ./transvar revanno --ucsc -i 'PIK3CA.p.E545K'
@@ -34,7 +34,7 @@ Just Python >= 2.6
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/transvar/get/v1.14.zip
+ $ wget https://bitbucket.org/wanding/transvar/get/v1.16.zip
  $ unzip [downloaded zip]
  $ make
 ```
@@ -122,9 +122,10 @@ transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
 ```
 ```
 #!text
-Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
-    C6ORF57 (+, coding)  6:71289191-71289193/c.139-141/p.47   .
+Q5VUM1:47   6   71289191-71289193   CCDS4972.1  C6ORF57 (+, coding)
+    6:g.71289191_71289193/c.139_141/p.47    PRefSeq=S;NRefSeq=TCC;RefSeq=TCC
 ```
+TransVar use a keyword extension `ref` in `Q5VUM1:p.47refS` to differentiate from the synonymous mutation `Q5VUM1:p.47S`. The former notation specifies that the reference protein sequence is `S` while the later specifies the target protein sequence is `S`.
 
 ---
 
@@ -133,11 +134,11 @@ Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
 For example, one can find the genomic location of a DRY motif in protein P28222 by issuing the following command,
 ```
 #!bash
-transvar revanno -i 'P28222.p.146_148DRY' --uniprot --ccds
+transvar revanno -i 'P28222.p.146_148refDRY' --uniprot --ccds
 ```
 ```
 #!text
-HTR1B.p.146_148DRY   6    78172677-78172685    CCDS4986.1
+P28222.p.146_148refDRY   6    78172677-78172685    CCDS4986.1
     HTR1B (-, coding)  6:g.78172677_78172685/c.436_444/p.146_148
     PRefSeq=DRY;NRefSeq=GACCGCTAC;RefSeq=GTAGCGGTC
 ```
