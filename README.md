@@ -129,7 +129,7 @@ TransVar use a keyword extension `ref` in `Q5VUM1:p.47refS` to differentiate fro
 
 ---
 
-### reverse annotation of protein motif
+#### reverse annotation of protein motif
 
 For example, one can find the genomic location of a DRY motif in protein P28222 by issuing the following command,
 ```
