@@ -17,8 +17,8 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/transvar/get/v1.14.zip
- $ unzip v1.14.zip
+ $ wget https://bitbucket.org/wanding/transvar/get/v1.15.zip
+ $ unzip v1.15.zip
  $ cd [unzipped dir]
  $ ./transvar config --download_hg19_anno
  $ ./transvar revanno --ucsc -i 'PIK3CA.p.E545K'
