@@ -132,6 +132,8 @@ def _core_annotate_nuc_mnv(args, q, tpts):
             r = nuc_mutation_mnv(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except SequenceRetrievalError:
+            continue
         except UnknownChromosomeError:
             continue
         found = True
@@ -164,9 +166,9 @@ def codon_mutation_mnv(args, q, tpt):
     r.refrefseq = reverse_complement(r.natrefseq) if tpt.strand == '-' else r.natrefseq
     taa_natrefseq = translate_seq(r.natrefseq)
     if q.beg_aa and q.beg_aa != taa_natrefseq[0]:
-        raise IncompatibleTranscriptError('reference sequence unmatched')
+        raise IncompatibleTranscriptError('beginning reference amino acid unmatched')
     if q.end_aa and q.end_aa != taa_natrefseq[-1]:
-        raise IncompatibleTranscriptError('reference sequence unmatched')
+        raise IncompatibleTranscriptError('ending reference amino acid unmatched')
     if q.refseq and taa_natrefseq != q.refseq:
         raise IncompatibleTranscriptError('reference sequence unmatched')
     # reverse translate
@@ -177,8 +179,8 @@ def codon_mutation_mnv(args, q, tpt):
         cdd_altseq.append('/'.join(aa2codon(aa)))
     r.nataltseq = ''.join(tnuc_altseq)
     r.refaltseq = reverse_complement(r.nataltseq) if tpt.strand == '-' else r.nataltseq
-    r.tnuc_range = '%d-%d%s>%s' % (tnuc_beg, tnuc_end, r.natrefseq, r.nataltseq)
-    r.gnuc_range = '%d-%d%s>%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq, r.refaltseq)
+    r.tnuc_range = '%d_%d%s>%s' % (tnuc_beg, tnuc_end, r.natrefseq, r.nataltseq)
+    r.gnuc_range = '%d_%d%s>%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq, r.refaltseq)
     r.pos = '%d-%d (block substitution)' % (r.gnuc_beg, r.gnuc_end)
     r.info = 'CddNatAlt=%s' % ('+'.join(cdd_altseq), )
 

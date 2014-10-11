@@ -252,12 +252,12 @@ class Transcript():
         """ return True when successful,
         potential reason include patch chromosomes
         """
-        if self.seq: return True
+        if self.seq: return
         if not faidx.refgenome:
             err_die("Please provide reference through --ref [reference fasta].", __name__)
         seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
-        if not seq: return False
+        if not seq: raise SequenceRetrievalError()
         segs = []
         for ex_beg, ex_end in self.exons:
             beg = max(ex_beg, self.cds_beg)
@@ -267,7 +267,7 @@ class Transcript():
         self.seq = ''.join(segs)
         if self.strand == '-':
             self.seq = reverse_complement(self.seq)
-        return True
+        return
 
     def __repr__(self):
         if self.gene:
@@ -301,7 +301,7 @@ class Transcript():
         return tnuc_range2gnuc_range_(np, tbeg, tend)
 
     def taa2aa(self, taa):
-        if not self.ensure_seq(): return None
+        self.ensure_seq()
         if taa*3 > len(self.seq):
             raise IncompatibleTranscriptError('Incompatible reference amino acid')
         return codon2aa(self.seq[taa*3-3:taa*3])
@@ -313,13 +313,21 @@ class Transcript():
 
         return translate_seq(self.seq[taa_beg*3-3:taa_end*3])
 
+    def tnuc2codon_(self, tnuc_pos):
+        taa_pos = (tnuc_pos + 2) / 3
+        codon = self.cpos2codon(taa_pos)
+        pos_r = (tnuc_pos-1) % 3 # 0,1,2 for first, second and third base
+        if self.strand == '-': pos_r = 2 - pos_r
+        return codon, pos_r, codon.locs[pos_r]
+
     def cpos2codon(self, cpos):
 
         """ all coordinates, exons, cds are 1-based
         i.e., (200,300) means the first base is 200
         the last base is 300
+        cpos is taa_pos
         """
-        if not self.ensure_seq(): return None
+        self.ensure_seq()
         cpos = int(cpos)
         if self.strand == "+":
             np = []
@@ -339,7 +347,7 @@ class Transcript():
                 codon.seq    = self.seq[ni-3:ni]
                 return codon
             else:
-                return None
+                raise IncompatibleTranscriptError()
         else:
             np = []
             for beg, end in reversed(self.exons):
@@ -358,10 +366,10 @@ class Transcript():
                 codon.seq    = self.seq[ni-3:ni]
                 return codon
             else:
-                return None
+                raise IncompatibleTranscriptError()
 
     def npos2codon(self, chrm, npos):
-        if not self.ensure_seq(): return None
+        self.ensure_seq()
         npos = int(npos)
 
         # no check chrm == self.chrm, due to differential

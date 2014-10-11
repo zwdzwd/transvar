@@ -127,6 +127,22 @@ Q5VUM1:47   6   71289191-71289192-71289193   CCDS4972.1
 ```
 
 ---
+
+### reverse annotation of protein motif
+
+For example, one can find the genomic location of a DRY motif in protein P28222 by issuing the following command,
+```
+#!bash
+transvar revanno -i 'P28222.p.146_148DRY' --uniprot --ccds
+```
+```
+#!text
+HTR1B.p.146_148DRY   6    78172677-78172685    CCDS4986.1
+    HTR1B (-, coding)  6:g.78172677_78172685/c.436_444/p.146_148
+    PRefSeq=DRY;NRefSeq=GACCGCTAC;RefSeq=GTAGCGGTC
+```
+
+---
 #### reverse annotation of single amino acid substitution
 Mutation formats acceptable in TransVar are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. TransVar takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
@@ -520,6 +536,12 @@ outputs
 chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
      PIK3CA (+, coding)      3:G178936091A/c.1633>/p.E545K   .
 ```
+
+### FAQ
+
++ I got 'GeneNotRecognized', what's wrong?
+
+Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
 
 ### Technical notes
 

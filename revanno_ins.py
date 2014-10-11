@@ -183,6 +183,8 @@ def _core_annotate_nuc_ins(args, q, tpts):
             r = nuc_mutation_ins(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except SequenceRetrievalError:
+            continue
         except UnknownChromosomeError:
             continue
         found = True
@@ -229,6 +231,8 @@ def _core_annotate_codon_ins(args, q, tpts):
         try:
             r = codon_mutation_ins(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except SequenceRetrievalError:
             continue
         except UnknownChromosomeError:
             continue

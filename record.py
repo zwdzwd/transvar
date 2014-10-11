@@ -159,27 +159,27 @@ class Record():
     def gnuc(self):
         
         """ format in chr1:A12345T """
-        s = self.chrm+':'
+        s = self.chrm+':g.'
         if hasattr(self, 'gnuc_range') and self.gnuc_range:
             s += self.gnuc_range
         else:
-            if hasattr(self, 'gnuc_ref') and self.gnuc_ref: s += self.gnuc_ref
             if hasattr(self, 'gnuc_pos') and self.gnuc_pos: s += str(self.gnuc_pos)
+            if hasattr(self, 'gnuc_ref') and self.gnuc_ref: s += self.gnuc_ref
+            s += '>'
             if hasattr(self, 'gnuc_alt') and self.gnuc_alt: s += self.gnuc_alt
-        if s == '.:': return '.'
+        if s == '.:g.>': return '.'
         return s
 
     def taa(self):
         """ format in HGVS nomenclature e.g., p.E545K """
         s = 'p.'
-        if self.muttype:
-            if hasattr(self, 'taa_range') and self.taa_range: s += self.taa_range
-            if s == 'p.': return '.'
+        if hasattr(self, 'taa_range') and self.taa_range:
+            s += self.taa_range
         else:
             if hasattr(self, 'taa_ref') and self.taa_ref: s += self.taa_ref
             if hasattr(self, 'taa_pos') and self.taa_pos: s += str(self.taa_pos)
             if hasattr(self, 'taa_alt') and self.taa_alt: s += self.taa_alt
-            if s == 'p.': return '.'
+        if s == 'p.': return '.'
         return s
 
     def format(self, op):

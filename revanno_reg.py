@@ -3,7 +3,8 @@ from err import *
 from record import *
 from transcripts import *
 
-def nuc_mutation_reg(args, q, tpt):
+
+def nuc_revanno_reg(args, q, tpt):
 
     if q.tpt and tpt.name != q.tpt:
         raise IncompatibleTranscriptError('Transcript name unmatched')
@@ -37,10 +38,16 @@ def nuc_mutation_reg(args, q, tpt):
     r.tnuc_range = '%s_%s%s' % (q.beg, q.end, r.natrefseq)
 
     reg = ''
-
     if region_in_exon(np, q.beg, q.end):
-        pass
-        # nuc_mutation_mnv_coding(args, q, tpt, r)
+        beg_codon = tpt.cpos2codon(q.beg.pos/3)
+        end_codon = tpt.cpos2codon(q.end.pos/3)
+        print q.beg, q.end, len(tpt)
+        if beg_codon.index == end_codon.index:
+            r.taa_pos = beg_codon.index
+            r.taa_ref = codon2aa(beg_codon.seq)
+        else:
+            r.taa_ref = translate_seq(tpt.seq[beg_codon.index*3-3:end_codon.index*3])
+            r.taa_range = 'p.%d_%d%s' % (beg_codon.index, end_codon.index, r.taa_ref)
     elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
         r.info = 'CrossSplitSite'
         r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
@@ -54,7 +61,7 @@ def _core_annotate_nuc_reg(args, q, tpts):
     found = False
     for tpt in tpts:
         try:
-            r = nuc_mutation_reg(args, q, tpt)
+            r = nuc_revanno_reg(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
         except UnknownChromosomeError:
@@ -68,3 +75,64 @@ def _core_annotate_nuc_reg(args, q, tpts):
         r.format(q.op)
 
     return
+
+
+
+def codon_revanno_reg(args, q, tpt):
+
+    if q.tpt and tpt.name != q.tpt:
+        raise IncompatibleTranscriptError('Transcript name unmatched')
+    tpt.ensure_seq()
+
+    r = Record()
+    r.chrm = tpt.chrm
+    r.tname = tpt.name
+
+    if q.beg*3 > len(tpt) or q.end*3 > len(tpt):
+        raise IncompatibleTranscriptError('codon nonexistent')
+
+    tnuc_beg = q.beg*3 - 2
+    tnuc_end = q.end*3
+    r.gnuc_beg, r.gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
+    r.natrefseq = tpt.seq[tnuc_beg-1:tnuc_end]
+    r.refrefseq = reverse_complement(r.natrefseq) if tpt.strand == '-' else r.natrefseq
+    taa_natrefseq = translate_seq(r.natrefseq)
+    if q.beg_aa and q.beg_aa != taa_natrefseq[0]:
+        raise IncompatibleTranscriptError('beginning reference amino acid unmatched')
+    if q.end_aa and q.end_aa != taa_natrefseq[-1]:
+        raise IncompatibleTranscriptError('ending reference amino acid unmatched')
+    if q.refseq and taa_natrefseq != q.refseq:
+        raise IncompatibleTranscriptError('reference sequence unmatched')
+    r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
+    r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
+    r.taa_range = '%d_%d' % (q.beg, q.end)
+    r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
+    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+    r.info = 'PRefSeq=%s;NRefSeq=%s;RefSeq=%s' % (printseq(taa_natrefseq),
+                                                  printseq(r.natrefseq),
+                                                  printseq(r.refrefseq))
+
+    return r
+
+
+def _core_annotate_codon_reg(args, q, tpts):
+
+    found = False
+    for tpt in tpts:
+        try:
+            r = codon_revanno_reg(args, q, tpt)
+        except IncompatibleTranscriptError:
+            continue
+        except UnknownChromosomeError:
+            continue
+        found = True
+        r.format(q.op)
+
+    if not found:
+        r = Record()
+        r.info = 'NoValidTranscriptFound'
+        r.format(q.op)
+
+    return
+
+

@@ -9,6 +9,13 @@ def normalize_chrm(chrm):
 
     return chrm
 
+def printseq(seq):
+
+    if len(seq) > 10:
+        return '%s..%s' % (seq[:3], seq[-3:])
+    else:
+        return seq
+
 class THash():
 
     def __init__(self):

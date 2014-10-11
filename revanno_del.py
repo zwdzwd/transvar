@@ -214,6 +214,8 @@ def _core_annotate_nuc_del(args, q, tpts):
             r = nuc_mutation_del(args, q, tpt)
         except IncompatibleTranscriptError:
             continue
+        except SequenceRetrievalError:
+            continue
         except UnknownChromosomeError:
             continue
 
@@ -246,8 +248,8 @@ def codon_mutation_del(args, q, tpt):
     tnuc_beg = q.beg*3-2
     tnuc_end = q.end*3
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.tnuc_range = '%d-%d' % (tnuc_beg, tnuc_end)
-    r.gnuc_range = '%d-%d' % (gnuc_beg, gnuc_end)
+    r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
+    r.gnuc_range = '%d_%d' % (gnuc_beg, gnuc_end)
     r.pos = '%d-%d (deletion)' % (gnuc_beg, gnuc_end)
 
     return r
@@ -259,6 +261,8 @@ def _core_annotate_codon_del(args, q, tpts):
         try:
             r = codon_mutation_del(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except SequenceRetrievalError:
             continue
         except UnknownChromosomeError:
             continue

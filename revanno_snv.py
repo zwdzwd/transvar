@@ -131,37 +131,117 @@ def codon_mutation_snv(args, q, tpt):
     # if alternative amino acid is given
     # filter the target mutation set to those give
     # the alternative aa
+    
     if q.alt:
-        tgt_codon_seqs = aa2codon(q.alt)
+        tgt_codon_seqs = [x for x in aa2codon(q.alt) if x != codon.seq]
         diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
-        baseloc_list = []
-        refbase_list = []
-        varbase_list = []
-        cdd_muts = []
-        for i, diff in enumerate(diffs):
+        diffinds = sorted(range(len(diffs)), key=lambda i: len(diffs[i]))
+        gi = diffinds[0]        # guessed diff index
+        gdiff = diffs[gi]       # guessed diff
+        gtgtcodonseq = tgt_codon_seqs[gi]
+        if len(gdiff) == 1:
+            nrefbase = codon.seq[gdiff[0]]
+            naltbase = gtgtcodonseq[gdiff[0]]
+
+            r.tnuc_pos = (codon.index-1)*3 + 1 + gdiff[0]
+            r.tnuc_ref = nrefbase
+            r.tnuc_alt = naltbase
+            if codon.strand == '+':
+                r.gnuc_ref = nrefbase
+                r.gnuc_alt = naltbase
+                r.gnuc_pos = codon.locs[gdiff[0]]
+            else:
+                r.gnuc_ref = complement(nrefbase)
+                r.gnuc_alt = complement(naltbase)
+                r.gnuc_pos = codon.locs[2-gdiff[0]]
+        else:
+            tnuc_beg = (codon.index-1)*3 + 1 + gdiff[0]
+            tnuc_end = (codon.index-1)*3 + 1 + gdiff[-1]
+            tnuc_ref = codon.seq[gdiff[0]:gdiff[-1]+1]
+            tnuc_alt = gtgtcodonseq[gdiff[0]:gdiff[-1]+1]
+            r.tnuc_range = '%d_%d%s>%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
+            if codon.strand == '+':
+                r.gnuc_range = '%d_%d%s>%s' % (codon.locs[gdiff[0]], codon.locs[gdiff[-1]],
+                                               tnuc_ref, tnuc_alt)
+            else:
+                r.gnuc_range = '%d_%d%s>%s' % (codon.locs[2-gdiff[-1]],
+                                               codon.locs[2-gdiff[0]],
+                                               reverse_complement(tnuc_ref), 
+                                               reverse_complement(tnuc_alt))
+            
+        cdd_snv_muts = []
+        cdd_mnv_muts = []
+        for i in diffinds:
+            if i == gi: continue
+            diff = diffs[i]
+            tgtcodonseq = tgt_codon_seqs[i]
             if len(diff) == 1:
-                r.tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
-                r.tnuc_ref = codon.seq[diff[0]]
-                r.tnuc_alt = tgt_codon_seqs[i][diff[0]]
-
-                if codon.strand == "+":
-                    r.gnuc_ref = codon.seq[diff[0]]
-                    r.gnuc_alt = tgt_codon_seqs[i][diff[0]]
-                    r.gnuc_pos = codon.locs[diff[0]]
-                    cdd_muts.append('%s:%s%d%s' % (
-                        tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+                nrefbase = codon.seq[diff[0]]
+                naltbase = tgtcodonseq[diff[0]]
+                tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
+                tnuc_tok = 'c.%d%s>%s' % (tnuc_pos, nrefbase, naltbase)
+                if codon.strand ==  '+':
+                    gnuc_tok  = '%s:g.%d%s>%s' % (tpt.chrm, codon.locs[diff[0]],
+                                                  nrefbase, naltbase)
                 else:
-                    r.gnuc_ref = complement(codon.seq[diff[0]])
-                    r.gnuc_alt = complement(tgt_codon_seqs[i][diff[0]])
-                    r.gnuc_pos = codon.locs[2-diff[0]]
-                    cdd_muts.append('%s:%s%d%s' % (
-                        tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+                    gnuc_tok = '%s:g.%d%s>%s' % (tpt.chrm, codon.locs[2-diff[0]],
+                                                 complement(nrefbase), complement(naltbase))
+                cdd_snv_muts.append(gnuc_tok)
+            else:
+                tnuc_beg = (codon.index-1)*3 + 1 + diff[0]
+                tnuc_end = (codon.index-1)*3 + 1 + diff[-1]
+                tnuc_ref = codon.seq[diff[0]:diff[-1]+1]
+                tnuc_alt = tgtcodonseq[diff[0]:diff[-1]+1]
+                tnuc_tok = 'c.%d_%d%s>%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
+                if codon.strand == '+':
+                    gnuc_tok = '%s:g.%d_%d%s>%s' % (tpt.chrm, 
+                                                    codon.locs[diff[0]],
+                                                    codon.locs[diff[-1]],
+                                                    tnuc_ref, tnuc_alt)
+                else:
+                    gnuc_tok = '%s:g.%d_%d%s>%s' % (tpt.chrm,
+                                                    codon.locs[2-diff[-1]],
+                                                    codon.locs[2-diff[0]],
+                                                    reverse_complement(tnuc_ref),
+                                                    reverse_complement(tnuc_alt))
+                cdd_mnv_muts.append(gnuc_tok)
+                                                    
+        r.info = 'NCodonSeq=%s;NCddSeqs=%s' % (codon.seq, ','.join(tgt_codon_seqs))
+        if cdd_snv_muts:
+            r.info += ';CddSNVMuts=%s' % ','.join(cdd_snv_muts)
+        if cdd_mnv_muts:
+            r.info += ';CddMNVMuts=%s' % ','.join(cdd_mnv_muts)
+        # for i, diff in enumerate(diffs):
+        #     if len(diff) == 1:
+        #         r.tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
+        #         r.tnuc_ref = codon.seq[diff[0]]
+        #         r.tnuc_alt = tgt_codon_seqs[i][diff[0]]
 
-        r.info = "CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s" % (\
-            ','.join(cdd_muts), codon.seq, ','.join(tgt_codon_seqs))
+        #         if codon.strand == "+":
+        #             r.gnuc_ref = codon.seq[diff[0]]
+        #             r.gnuc_alt = tgt_codon_seqs[i][diff[0]]
+        #             r.gnuc_pos = codon.locs[diff[0]]
+        #             cdd_snv_muts.append('%s:%s%d%s' % (
+        #                 tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+        #         else:
+        #             r.gnuc_ref = complement(codon.seq[diff[0]])
+        #             r.gnuc_alt = complement(tgt_codon_seqs[i][diff[0]])
+        #             r.gnuc_pos = codon.locs[2-diff[0]]
+        #             cdd_snv_muts.append('%s:%s%d%s' % (
+        #                 tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
+        #     else:
+        #         r.tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
+        #         r.tnuc_ref = codon.seq[diff[0]]
+
+        # r.info = ''
+        # if cdd_snv_muts:
+        #     r.info += 'CddMuts=%s' % ','.join(cdd_snv_muts)
+            
+        # r.info = "CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s" % (\
+        #     ','.join(cdd_snv_muts), codon.seq, ','.join(tgt_codon_seqs))
     else:
-        r.gnuc_range = '%d-%d' % (codon.locs[0], codon.locs[2])
-        r.tnuc_range = '%d-%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
+        r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
+        r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
 
     return r, codon
 
@@ -170,6 +250,8 @@ def __core_annotate_codon_snv(args, q):
         try:
             r, c = codon_mutation_snv(args, q, tpt)
         except IncompatibleTranscriptError:
+            continue
+        except SequenceRetrievalError:
             continue
         except UnknownChromosomeError:
             continue
@@ -181,9 +263,12 @@ def _core_annotate_codon_snv(args, q, tpts):
     for tpt in tpts:
         try:
             r, c = codon_mutation_snv(args, q, tpt)
-        except IncompatibleTranscriptError:
+        except IncompatibleTranscriptError as e:
             continue
-        except UnknownChromosomeError:
+        except SequenceRetrievalError as e:
+            continue
+        except UnknownChromosomeError as e:
+            sys.stderr.write(str(e))
             continue
         r.taa_pos = q.pos
         r.taa_ref = q.ref
