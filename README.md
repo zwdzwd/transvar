@@ -142,6 +142,15 @@ P28222.p.146_148refDRY   6    78172677-78172685    CCDS4986.1
     HTR1B (-, coding)  6:g.78172677_78172685/c.436_444/p.146_148
     PRefSeq=DRY;NRefSeq=GACCGCTAC;RefSeq=GTAGCGGTC
 ```
+One can also use wildcard in specifying the motif.
+```
+#!bash
+transvar revanno -i 'HTR1B.p.365_369refNPxxY' --ccds
+```
+```
+#!text
+HTR1B.p.365_369refNPxxY 6       78172014-78172028       CCDS4986.1      HTR1B (-, coding)       6:g.78172014_78172028/c.1093_1107/p.365_369     PRefSeq=NPIIY;NRefSeq=AAC..TAT;RefSeq=ATA..GTT
+```
 
 ---
 #### reverse annotation of single amino acid substitution

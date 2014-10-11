@@ -101,7 +101,7 @@ def codon_revanno_reg(args, q, tpt):
         raise IncompatibleTranscriptError('beginning reference amino acid unmatched')
     if q.end_aa and q.end_aa != taa_natrefseq[-1]:
         raise IncompatibleTranscriptError('ending reference amino acid unmatched')
-    if q.refseq and taa_natrefseq != q.refseq:
+    if q.refseq and not re.match(q.refseq.replace('x','[A-Z]'), taa_natrefseq): # != q.refseq:
         raise IncompatibleTranscriptError('reference sequence unmatched')
     r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
     r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)

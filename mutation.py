@@ -5,7 +5,7 @@ from record import *
 def parse_mutation_str(mut_str):
     mut_str = mut_str.strip()
     # mp = re.match(r'(p)?(\.)?([A-Z*?]?)(\d+)([A-Z*?]?)$', mut_str)
-    mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?(ref([A-Z*]*))?$', mut_str)
+    mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?(ref([A-Zx*]*))?$', mut_str)
     # mp = re.match(r'(p)?(\.)?([A-Z\*\?]+)?(\d+)(_(\d+))?', mut_str)
     # mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
     # mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
@@ -78,7 +78,7 @@ def parse_mutation_str(mut_str):
             q.end = int(_end_i) if _end_i else q.beg
             q.beg_aa = _beg_aa.upper() if _beg_aa else ''
             q.end_aa = _end_aa.upper() if _end_aa else ''
-            q.refseq = _ref.upper() if _ref else ''
+            q.refseq = _ref if _ref else ''
 
         q.is_codon = True
     elif mn:
