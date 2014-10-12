@@ -37,7 +37,6 @@ Just Python >= 2.6
 
  $ wget https://bitbucket.org/wanding/transvar/get/v1.16.zip
  $ unzip [downloaded zip]
- $ make
 ```
 
 #### reference genome assembly
@@ -180,6 +179,21 @@ ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
     CddMuts=X:G108926078T,X:G108926078C,X:G108926078A;NCodonSeq=CGC;NCddSeqs=AGG,AGA,CGA,CGC,CGG,CGT
 ```
 In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
+
+If one wishes, he/she can also turn on the `--dbsnp` option to show further potential match to the dbSNP database.
+```
+#!bash
+$ transvar revanno -i 'A1CF:p.A309A' --ccds --dbsnp
+```
+```
+#!text
+A1CF:p.A309A    10    52576004-52576005-52576006    CCDS7243.1
+    A1CF (-, coding, exon 7)    10:g.52576004T>G/c.927A>C/p.A309A
+    NCodonSeq=GCA;NCddSeqs=GCC,GCG,GCT;CddSNVMuts=10:g.52576004T>C,10:g.52576004T>A;
+	DBSNP=rs201831949(10:52576004T>G)
+```
+Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_hg19_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp [path]`. dbSNP file must be tabix indexed.
+
 
 ---
 #### reverse annotation of single nucleotide variation (SNV)

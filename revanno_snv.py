@@ -128,6 +128,7 @@ def codon_mutation_snv(args, q, tpt):
     r.chrm = tpt.chrm
     r.tname = tpt.name
     r.pos = '-'.join(map(str, codon.locs))
+    
     # if alternative amino acid is given
     # filter the target mutation set to those give
     # the alternative aa
@@ -136,6 +137,8 @@ def codon_mutation_snv(args, q, tpt):
         tgt_codon_seqs = [x for x in aa2codon(q.alt) if x != codon.seq]
         diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
         diffinds = sorted(range(len(diffs)), key=lambda i: len(diffs[i]))
+
+        # guessed mutation
         gi = diffinds[0]        # guessed diff index
         gdiff = diffs[gi]       # guessed diff
         gtgtcodonseq = tgt_codon_seqs[gi]
@@ -168,7 +171,7 @@ def codon_mutation_snv(args, q, tpt):
                                                codon.locs[2-gdiff[0]],
                                                reverse_complement(tnuc_ref), 
                                                reverse_complement(tnuc_alt))
-            
+        # candidate mutations
         cdd_snv_muts = []
         cdd_mnv_muts = []
         for i in diffinds:
@@ -211,34 +214,13 @@ def codon_mutation_snv(args, q, tpt):
             r.info += ';CddSNVMuts=%s' % ','.join(cdd_snv_muts)
         if cdd_mnv_muts:
             r.info += ';CddMNVMuts=%s' % ','.join(cdd_mnv_muts)
-        # for i, diff in enumerate(diffs):
-        #     if len(diff) == 1:
-        #         r.tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
-        #         r.tnuc_ref = codon.seq[diff[0]]
-        #         r.tnuc_alt = tgt_codon_seqs[i][diff[0]]
-
-        #         if codon.strand == "+":
-        #             r.gnuc_ref = codon.seq[diff[0]]
-        #             r.gnuc_alt = tgt_codon_seqs[i][diff[0]]
-        #             r.gnuc_pos = codon.locs[diff[0]]
-        #             cdd_snv_muts.append('%s:%s%d%s' % (
-        #                 tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
-        #         else:
-        #             r.gnuc_ref = complement(codon.seq[diff[0]])
-        #             r.gnuc_alt = complement(tgt_codon_seqs[i][diff[0]])
-        #             r.gnuc_pos = codon.locs[2-diff[0]]
-        #             cdd_snv_muts.append('%s:%s%d%s' % (
-        #                 tpt.chrm, r.gnuc_ref, r.gnuc_pos, r.gnuc_alt))
-        #     else:
-        #         r.tnuc_pos = (codon.index-1)*3 + 1 + diff[0]
-        #         r.tnuc_ref = codon.seq[diff[0]]
-
-        # r.info = ''
-        # if cdd_snv_muts:
-        #     r.info += 'CddMuts=%s' % ','.join(cdd_snv_muts)
-            
-        # r.info = "CddMuts=%s;NCodonSeq=%s;NCddSeqs=%s" % (\
-        #     ','.join(cdd_snv_muts), codon.seq, ','.join(tgt_codon_seqs))
+        if args.dbsnp_fh:
+            dbsnps = []
+            for entry in args.dbsnp_fh.fetch(tpt.chrm, codon.locs[0]-3, codon.locs[0]):
+                f = entry.split('\t')
+                dbsnps.append('%s(%s:%s%s>%s)' % (f[2], f[0], f[1], f[3], f[4]))
+            if dbsnps:
+                r.info += ';DBSNP=%s' % ','.join(dbsnps)
     else:
         r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
         r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
@@ -273,7 +255,9 @@ def _core_annotate_codon_snv(args, q, tpts):
         r.taa_pos = q.pos
         r.taa_ref = q.ref
         r.taa_alt = q.alt
-        r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+        r.reg = '%s (%s, coding, exon %s)' % (
+            tpt.gene.name, tpt.strand,
+            tpt.tnuc_range2exon_inds(c.index*3-2, c.index*3))
         r.format(q.op)
         found = True
 

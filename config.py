@@ -31,6 +31,18 @@ def download_url(url, file_name):
 
     f.close()
 
+
+def _download_(config, fns):
+
+    pdir = os.path.join(os.path.dirname(__file__), 'download')
+    if not os.path.exists(pdir): os.makedirs(pdir)
+
+    for k, fn, url in fns:
+        fnn = os.path.join(pdir, fn)
+        download_url(url, fnn)
+        config.set('DEFAULT', k, fnn)
+
+
 def download_hg19_annotations(config):
 
     fns = [
@@ -45,17 +57,18 @@ def download_hg19_annotations(config):
         ('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1'),
         ]
 
-    pdir = os.path.join(os.path.dirname(__file__), 'download')
-    if not os.path.exists(pdir): os.makedirs(pdir)
-
-    for k, fn, url in fns:
-        fnn = os.path.join(pdir, fn)
-        download_url(url, fnn)
-        config.set('DEFAULT', k, fnn)
+    _download_(config, fns)
 
 def download_hg19_reference(config):
+    fns = ['reference', 'hg19_reference.fa', '']
+    _download_(confg, fns)
 
-    pass
+def download_hg19_dbsnp(config):
+    fns = [('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz'),
+           ('dbsnp_index', 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
+    ]
+
+    _download_(config, fns)
 
 def read_config():
     config = ConfigParser.RawConfigParser()
@@ -77,6 +90,9 @@ def main(args):
     if args.download_hg19_anno:
         download_hg19_annotations(config)
 
+    if args.download_hg19_dbsnp:
+        download_hg19_dbsnp(config)
+
     for cfg_fn in cfg_fns:
         try:
             config.write(open(cfg_fn,'w'))
@@ -92,4 +108,5 @@ def add_parser_config(subparsers):
     parser.add_argument('-v', default=None, help='value')
     parser.add_argument('--download_hg19', action='store_true', help='download hg19 reference and annotations')
     parser.add_argument('--download_hg19_anno', action='store_true', help='download hg19 annotations')
+    parser.add_argument('--download_hg19_dbsnp', action='store_true', help='download hg19 dbsnp')
     parser.set_defaults(func=main)

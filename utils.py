@@ -140,6 +140,12 @@ def parse_annotation(args):
     if args.aceview:
         trs.parse_aceview_transcripts(args.aceview, name2gene)
 
+    if args.dbsnp:
+        import pysam
+        args.dbsnp_fh = pysam.Tabixfile(args.dbsnp)
+    else:
+        args.dbsnp_fh = None
+
     # remove genes without transcripts
     names_no_tpts = []
     for name, gene in name2gene.iteritems():
@@ -223,6 +229,9 @@ def parser_add_annotation(parser, d):
     parser.add_argument('--uniprot', nargs='?', default=None,
                         const=d['uniprot'] if 'uniprot' in d else None,
                         help='use uniprot ID rather than gene id (config key: uniprot)')
+    parser.add_argument('--dbsnp', nargs='?', default=None,
+                        const=d['dbsnp'] if 'dbsnp' in d else None,
+                        help='dbSNP information in annotation')
 
     return
 

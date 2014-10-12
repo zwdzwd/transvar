@@ -89,37 +89,6 @@ def _main_core_(args, thash, q):
         r.info = 'status=NoValidTranscriptFound'
         r.format(q.op)
 
-# def list_parse_genomic_mutation(args):
-    
-#     indices = parse_indices(args.o)
-#     if args.skipheader:
-#         args.l.readline()
-
-#     for line in args.l:
-#         fields = line.strip().split(args.d)
-#         if args.c > 0 and args.p > 0:
-#             q = QuerySNV()
-#             q.chrm = fields[args.c-1].strip()
-#             q.pos = parse_pos(fields[args.p-1].strip())
-#             if args.r > 0: q.ref = fields[args.r-1].strip()
-#             if args.v > 0: q.alt = fields[args.v-1].strip()
-#             if args.t > 0: q.tpt = fields[args.t-1].strip()
-#             q.op = '\t'.join(indices.extract(fields))
-#             yield q
-
-#         elif args.c > 0 and args.m > 0:
-#             q.chrm = fields[args.c-1].strip()
-#             if args.t > 0: q.tpt = fields[args.t-1].strip()
-#             q = parse_mutation_str(fields[args.m-1].strip())
-#             q.op = '\t'.join(indices.extract(fields))
-#             yield q
-
-#         elif args.m > 0:
-#             q = parse_tok_mutation_str(fields[args.m-1].strip())
-#             if args.t > 0: q.tpt = fields[args.t-1].strip()
-#             q.chrm = q.tok
-#             q.op = '\t'.join(indices.extract(fields))
-#             yield q
 
 def main_list(args, thash):
 
@@ -130,43 +99,6 @@ def main_one(args, thash):
     q = parse_tok_mutation_str(args.i)
     q.op = args.i
     _main_core_(args, thash, q)
-
-def oldmainone():
-    m = re.match(r'([^:]*):([ATGC]?)(\d+)([ATGC]?)', args.npos)
-    chrm = m.group(1)
-    ref = m.group(2)
-    pos = int(m.group(3))
-    alt = m.group(4)
-
-    tpts = thash.get_transcripts(chrm, pos, args.standard)
-    if not tpts:
-        return
-
-    if not args.alltrans:
-        tpt = tpts[0]
-        if len(tpts) > 1:
-            for _tpt in tpts:
-                if _tpt.is_standard():
-                    tpt = _tpt
-                    break
-        tpts = [tpt]
-
-    for tpt in tpts:
-        prnstr = args.npos
-        c = tpt.npos2codon(chrm, pos)
-        if isinstance(c, Codon):
-            if alt:
-                prnstr += '\t'
-                prnstr += nuc_mutation(c, pos, ref, alt)
-            else:
-                prnstr += '\t'
-                prnstr += c.format()
-        elif isinstance(c, NonCoding):
-            prnstr += '\t'+c.format()
-            if alt:
-                prnstr += "\t%s\t%s" % (ref, alt)
-
-        print prnstr
 
 
 def main(args):

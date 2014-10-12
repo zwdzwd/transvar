@@ -320,6 +320,23 @@ class Transcript():
         if self.strand == '-': pos_r = 2 - pos_r
         return codon, pos_r, codon.locs[pos_r]
 
+    def _tnuc_range2exon_inds(self, tnuc_beg, tnuc_end):
+
+        exoninds = []
+        if self.strand == '+':
+            for i, (beg, end) in enumerate(self.exons):
+                exoninds.extend([i+1]*(min(self.cds_end, end)-max(beg, self.cds_beg)+1))
+        else:
+            for i, (beg, end) in enumerate(reversed(self.exons)):
+                exoninds.extend([i+1]*(min(self.cds_end, end)-max(beg, self.cds_beg)+1))
+
+        return sorted(list(set(exoninds[tnuc_beg-1:tnuc_end])))
+
+
+    def tnuc_range2exon_inds(self, tnuc_beg, tnuc_end):
+
+        return ';'.join(map(str, self._tnuc_range2exon_inds(tnuc_beg, tnuc_end)))
+
     def cpos2codon(self, cpos):
 
         """ all coordinates, exons, cds are 1-based
