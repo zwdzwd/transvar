@@ -7,31 +7,35 @@ from transcripts import *
 from utils import *
 from revanno_snv import __core_annotate_codon_snv
 from anno import pos2codon
-from record import Query
+from record import Query, QueryREG
 
 outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
 
 def _main_core_(args, q, thash):
 
     k2transcripts = {}
-    if q.is_codon:
-        for t1, c1 in __core_annotate_codon_snv(args, q):
-            for cind in xrange(3):
-                for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[cind]):
-                    if t1 == t2: continue
-                    if c2.region != 'coding': continue
-                    if c1.index == c2.index: continue
-                    if q.ref and q.ref != standard_codon_table[c2.seq]: continue
-                    altid = t1.gene.name+'.p.'
-                    if q.ref: altid += q.ref
-                    altid += str(c2.index)
-                    k = (altid, c1.chrm, tuple(c1.locs), tuple(c2.locs))
-                    tpair = '%s[%s]/%s[%s]' % (t1.name, t1.source, t2.name, t2.source)
-                    if k in k2transcripts:
-                        if tpair not in k2transcripts[k]:
-                            k2transcripts[k].append(tpair)
-                    else:
-                        k2transcripts[k] = [tpair]
+    if isinstance(q, QueryREG):
+        q.pos = q.beg
+        q.ref = q.refseq
+        q.alt = ''
+        
+    for t1, c1 in __core_annotate_codon_snv(args, q):
+        for cind in xrange(3):
+            for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[cind]):
+                if t1 == t2: continue
+                if c2.region != 'coding': continue
+                if c1.index == c2.index: continue
+                if q.ref and q.ref != standard_codon_table[c2.seq]: continue
+                altid = t1.gene.name+'.p.'
+                if q.ref: altid += q.ref
+                altid += str(c2.index)
+                k = (altid, c1.chrm, tuple(c1.locs), tuple(c2.locs))
+                tpair = '%s[%s]/%s[%s]' % (t1.name, t1.source, t2.name, t2.source)
+                if k in k2transcripts:
+                    if tpair not in k2transcripts[k]:
+                        k2transcripts[k].append(tpair)
+                else:
+                    k2transcripts[k] = [tpair]
 
     for k, tpairs in k2transcripts.iteritems():
         altid, chrm, c1, c2 = k

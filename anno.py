@@ -92,11 +92,11 @@ def _main_core_(args, thash, q):
 
 def main_list(args, thash):
 
-    for q, line in list_parse_mutation(args):
+    for q, line in list_parse_mutation(args, muttype='g'):
         _main_core_(args, thash, q)
 
 def main_one(args, thash):
-    q = parse_tok_mutation_str(args.i)
+    q = parse_tok_mutation_str(args.i, muttype='g')
     q.op = args.i
     _main_core_(args, thash, q)
 

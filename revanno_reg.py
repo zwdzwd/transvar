@@ -77,7 +77,6 @@ def _core_annotate_nuc_reg(args, q, tpts):
     return
 
 
-
 def codon_revanno_reg(args, q, tpt):
 
     if q.tpt and tpt.name != q.tpt:

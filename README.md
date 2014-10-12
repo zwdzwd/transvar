@@ -29,7 +29,7 @@
 
 #### dependency
 
-Just Python >= 2.6
+Basic functionalities requires just Python >= 2.6. Some additional annotation also depends on the pysam library.
 
 #### program
 ```
@@ -180,7 +180,7 @@ ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
 ```
 In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
-If one wishes, he/she can also turn on the `--dbsnp` option to show further potential match to the dbSNP database.
+If one wishes, he/she can also turn on the `--dbsnp` option to show further potential match to the dbSNP database. (This requires pysam library installed in python path.)
 ```
 #!bash
 $ transvar revanno -i 'A1CF:p.A309A' --ccds --dbsnp
@@ -192,7 +192,7 @@ A1CF:p.A309A    10    52576004-52576005-52576006    CCDS7243.1
     NCodonSeq=GCA;NCddSeqs=GCC,GCG,GCT;CddSNVMuts=10:g.52576004T>C,10:g.52576004T>A;
 	DBSNP=rs201831949(10:52576004T>G)
 ```
-Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_hg19_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp [path]`. dbSNP file must be tabix indexed.
+Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_hg19_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. dbSNP file must be tabix indexed.
 
 
 ---
@@ -580,6 +580,7 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
  + forward annotation of insertion/deletion
  + forward annotation of structural variation breakpoints
  + support uncertain insertion such as '4424_4425ins80'
+ + bundle Pysam
 
 ## Bug report and feature request
 

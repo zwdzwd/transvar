@@ -472,7 +472,7 @@ class Transcript():
 
 class Gene():
 
-    def __init__(self, name):
+    def __init__(self, name=''):
 
         self.name    = name
         self.tpts    = []
@@ -619,7 +619,9 @@ def parse_refseq_gff(gff_fn, name2gene):
     sys.stderr.write("[%s] Loaded %d transcripts from RefSeq GFF3 file.\n" % (__name__, cnt))
 
 def parse_ensembl_gtf(gtf_fn, name2gene):
-    """ gtf file is gffv2 """
+    """ gtf file is gffv2
+    parser does not assume order in the GTF file
+    """
 
     gtf_fh = opengz(gtf_fn)
     id2ent = {}
@@ -630,32 +632,38 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
         # info = dict([_.split('=') for _ in fields[8].split(';')])
         if fields[2] == 'gene' and info['gene_biotype'] == 'protein_coding':
-            gene_name = info['gene_name'].upper()
-            if gene_name in name2gene:
-                g = name2gene[gene_name]
-            else:
-                g = Gene(gene_name)
-                name2gene[gene_name] = g
+            gene_id = info['gene_id']
+            if gene_id not in id2ent: id2ent[gene_id] = Gene()
+            g = id2ent[gene_id]
+            g.name = info['gene_name'].upper()
+            if g.name not in name2gene: name2gene[g.name] = g
             g.beg = int(fields[3])
             g.end = int(fields[4])
-            id2ent[info['gene_id']] = g
+            
         elif fields[2] == 'transcript' and info['gene_biotype'] == 'protein_coding':
-            t = Transcript()
+            tid = info['transcript_id']
+            if tid not in id2ent: id2ent[tid] = Transcript()
+            t = id2ent[tid]
             t.chrm = fields[0]
             t.strand = fields[6]
             t.beg = int(fields[3])
             t.end = int(fields[4])
             t.name = info['transcript_id']
-            t.gene = id2ent[info['gene_id']]
+            gene_id = info['gene_id']
+            if gene_id not in id2ent: id2ent[gene_id] = Gene()
+            t.gene = id2ent[gene_id]
             t.gene.tpts.append(t)
             t.source = 'Ensembl'
-            id2ent[t.name] = t
             cnt += 1
         elif fields[2] == 'exon' and info['gene_biotype'] == 'protein_coding':
-            t = id2ent[info['transcript_id']]
+            tid = info['transcript_id']
+            if tid not in id2ent: id2ent[tid] = Transcript()
+            t = id2ent[tid]
             t.exons.append((int(fields[3]), int(fields[4])))
         elif fields[2] == 'CDS' and info['gene_biotype'] == 'protein_coding':
-            t = id2ent[info['transcript_id']]
+            tid = info['transcript_id']
+            if tid not in id2ent: id2ent[tid] = Transcript()
+            t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
 
     sys.stderr.write("[%s] Loaded %d transcripts from Ensembl GTF file.\n" % (__name__, cnt))

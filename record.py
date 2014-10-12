@@ -59,6 +59,7 @@ class QueryREG(Query):
         super(QueryREG, self).__init__()
         self.beg = ''
         self.end = ''
+        self.refseq = ''
 
 class QuerySNV(Query):
 

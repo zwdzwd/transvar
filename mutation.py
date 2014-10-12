@@ -2,17 +2,13 @@ import re, sys, argparse
 from utils import *
 from record import *
 
-def parse_mutation_str(mut_str):
+def parse_mutation_str(mut_str, muttype=None):
     mut_str = mut_str.strip()
-    # mp = re.match(r'(p)?(\.)?([A-Z*?]?)(\d+)([A-Z*?]?)$', mut_str)
     mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?(ref([A-Zx*]*))?$', mut_str)
-    # mp = re.match(r'(p)?(\.)?([A-Z\*\?]+)?(\d+)(_(\d+))?', mut_str)
-    # mn = re.match(r'(c)?(\.)?(\d+)(\.)?([ATGC?]?)>([ATGC?]?)$', mut_str)
-    # mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?$', mut_str)
-    # with duplication
     mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
-
-    if mp:
+    mg = re.match(r'(g)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
+    
+    if (mp and not muttype) or muttype=='p':
         #print mp.groups()
         (_, _, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
          _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i, _has_ref, _ref) = mp.groups()
@@ -81,9 +77,60 @@ def parse_mutation_str(mut_str):
             q.refseq = _ref if _ref else ''
 
         q.is_codon = True
-    elif mn:
+    elif (mn and not muttype) or muttype=='n':
         (_, _, _beg, _end_s, _end, _, _is_del, _d,
          _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mn.groups()
+        if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:
+            q = QuerySNV()
+            q.pos = parse_pos(_beg)
+            q.ref = _ref if _ref and _ref != '?' else ''
+            q.alt = _alt if _alt and _alt != '?' else ''
+        elif (_is_del and _is_ins and
+              (_d == '1' or len(_d) == 1) and len(_i) == 1):
+            q = QuerySNV()
+            q.pos = parse_pos(_beg)
+            q.ref = '' if _d.isdigit() else _d.upper()
+            q.alt = _i.upper() if _i else ''
+        elif _is_del and not _is_ins:
+            q = QueryDEL()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            q.delseq = '' if _d.isdigit() else _d.upper()
+        elif _is_ins and not _is_del:
+            q = QueryINS()
+            q.pos = parse_pos(_beg)
+            if _i: q.insseq = _i.upper()
+            else: err_die('Insertion without inserted sequence: %s.' % mut_str, __name__)
+        elif _is_ins and _is_del:
+            q = QueryMNV()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            if _d and not _d.isdigit(): q.refseq = _d.upper()
+            q.altseq = _i.upper() if _i else ''
+        elif _is_sub:
+            q = QueryMNV()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            q.refseq = _ref.upper() if _ref else ''
+            q.altseq = _alt.upper() if _alt else ''
+        elif _is_dup:
+            q = QueryDUP()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            q.dupseq = _dupseq.upper() if _dupseq else ''
+        else:
+            # use only the beg and end
+            # treat input as a region
+            q = Query()
+            q.beg = parse_pos(_beg)
+            q.end = parse_pos(_end) if _end else q.beg
+            q.ref = _ref.upper() if _ref else ''
+            # err_raise(InvalidInputError,
+            #           'Invalid nucleotide mutation: "%s".' % mut_str, __name__)
+        q.is_codon = False
+    elif (mg and not muttype) or muttype == 'g':
+        (_, _, _beg, _end_s, _end, _, _is_del, _d,
+         _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mg.groups()
         if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:
             q = QuerySNV()
             q.pos = parse_pos(_beg)
@@ -138,7 +185,7 @@ def parse_mutation_str(mut_str):
 
     return q
 
-def parse_tok_mutation_str(s):
+def parse_tok_mutation_str(s, muttype=None):
 
     if s.find(":") >= 0:
         tok, mut_str = s.split(':', 1)
@@ -151,12 +198,12 @@ def parse_tok_mutation_str(s):
             err_raise(InvalidInputError,
                       'Invalid mutation string: "%s".' % s, __name__)
 
-    q = parse_mutation_str(mut_str)
+    q = parse_mutation_str(mut_str, muttype)
     q.tok = tok
 
     return q
 
-def _list_parse_mutation(args, fields, indices):
+def _list_parse_mutation(args, fields, indices, muttype=None):
 
     if args.g > 0 and args.p > 0: # gene, position, ref, alt in separate columns for SNV
 
@@ -182,7 +229,7 @@ def _list_parse_mutation(args, fields, indices):
 
     elif args.g > 0 and args.m > 0:
 
-        q = parse_mutation_str(fields[args.m-1].strip())
+        q = parse_mutation_str(fields[args.m-1].strip(), muttype)
         q.op = '\t'.join(indices.extract(fields))
         q.tok = fields[args.g-1].strip()
         if args.t > 0: q.tpt = fields[args.t-1].strip()
@@ -198,7 +245,7 @@ def _list_parse_mutation(args, fields, indices):
 
     return q
 
-def list_parse_mutation(args):
+def list_parse_mutation(args, muttype=None):
 
     indices = parse_indices(args.o)
     if args.skipheader:
@@ -208,7 +255,7 @@ def list_parse_mutation(args):
         # print line.strip()
         fields = line.strip().split(args.d)
         try:
-            q = _list_parse_mutation(args, fields, indices)
+            q = _list_parse_mutation(args, fields, indices, muttype)
         except InvalidInputError as e:
             err_print(str(e))
             continue
