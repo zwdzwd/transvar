@@ -5,6 +5,8 @@ import faidx
 MAXCHRMLEN=300000000
 def normalize_chrm(chrm):
 
+    if chrm == '23': chrm = 'X'
+    if chrm == '24': chrm = 'Y'
     if not chrm.startswith('chr'):
         chrm = 'chr'+chrm
 
@@ -78,8 +80,9 @@ class THash():
             k = (chrm, ki)
             if k in self.key2transcripts:
                 tpts = [t for t in self.key2transcripts[k] if t.end < pos]
-                tpts.sort(key=lambda t: t.end, reverse=True)
-                return tpts[0]
+                if tpts:
+                    tpts.sort(key=lambda t: t.end, reverse=True)
+                    return tpts[0]
         return None
 
     def get_closest_transcripts_downstream(self, chrm, pos):
@@ -89,8 +92,9 @@ class THash():
             k = (chrm, ki)
             if k in self.key2transcripts:
                 tpts = [t for t in self.key2transcripts[k] if t.beg > pos]
-                tpts.sort(key=lambda t: t.beg)
-                return tpts[0]
+                if tpts:
+                    tpts.sort(key=lambda t: t.beg)
+                    return tpts[0]
         return None
     
     def get_closest_transcripts(self, chrm, beg, end):

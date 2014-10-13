@@ -25,11 +25,13 @@ def _main_core_(args, thash, q):
 def main_list(args, thash):
 
     for q, line in list_parse_mutation(args, muttype='g'):
+        q.tok = normalize_chrm(q.tok)
         _main_core_(args, thash, q)
 
 def main_one(args, thash):
     q = parse_tok_mutation_str(args.i, muttype='g')
     q.op = args.i
+    q.tok = normalize_chrm(q.tok)
     _main_core_(args, thash, q)
 
 def main(args):
