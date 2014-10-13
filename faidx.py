@@ -3,6 +3,7 @@ http://www.allenyu.info/item/24-quickly-fetch-sequence-from-samtools-faidx-index
 import sys
 from err import *
 
+
 class RefGenome:
 
     def __init__(self, fasta_file):       

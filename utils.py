@@ -2,12 +2,16 @@ import transcripts as trs
 import sys
 import faidx
 
+MAXCHRMLEN=300000000
 def normalize_chrm(chrm):
 
     if not chrm.startswith('chr'):
         chrm = 'chr'+chrm
 
     return chrm
+
+def reflen(chrm):
+    return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
 
 def printseq(seq):
 
@@ -39,15 +43,61 @@ class THash():
             self.add_transcript_by_key(k1, t)
             self.add_transcript_by_key(k2, t)
 
-    def get_transcripts(self, chrm, pos, std_only=False):
+    def get_transcripts_cds(self, chrm, beg, end=None, flanking=0):
+        
+        """ get transcript if between CDS beginning and end """
+        if not end: end = beg
         chrm = normalize_chrm(chrm)
-        k = (chrm, int(pos) / self.binsize)
-        if k in self.key2transcripts:
-            for t in self.key2transcripts[k]:
-                if t.cds_beg <= pos and t.cds_end >= pos:
-                    if std_only and t != t.gene.std_tpt:
-                        continue
-                    yield t
+        kbeg = int(beg) / self.binsize
+        kend = int(end) / self.binsize
+        for ki in xrange(kbeg, kend+1):
+            k = (chrm, ki)
+            if k in self.key2transcripts:
+                for t in self.key2transcripts[k]:
+                    if t.cds_beg-flanking <= end and t.cds_end+flanking >= beg:
+                        yield t
+
+    def get_transcripts(self, chrm, beg, end=None, flanking=0):
+
+        """ get transcript if between beginning and end """
+        if not end: end = beg
+        chrm = normalize_chrm(chrm)
+        kbeg = int(beg) / self.binsize
+        kend = int(end) / self.binsize
+        for ki in xrange(kbeg, kend+1):
+            k = (chrm, ki)
+            if k in self.key2transcripts:
+                for t in self.key2transcripts[k]:
+                    if t.beg-flanking <= end and t.end+flanking >= beg:
+                        yield t
+
+    def get_closest_transcripts_upstream(self, chrm, pos):
+        pos = int(pos)
+        chrm = normalize_chrm(chrm)
+        for ki in xrange(pos/self.binsize, -1, -1):
+            k = (chrm, ki)
+            if k in self.key2transcripts:
+                tpts = [t for t in self.key2transcripts[k] if t.end < pos]
+                tpts.sort(key=lambda t: t.end, reverse=True)
+                return tpts[0]
+        return None
+
+    def get_closest_transcripts_downstream(self, chrm, pos):
+        pos = int(pos)
+        chrm = normalize_chrm(chrm)
+        for ki in xrange(pos/self.binsize, MAXCHRMLEN/self.binsize, 1):
+            k = (chrm, ki)
+            if k in self.key2transcripts:
+                tpts = [t for t in self.key2transcripts[k] if t.beg > pos]
+                tpts.sort(key=lambda t: t.beg)
+                return tpts[0]
+        return None
+    
+    def get_closest_transcripts(self, chrm, beg, end):
+
+        """ closest transcripts upstream and downstream """
+        return (self.get_closest_transcripts_upstream(chrm, beg),
+                self.get_closest_transcripts_downstream(chrm, end))
 
     # def __init__(self):
     #     # chrm => bin => list of transcripts
@@ -156,7 +206,7 @@ def parse_annotation(args):
         del name2gene[name]
     sys.stderr.write('[%s] Loaded %d genes.\n' % (__name__, len(name2gene)))
 
-    # index transcripts in a genee
+    # index transcripts in a gene
     thash = THash()
     genes = set(name2gene.values())
     for g in genes:

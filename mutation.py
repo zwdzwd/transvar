@@ -6,7 +6,7 @@ def parse_mutation_str(mut_str, muttype=None):
     mut_str = mut_str.strip()
     mp = re.match(r'(p)?(\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*))?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?(ref([A-Zx*]*))?$', mut_str)
     mn = re.match(r'(c)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
-    mg = re.match(r'(g)?(\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
+    mg = re.match(r'(g)?(\.)?(\d+)(_(\d+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', mut_str)
     
     if (mp and not muttype) or muttype=='p':
         #print mp.groups()
@@ -133,48 +133,48 @@ def parse_mutation_str(mut_str, muttype=None):
          _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mg.groups()
         if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:
             q = QuerySNV()
-            q.pos = parse_pos(_beg)
+            q.pos = int(_beg)
             q.ref = _ref if _ref and _ref != '?' else ''
             q.alt = _alt if _alt and _alt != '?' else ''
         elif (_is_del and _is_ins and
               (_d == '1' or len(_d) == 1) and len(_i) == 1):
             q = QuerySNV()
-            q.pos = parse_pos(_beg)
+            q.pos = int(_beg)
             q.ref = '' if _d.isdigit() else _d.upper()
             q.alt = _i.upper() if _i else ''
         elif _is_del and not _is_ins:
             q = QueryDEL()
-            q.beg = parse_pos(_beg)
-            q.end = parse_pos(_end) if _end else q.beg
+            q.beg = int(_beg)
+            q.end = int(_end) if _end else q.beg
             q.delseq = '' if _d.isdigit() else _d.upper()
         elif _is_ins and not _is_del:
             q = QueryINS()
-            q.pos = parse_pos(_beg)
+            q.pos = int(_beg)
             if _i: q.insseq = _i.upper()
             else: err_die('Insertion without inserted sequence: %s.' % mut_str, __name__)
         elif _is_ins and _is_del:
             q = QueryMNV()
-            q.beg = parse_pos(_beg)
-            q.end = parse_pos(_end) if _end else q.beg
+            q.beg = int(_beg)
+            q.end = int(_end) if _end else q.beg
             if _d and not _d.isdigit(): q.refseq = _d.upper()
             q.altseq = _i.upper() if _i else ''
         elif _is_sub:
             q = QueryMNV()
-            q.beg = parse_pos(_beg)
-            q.end = parse_pos(_end) if _end else q.beg
+            q.beg = int(_beg)
+            q.end = int(_end) if _end else q.beg
             q.refseq = _ref.upper() if _ref else ''
             q.altseq = _alt.upper() if _alt else ''
         elif _is_dup:
             q = QueryDUP()
-            q.beg = parse_pos(_beg)
-            q.end = parse_pos(_end) if _end else q.beg
+            q.beg = int(_beg)
+            q.end = int(_end) if _end else q.beg
             q.dupseq = _dupseq.upper() if _dupseq else ''
         else:
             # use only the beg and end
             # treat input as a region
             q = Query()
-            q.beg = parse_pos(_beg)
-            q.end = parse_pos(_end) if _end else q.beg
+            q.beg = int(_beg)
+            q.end = int(_end) if _end else q.beg
             q.ref = _ref.upper() if _ref else ''
             # err_raise(InvalidInputError,
             #           'Invalid nucleotide mutation: "%s".' % mut_str, __name__)

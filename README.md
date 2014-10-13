@@ -555,13 +555,57 @@ This is the forward annotation
 
 ```
 #!bash
-transvar anno --ccds CCDS.current.txt --ref hs37d5.fa -i 'chr3:178936091.G>A'
+transvar anno --ccds CCDS.current.txt -i 'chr3:178936091.G>A'
 ```
 outputs
 ```
 #!text
-chr3:178936091.G>A      3       178936091-178936092-178936093   CCDS43171.1
+chr3:178936091.G>A   3   178936091-178936092-178936093   CCDS43171.1
      PIK3CA (+, coding)      3:G178936091A/c.1633>/p.E545K   .
+```
+
+#### annotate a short genomic region
+
+To annotate a short genomic region in a gene,
+```
+#!bash
+transvar anno --ccds -i 'chr3:g.178936091_178936192'
+```
+outputs
+```
+#!text
+chr3:g.178936091_178936192   3    178936091-178936192    CCDS43171.1
+    PIK3CA (+, coding,intronic)   3:g.178936091_178936192/c.1633_1664+70/p.E545_R555
+    BEGCodon=178936091-178936092-178936093;ENDCodon=178936121-178936122-178936984
+```
+	
+Results indicates the beginning position is at coding region while ending position is at intronic region (c.1633_1664+70).
+
+#### annotate a long genomic region
+
+```
+#!bash
+transvar anno -i '9:g.133750356_137990357' --ccds
+```
+outputs
+```
+#!text
+9:g.133750356_137990357 9       133750356-137990357     BEG=CCDS35165.1,END=CCDS6986.1  4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.
+9:g.133750356_137990357 9       133750356-137990357     BEG=CCDS35166.1,END=CCDS6986.1  4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1187A>/p.H396;ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.
+```
+The result indicates that the region span 53 genes. The beginning of the region resides in the coding sequence of ABL1, c.1187A and the ending region resides in the intronic region of OLFM1, c.622+6C. 2 different usage of transcripts in annotating the starting position is represented in two lines, each line corresponding to a combination of transcript usage.
+This annotation not only shows the coverage of the region, also reveals the fine structure of the boundary.
+
+In another example, where the ending position exceeds the length of the chromosome, TransVar truncates the region and outputs upstream and downstream information of the ending position.
+```
+#!bash
+transvar anno -i '9:g.133750356_1337503570' --ccds
+```
+outputs
+```
+#!text
+9:g.133750356_1337503570        9       133750356-141213431     BEG=CCDS35165.1,END=.   7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
+9:g.133750356_1337503570        9       133750356-141213431     BEG=CCDS35166.1,END=.   7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1187A>/p.H396;ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
 ```
 
 ### FAQ

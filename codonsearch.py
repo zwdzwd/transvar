@@ -6,7 +6,6 @@ from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mut
 from transcripts import *
 from utils import *
 from revanno_snv import __core_annotate_codon_snv
-from anno import pos2codon
 from record import Query, QueryREG
 
 outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
@@ -20,12 +19,16 @@ def _main_core_(args, q, thash):
         q.alt = ''
         
     for t1, c1 in __core_annotate_codon_snv(args, q):
+        # search any of the 3 positions
         for cind in xrange(3):
-            for t2, c2 in pos2codon(thash, t1.chrm, c1.locs[cind]):
+            gpos = c1.locs[cind]
+            for t2 in thash.get_transcripts(t1.chrm, gpos):
+                c2, p, r = t2.gpos2codon(t1.chrm, gpos)
                 if t1 == t2: continue
                 if c2.region != 'coding': continue
                 if c1.index == c2.index: continue
-                if q.ref and q.ref != standard_codon_table[c2.seq]: continue
+                if len(c2.seq) != 3: continue # often due to last incomplete codon
+                if q.ref and q.ref != codon2aa(c2.seq): continue
                 altid = t1.gene.name+'.p.'
                 if q.ref: altid += q.ref
                 altid += str(c2.index)
@@ -65,6 +68,9 @@ def main_list(args, name2gene, thash):
         try:
             _main_core_(args, q, thash)
         except UnImplementedError as e:
+            err_print(line)
+            raise e
+        except SequenceRetrievalError as e:
             err_print(line)
             raise e
 

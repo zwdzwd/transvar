@@ -2,6 +2,7 @@ import sys, re
 from utils import *
 from err import *
 import faidx
+from record import *
 
 def complement(base):
 
@@ -92,6 +93,9 @@ class Codon():
 
         if self.strand == '+': return self.seq
         else: return reverse_complement(self.seq)
+
+    def aa(self):
+        return codon2aa(self.seq)
 
     def __repr__(self):
         if self.locs:
@@ -385,89 +389,131 @@ class Transcript():
             else:
                 raise IncompatibleTranscriptError()
 
-    def npos2codon(self, chrm, npos):
+    def _init_codon_(self, index):
+        c = Codon()
+        c.chrm = self.chrm
+        c.gene = self.gene
+        c.strand = self.strand
+        c.index = index
+        return c
+
+    def _gpos2codon_UTR(self, gpos, np):
+        """ UTR region """
+        if self.cds_beg > gpos:
+            p = Pos(1, gpos-self.cds_beg)
+            c = self._init_codon_(1)
+            c.seq = self.seq[:3]
+            c.locs = np[:3]
+            return c, p, '5-UTR'
+
+        if self.cds_end < gpos:
+            p = Pos(len(self.seq), gpos-self.cds_end)
+            c = self._init_codon_((len(self.seq)+2)/3)
+            c.seq = self.seq[c.index*3-3:c.index*3]
+            c.locs = np[c.index*3-3:c.index*3]
+            return c, p, '3-UTR'
+        return None
+    
+    def _gpos2codon_p(self, gpos, np):
+
+        for i, pos in enumerate(np):
+            if gpos == pos:
+                c = self._init_codon_(i/3+1)
+                c.seq    = self.seq[i-i%3:i-i%3+3]
+                c.locs   = np[i-i%3:i-i%3+3]
+                p = Pos(i+1, 0)
+                return c, p, 'coding'
+            if gpos < pos:
+                if gpos - np[i-1] < pos - gpos:
+                    p = Pos(i, gpos-np[i-1])
+                    ci = i/3+1
+                else:
+                    p = Pos(i+1, gpos-pos)
+                    ci = (i+1)/3+1
+                c = self._init_codon_(ci)
+                c.seq = self.seq[ci*3-3:ci*3]
+                c.locs = np[ci*3-3:ci*3]
+                return c, p, 'intronic'
+
+    def _gpos2codon_n(self, gpos, np):
+
+        for i, pos in enumerate(np):
+            if gpos == pos:
+                c = self._init_codon_(i/3+1)
+                c.seq = self.seq[i-i%3:i-i%3+3]
+                c.locs = tuple(reversed(np[i-i%3:i-i%3+3]))
+                p = Pos(i+1, 0)
+                return c, p, 'coding'
+            
+            if gpos > pos:
+                if np[i-1] - gpos < gpos - pos:
+                    p = Pos(i, np[i-1] - gpos)
+                    ci = i/3+1
+                else:
+                    p = Pos(i+1, pos - gpos)
+                    ci = (i+1)/3+1
+                c = self._init_codon_(ci)
+                c.seq = self.seq[ci*3-3:ci*3]
+                c.locs = np[ci*3-3:ci*3]
+                return c, p, 'intronic'
+
+    
+    def gpos2codon(self, chrm, gpos):
+        """ return Codon as well as (tnuc) Pos """
         self.ensure_seq()
-        npos = int(npos)
+        gpos = int(gpos)
 
         # no check chrm == self.chrm, due to differential
         # naming convention: chr12 vs 12.
+        np = self.position_array()
+        assert len(np) == len(self.seq)
+
+        ret = self._gpos2codon_UTR(gpos, np)
+        if ret: return ret
         
-        if self.cds_beg > npos:
-            nc = NonCoding()
-            nc.region = "noncoding 5'end"
-            nc.gene = self.gene
-            nc.closest_coding_pos = 1
-            nc.relative_coding_pos = npos - self.cds_beg
-            return nc
-
-        if self.cds_end < npos:
-            nc = NonCoding()
-            nc.region = "noncoding 3'end"
-            nc.gene = self.gene
-            nc.closest_coding_pos = len(self.seq)
-            nc.relative_coding_pos = npos - self.cds_end
-            return nc
-
         if self.strand == "+":
-            np = []
-            for beg, end in self.exons:
-                np += range(max(beg, self.cds_beg),
-                            min(self.cds_end, end)+1)
-            assert len(np) == len(self.seq)
-
-            for i, pos in enumerate(np):
-                if npos == pos:
-                    codon        = Codon()
-                    codon.chrm   = self.chrm
-                    codon.gene   = self.gene
-                    codon.strand = self.strand
-                    codon.index  = i/3 + 1
-                    codon.seq    = self.seq[i-i%3:i-i%3+3]
-                    codon.locs   = np[i-i%3:i-i%3+3]
-                    codon.region = 'coding'
-                    return codon
-                if npos < pos:
-                    nc = NonCoding()
-                    nc.gene = self.gene
-                    nc.region = 'intronic'
-                    # print np[i-1], npos, pos
-                    if npos - np[i-1] < pos - npos:
-                        nc.relative_coding_pos = npos - np[i-1]
-                        nc.closest_coding_pos = i # 1-based
-                    else:
-                        nc.relative_coding_pos = npos - pos
-                        nc.closest_coding_pos = i+1 # 1-based
-                    return nc
+            return self._gpos2codon_p(gpos, np)
         else:
-            np = []
-            for beg, end in reversed(self.exons):
-                np += range(min(self.cds_end, end),
-                            max(beg, self.cds_beg)-1,-1)
-            assert len(np) == len(self.seq)
+            return self._gpos2codon_n(gpos, np)
 
-            for i, pos in enumerate(np):
-                if npos == pos:
-                    codon        = Codon()
-                    codon.chrm   = self.chrm
-                    codon.gene   = self.gene
-                    codon.strand = self.strand
-                    codon.index  = i/3 + 1
-                    codon.seq    = self.seq[i-i%3:i-i%3+3]
-                    codon.locs   = tuple(reversed(np[i-i%3:i-i%3+3]))
-                    codon.region = 'coding'
-                    return codon
-                if npos > pos:
-                    nc = NonCoding()
-                    nc.gene = self.gene
-                    nc.region = 'intronic'
-                    # print pos, npos, np[i-1]
-                    if np[i-1] - npos < npos - pos:
-                        nc.relative_coding_pos = np[i-1] - npos
-                        nc.closest_coding_pos = i # 1-based
-                    else:
-                        nc.relative_coding_pos = pos - npos
-                        nc.closest_coding_pos = i+1 # 1-based
-                    return nc
+    def overlap_region(self, beg, end):
+
+        if self.beg >= beg and self.end <= end:
+            return 'whole'
+
+        coding = False
+        intronic = False
+        UTR5 = False
+        UTR3 = False
+        p_ex_end = None
+        for ex_beg, ex_end in self.exons:
+            if ex_end >= beg and ex_beg <= end:
+                if beg < self.cds_beg:
+                    if self.strand == '+': UTR5 = True
+                    else: UTR3 = True
+                if end > self.cds_beg: coding = True
+                if end > self.cds_end:
+                    if self.strand == '+': UTR3 = True
+                    else: UTR5 = True
+                if beg < self.cds_end: coding = True
+            if p_ex_end and p_ex_end < end and beg < ex_beg:
+                # p_ex_end---ex_beg vs beg---end
+                intronic = True
+            p_ex_end = ex_end
+
+        regc = []
+        if self.strand == '+':
+            if UTR5: regc.append('UTR5')
+            if coding: regc.append('coding')
+            if intronic: regc.append('intronic')
+            if UTR3: regc.append('UTR3')
+        else:
+            if UTR3: regc.append('UTR3')
+            if coding: regc.append('coding')
+            if intronic: regc.append('intronic')
+            if UTR5: regc.append('UTR5')
+
+        return ','.join(regc)
 
 
 class Gene():
@@ -925,4 +971,21 @@ def translate_seq(seq):
             break
 
     return ''.join(aa_seq)
+
+# def tgpos2codon(thash, chrm, pos):
+
+#     for t in thash.get_transcripts(chrm, pos):
+#         c, p, r = t.gpos2codon(chrm, pos)
+#         yield t, c, p, r
+
+# def tgpos2codon_longest(thash, chrm, pos):
+
+#     l = None
+#     for t, c, p, r in gpos2codon(thash,chrm,pos):
+#         if (not l) or len(l) < len(t):
+#             l = t
+#             res = (t, c, p, r)
+
+#     if l:
+#         yield res
 

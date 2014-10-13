@@ -131,6 +131,25 @@ class QueryDUP(Query):
         self.end_aa = ''
         self.dupseq = ''
 
+
+def normalize_reg(q):
+
+    if q.beg > reflen(q.tok):
+        err_print('Region beg %d greater than chromosome length %d, truncated.'
+                  % (q.beg, reflen(q.tok)))
+        q.beg = reflen(q.tok)
+
+    if q.end > reflen(q.tok):
+        err_print('Region end %d greater than chromosome length %d, truncated.'
+                  % (q.end, reflen(q.tok)))
+        q.end = reflen(q.tok)
+    if q.beg < 0:
+        err_print('Region beg %d negative, truncated to 0.')
+        q.beg = 0    
+    if q.end < 0:
+        err_print('Region end %d negative, truncated to 0.')
+        q.end = 0    
+
 template = "{r.chrm}\t{r.pos}\t{r.tname}\t{r.reg}\t{gnuc}/{tnuc}/{taa}\t{r.info}"
 class Record():
 
@@ -183,8 +202,12 @@ class Record():
         if s == 'p.': return '.'
         return s
 
+    def format_id(self):
+        return '%s/%s/%s' % (self.gnuc(), self.tnuc(), self.taa())
+
     def format(self, op):
         s = op+'\t' if op else ''
         s += template.format(r=self,
                              gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
         print s
+
