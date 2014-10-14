@@ -160,7 +160,7 @@ Mutation formats acceptable in TransVar are ```PIK3CA:E545K``` or ```PIK3CA:p.E5
 
 ```
 #!bash
-$ transvar revanno -i PIK3CA:E545K --ensembl
+transvar revanno -i PIK3CA:E545K --ensembl
 ```
 outputs
 ```
@@ -171,6 +171,10 @@ PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967
 ```
 
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
+```
+#!bash
+transvar revanno -i ACSL4:p.R133R
+```
 ```
 #!text
 ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
@@ -357,11 +361,11 @@ A1CF:c.1460+2_1460+3TG>CC    10    52570797-52570798   CCDS7241.1    A1CF (-, in
 When block substitution occurs **across splice site**, TransVar put a tag in the info fields and does not predict amino acid change.
 ```
 #!bash
-$ transvar revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
+transvar revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
 ```
 ```
 #!text
-	A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
+A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
 	10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite
 ```
 
@@ -375,7 +379,7 @@ Similar to insertion, the annotation of duplication assumes no change in splicin
 Example: to annotate a duplication coding region,
 ```
 #!bash
-$ transvar revanno --ccds -i 'CHD7:c.1669_1674dup'
+transvar revanno --ccds -i 'CHD7:c.1669_1674dup'
 ```
 ```
 #!text
@@ -417,8 +421,8 @@ $ transvar revanno --ccds -i 'AATK.p.P1331_A1332insTP'
 ```
 ```
 #!text
-AATK    c.3993_3994insACGCCC    p.P1331_A1332insTP      17:79093270-79093271    17
-    79093268-79093273 (insertion)   CCDS45807.1     AATK (-, coding)
+AATK    c.3993_3994insACGCCC   p.P1331_A1332insTP   17:79093270-79093271
+    17    79093268-79093273 (insertion)   CCDS45807.1     AATK (-, coding)
     17:79093268-79093273ins6/c.3991-3996ins6/p.P1331_A1332insTP     Uncertain
 ```
 
@@ -555,7 +559,7 @@ This is the forward annotation
 
 ```
 #!bash
-transvar anno --ccds CCDS.current.txt -i 'chr3:178936091.G>A'
+transvar anno --ccds -i 'chr3:178936091.G>A'
 ```
 outputs
 ```
@@ -563,6 +567,23 @@ outputs
 chr3:178936091.G>A   3   178936091-178936092-178936093   CCDS43171.1
      PIK3CA (+, coding)      3:G178936091A/c.1633>/p.E545K   .
 ```
+
+Another example:
+```
+#!bash
+transvar anno -i "9:135782704C>G" --ccds
+```
+outputs
+```
+#!text
+9:135782704C>G  9    135782704    CCDS6956.1    TSC1 (-, coding)
+    9:g.135782704C>G/c.1317G>C/p.L439L
+    CodonPos=135782704-135782705-135782706;NCodonSeq=CTG
+9:135782704C>G  9    135782704    CCDS55350.1   TSC1 (-, coding)
+    9:g.135782704C>G/c.1164G>C/p.L388L
+    CodonPos=135782704-135782705-135782706;NCodonSeq=CTG
+```
+
 
 #### annotate a short genomic region
 
@@ -590,8 +611,14 @@ transvar anno -i '9:g.133750356_137990357' --ccds
 outputs
 ```
 #!text
-9:g.133750356_137990357 9       133750356-137990357     BEG=CCDS35165.1,END=CCDS6986.1  4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.
-9:g.133750356_137990357 9       133750356-137990357     BEG=CCDS35166.1,END=CCDS6986.1  4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1187A>/p.H396;ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.
+9:g.133750356_137990357 9     133750356-137990357     BEG=CCDS35165.1,END=CCDS6986.1
+    4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.
+    BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;
+	ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.
+9:g.133750356_137990357 9     133750356-137990357     BEG=CCDS35166.1,END=CCDS6986.1
+    4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.
+    BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1187A>/p.H396;
+	ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.
 ```
 The result indicates that the region span 53 genes. The beginning of the region resides in the coding sequence of ABL1, c.1187A and the ending region resides in the intronic region of OLFM1, c.622+6C. 2 different usage of transcripts in annotating the starting position is represented in two lines, each line corresponding to a combination of transcript usage.
 This annotation not only shows the coverage of the region, also reveals the fine structure of the boundary.
@@ -604,8 +631,14 @@ transvar anno -i '9:g.133750356_1337503570' --ccds
 outputs
 ```
 #!text
-9:g.133750356_1337503570        9       133750356-141213431     BEG=CCDS35165.1,END=.   7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
-9:g.133750356_1337503570        9       133750356-141213431     BEG=CCDS35166.1,END=.   7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.     BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1187A>/p.H396;ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
+9:g.133750356_1337503570    9    133750356-141213431    BEG=CCDS35165.1,END=.
+    7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.
+    BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;
+	ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
+9:g.133750356_1337503570    9    133750356-141213431    BEG=CCDS35166.1,END=.
+    7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.
+    BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1187A>/p.H396;
+	ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
 ```
 
 ### FAQ

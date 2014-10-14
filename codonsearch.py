@@ -25,7 +25,8 @@ def _main_core_(args, q, thash):
             for t2 in thash.get_transcripts(t1.chrm, gpos):
                 c2, p, r = t2.gpos2codon(t1.chrm, gpos)
                 if t1 == t2: continue
-                if c2.region != 'coding': continue
+                if p.tpos != 0: continue
+                # if c2.region != 'coding': continue
                 if c1.index == c2.index: continue
                 if len(c2.seq) != 3: continue # often due to last incomplete codon
                 if q.ref and q.ref != codon2aa(c2.seq): continue

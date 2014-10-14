@@ -1,50 +1,68 @@
 from transcripts import *
 from record import *
 
+def __annotate_snv_gene(args, q, t):
+
+    c, p, reg = t.gpos2codon(q.tok, q.pos)
+
+    r = Record()
+    r.chrm = t.chrm
+    r.tname = t.name
+    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, reg)
+    r.pos = q.pos
+
+    # at the ends of retained intron transcripts from ENSEMBL,
+    # codon sequence is not always of length 3
+    if p.tpos == 0:
+        r.taa_ref = codon2aa(c.seq)
+        r.taa_pos = c.index
+
+        if q.alt:
+            if c.strand == "+":
+                alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
+            else:
+                alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
+            r.taa_alt = codon2aa(alt_seq)
+
+    r.gnuc_pos = q.pos
+    r.gnuc_ref = c.refseq()[c.locs.index(q.pos)]
+    r.gnuc_alt = q.alt
+    r.tnuc_pos = p
+    if c.strand == '+':
+        r.tnuc_ref = r.gnuc_ref
+        r.tnuc_alt = r.gnuc_alt
+    else:
+        r.tnuc_ref = complement(r.gnuc_ref)
+        r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
+
+    r.info = 'CodonPos=%s;NCodonSeq=%s' % ('-'.join(map(str, c.locs)), c.seq)
+
+    return r
+
 def _annotate_snv_gene(args, q, thash):
 
-    if args.longest:
-        tc_iter = gpos2codon_longest(thash, q.tok, q.pos)
-    else:
-        tc_iter = gpos2codon(thash, q.tok, q.pos)
+    tpts = [t for t in thash.get_transcripts(q.tok, q.pos, q.pos)]
+    if tpts:
+        if args.longest:
+            tpts.sort(lambda t: len(t), reverse=True)
+            tpts = tpts[:1]
 
-    found = False
-    for t, c in tc_iter:
-        if isinstance(c, Codon):
-            found = True
-
-            r = Record()
-            r.chrm = t.chrm
-            r.tname = t.name
-            r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
-            r.pos = '-'.join(map(str, c.locs))
-
-            # at the ends of retained intron transcripts from ENSEMBL,
-            # codon sequence is not always of length 3
-            if c.seq in standard_codon_table:
-                r.taa_ref = standard_codon_table[c.seq]
-            r.taa_pos = c.index
-            if q.alt:
-                if c.strand == "+":
-                    alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
-                else:
-                    alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
-                r.taa_alt = standard_codon_table[alt_seq]
-
-            r.gnuc_pos = q.pos
-            r.gnuc_ref = c.refseq()[c.locs.index(q.pos)]
-            r.gnuc_alt = q.alt
-
-            if c.strand == '+':
-                r.tnuc_ref = r.gnuc_ref
-                r.tnuc_alt = r.gnuc_alt
-                r.tnuc_pos = (c.index-1)*3 + c.locs.index(q.pos) + 1
-            else:
-                r.tnuc_ref = complement(r.gnuc_ref)
-                r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
-                r.tnuc_pos = c.index*3 - c.locs.index(q.pos)
-
+        for t in tpts:
+            try:
+                r = __annotate_snv_gene(args, q, t)
+            except IncompatibleTranscriptError:
+                continue
             yield r
+
+    # if args.longest:
+    #     tc_iter = gpos2codon_longest(thash, q.tok, q.pos)
+    # else:
+    #     tc_iter = gpos2codon(thash, q.tok, q.pos)
+
+    # found = False
+    # for t, c in tc_iter:
+    #     if isinstance(c, Codon):
+    #         found = True
 
 
 def _annotate_snv(args, q, thash):

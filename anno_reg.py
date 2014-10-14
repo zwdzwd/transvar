@@ -90,7 +90,7 @@ def _annotate_reg_gene(args, q, thash):
     if tpts: 
         if args.longest:
             tpts.sort(lambda t: len(t), reverse=True)
-            tpts = [tpts[0]]
+            tpts = tpts[:1]
 
         if q.beg == q.end:
             q.pos = q.beg
