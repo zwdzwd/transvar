@@ -59,3 +59,47 @@ er2 'A1CF:c.1460+2_1460+3TG>CC    10    52570797-52570798   CCDS7241.1    A1CF (
 
 er transvar revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
 er2 'A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)	10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite'
+
+er transvar revanno --ccds -i 'CHD7:c.1669_1674dup'
+er2 'CHD7:c.1669_1674dup    8    61693562-61693567 (dup) CCDS47865.1     CHD7 (+, Coding)    8:61693562-61693567dupTCCCCG/c.1669_1674dup/p.S557_P558dupSP   RefDupSeq=TCCCCG;NatDupSeq=TCCCCG'
+
+er transvar revanno --ccds -i 'CHD7:c.1668_1669dup'
+er2 'CHD7:c.1668_1669dup    8    61693561-61693562 (dup) CCDS47865.1     CHD7 (+, Coding)    8:61693561-61693562dupTT/c.1668_1669dup/p.S557Ffs*8   RefDupSeq=TT;NatDupSeq=TT'
+
+er transvar revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
+er2 'CHD7:c.1666-5_1666-3dup 8   61693554-61693556 (dup) CCDS47865.1   CHD7 (+, Intronic)    8:61693554-61693556dupCTC/c.1666-5_1666-3dup/.  RefDupSeq=CTC;NatDupSeq=CTC'
+
+er transvar revanno --ccds -i 'AATK.p.P1331_A1332insTP'
+er2 'AATK    c.3993_3994insACGCCC   p.P1331_A1332insTP   17:79093270-79093271    17    79093268-79093273 (insertion)   CCDS45807.1     AATK (-, coding)   17:79093268-79093273ins6/c.3991-3996ins6/p.P1331_A1332insTP     Uncertain'
+
+er transvar revanno --ccds -i 'AADACL4.p.W263_I267delWRDAI'
+er2 'AADACL4   c.788_802del15  p.W263_I267delWRDAI   1:12726310-12726324     1       12726309-12726323 (deletion)    CCDS30590.1     AADACL4 (+, coding)     1:12726309-12726323/c.787-801/p.W263_I267delWRDAI     Uncertain'
+
+er transvar revanno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
+er2 'ABCC3:p.Y556_V557delinsRRR   17   48745254-48745259 (block substitution)  CCDS32681.1    ABCC3 (+, coding)    17:48745254-48745259TACGTG>AGGAGGAGG/c.1666-1671TACGTG>AGGAGGAGG/p.Y556_V557delinsRRR    CddNatAlt=AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT;Uncertain'
+
+er transvar revanno --ccds -i 'A1BG.p.G132fs*2'
+er2 'A1BG.p.G132fs*2 19      58863866-58863867-58863868      CCDS12976.1     A1BG (-, coding)    19:58863860-58863868/c.394-402/p.G132fs*2       RoughEstimateFromFrameShift'
+
+er transvar codonsearch --ccds -i CDKN2A.p.58
+er2 'CDKN2A.p.58    CDKN2A.p.72   9    21971184-21971185-21971186   21971185-21971186-21971187
+    CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+CDKN2A.p.58    CDKN2A.p.73   9    21971184-21971185-21971186   21971182-21971183-21971184
+    CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]'
+
+####### forward annotation #####
+er transvar anno --ccds -i 'chr3:178936091.G>A'
+er2 'chr3:178936091.G>A   3   178936091-178936092-178936093   CCDS43171.1     PIK3CA (+, coding)      3:G178936091A/c.1633>/p.E545K   .'
+
+er transvar anno -i "9:135782704C>G" --ccds
+er2 '9:135782704C>G  9    135782704    CCDS6956.1    TSC1 (-, coding)    9:g.135782704C>G/c.1317G>C/p.L439L    CodonPos=135782704-135782705-135782706;NCodonSeq=CTG
+9:135782704C>G  9    135782704    CCDS55350.1   TSC1 (-, coding)    9:g.135782704C>G/c.1164G>C/p.L388L    CodonPos=135782704-135782705-135782706;NCodonSeq=CTG'
+
+er transvar anno --ccds -i 'chr3:g.178936091_178936192'
+er2 'chr3:g.178936091_178936192   3    178936091-178936192    CCDS43171.1    PIK3CA (+, coding,intronic)   3:g.178936091_178936192/c.1633_1664+70/p.E545_R555    BEGCodon=178936091-178936092-178936093;ENDCodon=178936121-178936122-178936984'
+
+er transvar anno -i '9:g.133750356_137990357' --ccds
+er2 '9:g.133750356_137990357 9     133750356-137990357     BEG=CCDS35165.1,END=CCDS6986.1    4,240,002 bp covering 53 genes  9:g.133750356_137990357/./.    BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;	ENDreg=OLFM1 (+, intronic);ENDid=9:g.137990357C>/c.622+6C>/.'
+
+er transvar anno -i '9:g.133750356_1337503570' --ccds
+er2 '9:g.133750356_1337503570    9    133750356-141213431    BEG=CCDS35165.1,END=.    7,463,076 bp covering 137 genes 9:g.133750356_141213431/./.    BEGreg=ABL1 (+, coding);BEGid=9:g.133750356A>/c.1244A>/p.H415;	ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.'

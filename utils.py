@@ -186,7 +186,10 @@ def parse_annotation(args):
         trs.parse_gencode_gtf(args.gencode, name2gene)
 
     if args.ucsc:
-        trs.parse_ucsc_refgene_customized(args.ucsc, name2gene)
+        trs.parse_ucsc_refgene(args.ucsc, name2gene)
+
+    if args.custom:
+        trs.parse_ucsc_refgene_customized(args.custom, name2gene)
 
     if args.kg:
         trs.parse_ucsc_kg_table(args.kg, args.alias, name2gene)
@@ -251,40 +254,58 @@ def parse_annotation(args):
     else:
         return name2gene, thash
 
-def parser_add_annotation(parser, d):
+def get_config(config, option):
+
+    if 'refversion' in config.defaults():
+        rv = config.get('DEFAULT', 'refversion')
+    else:
+        rv = 'hg19'
+
+    if not config.has_section(rv):
+        return None
+    
+    if config.has_option(rv, option):
+        return config.get(rv, option)
+    else:
+        return None
+
+def parser_add_annotation(parser, config):
 
     parser.add_argument('--ref', nargs='?',
-                        default=d['reference'] if 'reference' in d else None,
+                        default=get_config(config, 'reference'),
                         help='indexed reference fasta (with .fai) (config key: reference)')
     parser.add_argument('--ensembl', nargs='?', default=None,
-                        const=d['ensembl'] if 'ensembl' in d else None,
+                        const=get_config(config, 'ensembl'),
                         help='Ensembl GTF transcript annotation (config key: ensembl)')
     parser.add_argument('--gencode', nargs='?', default=None,
-                        const=d['gencode'] if 'gencode' in d else None,
+                        const=get_config(config, 'gencode'),
                         help='GENCODE GTF transcript annotation (config key: gencode)')
     parser.add_argument('--kg', nargs='?', default=None,
-                        const=d['known_gene'] if 'known_gene' in d else None,
+                        const=get_config(config, 'known_gene'),
                         help='UCSC knownGene transcript annotation (config key: known_gene)')
     parser.add_argument('--alias', nargs='?', default=None,
-                        const=d['known_gene_alias'] if 'known_gene_alias' in d else None,
+                        const=get_config(config, 'known_gene_alias'),
                         help='UCSC knownGene aliases (without providing aliases, only the knownGene id can be searched (config key: known_gene_alias)')
     parser.add_argument('--ucsc', nargs='?', default=None,
-                        const=d['ucsc'] if 'ucsc' in d else None,
-                        help='customized UCSC transcript annotation table (config key: ucsc')
+                        const=get_config(config, 'ucsc'),
+                        help='UCSC transcript annotation table (config key: ucsc')
     parser.add_argument('--refseq', nargs='?', default=None,
-                        const=d['refseq'] if 'refseq' in d else None,
+                        const=get_config(config, 'refseq'),
                         help='RefSeq transcript annotation (config key: refseq)')
     parser.add_argument('--ccds', nargs='?', default=None,
-                        const=d['ccds'] if 'ccds' in d else None,
+                        const=get_config(config, 'ccds'),
                         help='CCDS transcript annotation table (config key: ccds)')
     parser.add_argument('--aceview', nargs='?', default=None,
-                        const=d['aceview'] if 'aceview' in d else None,
+                        const=get_config(config, 'aceview'),
                         help='AceView GFF transcript annotation (config key: aceview)')
+    parser.add_argument('--custom', nargs='?', default=None,
+                        const=get_config(config, 'custom'),
+                        help='A customized transcript table with sequence (config key: custom)')
     parser.add_argument('--uniprot', nargs='?', default=None,
-                        const=d['uniprot'] if 'uniprot' in d else None,
+                        const=get_config(config, 'uniprot'),
                         help='use uniprot ID rather than gene id (config key: uniprot)')
     parser.add_argument('--dbsnp', nargs='?', default=None,
-                        const=d['dbsnp'] if 'dbsnp' in d else None,
+                        const=get_config(config, 'dbsnp'),
                         help='dbSNP information in annotation')
 
     return

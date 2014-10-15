@@ -3,7 +3,6 @@ import re, argparse
 from itertools import chain
 """ TransVar (annotator for Transcript-dependent Variants) """
 
-
 from revanno import add_parser_revanno
 from anno import add_parser_anno
 from codonsearch import add_parser_codonsearch
@@ -13,11 +12,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=__doc__)
 
-    d = read_config()
+    config = read_config()
     subparsers = parser.add_subparsers()
-    add_parser_revanno(subparsers, d)
-    add_parser_anno(subparsers, d)
-    add_parser_codonsearch(subparsers, d)
+    add_parser_revanno(subparsers, config)
+    add_parser_anno(subparsers, config)
+    add_parser_codonsearch(subparsers, config)
 
     add_parser_config(subparsers)
 

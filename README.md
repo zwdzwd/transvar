@@ -6,6 +6,7 @@
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
  + supports UniProt protein id as transcript id
+ + support GRCh36, 37, 38
  + functionality of forward annotation.
 
 --------
@@ -22,7 +23,7 @@
  $ unzip v1.17.zip
  $ cd [unzipped dir]
  $ ./transvar config --download_hg19_anno
- $ ./transvar revanno --ucsc -i 'PIK3CA.p.E545K'
+ $ ./transvar revanno --custom -i 'PIK3CA.p.E545K'
 ```
 
 ### Download and install
@@ -44,7 +45,7 @@ For most annotation database (the only exception may be the UCSC table which is 
 Once downloaded and indexed, one could use the reference in TransVar through the `--ref` option followed by the fasta filename. One also has the option of specifying the default location to `transvar.cfg` by:
 ```
 #!bash
-$ transvar config -k reference -v hg19.fa
+$ transvar config -k reference -v hg19.fa -s hg19
 ```
 so that there is no need to specify the location of reference on subsequent usages.
 
@@ -74,6 +75,7 @@ The following table summarize the option(s) to use each database in the annotati
  | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi37.gff.gz`  |
  | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.gtf.gz`  |
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
+ | custom | custom table | `--custom` | `--custom hg19.map` |
 
 If one download transcripts through `transvar config`, TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
 ```transvar config -k ccds -v [annotation file]```. 
@@ -391,7 +393,7 @@ CHD7:c.1669_1674dup    8    61693562-61693567 (dup) CCDS47865.1     CHD7 (+, Cod
 Example: a duplication on the nucleotide level may lead to frame-shift or block substitution on the amino acid level,
 ```
 #!bash
-$ transvar revanno --ccds -i 'CHD7:c.1668_1669dup'
+transvar revanno --ccds -i 'CHD7:c.1668_1669dup'
 ```
 ```
 #!text
@@ -402,7 +404,7 @@ CHD7:c.1668_1669dup    8    61693561-61693562 (dup) CCDS47865.1     CHD7 (+, Cod
 Example: to annotate a duplication in intronic region,
 ```
 #!bash
-$ transvar revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
+transvar revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
 ```
 ```
 #!text
@@ -417,7 +419,7 @@ CHD7:c.1666-5_1666-3dup 8   61693554-61693556 (dup) CCDS47865.1   CHD7 (+, Intro
 
 ```
 #!bash
-$ transvar revanno --ccds -i 'AATK.p.P1331_A1332insTP'
+transvar revanno --ccds -i 'AATK.p.P1331_A1332insTP'
 ```
 ```
 #!text
@@ -429,7 +431,7 @@ AATK    c.3993_3994insACGCCC   p.P1331_A1332insTP   17:79093270-79093271
 #### reverse annotation of amino acid deletion
 ```
 #!bash
-$ transvar revanno --ccds -i 'AADACL4.p.W263_I267delWRDAI'
+transvar revanno --ccds -i 'AADACL4.p.W263_I267delWRDAI'
 ```
 ```
 #!text
@@ -441,7 +443,7 @@ AADACL4   c.788_802del15  p.W263_I267delWRDAI   1:12726310-12726324
 #### reverse annotation of amino acid block substitution
 ```
 #!bash
-$ transvar revanno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
+transvar revanno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
 ```
 ```
 #!text
@@ -455,7 +457,7 @@ ABCC3:p.Y556_V557delinsRRR   17   48745254-48745259 (block substitution)  CCDS32
 
 ```
 #!bash
-$ transvar revanno --ccds -i 'A1BG.p.G132fs*2'
+transvar revanno --ccds -i 'A1BG.p.G132fs*2'
 ```
 ```
 #!text
@@ -471,7 +473,7 @@ An identifier is regarded as an alternative if the underlying codon overlap with
 Example: to search alternative identifiers of CDKN2A.p.58 (without knowing reference allele),
 ```
 #!bash
-$ transvar codonsearch --ccds -i CDKN2A.p.58
+transvar codonsearch --ccds -i CDKN2A.p.58
 ```
 ```
 #!text
@@ -536,7 +538,7 @@ The third column indicates the potential transcript usage for the alternative id
 Example: to check if MET.p1010 and MET.p992 may be refering to one mutation due to different usage of transcripts,
 ```
 #!bash
-$ transvar codonsearch --refseq -i MET.p1010
+transvar codonsearch --refseq -i MET.p1010
 ```
 gives
 ```

@@ -77,7 +77,7 @@ class RefGenome:
             seq=seq+line
             
         #chomp off extra bases
-        return seq[:end-start]
+        return seq[:end-start].upper()
         
     def __exit__(self, type, value, traceback):
         self.fasta_handle.close()

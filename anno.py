@@ -58,10 +58,10 @@ def main(args):
 #                 o = len([t for t in gene.tpts if len(t) > len(ts[0])])
 #                 print o
     
-def add_parser_anno(subparsers, d):
+def add_parser_anno(subparsers, config):
 
     parser = subparsers.add_parser('anno', help=__doc__)
-    parser_add_annotation(parser, d)
+    parser_add_annotation(parser, config)
     parser_add_mutation(parser)
     parser.add_argument('--longest', action="store_true",
                         help='use longest transcript instead of reporting all transcripts')

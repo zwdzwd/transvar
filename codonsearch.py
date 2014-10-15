@@ -89,9 +89,9 @@ def main_one(args, name2gene, thash):
 
     _main_core_(args, q, thash)
 
-def add_parser_codonsearch(subparsers, d):
+def add_parser_codonsearch(subparsers, config):
 
     parser = subparsers.add_parser('codonsearch', help=__doc__)
     parser_add_mutation(parser)
-    parser_add_annotation(parser, d)
+    parser_add_annotation(parser, config)
     parser.set_defaults(func=main)

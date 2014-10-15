@@ -521,6 +521,7 @@ class Gene():
     def __init__(self, name=''):
 
         self.name    = name
+        self.alias   = ''
         self.tpts    = []
         self.std_tpt = None
         self.pseudo  = False
@@ -545,8 +546,50 @@ class Gene():
 
         return self.std_tpt.cpos2codon(cpos)
 
+
+def parse_ucsc_refgene(map_file, name2gene):
+    """ start 1-based, end 1-based """
+
+    cnt = 0
+    for line in opengz(map_file):
+        if line.startswith('#'): continue
+        fields = line.strip().split('\t')
+        if fields[13] != 'cmpl' or fields[14] != 'cmpl':
+            continue
+        gene_name = fields[12].upper()
+        if gene_name in name2gene:
+            gene = name2gene[gene_name]
+        else:
+            gene = Gene(gene_name)
+            name2gene[gene_name] = gene
+        t = Transcript()
+        t.name = fields[1]
+        t.chrm = fields[2]
+        t.strand = fields[3]
+        t.beg    = int(fields[4])+1
+        t.end    = int(fields[5])
+        t.cds_beg = int(fields[6])+1
+        t.cds_end = int(fields[7])
+        t.source = 'UCSC_refGene'
+        ex_begs, ex_ends = fields[9], fields[10]
+
+        for ex_beg, ex_end in zip(map(lambda x: int(x)+1, ex_begs.strip(',').split(',')),
+                                  map(int, ex_ends.strip(',').split(','))):
+            t.exons.append((ex_beg, ex_end))
+            
+        t.exons.sort() # keep exons sorted
+        gene.tpts.append(t)
+        t.gene = gene
+        cnt += 1
+
+    sys.stderr.write('[%s] Loaded %d transcripts from UCSC refgene.\n' % (__name__, cnt))
+
+    return
+
+
 def parse_ucsc_refgene_customized(map_file, name2gene):
 
+    """ start 1-based, end 1-based """
     cnt = 0
     for line in open(map_file):
         fields = line.strip().split()
@@ -565,7 +608,7 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
         t.seq    = fields[-1]
         t.cds_beg = int(fields[5])
         t.cds_end = int(fields[6])
-        t.source = 'UCSC_refGene'
+        t.source = 'custom'
         t.name = '.'
         ex_begs, ex_ends = fields[8], fields[9]
 
@@ -578,7 +621,7 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
         t.gene = gene
         cnt += 1
 
-    sys.stderr.write('[%s] Loaded %d transcripts from UCSC refgene (customized).\n' % (__name__, cnt))
+    sys.stderr.write('[%s] Loaded %d transcripts from customized table.\n' % (__name__, cnt))
 
     return
 
@@ -715,6 +758,8 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
     sys.stderr.write("[%s] Loaded %d transcripts from Ensembl GTF file.\n" % (__name__, cnt))
 
 def parse_ccds_table(ccds_fn, name2gene):
+
+    """ start 0-based end 0-based """
 
     ccds_fh = open(ccds_fn)
     ccds_fh.readline()

@@ -103,10 +103,10 @@ def main(args):
     if args.i:
         main_one(args, name2gene)
 
-def add_parser_revanno(subparsers, d):
+def add_parser_revanno(subparsers, config):
 
     parser = subparsers.add_parser("revanno", help=__doc__)
-    parser_add_annotation(parser, d)
+    parser_add_annotation(parser, config)
     parser_add_mutation(parser)
     parser.add_argument("--longest", action="store_true",
                         help="consider only longest transcript")

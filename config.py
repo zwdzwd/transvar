@@ -5,6 +5,9 @@ import os
 cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
            os.path.expanduser('~/.transvar.cfg')]
 
+downloaddirs = [os.path.join(os.path.dirname(__file__), 'transvar.download'),
+                os.path.expanduser('~/.transvar.download')]
+
 def download_url(url, file_name):
 
     import urllib2
@@ -31,17 +34,37 @@ def download_url(url, file_name):
 
     f.close()
 
+def config_set(config, section, option, value):
 
-def _download_(config, fns):
+    if section != 'DEFAULT' and not config.has_section(section):
+        config.add_section(section)
+    config.set(section, option, value)
 
-    pdir = os.path.join(os.path.dirname(__file__), 'download')
-    if not os.path.exists(pdir): os.makedirs(pdir)
+def _download_(config, section, fns):
 
-    for k, fn, url in fns:
-        fnn = os.path.join(pdir, fn)
-        download_url(url, fnn)
-        config.set('DEFAULT', k, fnn)
+    for pdir in downloaddirs:
+        # pdir = os.path.join(os.path.dirname(__file__), 'download')
+        if not os.path.exists(pdir): os.makedirs(pdir)
 
+        try:
+            for k, fn, url in fns:
+                fnn = os.path.join(pdir, fn)
+                download_url(url, fnn)
+                config_set(config, section, k, fnn)
+        except:
+            continue
+
+        break
+
+def download_hg18_annotations(config):
+
+    fns = [
+        ('ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
+        ('aceview', 'hg38.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
+        ]
+
+    config.set('DEFAULT', 'refversion', 'hg18')
+    _download_(config, 'hg18', fns)
 
 def download_hg19_annotations(config):
 
@@ -50,48 +73,89 @@ def download_hg19_annotations(config):
         ('ccds', 'hg19.ccds.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/CCDS.current.txt?dl=1'),
         ('ensembl', 'hg19.ensembl.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/Homo_sapiens.GRCh37.75.gtf.gz?dl=1'),
         ('gencode', 'hg19.gencode.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/gencode.v19.annotation.gtf.gz?dl=1'),
-        ('ucsc', 'hg19.ucsc.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
+        ('ucsc', 'hg19.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.ucsc.refgene.txt.gz?dl=1'),
+        ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
         ('aceview', 'hg19.aceview.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/AceView.ncbi_37.genes_gff.gff.gz?dl=1'),
         ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
         ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
-        ('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1'),
         ]
 
-    _download_(config, fns)
+    config.set('DEFAULT', 'refversion', 'hg19')
+    _download_(config, 'hg19', fns)
+
+def download_idmap(config):
+    fns = [('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1')]
+    _download_(config, 'idmap', fns)
+
+def download_hg38_annotations(config):
+
+    fns = [('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38_top_level.gff3.gz'),
+           # ('ccds', 'hg38.ccds.txt', ''),
+           ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz'),
+           ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz'),
+           ('ucsc', 'hg38.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg38.ucsc.refgene.txt.gz?dl=1'),
+       ]
+    config.set('DEFAULT', 'refversion', 'hg38')
+    _download_(config, 'hg38', fns)
+    
+def set_hg18_reference(config, reference):
+    config_set(config, 'hg18', reference)
 
 def download_hg19_reference(config):
-    fns = ['reference', 'hg19_reference.fa', '']
-    _download_(confg, fns)
+    fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
+    _download_(config, 'hg38', fns)
+    
+def set_hg19_reference(config, reference):
+    config_set(config, 'hg19', reference)
+
+def download_hg38_reference(config):
+    fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
+    _download_(config, 'hg38', fns)
+
+def set_hg38_reference(config, reference):
+    config_set(config, 'hg38', reference)
 
 def download_hg19_dbsnp(config):
     fns = [('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz'),
            ('dbsnp_index', 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
     ]
 
-    _download_(config, fns)
+    _download_(config, 'hg19', fns)
 
 def read_config():
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
-    return config.defaults()    
+    return config
+
 
 def main(args):
 
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
     if args.k and args.v:
-        config.set('DEFAULT', args.k, args.v)
-    d = config.defaults()
+        config_set(config, args.s, args.k, args.v)
 
-    if args.download_hg19:
-        download_hg19_annotations(config)
-        download_hg19_reference(config)
+    if args.set_hg18_ref:
+        set_hg18_reference(config)
+    if args.set_hg19_ref:
+        set_hg19_reference(config)
+    if args.set_hg38_ref:
+        set_hg38_reference(config)
+
+    if args.download_hg18_anno:
+        download_hg18_annotations(config)
 
     if args.download_hg19_anno:
         download_hg19_annotations(config)
 
+    if args.download_hg38_anno:
+        download_hg38_annotations(config)
+
     if args.download_hg19_dbsnp:
         download_hg19_dbsnp(config)
+
+    if args.download_idmap:
+        download_idmap(config)
 
     for cfg_fn in cfg_fns:
         try:
@@ -106,7 +170,14 @@ def add_parser_config(subparsers):
     parser = subparsers.add_parser('config', help=__doc__)
     parser.add_argument('-k', default=None, help='key')
     parser.add_argument('-v', default=None, help='value')
+    parser.add_argument('-s', default='DEFAULT', help='reference version')
     parser.add_argument('--download_hg19', action='store_true', help='download hg19 reference and annotations')
-    parser.add_argument('--download_hg19_anno', action='store_true', help='download hg19 annotations')
+    parser.add_argument('--download_hg18_anno', action='store_true', help='download hg18 (GRCh36) annotations')
+    parser.add_argument('--download_hg19_anno', action='store_true', help='download hg19 (GRCh37) annotations')
+    parser.add_argument('--download_hg38_anno', action='store_true', help='download hg38 (GRCh38) annotations')
+    parser.add_argument('--set_hg18_ref', action='store_true', help='set hg18 (GRCh36) reference')
+    parser.add_argument('--set_hg19_ref', action='store_true', help='set hg19 (GRCh37) reference')
+    parser.add_argument('--set_hg38_ref', action='store_true', help='set hg38 (GRCh38) reference')
     parser.add_argument('--download_hg19_dbsnp', action='store_true', help='download hg19 dbsnp')
+    parser.add_argument('--download_idmap', action='store_true', help='download id map')
     parser.set_defaults(func=main)
