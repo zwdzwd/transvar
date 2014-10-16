@@ -42,10 +42,17 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 
 #### reference genome assembly
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
-Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename. One also has the option of specifying the default location to `transvar.cfg` by:
+Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename.
+To set the default location of reference,
 ```
 #!bash
 $ transvar config -k reference -v hg19.fa -s hg19
+```
+will create in transvar.cfg an entry
+```
+#!text
+[hg19]
+reference = hg19.fa
 ```
 so that there is no need to specify the location of reference on subsequent usages.
 
