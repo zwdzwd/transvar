@@ -52,7 +52,6 @@ so that there is no need to specify the location of reference on subsequent usag
 #### transcript annotations
 
 The following list the transcript annotations supported by TransVar. TransVar can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
-
 ```
 #!bash
 $ transvar config --download_hg19_anno
@@ -80,7 +79,10 @@ The following table summarize the option(s) to use each database in the annotati
 
 If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by "--ccds [annotation file]".
 To set the default annotation of a particular reference version,
-```transvar config -k ccds -v [annotation file] -s hg19```. 
+```
+#!bash
+transvar config -k ccds -v [annotation file] -s hg19
+```
 The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
 
 ---
