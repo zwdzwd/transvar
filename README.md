@@ -42,7 +42,7 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 
 #### reference genome assembly
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
-Once downloaded and indexed, one could use the reference in TransVar through the `--ref` option followed by the fasta filename. One also has the option of specifying the default location to `transvar.cfg` by:
+Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename. One also has the option of specifying the default location to `transvar.cfg` by:
 ```
 #!bash
 $ transvar config -k reference -v hg19.fa -s hg19
@@ -58,7 +58,8 @@ The following list the transcript annotations supported by TransVar. TransVar ca
 $ transvar config --download_hg19_anno
 ```
 will automatically download annotation from
-Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to [install dir]/transvar.download directory or your local ~/.transvar.download.
+Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to [install dir]/transvar.download directory or your local ~/.transvar.download if the installation directory is inaccessible.
+See "transvar config -h" for downloading more versions.
 
 ### Usage
 
@@ -77,8 +78,9 @@ The following table summarize the option(s) to use each database in the annotati
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
  | custom | custom table | `--custom` | `--custom hg19.map` |
 
-If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by "--ccds [annotation file]". Or one can set the default annotation by 
-`transvar config -k ccds -v [annotation file] -s hg19`. 
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by "--ccds [annotation file]".
+To set the default annotation of a particular reference version,
+```transvar config -k ccds -v [annotation file] -s hg19```. 
 The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
 
 ---
