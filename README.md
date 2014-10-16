@@ -19,8 +19,8 @@
 
 ```
 #!bash
-wget https://bitbucket.org/wanding/transvar/get/v1.17.zip
-unzip v1.17.zip
+wget https://bitbucket.org/wanding/transvar/get/v1.20.zip
+unzip v1.20.zip
 cd [unzipped dir]
 ./transvar config --download_hg19_anno
 ./transvar revanno --custom -i 'PIK3CA.p.E545K'
@@ -36,7 +36,7 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 ```
 #!bash
 
-wget https://bitbucket.org/wanding/transvar/get/v1.17.zip
+wget https://bitbucket.org/wanding/transvar/get/v1.20.zip
 unzip [downloaded zip]
 ```
 
