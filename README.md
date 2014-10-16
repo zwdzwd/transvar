@@ -77,13 +77,13 @@ The following table summarize the option(s) to use each database in the annotati
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
  | custom | custom table | `--custom` | `--custom hg19.map` |
 
-If one download transcripts through `transvar config`, TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
-```transvar config -k ccds -v [annotation file] -s hg19```. 
-The configuration file is located either at the `[install dir]/transvar.cfg` or `~/.transvar.cfg` if the installation directory is inaccessible.
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by "--ccds [annotation file]". Or one can set the default annotation by 
+`transvar config -k ccds -v [annotation file] -s hg19`. 
+The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
 
 ---
 
-#### specify reference assembly version
+#### specify reference assembly
 
 TransVar provide native support to switching between reference assemblies. Each reference assembly is represented in a section such as
 ```
@@ -128,11 +128,6 @@ To change the default reference,
 #!bash
 transvar config -k refversion -v hg38
 ```
-
-To change a specific annotation of the reference version
-```
-#!bash
-transvar config -k ccds -v ccds.txt -
 
 #### batch processing
 
