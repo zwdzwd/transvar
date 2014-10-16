@@ -41,7 +41,7 @@ unzip [downloaded zip]
 ```
 
 #### reference genome assembly
-For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
+For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
 Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename.
 
 To set the default location of reference,
@@ -57,9 +57,9 @@ reference = hg19.fa
 ```
 so that there is no need to specify the location of reference on subsequent usages.
 
-#### transcript annotations
+#### auto download of transcript annotations
 
-The following list the transcript annotations supported by TransVar. TransVar can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
+TransVar provides automatic download of transcript annotations specific to common versions of human genome.
 ```
 #!bash
 transvar config --download_hg19_anno
@@ -72,7 +72,7 @@ See "transvar config -h" for downloading more versions.
 
 #### specify transcript annotation
 
-The following table summarize the option(s) to use each database in the annotation
+The following table summarize the transcript annotations supported by TransVar as well as the option(s) to use each database in the annotation. TransVar can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 
  | Database | Format | Default  | Non-default     |
  |:-------|:--------|:---------|:----|
