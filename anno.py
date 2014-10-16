@@ -4,6 +4,7 @@ annotate nucleotide position(s) or mutations
 import sys, argparse, re
 from transcripts import *
 from utils import *
+from config import read_config
 from mutation import parse_tok_mutation_str, list_parse_mutation, parser_add_mutation
 from record import *
 from anno_reg import _annotate_reg
@@ -36,6 +37,8 @@ def main_one(args, thash):
 
 def main(args):
 
+    config = read_config()
+    replace_defaults(args, config)
     name2gene, thash = parse_annotation(args)
 
     if args.l:
@@ -61,7 +64,7 @@ def main(args):
 def add_parser_anno(subparsers, config):
 
     parser = subparsers.add_parser('anno', help=__doc__)
-    parser_add_annotation(parser, config)
+    parser_add_annotation(parser)
     parser_add_mutation(parser)
     parser.add_argument('--longest', action="store_true",
                         help='use longest transcript instead of reporting all transcripts')

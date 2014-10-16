@@ -5,6 +5,7 @@ import sys, argparse, re
 from transcripts import *
 from utils import *
 from record import *
+from config import read_config
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from revanno_snv import _core_annotate_nuc_snv, _core_annotate_codon_snv
 from revanno_del import _core_annotate_nuc_del, _core_annotate_codon_del
@@ -18,7 +19,6 @@ def _core_annotate_codon(args, q):
 
     if args.longest: tpts = [q.gene.longest_tpt()]
     else: tpts = q.gene.tpts
-
     if isinstance(q, QuerySNV):
         return _core_annotate_codon_snv(args, q, tpts)
     elif isinstance(q, QueryDEL):
@@ -95,6 +95,8 @@ def main_one(args, name2gene):
 
 def main(args):
 
+    config = read_config()
+    replace_defaults(args, config)
     name2gene, thash = parse_annotation(args)
 
     if args.l:
@@ -106,7 +108,7 @@ def main(args):
 def add_parser_revanno(subparsers, config):
 
     parser = subparsers.add_parser("revanno", help=__doc__)
-    parser_add_annotation(parser, config)
+    parser_add_annotation(parser)
     parser_add_mutation(parser)
     parser.add_argument("--longest", action="store_true",
                         help="consider only longest transcript")

@@ -5,6 +5,7 @@ import sys, re, argparse
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from transcripts import *
 from utils import *
+from config import read_config
 from revanno_snv import __core_annotate_codon_snv
 from record import Query, QueryREG
 
@@ -49,15 +50,6 @@ def _main_core_(args, q, thash):
                               codon1='-'.join(map(str,c1)), codon2='-'.join(map(str,c2)))
         print s
 
-def main(args):
-
-    name2gene, thash = parse_annotation(args)
-
-    if args.l:
-        main_list(args, name2gene, thash)
-    if args.i:
-        main_one(args, name2gene, thash)
-
 def main_list(args, name2gene, thash):
 
     for q, line in list_parse_mutation(args):
@@ -89,9 +81,22 @@ def main_one(args, name2gene, thash):
 
     _main_core_(args, q, thash)
 
+
+def main(args):
+
+    config = read_config()
+    replace_defaults(args, config)
+    name2gene, thash = parse_annotation(args)
+
+    if args.l:
+        main_list(args, name2gene, thash)
+    if args.i:
+        main_one(args, name2gene, thash)
+
+
 def add_parser_codonsearch(subparsers, config):
 
     parser = subparsers.add_parser('codonsearch', help=__doc__)
     parser_add_mutation(parser)
-    parser_add_annotation(parser, config)
+    parser_add_annotation(parser)
     parser.set_defaults(func=main)

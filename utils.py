@@ -168,9 +168,38 @@ class THash():
 #             i += 1
 #             l.append(t)
 
+def get_config(config, option, rv=None):
+
+    if not config.has_section(rv):
+        err_print('[Warning] %s (%s) has no default value, please specify' % (option, rv))
+        return None
+    
+    if config.has_option(rv, option):
+        return config.get(rv, option)
+    else:
+        err_print('[Warning] %s (%s) has no default value, please specify' % (option, rv))
+        return None
+
+def replace_defaults(args, config):
+    if args.refversion:
+        rv = args.refversion
+    elif 'refversion' in config.defaults():
+        rv = config.get('DEFAULT', 'refversion')
+    else:
+        rv = 'hg19'
+
+    def _set_arg_(argname):
+        if getattr(args, argname) == '_DEF_':
+            setattr(args, argname, get_config(config, argname, rv))
+
+    argnames = ['ensembl', 'reference', 'refseq', 'ccds',
+                'gencode', 'ucsc', 'custom', 'kg', 'aceview']
+    for argname in argnames:
+        _set_arg_(argname)
+
 def parse_annotation(args):
 
-    faidx.init_refgenome(args.ref if args.ref else None)
+    faidx.init_refgenome(args.reference if args.reference else None)
 
     name2gene = {}
     if args.ensembl:
@@ -254,58 +283,33 @@ def parse_annotation(args):
     else:
         return name2gene, thash
 
-def get_config(config, option):
+def parser_add_annotation(parser):
 
-    if 'refversion' in config.defaults():
-        rv = config.get('DEFAULT', 'refversion')
-    else:
-        rv = 'hg19'
-
-    if not config.has_section(rv):
-        return None
-    
-    if config.has_option(rv, option):
-        return config.get(rv, option)
-    else:
-        return None
-
-def parser_add_annotation(parser, config):
-
-    parser.add_argument('--ref', nargs='?',
-                        default=get_config(config, 'reference'),
+    parser.add_argument('--refversion', nargs='?', default=None,
+                        help='reference version (hg18, hg19, hg38 etc) (config key: refversion)')
+    parser.add_argument('--reference', nargs='?', default='_DEF_',
                         help='indexed reference fasta (with .fai) (config key: reference)')
-    parser.add_argument('--ensembl', nargs='?', default=None,
-                        const=get_config(config, 'ensembl'),
+    parser.add_argument('--ensembl', nargs='?', default=None, const='_DEF_',
                         help='Ensembl GTF transcript annotation (config key: ensembl)')
-    parser.add_argument('--gencode', nargs='?', default=None,
-                        const=get_config(config, 'gencode'),
+    parser.add_argument('--gencode', nargs='?', default=None, const='_DEF_',
                         help='GENCODE GTF transcript annotation (config key: gencode)')
-    parser.add_argument('--kg', nargs='?', default=None,
-                        const=get_config(config, 'known_gene'),
+    parser.add_argument('--kg', nargs='?', default=None, const='_DEF_',
                         help='UCSC knownGene transcript annotation (config key: known_gene)')
-    parser.add_argument('--alias', nargs='?', default=None,
-                        const=get_config(config, 'known_gene_alias'),
+    parser.add_argument('--alias', nargs='?', default=None, const='_DEF_',
                         help='UCSC knownGene aliases (without providing aliases, only the knownGene id can be searched (config key: known_gene_alias)')
-    parser.add_argument('--ucsc', nargs='?', default=None,
-                        const=get_config(config, 'ucsc'),
+    parser.add_argument('--ucsc', nargs='?', default=None, const='_DEF_',
                         help='UCSC transcript annotation table (config key: ucsc')
-    parser.add_argument('--refseq', nargs='?', default=None,
-                        const=get_config(config, 'refseq'),
+    parser.add_argument('--refseq', nargs='?', default=None, const='_DEF_',
                         help='RefSeq transcript annotation (config key: refseq)')
-    parser.add_argument('--ccds', nargs='?', default=None,
-                        const=get_config(config, 'ccds'),
+    parser.add_argument('--ccds', nargs='?', default=None, const='_DEF_',
                         help='CCDS transcript annotation table (config key: ccds)')
-    parser.add_argument('--aceview', nargs='?', default=None,
-                        const=get_config(config, 'aceview'),
+    parser.add_argument('--aceview', nargs='?', default=None, const='_DEF_',
                         help='AceView GFF transcript annotation (config key: aceview)')
-    parser.add_argument('--custom', nargs='?', default=None,
-                        const=get_config(config, 'custom'),
+    parser.add_argument('--custom', nargs='?', default=None, const='_DEF_',
                         help='A customized transcript table with sequence (config key: custom)')
-    parser.add_argument('--uniprot', nargs='?', default=None,
-                        const=get_config(config, 'uniprot'),
+    parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
                         help='use uniprot ID rather than gene id (config key: uniprot)')
-    parser.add_argument('--dbsnp', nargs='?', default=None,
-                        const=get_config(config, 'dbsnp'),
+    parser.add_argument('--dbsnp', nargs='?', default=None, const='_DEF_',
                         help='dbSNP information in annotation')
 
     return

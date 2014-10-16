@@ -645,10 +645,10 @@ def parse_refseq_gff(gff_fn, name2gene):
         # print line.strip()
         info = dict([_.split('=') for _ in fields[8].split(';')])
         if fields[2] == 'region':
-            if 'Name' in info:
-                reg = Region(info['Name'], int(fields[3]), int(fields[4]))
-            else:
-                reg = None
+            if 'chromosome' in info:
+                reg = Region(info['chromosome'], int(fields[3]), int(fields[4]))
+            # else:
+            # reg = None
         elif (reg and fields[2] == 'gene' and
               ('pseudo' not in info or info['pseudo'] != 'true')):
             gene_name = info['Name']
