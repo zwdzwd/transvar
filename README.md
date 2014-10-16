@@ -58,7 +58,7 @@ The following list the transcript annotations supported by TransVar. TransVar ca
 $ transvar config --download_hg19_anno
 ```
 will automatically download annotation from
-Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to `[install dir]/download` directory.
+Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to [install dir]/transvar.download directory or your local ~/.transvar.download.
 
 ### Usage
 
@@ -82,6 +82,34 @@ If one download transcripts through `transvar config`, TransVar would use the do
 The configuration file is located either at the `[install dir]/transvar.cfg` or `~/.transvar.cfg` if the installation directory is inaccessible.
 
 ---
+
+#### specify reference assembly version
+
+TransVar provide native support to switching between reference assemblies. Each reference assembly is represented in a section such as
+```
+#!text
+[DEFAULT]
+refversion = hg19
+
+[hg19]
+refseq = /home/wzhou1/project_isoform/src/transvar/download/hg19.refseq.gff.gz
+ccds = /home/wzhou1/project_isoform/src/transvar/download/hg19.ccds.txt
+ensembl = /home/wzhou1/project_isoform/src/transvar/download/hg19.ensembl.gtf.gz
+reference = /projects/database/reference/hg19.fa
+
+[hg38]
+refseq = /home/wzhou1/project_isoform/src/transvar/download/hg38.refseq.gff.gz
+gencode = /home/wzhou1/project_isoform/src/transvar/download/hg38.gencode.gtf.gz
+ucsc = /home/wzhou1/project_isoform/src/transvar/download/hg38.ucsc.txt.gz
+reference = /home/wzhou1/reference/hg38.fa
+```
+The "refversion" key specify the default reference version ("hg19" in the above example).
+To switch to a version on the fly, one could use the "--refversion" option, e.g.,
+
+```
+#!bash
+transvar revanno -i 'PIK3CA:p.E545K' --ucsc --refversion hg38
+```
 
 #### batch processing
 

@@ -98,22 +98,13 @@ def download_hg38_annotations(config):
     config.set('DEFAULT', 'refversion', 'hg38')
     _download_(config, 'hg38', fns)
     
-def set_hg18_reference(config, reference):
-    config_set(config, 'hg18', reference)
-
 def download_hg19_reference(config):
     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
     _download_(config, 'hg38', fns)
     
-def set_hg19_reference(config, reference):
-    config_set(config, 'hg19', reference)
-
 def download_hg38_reference(config):
     fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
     _download_(config, 'hg38', fns)
-
-def set_hg38_reference(config, reference):
-    config_set(config, 'hg38', reference)
 
 def download_hg19_dbsnp(config):
     fns = [('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz'),
@@ -127,20 +118,12 @@ def read_config():
     config.read(cfg_fns)
     return config
 
-
 def main(args):
 
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
     if args.k and args.v:
         config_set(config, args.s, args.k, args.v)
-
-    if args.set_hg18_ref:
-        set_hg18_reference(config)
-    if args.set_hg19_ref:
-        set_hg19_reference(config)
-    if args.set_hg38_ref:
-        set_hg38_reference(config)
 
     if args.download_hg18_anno:
         download_hg18_annotations(config)
@@ -175,9 +158,6 @@ def add_parser_config(subparsers):
     parser.add_argument('--download_hg18_anno', action='store_true', help='download hg18 (GRCh36) annotations')
     parser.add_argument('--download_hg19_anno', action='store_true', help='download hg19 (GRCh37) annotations')
     parser.add_argument('--download_hg38_anno', action='store_true', help='download hg38 (GRCh38) annotations')
-    parser.add_argument('--set_hg18_ref', action='store_true', help='set hg18 (GRCh36) reference')
-    parser.add_argument('--set_hg19_ref', action='store_true', help='set hg19 (GRCh37) reference')
-    parser.add_argument('--set_hg38_ref', action='store_true', help='set hg38 (GRCh38) reference')
     parser.add_argument('--download_hg19_dbsnp', action='store_true', help='download hg19 dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
     parser.set_defaults(func=main)
