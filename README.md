@@ -78,7 +78,7 @@ The following table summarize the option(s) to use each database in the annotati
  | custom | custom table | `--custom` | `--custom hg19.map` |
 
 If one download transcripts through `transvar config`, TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, `--ccds` would look for the downloaded CCDS definition. One can specify non-default annotation by `--ccds [annotation file]`. Or one can set the default annotation by 
-```transvar config -k ccds -v [annotation file]```. 
+```transvar config -k ccds -v [annotation file] -s hg19```. 
 The configuration file is located either at the `[install dir]/transvar.cfg` or `~/.transvar.cfg` if the installation directory is inaccessible.
 
 ---
@@ -104,12 +104,35 @@ ucsc = /home/wzhou1/project_isoform/src/transvar/download/hg38.ucsc.txt.gz
 reference = /home/wzhou1/reference/hg38.fa
 ```
 The "refversion" key specify the default reference version ("hg19" in the above example).
-To switch to a version on the fly, one could use the "--refversion" option, e.g.,
 
+To add a new version and specify the location of some transcript annotation
+```
+#!bash
+transvar config -k ccds -v ccds.myhg.txt -s myhg
+```
+Will create in transvar.cfg a section like
+```
+#!text
+[myhg]
+ccds = ccds.myhg.txt
+```
+
+To switch to a version on the fly, one could use the "--refversion" option, e.g.,
 ```
 #!bash
 transvar revanno -i 'PIK3CA:p.E545K' --ucsc --refversion hg38
 ```
+
+To change the default reference,
+```
+#!bash
+transvar config -k refversion -v hg38
+```
+
+To change a specific annotation of the reference version
+```
+#!bash
+transvar config -k ccds -v ccds.txt -
 
 #### batch processing
 
