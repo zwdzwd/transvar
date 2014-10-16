@@ -19,11 +19,11 @@
 
 ```
 #!bash
- $ wget https://bitbucket.org/wanding/transvar/get/v1.17.zip
- $ unzip v1.17.zip
- $ cd [unzipped dir]
- $ ./transvar config --download_hg19_anno
- $ ./transvar revanno --custom -i 'PIK3CA.p.E545K'
+wget https://bitbucket.org/wanding/transvar/get/v1.17.zip
+unzip v1.17.zip
+cd [unzipped dir]
+./transvar config --download_hg19_anno
+./transvar revanno --custom -i 'PIK3CA.p.E545K'
 ```
 
 ### Download and install
@@ -36,17 +36,18 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 ```
 #!bash
 
- $ wget https://bitbucket.org/wanding/transvar/get/v1.17.zip
- $ unzip [downloaded zip]
+wget https://bitbucket.org/wanding/transvar/get/v1.17.zip
+unzip [downloaded zip]
 ```
 
 #### reference genome assembly
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
 Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename.
+
 To set the default location of reference,
 ```
 #!bash
-$ transvar config -k reference -v hg19.fa -s hg19
+transvar config -k reference -v hg19.fa -s hg19
 ```
 will create in transvar.cfg an entry
 ```
@@ -61,7 +62,7 @@ so that there is no need to specify the location of reference on subsequent usag
 The following list the transcript annotations supported by TransVar. TransVar can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 ```
 #!bash
-$ transvar config --download_hg19_anno
+transvar config --download_hg19_anno
 ```
 will automatically download annotation from
 Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to [install dir]/transvar.download directory or your local ~/.transvar.download if the installation directory is inaccessible.
