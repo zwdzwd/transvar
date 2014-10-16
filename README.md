@@ -77,7 +77,7 @@ The following table summarize the transcript annotations supported by TransVar a
  | Database | Format | Default  | Non-default     |
  |:-------|:--------|:---------|:----|
  | CCDS | CCDS flat text | `--ccds` | `--ccds CCDS.current.txt` |
- | UCSC RefGene | UCSC flat text | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
+ | UCSC | UCSC RefGene | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
  | Ensembl | Ensembl GTF | `--ensembl`  | `--ensembl GRCh37.75.gtf.gz`  |
  | RefSeq | RefSeq GFF3 | `--refseq`  | `--refseq GRCh37.p13.gff3.gz`   |
  | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi37.gff.gz`  |
