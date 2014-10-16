@@ -19,9 +19,7 @@
 
 ```
 #!bash
-wget https://bitbucket.org/wanding/transvar/get/v1.20.zip
-unzip v1.20.zip
-cd [unzipped dir]
+# download unzip and cd to directory
 ./transvar config --download_hg19_anno
 ./transvar revanno --custom -i 'PIK3CA.p.E545K'
 ```
@@ -33,12 +31,8 @@ cd [unzipped dir]
 Basic functionalities requires just Python >= 2.6. Some additional annotation also depends on the pysam library.
 
 #### program
-```
-#!bash
 
-wget https://bitbucket.org/wanding/transvar/get/v1.20.zip
-unzip [downloaded zip]
-```
++ current stable version: [version 1.20](https://bitbucket.org/wanding/transvar/get/v1.20.zip)
 
 #### reference genome assembly
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
