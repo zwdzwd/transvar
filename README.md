@@ -1,7 +1,7 @@
 **TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar has the following features:
 
  + supports HGVS nomenclature
- + supports annotation of a region based on a transcript dependent characterzation
+ + supports annotation of a region based on a transcript dependent characterization
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
@@ -146,7 +146,7 @@ transvar config -k refversion -v hg38
 For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search. Take SNV for example,
 ```
 #!bash
-$ transvar revanno -l input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
+transvar revanno -l input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
 ```
 As suggested by the command, TransVar takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of TransVar's performance.
 

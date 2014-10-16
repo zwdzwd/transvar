@@ -59,8 +59,12 @@ def _download_(config, section, fns):
 def download_hg18_annotations(config):
 
     fns = [
+        ('refseq', 'hg18.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/GFF/ref_NCBI36_top_level.gff3.gz'),
         ('ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
-        ('aceview', 'hg38.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
+        ('aceview', 'hg18.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
+        ('gencode', 'hg18.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_3c/gencode.v3c.annotation.NCBI36.gtf.gz'),
+        ('ucsc', 'hg18.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg18.ucsc.refgene.txt.gz?dl=1'),
+        ('ensembl', 'hg18.ensembl', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
         ]
 
     config.set('DEFAULT', 'refversion', 'hg18')
@@ -97,10 +101,11 @@ def download_hg38_annotations(config):
        ]
     config.set('DEFAULT', 'refversion', 'hg38')
     _download_(config, 'hg38', fns)
+
     
-def download_hg19_reference(config):
-    fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
-    _download_(config, 'hg38', fns)
+# def download_hg19_reference(config):
+#     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
+#     _download_(config, 'hg38', fns)
     
 def download_hg38_reference(config):
     fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
