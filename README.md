@@ -81,7 +81,7 @@ If one download transcripts through "transvar config", TransVar would use the do
 To set the default annotation of a particular reference version,
 ```
 #!bash
-transvar config -k ccds -v [annotation file] -s hg19
+transvar config -k ccds -v CCDS.current.txt -s hg19
 ```
 The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
 
