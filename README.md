@@ -57,7 +57,7 @@ reference = hg19.fa
 ```
 so that there is no need to specify the location of reference on subsequent usages.
 
-#### auto download of transcript annotations
+#### transcript annotations
 
 TransVar provides automatic download of transcript annotations specific to common versions of human genome.
 ```
@@ -85,7 +85,7 @@ The following table summarize the transcript annotations supported by TransVar a
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
  | custom | custom table | `--custom` | `--custom hg19.map` |
 
-If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by "--ccds [annotation file]".
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt").
 To set the default annotation of a particular reference version,
 ```
 #!bash
