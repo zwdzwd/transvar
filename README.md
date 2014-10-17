@@ -24,7 +24,12 @@ download program, unzip and cd to directory
 ./transvar revanno --custom -i 'PIK3CA.p.E545K'
 ```
 
-To use TransVar in full, one need to link to a samtools faidx indexed reference assembly. Please see following for detailed instruction.
+Note that to use TransVar in full, one need to link to a samtools faidx indexed reference assembly. One can set the default location for the reference assembly via
+```
+#!bash
+transvar config -k reference -v [location] -s hg19
+```
+Please see Install section for detailed instruction.
 
 ### Download and install
 
@@ -37,8 +42,8 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 current stable version: [version 1.20](https://bitbucket.org/wanding/transvar/get/v1.20.zip)
 
 #### reference genome assembly
-For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
-Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename.
+For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
+Once downloaded and indexed, the reference can be used through the "--reference" option followed by the fasta filename.
 
 To set the default location of reference to ./hg19.fa,
 ```
