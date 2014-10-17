@@ -188,14 +188,16 @@ def replace_defaults(args, config):
     else:
         rv = 'hg19'
 
-    def _set_arg_(argname):
+    def _set_arg_(argname, rv):
         if getattr(args, argname) == '_DEF_':
             setattr(args, argname, get_config(config, argname, rv))
 
     argnames = ['ensembl', 'reference', 'refseq', 'ccds',
-                'gencode', 'ucsc', 'custom', 'kg', 'aceview']
+                'gencode', 'ucsc', 'custom', 'kg', 'aceview', 'dbsnp']
     for argname in argnames:
-        _set_arg_(argname)
+        _set_arg_(argname, rv)
+
+    _set_arg_('uniprot', 'idmap')
 
 def parse_annotation(args):
 

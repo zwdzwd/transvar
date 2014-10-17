@@ -39,7 +39,7 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 
 #### program
 
-current stable version: [version 1.20](https://bitbucket.org/wanding/transvar/get/v1.20.zip)
+current stable version: [version 1.20](https://bitbucket.org/wanding/transvar/get/v1.21.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
@@ -180,7 +180,13 @@ ENST00000338316 5:7802365       p.V888A 5       7802364-7802365-7802366 ENST0000
 
 #### reverse annotation of protein sites
 
-One could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
+To use uniprot id as protein name, one must first download the uniprot id map by
+```
+#!bash
+transvar config --download_idmap
+```
+
+Then one could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
 
 ```
 #!bash
@@ -250,7 +256,7 @@ ACSL4   23:108926078    108926078       c.399C>T        p.R133R Missense
 ```
 In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
-If one wishes, he/she can also turn on the `--dbsnp` option to show further potential match to the dbSNP database. (This requires pysam library installed in python path.)
+If one wishes, he/she can also turn on the `--dbsnp` option to show further potential match to the dbSNP database. (This requires 1) pysam library installed in python path; 2) dbsnp library downloaded via `transvar config --download_hg19_dbsnp`)
 ```
 #!bash
 $ transvar revanno -i 'A1CF:p.A309A' --ccds --dbsnp
