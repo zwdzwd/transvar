@@ -24,6 +24,8 @@ download program, unzip and cd to directory
 ./transvar revanno --custom -i 'PIK3CA.p.E545K'
 ```
 
+To use TransVar in full, one need to link to a samtools faidx indexed reference assembly. Please see following for detailed instruction.
+
 ### Download and install
 
 #### dependency
@@ -38,10 +40,10 @@ current stable version: [version 1.20](https://bitbucket.org/wanding/transvar/ge
 For most annotation database (the only exception may be the UCSC table which is used as example in the Quick Start), TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
 Once downloaded and indexed, one could use the reference in TransVar through the "--reference" option followed by the fasta filename.
 
-To set the default location of reference,
+To set the default location of reference to ./hg19.fa,
 ```
 #!bash
-transvar config -k reference -v hg19.fa -s hg19
+transvar config -k reference -v ./hg19.fa -s hg19
 ```
 will create in transvar.cfg an entry
 ```
@@ -58,9 +60,14 @@ TransVar provides automatic download of transcript annotations specific to commo
 #!bash
 transvar config --download_hg19_anno
 ```
-will automatically download annotation from
-Ensembl, RefSeq, UCSC RefGene, GENCODE, AceView and UCSC knownGene to [install dir]/transvar.download directory or your local ~/.transvar.download if the installation directory is inaccessible.
+will automatically download annotation from Ensembl, RefSeq etc. to [install dir]/transvar.download directory or your local ~/.transvar.download if the installation directory is inaccessible.
 See "transvar config -h" for downloading more versions.
+These will also create default mappings under the corresponding reference version section of transvar.cfg like
+```
+#!text
+[hg19]
+ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
+```
 
 ### Usage
 
@@ -98,15 +105,15 @@ TransVar provide native support to switching between reference assemblies. Each 
 refversion = hg19
 
 [hg19]
-refseq = /home/wzhou1/project_isoform/src/transvar/download/hg19.refseq.gff.gz
-ccds = /home/wzhou1/project_isoform/src/transvar/download/hg19.ccds.txt
-ensembl = /home/wzhou1/project_isoform/src/transvar/download/hg19.ensembl.gtf.gz
+refseq = /home/wzhou1/transvar/download/hg19.refseq.gff.gz
+ccds = /home/wzhou1/transvar/download/hg19.ccds.txt
+ensembl = /home/wzhou1/transvar/download/hg19.ensembl.gtf.gz
 reference = /projects/database/reference/hg19.fa
 
 [hg38]
-refseq = /home/wzhou1/project_isoform/src/transvar/download/hg38.refseq.gff.gz
-gencode = /home/wzhou1/project_isoform/src/transvar/download/hg38.gencode.gtf.gz
-ucsc = /home/wzhou1/project_isoform/src/transvar/download/hg38.ucsc.txt.gz
+refseq = /home/wzhou1/transvar/download/hg38.refseq.gff.gz
+gencode = /home/wzhou1/transvar/download/hg38.gencode.gtf.gz
+ucsc = /home/wzhou1/transvar/download/hg38.ucsc.txt.gz
 reference = /home/wzhou1/reference/hg38.fa
 ```
 The "refversion" key specify the default reference version ("hg19" in the above example).

@@ -50,7 +50,8 @@ def _download_(config, section, fns):
             for k, fn, url in fns:
                 fnn = os.path.join(pdir, fn)
                 download_url(url, fnn)
-                config_set(config, section, k, fnn)
+                if k:
+                    config_set(config, section, k, fnn)
         except:
             continue
 
@@ -102,7 +103,6 @@ def download_hg38_annotations(config):
     config.set('DEFAULT', 'refversion', 'hg38')
     _download_(config, 'hg38', fns)
 
-    
 # def download_hg19_reference(config):
 #     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
 #     _download_(config, 'hg38', fns)
