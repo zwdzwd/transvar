@@ -103,7 +103,7 @@ The configuration file is located either at the "[install dir]/transvar.cfg" or 
 
 #### specify reference assembly
 
-TransVar provide native support to switching between reference assemblies. Each reference assembly is represented in a section such as
+TransVar provide native support for switching between reference assemblies. Each reference assembly is represented in a section such as
 ```
 #!text
 [DEFAULT]
