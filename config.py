@@ -44,9 +44,9 @@ def _download_(config, section, fns):
 
     for pdir in downloaddirs:
         # pdir = os.path.join(os.path.dirname(__file__), 'download')
-        if not os.path.exists(pdir): os.makedirs(pdir)
 
         try:
+            if not os.path.exists(pdir): os.makedirs(pdir)
             for k, fn, url in fns:
                 fnn = os.path.join(pdir, fn)
                 download_url(url, fnn)

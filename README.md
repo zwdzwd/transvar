@@ -39,7 +39,7 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 
 #### program
 
-current stable version: [version 1.20](https://bitbucket.org/wanding/transvar/get/v1.21.zip)
+current stable version: [version 1.22](https://bitbucket.org/wanding/transvar/get/v1.22.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
