@@ -37,13 +37,16 @@ class THash():
 
     def insert(self, t):
         chrm = normalize_chrm(t.chrm)
-        k1 = (chrm, t.cds_beg / self.binsize)
-        k2 = (chrm, t.cds_end / self.binsize)
-        if k1 == k2:
-            self.add_transcript_by_key(k1, t)
-        else:
-            self.add_transcript_by_key(k1, t)
-            self.add_transcript_by_key(k2, t)
+        for ki in xrange(t.cds_beg/self.binsize, t.cds_end/self.binsize+1):
+            k = (chrm, ki)
+            self.add_transcript_by_key(k, t)
+        # k1 = (chrm, t.cds_beg / self.binsize)
+        # k2 = (chrm, t.cds_end / self.binsize)
+        # if k1 == k2:
+        #     self.add_transcript_by_key(k1, t)
+        # else:
+        #     self.add_transcript_by_key(k1, t)
+        #     self.add_transcript_by_key(k2, t)
 
     def get_transcripts_cds(self, chrm, beg, end=None, flanking=0):
         
@@ -62,12 +65,14 @@ class THash():
     def get_transcripts(self, chrm, beg, end=None, flanking=0):
 
         """ get transcript if between beginning and end """
+
         if not end: end = beg
         chrm = normalize_chrm(chrm)
         kbeg = int(beg) / self.binsize
         kend = int(end) / self.binsize
         for ki in xrange(kbeg, kend+1):
             k = (chrm, ki)
+            # print ki, kbeg, kend, k
             if k in self.key2transcripts:
                 for t in self.key2transcripts[k]:
                     if t.beg-flanking <= end and t.end+flanking >= beg:
