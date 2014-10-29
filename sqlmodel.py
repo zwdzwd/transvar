@@ -69,8 +69,8 @@ class Exon(Base):
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key=True)
     tid = Column(Integer, ForeignKey('transcript.id'))
-    beg = Column(Integer),
-    end = Column(Integer),
+    beg = Column(Integer)
+    end = Column(Integer)
 
 # class User(Base):
 #     __tablename__ = 'users'
@@ -98,14 +98,6 @@ if fts:
 else:
     ft_cds = FeatureType(name='protein_coding')
     session.add(ft_cds)
-    session.commit()
-
-fts = session.query(FeatureType).filter_by(name='exon').all()
-if fts:
-    ft_ex = fts[0]
-else:
-    ft_ex = FeatureType(name='exon')
-    session.add(ft_ex)
     session.commit()
     
 import transcripts as trs
