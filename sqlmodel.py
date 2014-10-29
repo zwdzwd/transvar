@@ -21,7 +21,7 @@ class Source(Base):
     features = relationship('Feature', backref='source')
     
 class RefVersion(Base):
-    __tablename__ = 'ref_version'
+    __tablename__ = 'refversion'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100))
