@@ -154,6 +154,7 @@ for name, gene in name2gene.iteritems():
                         source_id = src.id,
                         refversion_id = rv.id)
             session.add(f)
+            session.commit()
             e = Exon(tid = t.id, id = f.id)
             session.add(e)
 
