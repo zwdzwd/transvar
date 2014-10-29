@@ -29,27 +29,26 @@ class AnnoDB():
 
         if self.session:
             gs = self.session.query(self.sqlmodel.Gene).filter_by(name=name).all()
-            if gs:
-                g = gs[0]
-                gene = trs.Gene(name)
-                for t in g.transcripts:
-                    f = t.feature
-                    tpt = trs.Transcript()
-                    tpt.chrm = f.chrm.name
-                    tpt.strand = '-' if t.strand == 1 else '+'
-                    tpt.name = t.name
-                    tpt.beg = f.beg
-                    tpt.end = f.end
-                    tpt.cds_beg = t.cds_beg
-                    tpt.cds_end = t.cds_end
-                    tpt.gene = gene
-                    tpt.source = f.source.name
-                    gene.tpts.append(tpt)
-                    for ex in t.exons:
-                        tpt.exons.append((ex.beg, ex.end))
-                return gene
-            else:
-                return None
+            if not gs: return None
+            g = gs[0]
+            gene = trs.Gene(name)
+            for t in g.transcripts:
+                f = t.feature
+                tpt = trs.Transcript()
+                tpt.chrm = f.chrm.name
+                tpt.strand = '-' if t.strand == 1 else '+'
+                tpt.name = t.name
+                tpt.beg = f.beg
+                tpt.end = f.end
+                tpt.cds_beg = t.cds_beg
+                tpt.cds_end = t.cds_end
+                tpt.gene = gene
+                tpt.source = f.source.name
+                gene.tpts.append(tpt)
+                for ex in t.exons:
+                    tpt.exons.append((ex.beg, ex.end))
+                t.exons.sort()
+            return gene
         elif self.name2gene:
             if name in self.name2gene:
                 return self.name2gene[name]
