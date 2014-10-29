@@ -912,7 +912,7 @@ def parse_gencode_gtf(gencode_fn, name2gene):
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
-        if fields[2] == 'gene' and info['gene_type'] == 'pseudogene':
+        if fields[2] == 'gene' and info['gene_type'] != 'pseudogene':
             gene_name = info['gene_name'].upper()
             gid = info['gene_id']
             if gene_name in name2gene:
