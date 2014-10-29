@@ -25,7 +25,7 @@ class AnnoDB():
                 gene = trs.Gene(name)
                 for t in g.transcripts:
                     f = t.feature
-                    tpt = Transcript()
+                    tpt = trs.Transcript()
                     tpt.chrm = f.chrm.name
                     tpt.strand = '-' if t.strand == 1 else '+'
                     tpt.name = t.name
