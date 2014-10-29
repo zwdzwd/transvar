@@ -57,7 +57,7 @@ class Transcript(Base):
     __tablename__ = 'transcript'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, ForeignKey('feature.id'), primary_key = True)
-    name = Column(String(30)),
+    name = Column(String(30))
     cds_beg = Column(Integer)
     cds_end = Column(Integer)
     gene_id = Column(Integer, ForeignKey('gene.id'))
