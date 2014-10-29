@@ -142,7 +142,7 @@ for name, gene in name2gene.iteritems():
             gene_id = g.id,
             strand = 1 if transcript.strand == '-' else 0,
         )
-        session.add(transcript)
+        session.add(t)
         for exbeg, exend in transcript.exons:
             f = Feature(ftype=ft_ex.id,
                         chrm_id=chm.id,

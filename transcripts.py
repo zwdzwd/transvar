@@ -909,6 +909,8 @@ def parse_gencode_gtf(gencode_fn, name2gene):
     gencode_fh = opengz(gencode_fn)
     cnt = 0
     for line in gencode_fh:
+        if cnt > 1000:
+            break
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
