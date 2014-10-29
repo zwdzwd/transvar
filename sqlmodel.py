@@ -126,18 +126,19 @@ for name, gene in name2gene.iteritems():
             session.add(chm)
             session.commit()
 
-        transcript.cds.sort()
         f = Feature(ftype=ft_cds.id,
                     chrm_id=chm.id,
-                    beg=transcript.cds[0][0],
-                    end=transcript.cds[-1][1],
+                    beg=transcript.beg,
+                    end=transcript.end,
                     source_id=src.id,
                     refversion_id=rv.id)
         session.add(f)
+
+        transcript.cds.sort()
         t = Transcript(
             id = f.id,
-            cds_beg=transcript.cds_beg,
-            cds_end=transcript.cds_end,
+            cds_beg=transcript.cds[0][0],
+            cds_end=transcript.cds[-1][1],
             gene_id = gene.id,
             strand = 1 if transcript.strand == '-' else 0,
         )
