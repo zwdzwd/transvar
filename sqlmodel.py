@@ -126,10 +126,11 @@ for name, gene in name2gene.iteritems():
             session.add(chm)
             session.commit()
 
+        transcript.cds.sort()
         f = Feature(ftype=ft_cds.id,
                     chrm_id=chm.id,
-                    beg=transcript.beg,
-                    end=transcript.end,
+                    beg=transcript.cds[0][0],
+                    end=transcript.cds[-1][1],
                     source_id=src.id,
                     refversion_id=rv.id)
         session.add(f)
