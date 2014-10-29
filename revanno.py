@@ -95,6 +95,7 @@ def main(args):
 
     config = read_config()
     replace_defaults(args, config)
+    print 'reference', args.reference
     db = AnnoDB(args)
 
     if args.l:
