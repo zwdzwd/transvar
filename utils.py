@@ -17,9 +17,6 @@ class AnnoDB():
             self.name2gene, self.thash = parse_annotation(args)
 
         faidx.init_refgenome(args.reference if args.reference else None)
-        print args.reference
-        global refgenome
-        print refgenome
 
     def get_gene(self, name):
 
