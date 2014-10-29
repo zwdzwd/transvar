@@ -5,9 +5,17 @@ import faidx
 class AnnoDB():
     
     def __init__(self, args):
+        faidx.init_refgenome(args.reference if args.reference else None)
         self.session = None
         self.name2gene = None
         self.thash = None
+        args.ffhs = {}
+        if args.dbsnp:
+            import pysam
+            args.dbsnp_fh = pysam.Tabixfile(args.dbsnp)
+        else:
+            args.dbsnp_fh = None
+        
         if args.sql:
             import sqlmodel
             self.sqlmodel = sqlmodel
@@ -16,7 +24,6 @@ class AnnoDB():
         else:
             self.name2gene, self.thash = parse_annotation(args)
 
-        faidx.init_refgenome(args.reference if args.reference else None)
 
     def get_gene(self, name):
 
@@ -251,7 +258,6 @@ def replace_defaults(args, config):
 
 def parse_annotation(args):
 
-    args.ffhs = {}
     name2gene = {}
     if args.ensembl:
         trs.parse_ensembl_gtf(args.ensembl, name2gene)
@@ -281,12 +287,6 @@ def parse_annotation(args):
 
     if args.aceview:
         trs.parse_aceview_transcripts(args.aceview, name2gene)
-
-    if args.dbsnp:
-        import pysam
-        args.dbsnp_fh = pysam.Tabixfile(args.dbsnp)
-    else:
-        args.dbsnp_fh = None
 
     # remove genes without transcripts
     names_no_tpts = []
@@ -322,7 +322,6 @@ def parse_annotation(args):
                 t.exons = t.cds[:]
 
         g.std_tpt = g.longest_tpt()
-
 
     if args.uniprot:
         tid2uniprot = trs.parse_uniprot_mapping(args.uniprot)
