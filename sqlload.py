@@ -14,14 +14,14 @@ def ensure_elem(eclass, ename):
         session.commit()
         return elem
 
-def load_elem(rv_s, src_s, fn):
+def load_elem(rv_s, src_s, fn, func):
 
     rv = ensure_elem(RefVersion, rv_s)
     src = ensure_elem(Source, src_s)
     ft_cds = ensure_elem(FeatureType, 'protein_coding')
     
     name2gene = {}
-    trs.parse_gencode_gtf(fn, name2gene)
+    func(fn, name2gene)
     for name, gene in name2gene.iteritems():
         gns = session.query(Gene).filter_by(name=name).all()   # query and find
         if gns:
@@ -72,6 +72,6 @@ def load_elem(rv_s, src_s, fn):
     session.commit()
 
 if __name__ == '__main__':
-    # load_elem('hg19', 'UCSC', 'transvar.download/hg19.ucsc.txt.gz')
-    # load_elem('hg19', 'GENCODE', 'transvar.download/hg19.gencode.gtf.gz')
-    load_elem('hg19', 'Ensembl', 'transvar.download/hg19.ensembl.gtf.gz')
+    # load_elem('hg19', 'UCSC', 'transvar.download/hg19.ucsc.txt.gz', trs.parse_ucsc_refgene)
+    # load_elem('hg19', 'GENCODE', 'transvar.download/hg19.gencode.gtf.gz', trs.parse_gencode_gtf)
+    load_elem('hg19', 'Ensembl', 'transvar.download/hg19.ensembl.gtf.gz', trs.parse_ensembl_gtf)
