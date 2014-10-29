@@ -139,7 +139,7 @@ for name, gene in name2gene.iteritems():
             id = f.id,
             cds_beg=transcript.cds[0][0],
             cds_end=transcript.cds[-1][1],
-            gene_id = gene.id,
+            gene_id = g.id,
             strand = 1 if transcript.strand == '-' else 0,
         )
         session.add(transcript)
