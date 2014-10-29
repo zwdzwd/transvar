@@ -16,6 +16,8 @@ class AnnoDB():
         else:
             self.name2gene, self.thash = parse_annotation(args)
 
+        faidx.init_refgenome(args.reference if args.reference else None)
+
     def get_gene(self, name):
 
         if self.session:
@@ -249,10 +251,7 @@ def replace_defaults(args, config):
 
 def parse_annotation(args):
 
-    faidx.init_refgenome(args.reference if args.reference else None)
-
     args.ffhs = {}
-    
     name2gene = {}
     if args.ensembl:
         trs.parse_ensembl_gtf(args.ensembl, name2gene)
