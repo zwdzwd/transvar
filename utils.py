@@ -11,7 +11,8 @@ class AnnoDB():
         if args.sql:
             import sqlmodel
             self.sqlmodel = sqlmodel
-            self.session = sqlmodel.sessionmaker(bind=engine, autoflush=False)()
+            self.session = sqlmodel.sessionmaker(bind=sqlmodel.engine,
+                                                 autoflush=False)()
         else:
             self.name2gene, self.thash = parse_annotation(args)
 
