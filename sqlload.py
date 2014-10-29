@@ -72,7 +72,7 @@ def load_hg19_ucsc():
     ft_cds = ensure_elem(FeatureType, 'protein_coding')
     
     name2gene = {}
-    trs.parse_ucsc_refgene('transvar.download/hg19.ucsc.gtf.gz', name2gene)
+    trs.parse_ucsc_refgene('transvar.download/hg19.ucsc.txt.gz', name2gene)
     for name, gene in name2gene.iteritems():
         gns = session.query(Gene).filter_by(name=name).all()   # query and find
         if gns:
