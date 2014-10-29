@@ -42,6 +42,8 @@ class AnnoDB():
                     tpt.end = f.end
                     tpt.cds_beg = t.cds_beg
                     tpt.cds_end = t.cds_end
+                    tpt.gene = gene
+                    tpt.source = f.source.name
                     gene.tpts.append(tpt)
                     for ex in t.exons:
                         tpt.exons.append((ex.beg, ex.end))
