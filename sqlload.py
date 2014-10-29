@@ -98,13 +98,12 @@ def load_hg19_ucsc():
             session.add(f)
             session.flush()
 
-            if not transcript.cds: continue
             transcript.cds.sort()
             t = Transcript(
                 id = f.id,
                 name = transcript.name,
-                cds_beg = transcript.cds[0][0],
-                cds_end = transcript.cds[-1][1],
+                cds_beg = transcript.cds_beg,
+                cds_end = transcript.cds_end,
                 gene_id = g.id,
                 strand = 1 if transcript.strand == '-' else 0,
             )

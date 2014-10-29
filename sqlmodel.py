@@ -61,7 +61,7 @@ class Transcript(Base):
     cds_beg = Column(Integer)
     cds_end = Column(Integer)
     gene_id = Column(Integer, ForeignKey('gene.id'))
-    version = Column(Integer, primary_key = True)
+    version = Column(Integer, primary_key = True, default=0)
     strand = Column(Boolean)
     exons = relationship('Exon', backref='transcript')
 
