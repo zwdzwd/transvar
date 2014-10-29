@@ -2,6 +2,48 @@ import transcripts as trs
 import sys
 import faidx
 
+class AnnoDB():
+    
+    def __init__(self, args):
+        self.session = None
+        self.name2gene = None
+        self.thash = None
+        if args.sql:
+            import sqlmodel
+            self.sqlmodel = sqlmodel
+            self.session = sqlmodel.sessionmaker(bind=engine, autoflush=False)()
+        else:
+            self.name2gene, self.thash = parse_annotation(args)
+
+    def get_gene(self, name):
+
+        if self.session:
+            gs = self.session.query(self.sqlmodel.Gene).filter_by(name=name).all()
+            if gs:
+                g = gs[0]
+                gene = trs.Gene(name)
+                for t in g.transcripts:
+                    f = t.feature
+                    tpt = Transcript()
+                    tpt.chrm = f.chrm.name
+                    tpt.strand = '-' if t.strand == 1 else '+'
+                    tpt.name = t.name
+                    tpt.beg = f.beg
+                    tpt.end = f.end
+                    tpt.cds_beg = t.cds_beg
+                    tpt.cds_end = t.cds_end
+                    gene.tpts.append(tpt)
+                    for ex in t.exons:
+                        tpt.exons.append((ex.beg, ex.end))
+                return gene
+            else:
+                return None
+        elif self.name2gene:
+            if name in self.name2gene:
+                return self.name2gene[name]
+            else:
+                return None
+
 MAXCHRMLEN=300000000
 def normalize_chrm(chrm):
 
@@ -325,6 +367,8 @@ def parser_add_annotation(parser):
                         help='use uniprot ID rather than gene id (config key: uniprot)')
     parser.add_argument('--dbsnp', nargs='?', default=None, const='_DEF_',
                         help='dbSNP information in annotation')
+    parser.add_argument('--sql', action='store_true', help='SQL mode')
+
 
     return
 

@@ -4,7 +4,7 @@ engine=create_engine('mysql://transvar_user:transvar_user@localhost/transvar_ann
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 
 class FeatureType(Base):
     __tablename__ = 'feature_type'
@@ -57,6 +57,7 @@ class Transcript(Base):
     __tablename__ = 'transcript'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, ForeignKey('feature.id'), primary_key = True)
+    name = Column(String(30)),
     cds_beg = Column(Integer)
     cds_end = Column(Integer)
     gene_id = Column(Integer, ForeignKey('gene.id'))
@@ -80,69 +81,5 @@ class Exon(Base):
 #     password = Column(String(100))
 #     def __repr__(self):
 #         return "<User(name='%s', fullname='%s', password='%s')>" % (self.name, self.fullname, self.password)
-
-Base.metadata.create_all(engine)
-from sqlalchemy.orm import sessionmaker
-Session = sessionmaker(bind=engine, autoflush=False)
-session = Session()
-
-rv = RefVersion(name='hg19')
-session.add(rv)
-src = Source(name='GENCODE')
-session.add(src)
-session.commit()
-
-fts = session.query(FeatureType).filter_by(name='protein_coding').all()
-if fts:
-    ft_cds = fts[0]
-else:
-    ft_cds = FeatureType(name='protein_coding')
-    session.add(ft_cds)
-    session.commit()
-    
-import transcripts as trs
-name2gene = {}
-trs.parse_gencode_gtf('transvar.download/hg19.gencode.gtf.gz', name2gene)
-for name, gene in name2gene.iteritems():
-    gns = session.query(Gene).filter_by(name=name).all()   # query and find
-    if gns:
-        g = gns[0]
-    else:
-        g = Gene(name=name)
-        session.add(g)
-    for transcript in gene.tpts:
-        chms = session.query(Chromosome).filter_by(name=transcript.chrm).all()
-        if chms:
-            chm = chms[0]
-        else:
-            chm = Chromosome(name=transcript.chrm)
-            session.add(chm)
-            session.flush()
-
-        f = Feature(ftype=ft_cds.id,
-                    chrm_id=chm.id,
-                    beg=transcript.beg,
-                    end=transcript.end,
-                    source_id=src.id,
-                    refversion_id=rv.id)
-        session.add(f)
-        session.flush()
-
-        if not transcript.cds: continue
-        transcript.cds.sort()
-        t = Transcript(
-            id = f.id,
-            cds_beg=transcript.cds[0][0],
-            cds_end=transcript.cds[-1][1],
-            gene_id = g.id,
-            strand = 1 if transcript.strand == '-' else 0,
-        )
-        session.add(t)
-        session.flush()
-        for exbeg, exend in transcript.exons:
-            e = Exon(tid=t.id, beg=exbeg, end=exend)
-            session.add(e)
-
-session.commit()
 
 # transcript = Transcript(cds_beg=100, cds_end=200)
