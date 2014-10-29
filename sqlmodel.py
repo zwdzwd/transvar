@@ -40,8 +40,8 @@ class Feature(Base):
     id = Column(Integer, primary_key = True, autoincrement=True)
     ftype = Column(Integer, ForeignKey('feature_type.id'))
     chrm_id = Column(Integer, ForeignKey('chromosome.id'))
-    beg = Column(Integer)
-    end = Column(Integer)
+    beg = Column(Integer, index=True)
+    end = Column(Integer, index=True)
     source_id = Column(Integer, ForeignKey('source.id'))    # primary key?
     refversion_id = Column(Integer, ForeignKey('refversion.id'))
     transcripts = relationship('Transcript', backref='feature')
@@ -134,6 +134,7 @@ for name, gene in name2gene.iteritems():
                     refversion_id=rv.id)
         session.add(f)
 
+        if not transcript.cds: continue
         transcript.cds.sort()
         t = Transcript(
             id = f.id,
