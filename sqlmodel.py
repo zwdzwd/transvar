@@ -82,7 +82,7 @@ class Exon(Base):
 
 Base.metadata.create_all(engine)
 from sqlalchemy.orm import sessionmaker
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine, autoflush=False)
 session = Session()
 
 rv = RefVersion(name='hg19')
@@ -133,6 +133,7 @@ for name, gene in name2gene.iteritems():
                     source_id=src.id,
                     refversion_id=rv.id)
         session.add(f)
+        session.commit()
 
         if not transcript.cds: continue
         transcript.cds.sort()
@@ -144,6 +145,7 @@ for name, gene in name2gene.iteritems():
             strand = 1 if transcript.strand == '-' else 0,
         )
         session.add(t)
+        session.commit()
         for exbeg, exend in transcript.exons:
             f = Feature(ftype=ft_ex.id,
                         chrm_id=chm.id,
