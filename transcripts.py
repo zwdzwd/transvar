@@ -397,32 +397,73 @@ class Transcript():
         c.index = index
         return c
 
-    def _gpos2codon_UTR(self, gpos, np):
-        """ UTR region """
-        if self.cds_beg > gpos:
+    # def _gpos2codon_UTR(self, gpos, np):
+    #     """ UTR region """
+    #     if self.cds_beg > gpos:
+    #         p = Pos(1, gpos-self.cds_beg)
+    #         c = self._init_codon_(1)
+    #         c.seq = self.seq[:3]
+    #         c.locs = np[:3]
+    #         reg = '5-UTR' if self.strand == '+' else '3-UTR'
+    #         return c, p, reg
+
+    #     if self.cds_end < gpos:
+    #         p = Pos(len(self.seq), gpos-self.cds_end)
+    #         c = self._init_codon_((len(self.seq)+2)/3)
+    #         c.seq = self.seq[c.index*3-3:c.index*3]
+    #         c.locs = np[c.index*3-3:c.index*3]
+    #         reg = '3-UTR' if self.strand == '+' else '5-UTR'
+    #         return c, p, reg
+    #     return None
+
+    def _in_exon(self, gpos):
+
+        for i, exon in enumerate(self.exons):
+            exind = i+1 if self.strand == '+' else len(self.exons) - i
+            if i == 0 and exon[0] > gpos:
+                return 'IntergenicUpstream'
+            if i == len(self.exons)-1 and exon[1] < gpos:
+                return 'IntergenicDownstream'
+            if exon[0] <= gpos and exon[1] >= gpos:
+                if gpos >= self.cds_beg and gpos <= self.cds_end:
+                    return 'Coding_%d' % exind
+                else:
+                    return 'Exonic_%d' % exind
+            if i > 0:
+                pexon = self.exons[i-1]
+                if gpos > pexon[1] and gpos < exon[0]:
+                    if self.strand == '+':
+                        return 'Intronic_%d_%d' % (exind-1, exind)
+                    else:
+                        return 'Intronic_%d_%d' % (exind, exind+1)
+
+        raise Exception()       # you shouldn't reach here
+    
+    def _gpos2codon_p(self, gpos, np):
+
+        if gpos < self.cds_beg:
             p = Pos(1, gpos-self.cds_beg)
             c = self._init_codon_(1)
             c.seq = self.seq[:3]
             c.locs = np[:3]
-            return c, p, '5-UTR'
+            reg = '5-UTR;'+self._in_exon(gpos)
+            return c, p, reg
 
-        if self.cds_end < gpos:
+        if gpos > self.cds_end:
             p = Pos(len(self.seq), gpos-self.cds_end)
             c = self._init_codon_((len(self.seq)+2)/3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
-            return c, p, '3-UTR'
-        return None
-    
-    def _gpos2codon_p(self, gpos, np):
-
+            reg = '3-UTR;'+self._in_exon(gpos)
+            return c, p, reg
+        
         for i, pos in enumerate(np):
             if gpos == pos:
                 c = self._init_codon_(i/3+1)
                 c.seq    = self.seq[i-i%3:i-i%3+3]
                 c.locs   = np[i-i%3:i-i%3+3]
                 p = Pos(i+1, 0)
-                return c, p, 'coding'
+                return c, p, self._in_exon(gpos)
             if gpos < pos:
                 if gpos - np[i-1] < pos - gpos:
                     p = Pos(i, gpos-np[i-1])
@@ -433,9 +474,25 @@ class Transcript():
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
-                return c, p, 'intronic'
+                return c, p, self._in_exon(gpos)
 
     def _gpos2codon_n(self, gpos, np):
+
+        if gpos < self.cds_beg:
+            p = Pos(1, gpos-self.cds_beg)
+            c = self._init_codon_(1)
+            c.seq = self.seq[:3]
+            c.locs = np[:3]
+            reg = '3-UTR;'+self._in_exon(gpos)
+            return c, p, reg
+
+        if gpos > self.cds_end:
+            p = Pos(len(self.seq), gpos-self.cds_end)
+            c = self._init_codon_((len(self.seq)+2)/3)
+            c.seq = self.seq[c.index*3-3:c.index*3]
+            c.locs = np[c.index*3-3:c.index*3]
+            reg = '5-UTR;'+self._in_exon(gpos)
+            return c, p, reg
 
         for i, pos in enumerate(np):
             if gpos == pos:
@@ -443,7 +500,7 @@ class Transcript():
                 c.seq = self.seq[i-i%3:i-i%3+3]
                 c.locs = tuple(reversed(np[i-i%3:i-i%3+3]))
                 p = Pos(i+1, 0)
-                return c, p, 'coding'
+                return c, p, self._in_exon(gpos)
             
             if gpos > pos:
                 if np[i-1] - gpos < gpos - pos:
@@ -455,7 +512,7 @@ class Transcript():
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
-                return c, p, 'intronic'
+                return c, p, self._in_exon(gpos)
 
     
     def gpos2codon(self, chrm, gpos):
@@ -468,8 +525,8 @@ class Transcript():
         np = self.position_array()
         assert len(np) == len(self.seq)
 
-        ret = self._gpos2codon_UTR(gpos, np)
-        if ret: return ret
+        # ret = self._gpos2codon_UTR(gpos, np)
+        # if ret: return ret
         
         if self.strand == "+":
             return self._gpos2codon_p(gpos, np)
@@ -855,35 +912,45 @@ def parse_gencode_gtf(gencode_fn, name2gene):
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
-        if fields[2] == 'gene':
+        if fields[2] == 'gene' and info['gene_type'] == 'pseudogene':
             gene_name = info['gene_name'].upper()
+            gid = info['gene_id']
             if gene_name in name2gene:
                 g = name2gene[gene_name]
+                id2ent[gid] = g
             else:
-                g = Gene(gene_name)
+                if gid not in id2ent: id2ent[gid] = Gene(gene_name)
+                g = id2ent[gid]
                 name2gene[gene_name] = g
             g.beg = int(fields[3])
             g.end = int(fields[4])
-            id2ent[info['gene_id']] = g
-            if info['gene_type'] == 'pseudogene':
-                g.pseudo = True
+            # if info['gene_type'] == 'pseudogene':
+            #     g.pseudo = True
         elif fields[2] == 'transcript' and info['gene_type'] == 'protein_coding':
-            t = Transcript()
+            tid = info['transcript_id']
+            if tid not in id2ent: id2ent[tid] = Transcript()
+            t = id2ent[tid]
             t.chrm = fields[0]
             t.strand = fields[6]
             t.beg = int(fields[3])
             t.end = int(fields[4])
-            t.name = info['transcript_id']
-            t.gene = id2ent[info['gene_id']]
+            t.name = tid
+            gid = info['gene_id']
+            if gid not in id2ent: id2ent[gid] = Gene()
+            t.gene = id2ent[gid]
             t.gene.tpts.append(t)
             t.source = 'GENCODE'
             id2ent[t.name] = t
             cnt += 1
         elif fields[2] == 'exon' and info['gene_type'] == 'protein_coding':
-            t = id2ent[info['transcript_id']]
+            tid = info['transcript_id']
+            if tid not in id2ent: id2ent[tid] = Transcript()
+            t = id2ent[tid]
             t.exons.append((int(fields[3]), int(fields[4])))
         elif fields[2] == 'CDS' and info['gene_type'] == 'protein_coding':
-            t = id2ent[info['transcript_id']]
+            tid = info['transcript_id']
+            if tid not in id2ent: id2ent[tid] = Transcript()
+            t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
 
     sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, cnt))

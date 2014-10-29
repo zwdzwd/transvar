@@ -39,7 +39,7 @@ Basic functionalities requires just Python >= 2.6. Some additional annotation al
 
 #### program
 
-current stable version: [version 1.23](https://bitbucket.org/wanding/transvar/get/v1.23.zip)
+current stable version: [version 1.24](https://bitbucket.org/wanding/transvar/get/v1.24.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
@@ -72,6 +72,15 @@ These will also create default mappings under the corresponding reference versio
 #!text
 [hg19]
 ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
+```
+
+##### Annotating nonprotein coding genomic features
+In annotating non-protein-coding genomic sequences such as lincRNA, pseudogenes etc. TransVar requires a tab-indexed transcript database.
+For example,
+```
+#!bash
+zgrep -v '^#' download/hg19.gencode.gtf.gz | sort -k1,1 -k4,4n | bgzip > download/hg19.gencode.sorted.gtf.gz
+tabix -p gff download/hg19.gencode.sorted.gtf.gz
 ```
 
 ### Usage

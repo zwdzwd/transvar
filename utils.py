@@ -208,6 +208,8 @@ def parse_annotation(args):
 
     faidx.init_refgenome(args.reference if args.reference else None)
 
+    args.ffhs = {}
+    
     name2gene = {}
     if args.ensembl:
         trs.parse_ensembl_gtf(args.ensembl, name2gene)
@@ -220,6 +222,11 @@ def parse_annotation(args):
 
     if args.gencode:
         trs.parse_gencode_gtf(args.gencode, name2gene)
+        try:
+            import pysam
+            args.ffhs['GENCODE'] = pysam.Tabixfile(args.gencode)
+        except:
+            err_print("Cannot import non-coding features (may need pysam).")
 
     if args.ucsc:
         trs.parse_ucsc_refgene(args.ucsc, name2gene)

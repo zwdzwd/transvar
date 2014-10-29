@@ -89,7 +89,7 @@ def _annotate_reg_gene(args, q, thash):
     tpts = [t for t in thash.get_transcripts(q.tok, q.beg, q.end)]
     if tpts: 
         if args.longest:
-            tpts.sort(lambda t: len(t), reverse=True)
+            tpts.sort(key=lambda t: len(t), reverse=True)
             tpts = tpts[:1]
 
         if q.beg == q.end:
@@ -105,6 +105,42 @@ def _annotate_reg_gene(args, q, thash):
                 for r in _annotate_reg_gene_long_range(args, q, tpts, genes, thash):
                     yield r
 
+def __annotate_reg_intergenic(args, thash, tok, beg, end):
+
+    """ the function is also used in anno_snv.py """
+
+    # annotate noncoding
+    r = Record()
+    r.chrm = tok
+    tu, td  = thash.get_closest_transcripts(tok, beg, end)
+    if tu:
+        up = 'up: %s bp to %s' % (
+            locale.format('%d', beg - tu.end, grouping=True), tu.gene.name)
+    else:
+        up = 'up: %s bp to 5-telomere' % (
+            locale.format('%d', beg, grouping=True), )
+    if td:
+        down = 'down: %s bp to %s' % (
+            locale.format('%d', td.beg - end, grouping=True), td.gene.name)
+    else:
+        down = 'down: %s bp to 3-telomere' % (
+            locale.format('%d', reflen(tok)-end, grouping=True), )
+    r.reg = 'Intergenic (%s, %s)' % (up, down)
+
+    # # annotate extra noncoding features
+    if 'GENCODE' in args.ffhs:
+        iis = set()
+        for entry in args.ffhs['GENCODE'].fetch(tok, beg, end+1):
+            fields = entry.strip().split('\t')
+            info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+            if 'gene_type' in info:
+                ii = info['gene_type']
+                if 'gene_name' in info: ii += '(%s)' % info['gene_name']
+                iis.add(ii)
+        r.info = 'gene_type=%s;' % ','.join(list(iis))
+
+    return r
+    
                     
 def __annotate_reg(args, q, thash):
 
@@ -115,25 +151,7 @@ def __annotate_reg(args, q, thash):
         gene_found = True
 
     if not gene_found:
-        # annotate noncoding
-        r = Record()
-        tu, td  = thash.get_closest_transcripts(q.tok, q.beg, q.end)
-        if tu:
-            up = 'up: %s bp to %s' % (
-                locale.format('%d', q.beg - tu.end, grouping=True), tu.gene.name)
-        else:
-            up = 'up: %s bp to 5-telomere' % (
-                locale.format('%d', q.beg, grouping=True), )
-        if td:
-            down = 'down: %s bp to %s' % (
-                locale.format('%d', td.beg - q.end, grouping=True), td.gene.name)
-        else:
-            down = 'down: %s bp to 3-telomere' % (
-                locale.format('%d', reflen(q.tok)-q.end, grouping=True), )
-        r.reg = 'Noncoding (%s, %s)' % (up, down)
-            
-        yield r
-
+        yield __annotate_reg_intergenic(args, thash, q.tok, q.beg, q.end)
 
 def _annotate_reg(args, q, thash):
     normalize_reg(q)

@@ -205,6 +205,7 @@ def parse_tok_mutation_str(s, muttype=None):
 
 def _list_parse_mutation(args, fields, indices, muttype=None):
 
+    # protein
     if args.g > 0 and args.p > 0: # gene, position, ref, alt in separate columns for SNV
 
         q = QuerySNV()
@@ -217,17 +218,26 @@ def _list_parse_mutation(args, fields, indices, muttype=None):
         q.is_codon = True
 
     elif args.g > 0 and args.n > 0:
+        if muttype == 'g':      # gDNA
+            q = QuerySNV()
+            q.op = '\t'.join(indices.extract(fields))
+            q.tok = fields[args.g-1].strip()
+            q.pos = int(fields[args.n-1].strip())
+            if args.r > 0: q.ref = fields[args.r-1].strip()
+            if args.v > 0: q.alt = fields[args.v-1].strip()
+            if args.t > 0: q.tpt = fields[args.t-1].strip()
+            q.is_codon = False
+        else:                   # cDNA
+            q = QuerySNV()
+            q.op = '\t'.join(indices.extract(fields))
+            q.tok = fields[args.g-1].strip()
+            q.pos = parse_pos(fields[args.n-1].strip())
+            if args.r > 0: q.ref = fields[args.r-1].strip()
+            if args.v > 0: q.alt = fields[args.v-1].strip()
+            if args.t > 0: q.tpt = fields[args.t-1].strip()
+            q.is_codon = False
 
-        q = QuerySNV()
-        q.op = '\t'.join(indices.extract(fields))
-        q.tok = fields[args.g-1].strip()
-        q.pos = parse_pos(fields[args.n-1].strip())
-        if args.r > 0: q.ref = fields[args.r-1].strip()
-        if args.v > 0: q.alt = fields[args.v-1].strip()
-        if args.t > 0: q.tpt = fields[args.t-1].strip()
-        q.is_codon = False
-
-    elif args.g > 0 and args.m > 0:
+    elif args.g > 0 and args.m > 0: # gene and mutation string
 
         q = parse_mutation_str(fields[args.m-1].strip(), muttype)
         q.op = '\t'.join(indices.extract(fields))
@@ -236,7 +246,7 @@ def _list_parse_mutation(args, fields, indices, muttype=None):
 
     elif args.m > 0:
 
-        q = parse_tok_mutation_str(fields[args.m-1].strip())
+        q = parse_tok_mutation_str(fields[args.m-1].strip(), muttype)
         q.op = '\t'.join(indices.extract(fields))
         if args.t > 0: q.tpt = fields[args.t-1].strip()
 
