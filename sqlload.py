@@ -51,10 +51,12 @@ def load_elem(rv_s, src_s, fn, func):
                 transcript.cds.sort()
                 cds_beg = transcript.cds[0][0]
                 cds_end = transcript.cds[-1][1]
-            else:
+            elif hasattr(transcript, 'cds_beg'):
                 cds_beg = transcript.cds_beg
                 cds_end = transcript.cds_end
-            if not transcript.cds: continue
+            else:
+                continue
+
             t = Transcript(
                 id = f.id,
                 name = transcript.name,
