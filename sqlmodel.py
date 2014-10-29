@@ -26,12 +26,20 @@ class RefVersion(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100))
     features = relationship('Feature', backref='refversion')
-    
+
+class Chromosome(Base):
+    __tablename__ = 'chromosome'
+    __table_args__ = {'mysql_engine':'InnoDB'}
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100))
+    features = relationship('Feature', backref='chrm')
+
 class Feature(Base):
     __tablename__ = 'feature'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key = True, autoincrement=True)
     ftype = Column(Integer, ForeignKey('feature_type.id'))
+    chrm_id = Column(Integer, ForeignKey('chromosome.id'))
     beg = Column(Integer)
     end = Column(Integer)
     source_id = Column(Integer, ForeignKey('source.id'))    # primary key?
@@ -83,6 +91,22 @@ src = Source(name='GENCODE')
 session.add(src)
 session.commit()
 
+fts = session.query(FeatureType).filter_by(name='protein_coding').all()
+if fts:
+    ft_cds = fts[0]
+else:
+    ft_cds = FeatureType(name='protein_coding')
+    session.add(ft_cds)
+    session.commit()
+
+fts = session.query(FeatureType).filter_by(name='exon').all()
+if fts:
+    ft_ex = fts[0]
+else:
+    ft_ex = FeatureType(name='exon')
+    session.add(ft_ex)
+    session.commit()
+    
 import transcripts as trs
 name2gene = {}
 trs.parse_gencode_gtf('transvar.download/hg19.gencode.gtf.gz', name2gene)
@@ -94,24 +118,39 @@ for name, gene in name2gene.iteritems():
         g = Gene(name=name)
         session.add(g)
     for transcript in gene.tpts:
-        fts = session.query(FeatureType).filter_by(name='protein_coding').all()
-        if fts:
-            ft = fts[0]
+        chms = session.query(Chromosome).filter_by(name=transcript.chrm).all()
+        if chms:
+            chm = chms[0]
         else:
-            ft = FeatureType(name='protein_coding')
-            session.add(ft)
+            chm = Chromosome(name=transcript.chrm)
+            session.add(chm)
+            session.commit()
 
-        f = Feature(ftype=ft.id,
+        f = Feature(ftype=ft_cds.id,
+                    chrm_id=chm.id,
                     beg=transcript.beg,
                     end=transcript.end,
                     source_id=src.id,
                     refversion_id=rv.id)
         session.add(f)
-    #     transcript = Transcript(cds_beg, cds_end, gene.id)
-    #     session.add(transcript)
-    #     for exbeg, exend in transcript.exons:
-    #         exon = Exon(beg, end)
-    #         session.add(exon)
+        t = Transcript(
+            id = f.id,
+            cds_beg=transcript.cds_beg,
+            cds_end=transcript.cds_end,
+            gene_id = gene.id,
+            strand = 1 if transcript.strand == '-' else 0,
+        )
+        session.add(transcript)
+        for exbeg, exend in transcript.exons:
+            f = Feature(ftype=ft_ex.id,
+                        chrm_id=chm.id,
+                        beg = exbeg,
+                        end = exend,
+                        source_id = src.id,
+                        refversion_id = rv.id)
+            session.add(f)
+            e = Exon(tid = t.id, id = f.id)
+            session.add(e)
 
 session.commit()
 
