@@ -67,9 +67,10 @@ class Transcript(Base):
 class Exon(Base):
     __tablename__ = 'exon'
     __table_args__ = {'mysql_engine':'InnoDB'}
-    id = Column(Integer, ForeignKey('feature.id'), primary_key=True)
+    id = Column(Integer, primary_key=True)
     tid = Column(Integer, ForeignKey('transcript.id'))
-    exonno = Column(Integer)
+    beg = Column(Integer),
+    end = Column(Integer),
 
 # class User(Base):
 #     __tablename__ = 'users'
@@ -124,7 +125,7 @@ for name, gene in name2gene.iteritems():
         else:
             chm = Chromosome(name=transcript.chrm)
             session.add(chm)
-            session.commit()
+            session.flush()
 
         f = Feature(ftype=ft_cds.id,
                     chrm_id=chm.id,
@@ -133,7 +134,7 @@ for name, gene in name2gene.iteritems():
                     source_id=src.id,
                     refversion_id=rv.id)
         session.add(f)
-        session.commit()
+        session.flush()
 
         if not transcript.cds: continue
         transcript.cds.sort()
@@ -145,17 +146,9 @@ for name, gene in name2gene.iteritems():
             strand = 1 if transcript.strand == '-' else 0,
         )
         session.add(t)
-        session.commit()
+        session.flush()
         for exbeg, exend in transcript.exons:
-            f = Feature(ftype=ft_ex.id,
-                        chrm_id=chm.id,
-                        beg = exbeg,
-                        end = exend,
-                        source_id = src.id,
-                        refversion_id = rv.id)
-            session.add(f)
-            session.commit()
-            e = Exon(tid = t.id, id = f.id)
+            e = Exon(tid=t.id, beg=exbeg, end=exend)
             session.add(e)
 
 session.commit()
