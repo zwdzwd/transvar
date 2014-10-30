@@ -23,17 +23,17 @@ class AnnoDB():
             self.source = []
             if args.ensembl:
                 self.source.append('Ensembl')
-            elif args.ccds:
+            if args.ccds:
                 self.source.append('CCDS')
-            elif args.refseq:
+            if args.refseq:
                 self.source.append('RefSeq')
-            elif args.gencode:
+            if args.gencode:
                 self.source.append('GENCODE')
-            elif args.aceview:
+            if args.aceview:
                 self.source.append('AceView')
-            elif args.ucsc:
+            if args.ucsc:
                 self.source.append('UCSC')
-            else:
+            if not self.source:
                 self.source.append('Ensembl')
         else:
             self.name2gene, self.thash = parse_annotation(args)
@@ -48,7 +48,7 @@ class AnnoDB():
             gene = trs.Gene(name)
             for t in g.transcripts:
                 f = t.feature
-                if f.source.name != self.source:
+                if f.source.name not in self.source:
                     continue
                 tpt = trs.Transcript()
                 tpt.chrm = f.chrm.name
