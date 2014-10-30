@@ -20,20 +20,21 @@ class AnnoDB():
             import sqlmodel
             self.sqlmodel = sqlmodel
             self.session = sqlmodel.sessionmaker(bind=sqlmodel.engine, autoflush=False)()
+            self.source = []
             if args.ensembl:
-                self.source = 'Ensembl'
+                self.source.append('Ensembl')
             elif args.ccds:
-                self.source = 'CCDS'
+                self.source.append('CCDS')
             elif args.refseq:
-                self.source = 'RefSeq'
+                self.source.append('RefSeq')
             elif args.gencode:
-                self.source = 'GENCODE'
+                self.source.append('GENCODE')
             elif args.aceview:
-                self.source = 'AceView'
+                self.source.append('AceView')
             elif args.ucsc:
-                self.source = 'UCSC'
+                self.source.append('UCSC')
             else:
-                self.source = 'Ensembl'
+                self.source.append('Ensembl')
         else:
             self.name2gene, self.thash = parse_annotation(args)
 
