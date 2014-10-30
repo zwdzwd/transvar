@@ -74,9 +74,13 @@ def load_elem(rv_s, src_s, fn, func):
     session.commit()
 
 if __name__ == '__main__':
-    # load_elem('hg19', 'UCSC', 'transvar.download/hg19.ucsc.txt.gz', trs.parse_ucsc_refgene)
-    # load_elem('hg19', 'GENCODE', 'transvar.download/hg19.gencode.gtf.gz', trs.parse_gencode_gtf)
+    load_elem('hg19', 'UCSC', 'transvar.download/hg19.ucsc.txt.gz', trs.parse_ucsc_refgene)
+    load_elem('hg19', 'GENCODE', 'transvar.download/hg19.gencode.gtf.gz', trs.parse_gencode_gtf)
     # load_elem('hg19', 'Ensembl', 'transvar.download/hg19.ensembl.gtf.gz', trs.parse_ensembl_gtf)
-    load_elem('hg19', 'CCDS', 'transvar.download/hg19.ccds.txt', trs.parse_ccds_table)
-    load_elem('hg19', 'RefSeq', 'transvar.download/hg19.refseq.gff.gz', trs.parse_refseq_gff)
-    load_elem('hg19', 'AceView', 'transvar.download/hg19.aceview.gff.gz', trs.parse_aceview_transcripts)
+    # load_elem('hg19', 'CCDS', 'transvar.download/hg19.ccds.txt', trs.parse_ccds_table)
+    # load_elem('hg19', 'RefSeq', 'transvar.download/hg19.refseq.gff.gz', trs.parse_refseq_gff)
+    # load_elem('hg19', 'AceView', 'transvar.download/hg19.aceview.gff.gz', trs.parse_aceview_transcripts)
+    load_elem('hg38', 'transvar.download/hg38.ensembl.gtf.gz', trs.parse_ensembl_gtf)
+    load_elem('hg38', 'transvar.download/hg38.ucsc.txt.gz', trs.parse_ucsc_refgene)
+    load_elem('hg38', 'transvar.download/hg38.gencode.gtf.gz', trs.parse_gencode_gtf)
+    load_elem('hg38', 'transvar.download/hg38.refseq.gff.gz', trs.parse_refseq_gff)
