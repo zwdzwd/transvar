@@ -114,7 +114,7 @@ def codon_mutation_snv(args, q, tpt):
 
     tpt.ensure_seq()
 
-    print 'ok2', q.pos, len(tpt), len(tpt.exons), exons
+    print 'ok2', q.pos, len(tpt) #, len(tpt.exons), exons
     
     if (q.pos <= 0 or q.pos > len(tpt)):
         raise IncompatibleTranscriptError('codon nonexistent')
