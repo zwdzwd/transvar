@@ -841,7 +841,8 @@ def parse_ccds_table(ccds_fn, name2gene):
         t.end = t.cds_end
 
         t.name = fields[4]
-        t.cds = [(int(b)+1, int(e)+1) for b,e in re.findall(r"[\s\[](\d+)-(\d+)[,\]]", fields[9])]
+        # note that CCDS do not annotate UTR, so all the exons are equivalently cds
+        t.exons = [(int(b)+1, int(e)+1) for b,e in re.findall(r"[\s\[](\d+)-(\d+)[,\]]", fields[9])]
         t.source = 'CDDS'
         t.gene = g
         g.tpts.append(t)
