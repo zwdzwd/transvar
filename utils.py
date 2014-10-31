@@ -74,10 +74,11 @@ class AnnoDB():
                 f = t.feature
                 if f.source.name not in self.source:
                     continue
-                print f.source.name, f.beg, f.end, f.id
                 tpt = _localize_sql_transcript(t, f)
                 tpt.gene = gene
                 gene.tpts.append(tpt)
+                print f.source.name, f.beg, f.end, f.id
+                print tpt.name, tpt.beg, tpt.end, tpt.cds_beg, tpt.cds_end, tpt.source, tpt.strand, tpt.chrm
             return gene
         elif self.name2gene:
             if name in self.name2gene:
