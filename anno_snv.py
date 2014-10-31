@@ -45,7 +45,7 @@ def __annotate_snv_gene(args, q, t):
 
 def _annotate_snv_gene(args, q, thash):
 
-    tpts = [t for t in thash.get_transcripts(q.tok, q.pos, q.pos)]
+    tpts = thash.get_transcripts(q.tok, q.pos, q.pos)
     if tpts:
         if args.longest:
             tpts.sort(key=lambda t: len(t), reverse=True)

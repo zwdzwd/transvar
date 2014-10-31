@@ -86,7 +86,7 @@ def _annotate_reg_gene_long_range(args, q, tpts, genes, thash):
 
 def _annotate_reg_gene(args, q, thash):
 
-    tpts = [t for t in thash.get_transcripts(q.tok, q.beg, q.end)]
+    tpts = thash.get_transcripts(q.tok, q.beg, q.end)
     if tpts: 
         if args.longest:
             tpts.sort(key=lambda t: len(t), reverse=True)
