@@ -106,12 +106,16 @@ def codon_mutation_snv(args, q, tpt):
         sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
         q.alt = ''
 
+    print 'ok1'
+        
     # when there's a transcript specification
     if q.tpt and tpt.name != q.tpt:
         raise IncompatibleTranscriptError('transcript id unmatched')
 
     tpt.ensure_seq()
 
+    print 'ok2'
+    
     if (q.pos <= 0 or q.pos > len(tpt)):
         raise IncompatibleTranscriptError('codon nonexistent')
     codon = tpt.cpos2codon(q.pos)
@@ -128,7 +132,8 @@ def codon_mutation_snv(args, q, tpt):
     r.chrm = tpt.chrm
     r.tname = tpt.name
     r.pos = '-'.join(map(str, codon.locs))
-    
+
+    print 'ok3'
     # if alternative amino acid is given
     # filter the target mutation set to those give
     # the alternative aa
@@ -228,6 +233,7 @@ def codon_mutation_snv(args, q, tpt):
     return r, codon
 
 def __core_annotate_codon_snv(args, q):
+    print 'ok0'
     for tpt in q.gene.tpts:
         try:
             r, c = codon_mutation_snv(args, q, tpt)
