@@ -114,7 +114,7 @@ def codon_mutation_snv(args, q, tpt):
 
     tpt.ensure_seq()
 
-    print 'ok2'
+    print 'ok2', q.pos, len(tpt)
     
     if (q.pos <= 0 or q.pos > len(tpt)):
         raise IncompatibleTranscriptError('codon nonexistent')
@@ -122,12 +122,14 @@ def codon_mutation_snv(args, q, tpt):
     if not codon:
         raise IncompatibleTranscriptError('codon nonexistent')
 
+    print 'ok2.5', q.pos, len(tpt)
     # skip if reference amino acid is given
     # and codon sequence does not generate reference aa
     # codon.seq is natural sequence
     if q.ref and codon.seq not in aa2codon(q.ref):
         raise IncompatibleTranscriptError('reference amino acid unmatched')
 
+    print 'ok2.6'
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
