@@ -122,7 +122,7 @@ def codon_mutation_snv(args, q, tpt):
     if not codon:
         raise IncompatibleTranscriptError('codon nonexistent')
 
-    print 'ok2.5', q.pos, len(tpt)
+    print 'ok2.5', q.pos, len(tpt), len(tpt.exons), exons
     # skip if reference amino acid is given
     # and codon sequence does not generate reference aa
     # codon.seq is natural sequence
