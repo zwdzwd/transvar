@@ -43,9 +43,9 @@ def __annotate_snv_gene(args, q, t):
 
     return r
 
-def _annotate_snv_gene(args, q, thash):
+def _annotate_snv_gene(args, q, db):
 
-    tpts = [t for t in thash.get_transcripts(q.tok, q.pos, q.pos)]
+    tpts = [t for t in db.get_transcripts(q.tok, q.pos, q.pos)]
     if tpts:
         if args.longest:
             tpts.sort(key=lambda t: len(t), reverse=True)
@@ -69,15 +69,15 @@ def _annotate_snv_gene(args, q, thash):
     #         found = True
 
 
-def _annotate_snv(args, q, thash):
+def _annotate_snv(args, q, db):
     # check if location in a gene
     gene_found = False
-    for r in _annotate_snv_gene(args, q, thash):
+    for r in _annotate_snv_gene(args, q, db):
         r.format(q.op)
         gene_found = True
 
     if not gene_found:
-        r = __annotate_reg_intergenic(args, thash, q.tok, q.pos, q.pos)
+        r = __annotate_reg_intergenic(args, db, q.tok, q.pos, q.pos)
         r.format(q.op)
         # # annotate noncoding
         # r = Record()

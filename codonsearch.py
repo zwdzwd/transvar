@@ -11,7 +11,7 @@ from record import Query, QueryREG
 
 outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
 
-def _main_core_(args, q, thash):
+def _main_core_(args, q, db):
 
     k2transcripts = {}
     if isinstance(q, QueryREG):
@@ -23,7 +23,7 @@ def _main_core_(args, q, thash):
         # search any of the 3 positions
         for cind in xrange(3):
             gpos = c1.locs[cind]
-            for t2 in thash.get_transcripts(t1.chrm, gpos):
+            for t2 in db.get_transcripts(t1.chrm, gpos):
                 c2, p, r = t2.gpos2codon(t1.chrm, gpos)
                 if t1 == t2: continue
                 if p.tpos != 0: continue
@@ -50,16 +50,20 @@ def _main_core_(args, q, thash):
                               codon1='-'.join(map(str,c1)), codon2='-'.join(map(str,c2)))
         print s
 
-def main_list(args, name2gene, thash):
+def main_list(args, db): #name2gene, thash):
 
     for q, line in list_parse_mutation(args):
 
-        if q.tok not in name2gene:
+        q.gene = db.get_gene(q.tok)
+        if not q.gene:
             sys.stderr.write("Gene %s is not recognized.\n" % q.tok)
             continue
-        q.gene = name2gene[q.tok]
+        # if q.tok not in name2gene:
+        #     sys.stderr.write("Gene %s is not recognized.\n" % q.tok)
+        #     continue
+        # q.gene = name2gene[q.tok]
         try:
-            _main_core_(args, q, thash)
+            _main_core_(args, q, db)
         except UnImplementedError as e:
             err_print(line)
             raise e
@@ -67,32 +71,34 @@ def main_list(args, name2gene, thash):
             err_print(line)
             raise e
 
-def main_one(args, name2gene, thash):
+def main_one(args, db): #name2gene, thash):
 
     q = parse_tok_mutation_str(args.i)
     q.op = args.i
-    if q.tok not in name2gene:
+    q.gene = db.get_gene(q.tok)
+    if not q.gene:
         sys.stderr.write("Gene %s not recognized.\n" % q.tok)
         return
-        return
 
-    q.gene = name2gene[q.tok]
+    # if q.tok not in name2gene:
+    #     sys.stderr.write("Gene %s not recognized.\n" % q.tok)
+    #     return
+    # q.gene = db.name2gene[q.tok]
     q.op = args.i
 
-    _main_core_(args, q, thash)
-
+    _main_core_(args, q, db)
 
 def main(args):
 
     config = read_config()
     replace_defaults(args, config)
-    name2gene, thash = parse_annotation(args)
+    db = AnnoDB(args)
+    # name2gene, thash = parse_annotation(args)
 
     if args.l:
-        main_list(args, name2gene, thash)
+        main_list(args, db) #name2gene, thash)
     if args.i:
-        main_one(args, name2gene, thash)
-
+        main_one(args, db) #name2gene, thash)
 
 def add_parser_codonsearch(subparsers, config):
 

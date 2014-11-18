@@ -63,13 +63,82 @@ class AnnoDB():
                 gene.tpts.append(tpt)
                 for ex in t.exons:
                     tpt.exons.append((ex.beg, ex.end))
-                t.exons.sort()
+                tpt.exons.sort()
             return gene
         elif self.name2gene:
             if name in self.name2gene:
                 return self.name2gene[name]
             else:
                 return None
+        else:
+            raise Exception("No valid source of transcript definition")
+
+    def _sql_get_transcripts(self, chrm, beg, end=None, flanking=0):
+
+        if not end: end = beg
+        chrm = normalize_chrm(chrm)
+        db_features = self.session.query(self.sqlmodel.Transcript).filter_by(self.sqlmodel.Transcript.beg-flanking <= end, self.sqlmodel.Transcript.end+flanking >= beg).all()
+        tpts = []
+        name2gene = {}
+        for db_feature in db_features:
+            db_transcripts = db_feature.transcripts
+            if db_transcripts:
+                db_transcript = db_transcripts[0]
+            else:
+                continue
+            if db_feature.source.name not in self.source:
+                continue
+            tpt = trs.Transcript()
+            tpt.chrm = db_feature.chrm.name
+            tpt.strand = '-' if db_transcript.strand == 1 else '+'
+            tpt.name = db_transcript.name
+            tpt.beg = db_feature.beg
+            tpt.end = db_feature.end
+            tpt.cds_beg = db_transcript.cds_beg
+            tpt.cds_end = db_transcript.cds_end
+            gene_name = db_transcript.gene.name
+            if gene_name in name2gene:
+                tpt.gene = name2gene[gene_name]
+            else:
+                tpt.gene = trs.Gene(gene_name)
+                name2gene[gene_name] = tpt.gene
+            tpt.source = db_feature.source.name
+            for ex in db_transcript.exons:
+                tpt.exons.append((ex.beg, ex.end))
+            tpt.exons.sort()
+            tpts.append(tpt)
+
+        return tpts
+
+    def get_transcripts(self, chrm, beg, end=None, flanking=0):
+        if self.session:
+            return self._sql_get_transcripts(chrm, beg, end, flanking)
+        elif self.thash:
+            return [t for t in self.thash.get_transcripts(chrm, beg, end, flanking)]
+        else:
+            raise Exception("No valid source of transcript definition")
+
+    def get_closest_transcripts_upstream(self, chrm, pos):
+        if self.session:
+            raise Exception("Not implemented.")
+        elif self.thash:
+            return self.thash.get_closest_transcripts_upstream(chrm, pos)
+        else:
+            raise Exception("No valid source of transcript definition")
+
+    def get_closest_transcripts_downstream(self, chrm, pos):
+        if self.session:
+            raise Exception("Not implemented.")
+        elif self.thash:
+            return self.thash.get_closest_transcripts_downstream(chrm, pos)
+        else:
+            raise Exception("No valid source of transcript definition")
+
+    def get_closest_transcripts(self, chrm, beg, end):
+        """ closest transcripts upstream and downstream """
+        return (self.get_closest_transcripts_upstream(chrm, beg),
+                self.get_closest_transcripts_downstream(chrm, end))
+
 
 MAXCHRMLEN=300000000
 def normalize_chrm(chrm):
@@ -171,11 +240,11 @@ class THash():
                     return tpts[0]
         return None
     
-    def get_closest_transcripts(self, chrm, beg, end):
+    # def get_closest_transcripts(self, chrm, beg, end):
 
-        """ closest transcripts upstream and downstream """
-        return (self.get_closest_transcripts_upstream(chrm, beg),
-                self.get_closest_transcripts_downstream(chrm, end))
+    #     """ closest transcripts upstream and downstream """
+    #     return (self.get_closest_transcripts_upstream(chrm, beg),
+    #             self.get_closest_transcripts_downstream(chrm, end))
 
     # def __init__(self):
     #     # chrm => bin => list of transcripts

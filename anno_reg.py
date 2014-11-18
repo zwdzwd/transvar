@@ -57,7 +57,7 @@ def _annotate_reg_gene_short_range(args, q, t):
     
     return r
 
-def _annotate_reg_gene_long_range(args, q, tpts, genes, thash):
+def _annotate_reg_gene_long_range(args, q, tpts, genes, db):
 
     r = Record()
     r.chrm = tpts[0].chrm
@@ -72,8 +72,8 @@ def _annotate_reg_gene_long_range(args, q, tpts, genes, thash):
     qbeg.end = qbeg.beg
     qend = copy.copy(q)
     qend.beg = qend.end
-    for rbeg in __annotate_reg(args, qbeg, thash):
-        for rend in __annotate_reg(args, qend, thash):
+    for rbeg in __annotate_reg(args, qbeg, db):
+        for rend in __annotate_reg(args, qend, db):
             r.tname = 'BEG=%s,END=%s' % (rbeg.tname, rend.tname)
             infocols = []
             infocols.append('BEGreg=%s' % rbeg.reg)
@@ -84,10 +84,10 @@ def _annotate_reg_gene_long_range(args, q, tpts, genes, thash):
             yield r
 
 
-def _annotate_reg_gene(args, q, thash):
+def _annotate_reg_gene(args, q, db):
 
-    tpts = [t for t in thash.get_transcripts(q.tok, q.beg, q.end)]
-    if tpts: 
+    tpts = [t for t in db.get_transcripts(q.tok, q.beg, q.end)]
+    if tpts:
         if args.longest:
             tpts.sort(key=lambda t: len(t), reverse=True)
             tpts = tpts[:1]
@@ -102,17 +102,17 @@ def _annotate_reg_gene(args, q, thash):
                 for t in tpts:
                     yield _annotate_reg_gene_short_range(args, q, t)
             else:
-                for r in _annotate_reg_gene_long_range(args, q, tpts, genes, thash):
+                for r in _annotate_reg_gene_long_range(args, q, tpts, genes, db):
                     yield r
 
-def __annotate_reg_intergenic(args, thash, tok, beg, end):
+def __annotate_reg_intergenic(args, db, tok, beg, end):
 
     """ the function is also used in anno_snv.py """
 
     # annotate noncoding
     r = Record()
     r.chrm = tok
-    tu, td  = thash.get_closest_transcripts(tok, beg, end)
+    tu, td  = db.get_closest_transcripts(tok, beg, end)
     if tu:
         up = 'up: %s bp to %s' % (
             locale.format('%d', beg - tu.end, grouping=True), tu.gene.name)
@@ -142,18 +142,18 @@ def __annotate_reg_intergenic(args, thash, tok, beg, end):
     return r
     
                     
-def __annotate_reg(args, q, thash):
+def __annotate_reg(args, q, db):
 
     # check if location in a gene
     gene_found = False
-    for r in _annotate_reg_gene(args, q, thash):
+    for r in _annotate_reg_gene(args, q, db):
         yield r
         gene_found = True
 
     if not gene_found:
-        yield __annotate_reg_intergenic(args, thash, q.tok, q.beg, q.end)
+        yield __annotate_reg_intergenic(args, db, q.tok, q.beg, q.end)
 
-def _annotate_reg(args, q, thash):
+def _annotate_reg(args, q, db):
     normalize_reg(q)
-    for r in __annotate_reg(args, q, thash):
+    for r in __annotate_reg(args, q, db):
         r.format(q.op)

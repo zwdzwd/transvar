@@ -717,7 +717,7 @@ def parse_refseq_gff(gff_fn, name2gene):
             g.beg = int(fields[3])
             g.end = int(fields[4])
             id2ent[info['ID']] = g
-        elif fields[2] == 'mRNA' and info['Parent'] in id2ent:
+        elif fields[2] == 'mRNA' and 'Parent' in info and info['Parent'] in id2ent:
             t = Transcript()
             t.chrm = reg.name
             t.strand = fields[6]
