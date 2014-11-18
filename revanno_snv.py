@@ -128,7 +128,7 @@ def codon_mutation_snv(args, q, tpt):
     r.chrm = tpt.chrm
     r.tname = tpt.name
     r.pos = '-'.join(map(str, codon.locs))
-    
+
     # if alternative amino acid is given
     # filter the target mutation set to those give
     # the alternative aa
