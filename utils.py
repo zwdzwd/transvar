@@ -80,7 +80,7 @@ class AnnoDB():
         beg = int(beg)
         end = int(end)
         chrm = normalize_chrm(chrm)
-        db_chrms = session.query(self.sqlmodel.Chromosome).filter_by(name=chrm).all()
+        db_chrms = self.session.query(self.sqlmodel.Chromosome).filter_by(name=chrm).all()
         if db_chrms:
             db_chrm = db_chrms[0]
         else:
