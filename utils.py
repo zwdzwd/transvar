@@ -122,6 +122,8 @@ class AnnoDB():
             tpt.exons.sort()
             tpts.append(tpt)
 
+        print tpts
+
         return tpts
 
     def get_transcripts(self, chrm, beg, end=None, flanking=0):
