@@ -2,31 +2,6 @@ import transcripts as trs
 import sys
 import faidx
 
-def _localize_sql_transcript(t, f):
-
-    tpt = trs.Transcript()
-    tpt.chrm = f.chrm.name
-    tpt.strand = '-' if t.strand == 1 else '+'
-    tpt.name = t.name
-    tpt.beg = f.beg
-    tpt.end = f.end
-    tpt.cds_beg = t.cds_beg
-    tpt.cds_end = t.cds_end
-    tpt.source = f.source.name
-    for ex in t.exons:
-        tpt.exons.append((ex.beg, ex.end))
-    t.exons.sort()
-
-    return tpt
-
-def _localize_get_gene(g2gene, g):
-    if g in g2gene:
-        return g2gene[g]
-    else:
-        gene = trs.Gene(g.name)
-        g2gene[g] = gene
-        return gene
-
 class AnnoDB():
     
     def __init__(self, args):
@@ -74,12 +49,22 @@ class AnnoDB():
                 f = t.feature
                 if f.source.name not in self.source:
                     continue
-                tpt = _localize_sql_transcript(t, f)
-                tpt.gene = gene
-                gene.tpts.append(tpt)
+
+                tpt = trs.Transcript()
+                tpt.chrm = f.chrm.name
+                tpt.strand = '-' if t.strand == 1 else '+'
+                tpt.name = t.name
+                tpt.beg = f.beg
+                tpt.end = f.end
+                tpt.cds_beg = t.cds_beg
+                tpt.cds_end = t.cds_end
+                tpt.source = f.source.name
                 for ex in t.exons:
                     tpt.exons.append((ex.beg, ex.end))
+                tpt.gene = gene
                 tpt.exons.sort()
+                gene.tpts.append(tpt)
+                
             return gene
         elif self.name2gene:
             if name in self.name2gene:
@@ -92,8 +77,20 @@ class AnnoDB():
     def _sql_get_transcripts(self, chrm, beg, end=None, flanking=0):
 
         if not end: end = beg
+        beg = int(beg)
+        end = int(end)
         chrm = normalize_chrm(chrm)
-        db_features = self.session.query(self.sqlmodel.Transcript).filter_by(self.sqlmodel.Transcript.beg-flanking <= end, self.sqlmodel.Transcript.end+flanking >= beg).all()
+        db_chrms = session.query(self.sqlmodel.Chromosome).filter_by(name=chrm).all()
+        if db_chrms:
+            db_chrm = db_chrms[0]
+        else:
+            return []
+
+        db_features = self.session.query(self.sqlmodel.Feature).filter(
+            self.sqlmodel.Feature.chrm_id == db_chrm.id,
+            self.sqlmodel.Feature.beg-flanking <= end,
+            self.sqlmodel.Feature.end+flanking >= beg,
+        ).all()
         tpts = []
         name2gene = {}
         for db_feature in db_features:
@@ -118,6 +115,7 @@ class AnnoDB():
             else:
                 tpt.gene = trs.Gene(gene_name)
                 name2gene[gene_name] = tpt.gene
+            tpt.gene.tpts.append(tpt)
             tpt.source = db_feature.source.name
             for ex in db_transcript.exons:
                 tpt.exons.append((ex.beg, ex.end))
@@ -155,47 +153,40 @@ class AnnoDB():
         return (self.get_closest_transcripts_upstream(chrm, beg),
                 self.get_closest_transcripts_downstream(chrm, end))
 
+    # def get_transcripts(self, chrm, beg, end=None, flanking=0):
 
-    def get_transcripts(self, chrm, beg, end=None, flanking=0):
+    #     if self.session:
+    #         chrm = normalize_chrm(chrm)
+    #         beg = int(beg)
+    #         end = int(end) if end else beg
+    #         chms = session.query(self.sqlmodel.Chromosome).filter_by(name=chrm).all()
+    #         if chms:
+    #             chm = chms[0]
+    #         else:
+    #             return tpts
+    #         tpts = []
+    #         fs = self.session.query(self.sqlmodel.Feature).filter(
+    #             self.sqlmodel.Feature.chrm_id == chm.id,
+    #             self.sqlmodel.Feature.beg < end + flanking,
+    #             self.sqlmodel.Feature.end > beg - flanking).all()
+    #         gene2g = {}
+    #         for f in fs:
+    #             if f.source.name not in self.source:
+    #                 continue
+    #             if f.feature.type.name != 'protein_coding':
+    #                 continue
+    #             f = f.transcripts[0]
+    #             tpt = _localize_sql_transcript(t, f)
+    #             gene = _localize_get_gene(gene2g, t.gene)
+    #             tpt.gene = gene
+    #             gene.tpts.append(tpt)
+    #             ## Note that the trs.Gene object generated here
+    #             ## hasn't all the transcripts
+    #             tpts.append(tpt)
+    #         return tpts
+    #     elif self.thash:
+    #         return self.thash.get_transcripts(chrm, beg, end, flanking)
 
-        if self.session:
-            chrm = normalize_chrm(chrm)
-            beg = int(beg)
-            end = int(end) if end else beg
-            chms = session.query(self.sqlmodel.Chromosome).filter_by(name=chrm).all()
-            if chms:
-                chm = chms[0]
-            else:
-                return tpts
-            tpts = []
-            fs = self.session.query(self.sqlmodel.Feature).filter(
-                self.sqlmodel.Feature.chrm_id == chm.id,
-                self.sqlmodel.Feature.beg < end + flanking,
-                self.sqlmodel.Feature.end > beg - flanking).all()
-            gene2g = {}
-            for f in fs:
-                if f.source.name not in self.source:
-                    continue
-                if f.feature.type.name != 'protein_coding':
-                    continue
-                f = f.transcripts[0]
-                tpt = _localize_sql_transcript(t, f)
-                gene = _localize_get_gene(gene2g, t.gene)
-                tpt.gene = gene
-                gene.tpts.append(tpt)
-                ## Note that the trs.Gene object generated here
-                ## hasn't all the transcripts
-                tpts.append(tpt)
-            return tpts
-        elif self.thash:
-            return get_transcripts(chrm, beg, end, flanking)
-
-    def get_closest_transcripts_upstream(self, chrm, pos):
-        ## TODO!
-        # session.query(self.sqlmodel.Feature).filter(
-        #     self.sqlmodel.Feature.beg > pos
-        # ).all()
-        pass
 
 MAXCHRMLEN=300000000
 def normalize_chrm(chrm):
