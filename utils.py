@@ -86,21 +86,27 @@ class AnnoDB():
         else:
             return []
 
+        # print beg, end, chrm
+
         db_features = self.session.query(self.sqlmodel.Feature).filter(
             self.sqlmodel.Feature.chrm_id == db_chrm.id,
             self.sqlmodel.Feature.beg-flanking <= end,
             self.sqlmodel.Feature.end+flanking >= beg,
         ).all()
+        # print db_features
         tpts = []
         name2gene = {}
         for db_feature in db_features:
             db_transcripts = db_feature.transcripts
+            # print db_feature.type.name, db_transcripts
             if db_transcripts:
                 db_transcript = db_transcripts[0]
             else:
                 continue
+            # print self.source, db_feature.source.name
             if db_feature.source.name not in self.source:
                 continue
+            # print db_feature.source.name
             tpt = trs.Transcript()
             tpt.chrm = db_feature.chrm.name
             tpt.strand = '-' if db_transcript.strand == 1 else '+'
@@ -122,7 +128,7 @@ class AnnoDB():
             tpt.exons.sort()
             tpts.append(tpt)
 
-        print tpts
+        # print tpts
 
         return tpts
 
