@@ -20,6 +20,10 @@ class AnnoDB():
             import sqlmodel
             self.sqlmodel = sqlmodel
             self.session = sqlmodel.sessionmaker(bind=sqlmodel.engine, autoflush=False)()
+            refversion_ids = self.session.query(sqlmodel.RefVersion).filter_by(name=args.refversion).all()
+            if not refversion_ids:
+                raise Exception("No reference version named: %s" % args.refversion)
+            self.refversion_id = refversion_ids[0].id
             self.source = []
             if args.ensembl:
                 self.source.append('Ensembl')
@@ -41,13 +45,15 @@ class AnnoDB():
     def get_gene(self, name):
 
         if self.session:
-            gs = self.session.query(self.sqlmodel.Gene).filter_by(name=name).all()
+            gs = self.session.query(self.sqlmodel.Gene).filter_by(name = name).all()
             if not gs: return None
             g = gs[0]
             gene = trs.Gene(name)
             for t in g.transcripts:
                 f = t.feature
                 if f.source.name not in self.source:
+                    continue
+                if f.refversion_id != self.refversion_id:
                     continue
 
                 tpt = trs.Transcript()
@@ -64,10 +70,13 @@ class AnnoDB():
                 tpt.gene = gene
                 tpt.exons.sort()
                 gene.tpts.append(tpt)
-                
+                #print f.source.name, gene.name, f.beg, t.name
+
+            #print gene.tpts
             return gene
         elif self.name2gene:
             if name in self.name2gene:
+                #print self.name2gene[name].tpts
                 return self.name2gene[name]
             else:
                 return None
@@ -391,6 +400,8 @@ def replace_defaults(args, config):
         rv = config.get('DEFAULT', 'refversion')
     else:
         rv = 'hg19'
+
+    args.refversion = rv
 
     def _set_arg_(argname, rv):
         if getattr(args, argname) == '_DEF_':

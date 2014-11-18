@@ -1,4 +1,5 @@
 from sqlmodel import *
+from utils import normalize_chrm
 import transcripts as trs
 Session = sessionmaker(bind=engine, autoflush=False)
 session = Session()

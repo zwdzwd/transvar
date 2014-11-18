@@ -1,5 +1,6 @@
 import sys, re
 from utils import *
+from io_utils import *
 from err import *
 import faidx
 from record import *
@@ -513,7 +514,6 @@ class Transcript():
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
                 return c, p, self._in_exon(gpos)
-
     
     def gpos2codon(self, chrm, gpos):
         """ return Codon as well as (tnuc) Pos """
