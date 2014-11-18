@@ -30,11 +30,12 @@ def load_elem(rv_s, src_s, fn, func):
             g = Gene(name=name)
             session.add(g)
         for transcript in gene.tpts:
-            chms = session.query(Chromosome).filter_by(name=transcript.chrm).all()
+            chrm = normalize_chrm(transcript.chrm)
+            chms = session.query(Chromosome).filter_by(name=chrm).all()
             if chms:
                 chm = chms[0]
             else:
-                chm = Chromosome(name=transcript.chrm)
+                chm = Chromosome(name=chrm)
                 session.add(chm)
                 session.flush()
 
