@@ -965,8 +965,8 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
     for line in aceview_fh:
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
+        if len(fields) < 9: continue # the old transcript definition (hg18) from AceView is a bit corrupted.
         info = dict(re.findall(r'\s*(\S+) (\S+);', fields[8]))
-        if len(fields) < 6: continue # the old transcript definition (hg18) from AceView is a bit corrupted.
         if fields[2] == 'CDS':
             gene_name = info['gene_id'].upper()
             if gene_name in name2gene:
