@@ -621,7 +621,7 @@ def parse_ucsc_refgene(map_file, name2gene):
             name2gene[gene_name] = gene
         t = Transcript()
         t.name = fields[1]
-        t.chrm = fields[2]
+        t.chrm = normalize_chrm(fields[2])
         t.strand = fields[3]
         t.beg    = int(fields[4])+1
         t.end    = int(fields[5])
@@ -658,7 +658,7 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
             name2gene[gene_name] = gene
 
         t = Transcript()
-        t.chrm = fields[1]
+        t.chrm = normalize_chrm(fields[1])
         t.strand = fields[2]
         t.beg    = int(fields[3])
         t.end    = int(fields[4])
@@ -719,7 +719,7 @@ def parse_refseq_gff(gff_fn, name2gene):
             id2ent[info['ID']] = g
         elif fields[2] == 'mRNA' and 'Parent' in info and info['Parent'] in id2ent:
             t = Transcript()
-            t.chrm = reg.name
+            t.chrm = normalize_chrm(reg.name)
             t.strand = fields[6]
             t.beg = int(fields[3])
             t.end = int(fields[4])
@@ -736,7 +736,7 @@ def parse_refseq_gff(gff_fn, name2gene):
                 if not hasattr(g, 'gene_t'):
                     g.gene_t = Transcript()
                     g.tpts.append(g.gene_t)
-                    g.gene_t.chrm = reg.name
+                    g.gene_t.chrm = normalize_chrm(reg.name)
                     g.gene_t.strand = fields[6]
                     g.gene_t.gene = g
                     g.gene_t.beg = g.beg
@@ -752,7 +752,7 @@ def parse_refseq_gff(gff_fn, name2gene):
                 if not hasattr(g, 'gene_t'):
                     g.gene_t = Transcript()
                     g.tpts.append(g.gene_t)
-                    g.gene_t.chrm = reg.name
+                    g.gene_t.chrm = normalize_chrm(reg.name)
                     g.gene_t.strand = fields[6]
                     g.gene_t.gene = g
                     g.gene_t.beg = g.beg
@@ -790,7 +790,7 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             tid = info['transcript_id']
             if tid not in id2ent: id2ent[tid] = Transcript()
             t = id2ent[tid]
-            t.chrm = fields[0]
+            t.chrm = normalize_chrm(fields[0])
             t.strand = fields[6]
             t.beg = int(fields[3])
             t.end = int(fields[4])
@@ -831,7 +831,7 @@ def parse_ccds_table(ccds_fn, name2gene):
 
         g = name2gene[gene_name]
         t = Transcript()
-        t.chrm = fields[0]
+        t.chrm = normalize_chrm(fields[0])
         t.strand = fields[6]
         t.cds_beg = int(fields[7])+1
         t.cds_end = int(fields[8])+1
@@ -886,7 +886,7 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
 
         t = Transcript()
         t.name = fields[0]
-        t.chrm = fields[1]
+        t.chrm = normalize_chrm(fields[1])
         t.strand = fields[2]
         t.beg = int(fields[3])
         t.end = int(fields[4])
@@ -933,7 +933,7 @@ def parse_gencode_gtf(gencode_fn, name2gene):
             tid = info['transcript_id']
             if tid not in id2ent: id2ent[tid] = Transcript()
             t = id2ent[tid]
-            t.chrm = fields[0]
+            t.chrm = normalize_chrm(fields[0])
             t.strand = fields[6]
             t.beg = int(fields[3])
             t.end = int(fields[4])
@@ -966,6 +966,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*(\S+) (\S+);', fields[8]))
+        if len(fields) < 6: continue # the old transcript definition (hg18) from AceView is a bit corrupted.
         if fields[2] == 'CDS':
             gene_name = info['gene_id'].upper()
             if gene_name in name2gene:
@@ -978,7 +979,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
                 t = id2tpt[info['transcript_id']]
             else:
                 t = Transcript()
-                t.chrm = fields[0]
+                t.chrm = normalize_chrm(fields[0])
                 t.strand = fields[6]
                 t.name = info['transcript_id']
                 id2tpt[t.name] = t
@@ -1000,7 +1001,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
                 t = id2tpt[info['transcript_id']]
             else:
                 t = Transcript()
-                t.chrm = fields[0]
+                t.chrm = normalize_chrm(fields[0])
                 t.strand = fields[6]
                 t.name = info['transcript_id']
                 id2tpt[t.name] = t

@@ -210,6 +210,7 @@ def normalize_chrm(chrm):
 
     if chrm == '23': chrm = 'X'
     if chrm == '24': chrm = 'Y'
+    if chrm == 'MT': chrm = 'M'
     if not chrm.startswith('chr'):
         chrm = 'chr'+chrm
 
