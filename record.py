@@ -2,6 +2,7 @@ import re
 from utils import *
 from err import *
 
+
 class Pos():
 
     def __init__(self, pos='', tpos=0):
@@ -175,6 +176,12 @@ class Record():
             if hasattr(self, 'tnuc_alt') and self.tnuc_alt: s += self.tnuc_alt
             if s == 'c.>': return '.'
         return s
+
+    def append_info(self, app):
+        if self.info:
+            self.info += ';'+app
+        else:
+            self.info = app
 
     def gnuc(self):
         

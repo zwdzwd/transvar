@@ -24,13 +24,12 @@ def nuc_mutation_snv_coding(r, tpt, codon, q):
     r.taa_ref = codon2aa(codon.seq)
     r.taa_pos = codon.index
     if not q.alt:
-        r.info = ''
         r.taa_alt = ''
     else:
         mut_seq = list(codon.seq[:])
         mut_seq[(q.cpos()-1) % 3] = q.alt
         r.taa_alt = codon2aa(''.join(mut_seq))
-        r.info = 'NCodonSeq=%s;NAltCodonSeq=%s' % (codon.seq, ''.join(mut_seq))
+        r.append_info('NCodonSeq=%s;NAltCodonSeq=%s' % (codon.seq, ''.join(mut_seq)))
 
 def nuc_mutation_snv_intronic(r, tpt, codon, q):
 
@@ -67,6 +66,7 @@ def nuc_mutation_snv(args, q, tpt):
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
+    r.info = 'DBXref=%s' % tpt.gene.dbxref
 
     if q.pos.tpos == 0:                # coding region
         nuc_mutation_snv_coding(r, tpt, codon, q)
@@ -127,6 +127,7 @@ def codon_mutation_snv(args, q, tpt):
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
+    r.info = 'DBXref=%s' % tpt.gene.dbxref
     r.pos = '-'.join(map(str, codon.locs))
 
     # if alternative amino acid is given
@@ -209,18 +210,18 @@ def codon_mutation_snv(args, q, tpt):
                                                     reverse_complement(tnuc_alt))
                 cdd_mnv_muts.append(gnuc_tok)
                                                     
-        r.info = 'NCodonSeq=%s;NCddSeqs=%s' % (codon.seq, ','.join(tgt_codon_seqs))
+        r.append_info('NCodonSeq=%s;NCddSeqs=%s' % (codon.seq, ','.join(tgt_codon_seqs)))
         if cdd_snv_muts:
-            r.info += ';CddSNVMuts=%s' % ','.join(cdd_snv_muts)
+            r.append_info('CddSNVMuts=%s' % ','.join(cdd_snv_muts))
         if cdd_mnv_muts:
-            r.info += ';CddMNVMuts=%s' % ','.join(cdd_mnv_muts)
+            r.append_info('CddMNVMuts=%s' % ','.join(cdd_mnv_muts))
         if args.dbsnp_fh:
             dbsnps = []
             for entry in args.dbsnp_fh.fetch(tpt.chrm, codon.locs[0]-3, codon.locs[0]):
                 f = entry.split('\t')
                 dbsnps.append('%s(%s:%s%s>%s)' % (f[2], f[0], f[1], f[3], f[4]))
             if dbsnps:
-                r.info += ';DBSNP=%s' % ','.join(dbsnps)
+                r.append_info('DBSNP=%s' % ','.join(dbsnps))
     else:
         r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
         r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)

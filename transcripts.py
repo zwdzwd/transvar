@@ -579,7 +579,7 @@ class Gene():
     def __init__(self, name=''):
 
         self.name    = name
-        self.alias   = ''
+        self.dbxref  = ''       # for storing GENEID etc.
         self.tpts    = []
         self.std_tpt = None
         self.pseudo  = False
@@ -711,14 +711,18 @@ def parse_refseq_gff(gff_fn, name2gene):
               ('pseudo' not in info or info['pseudo'] != 'true')):
             gene_name = info['Name']
             if gene_name in name2gene:
-                continue   # if a gene_name appears twice, then all the subsequent occurrences are all ignored.
-                # g = name2gene[gene_name]
+                g = name2gene[gene_name]
+                if hasattr(g, '_gene_id') and g._gene_id != info['ID']:
+                    continue   # if a gene_name appears twice, then all the subsequent occurrences are all ignored.
+                g._gene_id = info['ID']
             else:
                 g = Gene(gene_name)
                 name2gene[gene_name] = g
             g.beg = int(fields[3])
             g.end = int(fields[4])
             id2ent[info['ID']] = g
+            if 'Dbxref' in info:
+                g.dbxref = info['Dbxref']
         elif fields[2] == 'mRNA' and 'Parent' in info and info['Parent'] in id2ent:
             t = Transcript()
             t.chrm = normalize_chrm(reg.name)
