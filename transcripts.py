@@ -262,7 +262,8 @@ class Transcript():
             err_die("Please provide reference through --ref [reference fasta].", __name__)
         seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
-        if not seq: raise SequenceRetrievalError()
+        if (not seq) or (len(seq) != self.end - self.beg + 1):
+            raise SequenceRetrievalError()
         segs = []
         for ex_beg, ex_end in self.exons:
             beg = max(ex_beg, self.cds_beg)
@@ -710,7 +711,8 @@ def parse_refseq_gff(gff_fn, name2gene):
               ('pseudo' not in info or info['pseudo'] != 'true')):
             gene_name = info['Name']
             if gene_name in name2gene:
-                g = name2gene[gene_name]
+                continue   # if a gene_name appears twice, then all the subsequent occurrences are all ignored.
+                # g = name2gene[gene_name]
             else:
                 g = Gene(gene_name)
                 name2gene[gene_name] = g

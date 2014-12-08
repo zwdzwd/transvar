@@ -1,8 +1,8 @@
 from transcripts import *
 from record import *
 from anno_reg import __annotate_reg_intergenic
-import locale
-locale.setlocale(locale.LC_ALL, 'en_US')
+# import locale
+# locale.setlocale(locale.LC_ALL, '')
 
 def __annotate_snv_gene(args, q, t):
 

@@ -18,7 +18,7 @@ def _main_core_(args, q, db):
         q.pos = q.beg
         q.ref = q.refseq
         q.alt = ''
-        
+
     for t1, c1 in __core_annotate_codon_snv(args, q):
         # search any of the 3 positions
         for cind in xrange(3):

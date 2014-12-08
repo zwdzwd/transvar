@@ -75,6 +75,8 @@ def parse_mutation_str(mut_str, muttype=None):
             q.beg_aa = _beg_aa.upper() if _beg_aa else ''
             q.end_aa = _end_aa.upper() if _end_aa else ''
             q.refseq = _ref if _ref else ''
+            if (not q.refseq) and q.beg == q.end:
+                q.refseq = q.beg_aa
 
         q.is_codon = True
     elif (mn and not muttype) or muttype=='n':

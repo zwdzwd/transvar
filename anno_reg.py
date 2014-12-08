@@ -2,8 +2,7 @@ from transcripts import *
 from record import *
 import copy
 import locale
-locale.setlocale(locale.LC_ALL, 'en_US')
-
+locale.setlocale(locale.LC_ALL, '')
 
 def _annotate_reg_gene_point(args, q, t):
     
