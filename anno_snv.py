@@ -39,7 +39,9 @@ def __annotate_snv_gene(args, q, t):
         r.tnuc_ref = complement(r.gnuc_ref)
         r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
 
-    r.info = 'CodonPos=%s;NCodonSeq=%s' % ('-'.join(map(str, c.locs)), c.seq)
+    r.append_info('CodonPos=%s' % '-'.join(map(str, c.locs)))
+    r.append_info('NCodonSeq=%s' % c.seq)
+    r.append_info('Syn' if r.taa_ref == r.taa_alt else 'Nonsyn')
 
     return r
 

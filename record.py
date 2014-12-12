@@ -181,7 +181,7 @@ class Record():
         return s
 
     def append_info(self, app):
-        if self.info:
+        if self.info and self.info != '.':
             self.info += ';'+app
         else:
             self.info = app
