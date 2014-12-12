@@ -29,7 +29,7 @@ def __annotate_snv_gene(args, q, t):
 
     r.gnuc_pos = q.pos
     # r.gnuc_ref = c.refseq()[c.locs.index(q.pos)]
-    r.gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
+    r.gnuc_ref = q.ref
     r.gnuc_alt = q.alt
     r.tnuc_pos = p
     if c.strand == '+':
@@ -70,6 +70,19 @@ def _annotate_snv_gene(args, q, db):
 
 
 def _annotate_snv(args, q, db):
+
+    # check reference base
+    gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
+    if q.ref and gnuc_ref != q.ref:
+        r = Record()
+        r.chrm = q.tok
+        r.pos = q.pos
+        r.info = "InvalidReferenceBase:%s(%s)" % (q.ref, gnuc_ref)
+        r.format(q.op)
+        err_print("Invalid reference base %s (%s), maybe wrong reference?" % (q.ref, gnuc_ref))
+    else:
+        q.ref = gnuc_ref
+
     # check if location in a gene
     gene_found = False
     for r in _annotate_snv_gene(args, q, db):

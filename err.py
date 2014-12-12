@@ -19,3 +19,6 @@ class UnknownChromosomeError(Exception):
 
 class SequenceRetrievalError(Exception):
     pass
+
+class WrongReferenceError(Exception):
+    pass
