@@ -714,10 +714,10 @@ def parse_refseq_gff(gff_fn, name2gene):
                 g = name2gene[gene_name]
                 if hasattr(g, '_gene_id') and g._gene_id != info['ID']:
                     continue   # if a gene_name appears twice, then all the subsequent occurrences are all ignored.
-                g._gene_id = info['ID']
             else:
                 g = Gene(gene_name)
                 name2gene[gene_name] = g
+            g._gene_id = info['ID']
             g.beg = int(fields[3])
             g.end = int(fields[4])
             id2ent[info['ID']] = g
