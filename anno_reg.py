@@ -125,6 +125,12 @@ def __annotate_reg_intergenic(args, db, tok, beg, end):
         down = 'down: %s bp to 3-telomere' % (
             locale.format('%d', reflen(tok)-end, grouping=True), )
     r.reg = 'Intergenic (%s, %s)' % (up, down)
+    if beg == end:
+        r.gnuc_pos = beg
+        r.pos = beg
+    else:
+        r.gnuc_range = '%d_%d' % (beg, end)
+        r.pos = '%d-%d' % (beg, end)
 
     # # annotate extra noncoding features
     if 'GENCODE' in args.ffhs:

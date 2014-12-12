@@ -25,7 +25,7 @@ def nuc_mutation_ins_coding_inframe_inphase(args, q, tpt, r):
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
     r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
     r.tnuc_range = '%d_%dins%s' % (q.pos.pos, q.pos.pos+1, q.insseq)
-    r.pos = '%s:%d-(ins)-%d' % (r.chrm, gnuc_beg, gnuc_end)
+    r.pos = '%d-(ins)-%d' % (gnuc_beg, gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
     r.info = 'NatInsSeq=%s;RefInsSeq=%s;Phase=0' % (q.insseq, refinsseq)
 
@@ -69,7 +69,7 @@ def nuc_mutation_ins_coding_inframe_outphase(args, q, tpt, r):
     gnuc_beg, gnuc_end = tpt.tnuc_range2gnuc_range(q.pos.pos, q.pos.pos+1)
     r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
     r.tnuc_range = '%d_%dins%s' % (q.pos.pos, q.pos.pos+1, q.insseq)
-    r.pos = '%s:%d-(ins)-%d' % (r.chrm, gnuc_beg, gnuc_end)
+    r.pos = '%d-(ins)-%d' % (gnuc_beg, gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
     r.info = 'NatInsSeq=%s(%s)%s;RefInsSeq=%s;Phase=%d' % (codon_subseq1, q.insseq, codon_subseq2, refinsseq, phase)
 
@@ -102,7 +102,7 @@ def nuc_mutation_ins_coding_frameshift(args, q, tpt, r):
     refinsseq = q.insseq if tpt.strand == '+' else reverse_complement(q.insseq)
     r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
     r.info = 'NatInsSeq=%s;RefInsSeq=%s' % (q.insseq, refinsseq)
-    r.pos = '%s:%d-%d' % (r.chrm, gnuc_beg, gnuc_end)
+    r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
 
 def nuc_mutation_ins_coding(args, q, tpt, r):
@@ -151,7 +151,7 @@ def nuc_mutation_ins_intronic(args, q, tpt, r):
     if not (j<3 and codon.locs[j] == gnuc_end): pl.append('(%d)' % gnuc_end)
     s = '-'.join(map(str, codon.locs[j:]))
     if s: pl.append(s)
-    r.pos = '%s:%s' % (tpt.chrm, '-'.join(pl))
+    r.pos = '-'.join(pl)
     r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
     r.gnuc_range = '%d_%dins%s' % (gnuc_beg, gnuc_end, refinsseq)
     r.tnuc_range = '%d%d_%d%dins%s' % (q.pos.pos, q.pos.tpos, q.pos.pos, q.pos.tpos+1, q.insseq)

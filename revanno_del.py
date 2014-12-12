@@ -31,7 +31,7 @@ def nuc_mutation_del_coding_inframe_inphase(args, q, tpt, r):
         r.gnuc_beg = end_codon.locs[0]
         r.gnuc_end = beg_codon.locs[2]
     r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
-    r.pos = '%s:%d-%d' % (r.chrm, r.gnuc_beg, r.gnuc_end)
+    r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
 
 def nuc_mutation_del_coding_inframe_outphase(args, q, tpt, r):
@@ -90,7 +90,7 @@ def nuc_mutation_del_coding_inframe_outphase(args, q, tpt, r):
         r.gnuc_beg = gnuc_del_end
         r.gnuc_end = gnuc_del_beg
     r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
-    r.pos = '%s:%d-%d' % (r.chrm, r.gnuc_beg, r.gnuc_end)
+    r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
     # print beg_codon, beg_codon.seq, end_codon, end_codon.seq
 
@@ -127,7 +127,7 @@ def nuc_mutation_del_coding_frameshift(args, q, tpt, r):
 
     r.refdelseq = r.natdelseq if tpt.strand == '+' else reverse_complement(r.natdelseq)
     r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (r.refdelseq, r.natdelseq)
-    r.pos = '%s:%d-%d' % (r.chrm, r.gnuc_beg, r.gnuc_end)
+    r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
 
 def nuc_mutation_del_coding(args, q, tpt, r):

@@ -135,6 +135,9 @@ class QueryDUP(Query):
 
 def normalize_reg(q):
 
+    """ create a sensable region 
+    respect to the length of the chromosome """
+
     if q.beg > reflen(q.tok):
         err_print('Region beg %d greater than chromosome length %d, truncated.'
                   % (q.beg, reflen(q.tok)))
