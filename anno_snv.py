@@ -6,8 +6,6 @@ from anno_reg import __annotate_reg_intergenic
 
 def __annotate_snv_gene(args, q, t):
 
-    t.ensure_seq()
-    print t.name, t.exons, len(t.seq), t.seq
     c, p, reg = t.gpos2codon(q.tok, q.pos)
 
     r = Record()
