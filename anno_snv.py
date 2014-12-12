@@ -41,7 +41,8 @@ def __annotate_snv_gene(args, q, t):
 
     r.append_info('CodonPos=%s' % '-'.join(map(str, c.locs)))
     r.append_info('NCodonSeq=%s' % c.seq)
-    r.append_info('Syn' if r.taa_ref == r.taa_alt else 'Nonsyn')
+    if hasattr(r, 'taa_ref') and hasattr(r, 'taa_alt'):
+        r.append_info('Syn' if r.taa_ref == r.taa_alt else 'Nonsyn')
 
     return r
 
