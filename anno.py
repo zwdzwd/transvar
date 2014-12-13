@@ -9,6 +9,7 @@ from mutation import parse_tok_mutation_str, list_parse_mutation, parser_add_mut
 from record import *
 from anno_reg import _annotate_reg
 from anno_snv import _annotate_snv
+from anno_del import _annotate_del
 
 def _main_core_(args, db, q):
 

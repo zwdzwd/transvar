@@ -10,7 +10,7 @@ def _annotate_reg_gene_point(args, q, t):
     r = Record()
     r.chrm = t.chrm
     r.tname = t.name
-    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, reg)
+    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, reg.format())
 
     # at the ends of retained intron transcripts from ENSEMBL,
     # codon sequence is not always of length 3

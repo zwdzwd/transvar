@@ -418,29 +418,41 @@ class Transcript():
     #         return c, p, reg
     #     return None
 
-    def _in_exon(self, gpos):
-
+    def describe(self, gpos):
+        """ determine the position of a single site """
+        rg = RegAnno()
+        if gpos < self.cds_beg:
+            rg.UTR = '5' if self.strand == '+' else '3'
+        if gpos > self.cds_end:
+            rg.UTR = '3' if self.strand == '+' else '5'
         for i, exon in enumerate(self.exons):
             exind = i+1 if self.strand == '+' else len(self.exons) - i
             if i == 0 and exon[0] > gpos:
-                return 'IntergenicUpstream'
+                rg.intergenic = 'Upstream'
+                return rg
             if i == len(self.exons)-1 and exon[1] < gpos:
-                return 'IntergenicDownstream'
+                rg.intergenic = 'Downstream'
+                return rg
             if exon[0] <= gpos and exon[1] >= gpos:
+                rg.exonic = True
                 if gpos >= self.cds_beg and gpos <= self.cds_end:
-                    return 'Coding_%d' % exind
-                else:
-                    return 'Exonic_%d' % exind
+                    rg.cds = True
+                rg.exon = exind
+                return rg
             if i > 0:
                 pexon = self.exons[i-1]
                 if gpos > pexon[1] and gpos < exon[0]:
+                    rg.intronic = True
                     if self.strand == '+':
-                        return 'Intronic_%d_%d' % (exind-1, exind)
+                        rg.intron_exon1 = exind-1
+                        rg.intron_exon2 = exind
                     else:
-                        return 'Intronic_%d_%d' % (exind, exind+1)
+                        rg.intron_exon1 = exind
+                        rg.intron_exon2 = exind+1
+                    return rg
 
         raise Exception()       # you shouldn't reach here
-    
+
     def _gpos2codon_p(self, gpos, np):
 
         if gpos < self.cds_beg:
@@ -448,7 +460,7 @@ class Transcript():
             c = self._init_codon_(1)
             c.seq = self.seq[:3]
             c.locs = np[:3]
-            reg = '5-UTR;'+self._in_exon(gpos)
+            reg = self.describe(gpos)
             return c, p, reg
 
         if gpos > self.cds_end:
@@ -456,7 +468,7 @@ class Transcript():
             c = self._init_codon_((len(self.seq)+2)/3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
-            reg = '3-UTR;'+self._in_exon(gpos)
+            reg = self.describe(gpos)
             return c, p, reg
         
         for i, pos in enumerate(np):
@@ -465,7 +477,8 @@ class Transcript():
                 c.seq    = self.seq[i-i%3:i-i%3+3]
                 c.locs   = np[i-i%3:i-i%3+3]
                 p = Pos(i+1, 0)
-                return c, p, self._in_exon(gpos)
+                reg = self.describe(gpos)
+                return c, p, reg
             if gpos < pos:
                 if gpos - np[i-1] < pos - gpos:
                     p = Pos(i, gpos-np[i-1])
@@ -476,7 +489,8 @@ class Transcript():
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
-                return c, p, self._in_exon(gpos)
+                reg = self.describe(gpos)
+                return c, p, reg
 
     def _gpos2codon_n(self, gpos, np):
 
@@ -485,7 +499,7 @@ class Transcript():
             c = self._init_codon_(1)
             c.seq = self.seq[:3]
             c.locs = np[:3]
-            reg = '3-UTR;'+self._in_exon(gpos)
+            reg = self.describe(gpos)
             return c, p, reg
 
         if gpos > self.cds_end:
@@ -493,7 +507,7 @@ class Transcript():
             c = self._init_codon_((len(self.seq)+2)/3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
-            reg = '5-UTR;'+self._in_exon(gpos)
+            reg = self.describe(gpos)
             return c, p, reg
 
         for i, pos in enumerate(np):
@@ -502,7 +516,8 @@ class Transcript():
                 c.seq = self.seq[i-i%3:i-i%3+3]
                 c.locs = tuple(reversed(np[i-i%3:i-i%3+3]))
                 p = Pos(i+1, 0)
-                return c, p, self._in_exon(gpos)
+                reg = self.describe(gpos)
+                return c, p, reg
             
             if gpos > pos:
                 if np[i-1] - gpos < gpos - pos:
@@ -514,7 +529,8 @@ class Transcript():
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
-                return c, p, self._in_exon(gpos)
+                reg = self.describe(gpos)
+                return c, p, reg
     
     def gpos2codon(self, chrm, gpos):
         """ return Codon as well as (tnuc) Pos """

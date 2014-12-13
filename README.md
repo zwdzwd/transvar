@@ -734,6 +734,8 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Future work
 
+ + add cytoband annotation
+ + forward annotation of non-coding RNA from GENCODE
  + forward annotation of binding sites
  + forward annotation of insertion/deletion
  + forward annotation of structural variation breakpoints

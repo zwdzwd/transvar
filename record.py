@@ -17,6 +17,48 @@ class Pos():
             return '%s+%d' % (str(self.pos), self.tpos)
         else: return str(self.pos)
 
+    def __eq__(self, other):
+        if (self.pos == other.pos and
+            self.tpos == other.tpos):
+            return True
+        else:
+            return False
+
+
+class RegAnno():
+
+    def __init__(self):
+        self.intronic = False
+        self.exonic = False 
+        self.cds = False
+        self.UTR = None         # '3' or '5'
+        self.exon = None
+        self.intron_exon1 = None
+        self.intron_exon2 = None
+        self.intergenic = None  # 'Upstream' or 'Downstream'
+
+    def append(self, f, a):
+        if f:
+            return f+';'+a
+        else:
+            return a
+
+    def format(self):
+        f = ''
+        if self.UTR: f = self.append(f, '%s-UTR' % self.UTR)
+        if self.intronic:
+            f = self.append(f, 'Intronic_%d_%d' %
+                            (self.intron_exon1, self.intron_exon2))
+        elif self.exonic:
+            if self.cds:
+                f = self.append(f, 'Exonic_%d' % self.exon)
+            else:
+                f = self.append(f, 'CDS_%d' % self.exon)
+        elif self.intergenic:
+            f = self.append(f, 'Intergenic%s' % self.intergenic)
+
+        return f
+
 def parse_pos(posstr):
 
     if posstr.isdigit():

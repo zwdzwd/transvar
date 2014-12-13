@@ -11,7 +11,7 @@ def __annotate_snv_gene(args, q, t):
     r = Record()
     r.chrm = t.chrm
     r.tname = t.name
-    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, reg)
+    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, reg.format())
     r.pos = q.pos
 
     # at the ends of retained intron transcripts from ENSEMBL,
