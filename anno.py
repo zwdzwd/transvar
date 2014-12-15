@@ -10,6 +10,7 @@ from record import *
 from anno_reg import _annotate_reg
 from anno_snv import _annotate_snv
 from anno_del import _annotate_del
+from anno_ins import _annotate_ins
 
 def _main_core_(args, db, q):
 

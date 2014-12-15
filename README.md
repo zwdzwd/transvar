@@ -724,16 +724,47 @@ outputs
 
 #### annotate a deletion from genomic location
 [back to top](#top)
+
+A frameshift deletion
 ```
 #!bash
 transvar anno -i "chr2:234183368_234183380del" --ccds
 ```
 outputs
 ```
+#!text
 chr2:234183368_234183380del     chr2    234183368-234183380     CCDS2502.2
     ATG16L1 (+, Coding)     chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5
     BEGCodon=234183368/234183369/234183370;
 	ENDCodon=234183380/234183381/234183382;REG=Exonic_8
+```
+
+An in-frame deletion
+```
+#!bash
+transvar anno -i "chr2:234183368_234183379del" --ccds
+```
+outputs
+```
+#!text
+chr2:234183368_234183379del     chr2    234183368-234183379     CCDS2502.2
+    ATG16L1 (+, Coding)     chr2:g.234183368_234183379del12/c.841_852del12/p.T281_G284del
+	BEGCodon=234183368/234183369/234183370;
+	ENDCodon=234183377/234183378/234183379;REG=Exonic_8
+```
+
+An in-frame out-of-phase deletion
+```
+#!bash
+transvar anno -i "chr2:234183372_234183383del" --ccds
+```
+outputs
+```
+#!text
+chr2:234183372_234183383del     chr2    234183372-234183383     CCDS2502.2
+    ATG16L1 (+, Coding)     chr2:g.234183372_234183383del12/c.845_856del12/p.H282_G286delinsR
+    BEGCodon=234183371/234183372/234183373;
+	ENDCodon=234183383/234183384/234183385;REG=Exonic_8
 ```
 
 ### FAQ
@@ -748,11 +779,11 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Future work
 
+ + test forward annotation of insertion/deletion
  + add cytoband annotation
  + forward annotation of splice site
  + forward annotation of non-coding RNA from GENCODE
  + forward annotation of binding sites
- + forward annotation of insertion/deletion
  + forward annotation of structural variation breakpoints
  + support uncertain insertion such as '4424_4425ins80'
  + bundle Pysam
