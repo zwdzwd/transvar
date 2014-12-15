@@ -684,7 +684,7 @@ chr3:g.178936091_178936192   3    178936091-178936192    CCDS43171.1
 Results indicates the beginning position is at coding region while ending position is at intronic region (c.1633_1664+70).
 
 #### annotate a long genomic region
-
+[back to top](#top)
 ```
 #!bash
 transvar anno -i '9:g.133750356_137990357' --ccds
@@ -723,7 +723,7 @@ outputs
 ```
 
 #### annotate a deletion from genomic location
-_[back to top](#top)_
+[back to top](#top)
 ```
 #!bash
 transvar anno -i "chr2:234183368_234183380del" --ccds
