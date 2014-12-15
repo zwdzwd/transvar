@@ -38,7 +38,6 @@ def nuc_mutation_del_coding_inframe_outphase(args, q, tpt, r):
 
     """ deletion starts at the 2nd/3rd base of the codon """
 
-    r.muttype = 'del'
     beg_codon_index = (q.beg.pos + 2) / 3
     end_codon_index = (q.end.pos + 2) / 3
     beg_codon_beg = beg_codon_index*3 - 2
@@ -49,8 +48,8 @@ def nuc_mutation_del_coding_inframe_outphase(args, q, tpt, r):
     newcodonseq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+tpt.seq[q.end.pos:end_codon_end]
     if len(newcodonseq) != 3: raise IncompatibleTranscriptError()
     r.taa_alt = codon2aa(newcodonseq)
-    beg_codon_seq = tpt.seq[beg_codon_beg-1:beg_codon_beg+2]
-    end_codon_seq = tpt.seq[end_codon_end-3:end_codon_end]
+    # beg_codon_seq = tpt.seq[beg_codon_beg-1:beg_codon_beg+2]
+    # end_codon_seq = tpt.seq[end_codon_end-3:end_codon_end]
     tnuc_delseq = tpt.seq[beg_codon_beg-1:end_codon_end]
     taa_delseq = ''
     for i in xrange(len(tnuc_delseq)/3):

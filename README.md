@@ -634,7 +634,7 @@ MET.p.1010      MET.p.562       7       116411989-116411990-116411991   11641198
 ```
 Since MET.p.992 is in the list, the two identifiers might be due to the same genomic mutation.
 
-#### annotate mutations from genomic locations
+#### annotate SNP from genomic locations
 
 This is the forward annotation
 
@@ -722,6 +722,16 @@ outputs
 	ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
 ```
 
+#### annotate a deletion from genomic location
+```
+#!bash
+transvar anno -i "chr2:234183368_234183380del" --ccds
+```
+outputs
+```
+chr2:234183368_234183380del     chr2    234183368-234183380     CCDS2502.2      .       chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5      BEGCodon=234183368/234183369/234183370;ENDCodon=234183380/234183381/234183382;BEGREG=Exonic_8;ENDREG=Exonic_8
+```
+
 ### FAQ
 
 + I got 'GeneNotRecognized', what's wrong?
@@ -735,6 +745,7 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 ## Future work
 
  + add cytoband annotation
+ + forward annotation of splice site
  + forward annotation of non-coding RNA from GENCODE
  + forward annotation of binding sites
  + forward annotation of insertion/deletion

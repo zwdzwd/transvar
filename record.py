@@ -24,6 +24,18 @@ class Pos():
         else:
             return False
 
+    def included_plus(self):
+        if self.tpos > 0:
+            return self.pos + 1
+        else:
+            return self.pos
+
+    def included_minus(self):
+        if self.tpos < 0:
+            return self.pos - 1
+        else:
+            return self.pos
+
 
 class RegAnno():
 
@@ -199,14 +211,13 @@ def normalize_reg(q):
 template = "{r.chrm}\t{r.pos}\t{r.tname}\t{r.reg}\t{gnuc}/{tnuc}/{taa}\t{r.info}"
 class Record():
 
-    def __init__(self, muttype=''):
+    def __init__(self):
 
         self.tname = '.'        # transcript name
         self.chrm = '.'         # genomic chromosome
         self.pos = '.'          # genomic position string
         self.reg = '.'          # region
         self.info = '.'         # ;-separated key=value pair
-        self.muttype = muttype
 
     def tnuc(self):
         """ format in HGVS nomenclature e.g., c.12345A>T """
