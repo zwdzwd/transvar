@@ -723,7 +723,7 @@ outputs
 ```
 
 #### annotate a deletion from genomic location
-[#TOC](#TOC)
+[back to top](#top)
 ```
 #!bash
 transvar anno -i "chr2:234183368_234183380del" --ccds
