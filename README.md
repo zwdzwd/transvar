@@ -722,7 +722,7 @@ outputs
 	ENDreg=Noncoding (up: 484,026 bp to EHMT1, down: 0 bp to 3-telomere);ENDid=././.
 ```
 
-#### annotate a deletion from genomic location
+#### annotate a deletion from genomic location [TOC](#TOC)
 ```
 #!bash
 transvar anno -i "chr2:234183368_234183380del" --ccds
