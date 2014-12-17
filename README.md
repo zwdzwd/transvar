@@ -781,8 +781,20 @@ outputs
     AAK1 (-, Exonic_12)
     chr2:g.69741762insTGC/c.1616_1617insGCA/p.Q546_L547insQ .
 ```
-(Note the proper left-alignment of protein level mutation Q).
+Note the proper left-alignment of protein level insertion Q. The left alignment is with respect to the genomic coordinates.
 
+A frame-shift insertion of two nucleotides
+```
+#!bash
+transvar anno -i '7:121753754insCA' --ccds
+```
+outputs
+```
+#!text
+7:121753754insCA    chr7    121753754      CCDS5783.1
+    AASS (-, Exonic_9)
+    chr7:g.121753754insCA/c.1063_1064insTG/p.I355Mfs*10  .
+```
 
 ### FAQ
 
