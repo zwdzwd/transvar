@@ -796,6 +796,18 @@ outputs
     chr7:g.121753754insCA/c.1063_1064insTG/p.I355Mfs*10  .
 ```
 
+A in-frame, in-phase insertion
+```
+#!bash
+transvar anno -i '12:109702119insACC' --ccds
+```
+```
+#!text
+12:109702119insACC   chr12   109702119    CCDS31898.1
+    ACACB (+, Exonic_49)
+    chr12:g.109702119insACC/c.6870_6871insACC/p.Y2290_H2291insT   .
+```
+
 ### FAQ
 
 + I got 'GeneNotRecognized', what's wrong?

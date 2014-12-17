@@ -4,15 +4,13 @@ from anno_reg import __annotate_reg_intergenic
 
 def ins_gene_coding_inframe_inphase(t, r, c, p, insseq):
 
-    tnuc_insseq = t.gnuc_seq2tnuc(q.insseq)
-    taa_insseq = translate_seq(tnuc_insseq)
+    taa_insseq = translate_seq(insseq)
     if taa_insseq[-1] == '*':
         return ins_gene_coding_frameshift(t, r, c, p, insseq)
 
     # a pure insertion
-    c1 = t.cpos2codon((q.pos.pos+2)/3)
-    c2 = t.cpos2codon((q.pos.pos+3)/3)
-    r.taa_range = '%s%d_%s%dins%s' % (codon2aa(c1.seq), c1.index, 
+    c2 = t.cpos2codon(c.index+1)
+    r.taa_range = '%s%d_%s%dins%s' % (codon2aa(c.seq), c.index, 
                                       codon2aa(c2.seq), c2.index, 
                                       taa_insseq)
 
