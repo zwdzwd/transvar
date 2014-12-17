@@ -343,6 +343,16 @@ class Transcript():
 
         return ';'.join(map(str, self._tnuc_range2exon_inds(tnuc_beg, tnuc_end)))
 
+    def gnuc_seq2tnuc(self, gnuc_seq):
+        if self.strand == '+':
+            return gnuc_seq
+        else:
+            return reverse_complement(gnuc_seq)
+
+    def cpos2aa(self, cpos):
+        self.ensure_seq()
+        return translate_seq(self.seq[cpos*3-3:cpos*3])
+
     def cpos2codon(self, cpos):
 
         """ all coordinates, exons, cds are 1-based
@@ -433,15 +443,23 @@ class Transcript():
             if i == len(self.exons)-1 and exon[1] < gpos:
                 rg.intergenic = 'Downstream'
                 return rg
-            if exon[0] <= gpos and exon[1] >= gpos:
+            if exon[0] <= gpos and exon[1] >= gpos: # exonic
                 rg.exonic = True
                 if gpos >= self.cds_beg and gpos <= self.cds_end:
                     rg.cds = True
+                if gpos == self.cds_beg:
+                    rg.start = True
+                if gpos == self.cds_end:
+                    rg.stop = True
+                if gpos == exon[1]:
+                    rg.splice = 'NextToDonor' if self.strand == '+' else 'NextToAcceptor'
+                if gpos == exon[0]:
+                    rg.splice = 'NextToAcceptor' if self.strand == '+' else 'NextToDonor'
                 rg.exon = exind
                 return rg
             if i > 0:
                 pexon = self.exons[i-1]
-                if gpos > pexon[1] and gpos < exon[0]:
+                if gpos > pexon[1] and gpos < exon[0]: # intronic
                     rg.intronic = True
                     if self.strand == '+':
                         rg.intron_exon1 = exind-1
@@ -449,6 +467,10 @@ class Transcript():
                     else:
                         rg.intron_exon1 = exind
                         rg.intron_exon2 = exind+1
+                    if gpos in [pexon[1]+1, pexon[1]+2]:
+                        rg.splice = 'Donor' if self.strand == '+' else 'Acceptor'
+                    if gpos in [exon[0]-2, exon[0]-1]:
+                        rg.splice = 'Acceptor' if self.strand == '-' else 'Donor'
                     return rg
 
         raise Exception()       # you shouldn't reach here
@@ -589,6 +611,56 @@ class Transcript():
 
         return ','.join(regc)
 
+    def taa_left_align_insertion(self, index, insseq):
+
+        """ c is the codon where the insertion comes after
+        insseq is protein sequence
+        """
+
+        self.ensure_seq()
+        unit_len = len(insseq)
+        while True:
+            if index <= unit_len:
+                break
+            p_unit = translate_seq(
+                self.seq[(index-unit_len)*3:index*3])
+            if p_unit != insseq:
+                break
+            index -= unit_len
+
+        return self.cpos2codon(index)
+
+    def taa_right_align_insertion(self, index, insseq):
+
+        """ c is the codon where the insertion comes after
+        "left" is with respect to the protein sequence.
+        that is, the insertion will be reported 
+        in the smallest codon coordinates.
+        """
+
+        self.ensure_seq()
+        unit_len = len(insseq)
+        while True:
+            if index <= unit_len:
+                break
+            p_unit = translate_seq(
+                self.seq[index*3:(index+unit_len)*3])
+            if p_unit != insseq:
+                break
+            index += unit_len
+
+        return self.cpos2codon(index)
+
+    def taa_left_align_insertion_g(self, index, insseq):
+
+        """ left align insertion
+        "left" is with respect to the genomic location
+        that is, the insertion will be reported
+        in the smallest genomic coordinates """
+        if self.strand == '+':
+            return self.taa_left_align_insertion(index, insseq)
+        else:
+            return self.taa_right_align_insertion(index, insseq)
 
 class Gene():
 

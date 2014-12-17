@@ -616,3 +616,4 @@ def double_trim(seq1, seq2):
             break
 
     return (seq1, seq2, head_trim, tail_trim)
+

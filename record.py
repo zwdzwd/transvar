@@ -39,6 +39,8 @@ class Pos():
 
 class RegAnno():
 
+    """ annotation of a single site """
+
     def __init__(self):
         self.intronic = False
         self.exonic = False 
@@ -48,6 +50,7 @@ class RegAnno():
         self.intron_exon1 = None
         self.intron_exon2 = None
         self.intergenic = None  # 'Upstream' or 'Downstream'
+        self.splice = None      # 'NextToDonor' | 'Donor' | 'Acceptor' | 'NextToAcceptor'
 
     def append(self, f, a):
         if f:
@@ -70,6 +73,17 @@ class RegAnno():
             f = self.append(f, 'Intergenic%s' % self.intergenic)
 
         return f
+
+class RegSpanAnno():
+
+    """ annotation of a span """
+
+    def __init__(self):
+
+        self.whole_gene = False
+        self.bp1 = None         # an object of RegAnno
+        self.bp2 = None         # an object of RegAnno
+        self.span_features = []
 
 def parse_pos(posstr):
 

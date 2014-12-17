@@ -767,6 +767,23 @@ chr2:234183372_234183383del     chr2    234183372-234183383     CCDS2502.2
 	ENDCodon=234183383/234183384/234183385;REG=Exonic_8
 ```
 
+#### annotate an insertion from genomic location
+
+An in-frame insertion of three nucleotides
+```
+#!bash
+transvar anno -i '2:69741762insTGC' --ccds
+```
+outputs
+```
+#!text
+2:69741762insTGC     chr2    69741762      CCDS1893.2
+    AAK1 (-, Exonic_12)
+    chr2:g.69741762insTGC/c.1616_1617insGCA/p.Q546_L547insQ .
+```
+(Note the proper left-alignment of protein level mutation Q).
+
+
 ### FAQ
 
 + I got 'GeneNotRecognized', what's wrong?
