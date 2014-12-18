@@ -9,10 +9,16 @@ def ins_gene_coding_inframe_inphase(t, r, c, p, insseq):
         return ins_gene_coding_frameshift(t, r, c, p, insseq)
 
     # a pure insertion
-    c2 = t.cpos2codon(c.index+1)
-    r.taa_range = '%s%d_%s%dins%s' % (codon2aa(c.seq), c.index, 
-                                      codon2aa(c2.seq), c2.index, 
-                                      taa_insseq)
+    c1 = t.taa_right_align_insertion(c.index, taa_insseq)
+    c2 = t.cpos2codon(c1.index+1)
+    r.taa_range = '%s%d_%s%dins%s' % (
+        c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq)
+
+    c1 = t.taa_left_align_insertion(c.index, taa_insseq)
+    c2 = t.cpos2codon(c1.index+1)
+    r.append_info('LEFTALNP=p.%s%d_%s%dins%s' % (
+        c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq))
+    
 
 def ins_gene_coding_inframe_outphase(t, r, c, p, insseq):
 
@@ -31,20 +37,31 @@ def ins_gene_coding_inframe_outphase(t, r, c, p, insseq):
         # SdelinsSH becomes a pure insertion
         # [current_codon]_[codon_after]insH
         taa_insseq = taa_altseq[1:]
-        c = t.taa_left_align_insertion_g(c.index, taa_insseq)
-        c2 = t.cpos2codon(c.index+1)
+        c1 = t.taa_right_align_insertion(c.index, taa_insseq)
+        c2 = t.cpos2codon(c1.index+1)
         r.taa_range = '%s%d_%s%dins%s' % (
-            c.aa(), c.index, c2.aa(), c2.index, taa_insseq)
+            c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq)
+
+        c1 = t.taa_left_align_insertion(c.index, taa_insseq)
+        c2 = t.cpos2codon(c1.index+1)
+        r.append_info('LEFTALNP=p.%s%d_%s%dins%s' % (
+            c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq))
+
     elif taa_ref == taa_altseq[-1]:
         # SdelinsHS becomes a pure insertion
         # [codon_before]_[current_codon]insH
         taa_insseq = taa_altseq[:-1]
-        c = t.taa_left_align_insertion_g(c.index-1, taa_insseq)
-        c2 = t.cpos2codon(c.index+1)
+        c1 = t.taa_right_align_insertion(c.index-1, taa_insseq)
+        c2 = t.cpos2codon(c1.index+1)
         r.taa_range = '%s%d_%s%dins%s' % (
-            c.aa(), c.index, c2.aa(), c2.index, taa_insseq)
+            c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq)
+        c1 = t.taa_left_align_insertion(c.index, taa_insseq)
+        c2 = t.cpos2codon(c1.index+1)
+        r.append_info('LEFTALNP=p.%s%d_%s%dins%s' % (
+            c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq))
     else:
         r.taa_range = '%s%ddelins%s' % (taa_ref, c.index, taa_altseq)
+    
 
 def ins_gene_coding_inframe(t, r, c, p, insseq):
 
@@ -75,16 +92,23 @@ def _ins_gene(args, q, t):
 
     # c1 and c2 might be the same, rg1 and rg2 might be the same
     if t.strand == '+':
-        c1, p1, rg1 = t.gpos2codon(q.tok, q.pos)
-        c2, p2, rg2 = t.gpos2codon(q.tok, q.pos+1)
+        c1, p1, rg1 = t.gpos2codon(q.pos)
+        c2, p2, rg2 = t.gpos2codon(q.pos+1)
         insseq = q.insseq
     else:
-        c1, p1, rg1 = t.gpos2codon(q.tok, q.pos+1)
-        c2, p2, rg2 = t.gpos2codon(q.tok, q.pos)
+        c1, p1, rg1 = t.gpos2codon(q.pos+1)
+        c2, p2, rg2 = t.gpos2codon(q.pos)
         insseq = reverse_complement(q.insseq)
-
-    r.tnuc_range = '%s_%sins%s' % (p1, p2, insseq)
     r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, rg1.format())
+
+    # assert p1.tpos == p2.tpos == 0
+
+    # note that intronic indel are NOT re-aligned, because they are anchored with respect to exon boundaries.
+    p1r, p2r = t.tnuc_right_align_insertion(p1.pos, insseq)
+    r.tnuc_range = '%s_%sins%s' % (p1r, p2r, insseq)
+
+    p1l, p2l = t.tnuc_left_align_insertion(p1.pos, insseq)
+    r.append_info('LEFTALNC=c.%s_%sins%s' % (p1l, p2l,insseq))
 
     # TODO: if insertion hits start codon
     # infer protein level mutation if in cds

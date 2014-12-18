@@ -777,11 +777,12 @@ transvar anno -i '2:69741762insTGC' --ccds
 outputs
 ```
 #!text
-2:69741762insTGC     chr2    69741762      CCDS1893.2
+2:69741762insTGC        chr2    69741762        CCDS1893.2
     AAK1 (-, Exonic_12)
-    chr2:g.69741762insTGC/c.1616_1617insGCA/p.Q546_L547insQ .
+    chr2:g.69741762insTGC/c.1616_1617insGCA/p.Q546_L547insQ
+	LEFTALNP=p.Y532_Q533insQ
 ```
-Note the proper left-alignment of protein level insertion Q. The left alignment is with respect to the genomic coordinates.
+Note the proper right-alignment of protein level insertion Q. The left-aligned identifier is also given in the `LEFTALN` field.
 
 A frame-shift insertion of two nucleotides
 ```
@@ -795,6 +796,20 @@ outputs
     AASS (-, Exonic_9)
     chr7:g.121753754insCA/c.1063_1064insTG/p.I355Mfs*10  .
 ```
+
+A frame-shift insertion of one nucleotides in a homopolymer
+```
+#!bash
+transvar anno -i '7:117230474insA' --ccds
+```
+outputs
+```
+#!text
+7:117230474insA chr7    117230474       CCDS5773.1    CFTR (+, Exonic_13)
+    chr7:g.117230474insA/c.1752_1753insA/p.E585Rfs*4
+    LEFTALNC=c.1747_1748insA
+```
+Notice the right alignment of cDNA level insertion and the left alignment reported as additional information.
 
 A in-frame, in-phase insertion
 ```

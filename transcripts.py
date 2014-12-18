@@ -553,8 +553,8 @@ class Transcript():
                 c.locs = np[ci*3-3:ci*3]
                 reg = self.describe(gpos)
                 return c, p, reg
-    
-    def gpos2codon(self, chrm, gpos):
+
+    def gpos2codon(self, gpos):
         """ return Codon as well as (tnuc) Pos """
         self.ensure_seq()
         gpos = int(gpos)
@@ -641,7 +641,7 @@ class Transcript():
         self.ensure_seq()
         unit_len = len(insseq)
         while True:
-            if index <= unit_len:
+            if index + unit_len >= len(self.seq)/3:
                 break
             p_unit = translate_seq(
                 self.seq[index*3:(index+unit_len)*3])
@@ -661,6 +661,33 @@ class Transcript():
             return self.taa_left_align_insertion(index, insseq)
         else:
             return self.taa_right_align_insertion(index, insseq)
+
+    def tnuc_left_align_insertion(self, pos1, insseq):
+
+        self.ensure_seq()
+        unit_len = len(insseq)
+        while True:
+            if pos1 <= unit_len:
+                break
+            # print self.seq[pos1-unit_len:pos1], insseq
+            if self.seq[pos1-unit_len:pos1] != insseq:
+                break
+            pos1 -= unit_len
+
+        return Pos(pos1), Pos(pos1+1)
+
+    def tnuc_right_align_insertion(self, pos1, insseq):
+
+        self.ensure_seq()
+        unit_len = len(insseq)
+        while True:
+            if pos1 + unit_len >= len(self.seq):
+                break
+            if self.seq[pos1:pos1+unit_len] != insseq:
+                break
+            pos1 += unit_len
+
+        return Pos(pos1), Pos(pos1+1)
 
 class Gene():
 
