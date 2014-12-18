@@ -2,6 +2,7 @@ import re
 from utils import *
 from err import *
 
+delrep_len = 10
 
 class Pos():
 

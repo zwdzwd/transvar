@@ -6,7 +6,7 @@ from anno_reg import __annotate_reg_intergenic
 
 def __annotate_snv_gene(args, q, t):
 
-    c, p, reg = t.gpos2codon(q.tok, q.pos)
+    c, p, reg = t.gpos2codon(q.pos)
 
     r = Record()
     r.chrm = t.chrm
@@ -60,16 +60,6 @@ def _annotate_snv_gene(args, q, db):
             except IncompatibleTranscriptError:
                 continue
             yield r
-
-    # if args.longest:
-    #     tc_iter = gpos2codon_longest(thash, q.tok, q.pos)
-    # else:
-    #     tc_iter = gpos2codon(thash, q.tok, q.pos)
-
-    # found = False
-    # for t, c in tc_iter:
-    #     if isinstance(c, Codon):
-    #         found = True
 
 
 def _annotate_snv(args, q, db):

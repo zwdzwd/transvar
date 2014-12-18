@@ -6,7 +6,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 def _annotate_reg_gene_point(args, q, t):
     
-    c, p, reg = t.gpos2codon(q.tok, q.pos)
+    c, p, reg = t.gpos2codon(q.pos)
     r = Record()
     r.chrm = t.chrm
     r.tname = t.name
@@ -34,8 +34,8 @@ def _annotate_reg_gene_short_range(args, q, t):
     r.tname = t.name
     r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, t.overlap_region(q.beg, q.end))
     r.pos = '%d-%d' % (q.beg, q.end)
-    cbeg, pbeg, regbeg = t.gpos2codon(q.tok, q.beg)
-    cend, pend, regend = t.gpos2codon(q.tok, q.end)
+    cbeg, pbeg, regbeg = t.gpos2codon(q.beg)
+    cend, pend, regend = t.gpos2codon(q.end)
     r.gnuc_range = '%d_%d' % (q.beg, q.end)
     if t.strand == '+':
         r.tnuc_range = '%s_%s' % (pbeg, pend)

@@ -83,6 +83,36 @@ class RefGenome:
         self.fasta_handle.close()
         self.faidx_handle.close()
 
+    def chrm2len(self, chrm):
+        slen,offset,blen,bytelen=self.faidx[chrm]
+        return slen
+
 def init_refgenome(r=None):
     global refgenome
     refgenome = RefGenome(r) if r else None
+
+def getseq(chrm, beg, end):
+
+    global refgenome
+    return refgenome.fetch_sequence(chrm, beg, end)
+
+class SeqBuf():
+
+    def __init__(self, chrm, p):
+
+        self.reset(chrm, p)
+
+    def reset(self, chrm, p):
+
+        self.chrm = chrm
+        self.beg = p - 1000
+        self.end = p + 1000
+        global refgenome
+        self.seq = refgenome.fetch_sequence(self.chrm, self.beg, self.end)
+
+    def get_base(self, chrm, p):
+
+        if chrm != self.chrm or p <= self.beg or p >= self.end:
+            self.reset(chrm, p)
+
+        return self.seq[p-self.beg]

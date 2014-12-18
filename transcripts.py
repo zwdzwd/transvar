@@ -4,6 +4,7 @@ from io_utils import *
 from err import *
 import faidx
 from record import *
+from collections import deque
 
 def complement(base):
 
@@ -611,83 +612,241 @@ class Transcript():
 
         return ','.join(regc)
 
-    def taa_left_align_insertion(self, index, insseq):
+    def taa_roll_left_ins(self, index, taa_insseq):
 
-        """ c is the codon where the insertion comes after
-        insseq is protein sequence
+        """ index is the position where the insertion comes after
         """
 
         self.ensure_seq()
-        unit_len = len(insseq)
+        _taa_insseq_ = deque(taa_insseq)
         while True:
-            if index <= unit_len:
+            if index <= 1:
                 break
-            p_unit = translate_seq(
-                self.seq[(index-unit_len)*3:index*3])
-            if p_unit != insseq:
+            rightmost = _taa_insseq_[-1]
+            left_aa = translate_seq(
+                self.seq[(index-1)*3:index*3])
+            if rightmost != left_aa:
                 break
-            index -= unit_len
+            _taa_insseq_.pop()
+            _taa_insseq_.appendleft(left_aa)
+            index -= 1
 
-        return self.cpos2codon(index)
+        return self.cpos2codon(index), ''.join(_taa_insseq_)
 
-    def taa_right_align_insertion(self, index, insseq):
+    def taa_roll_right_ins(self, index, taa_insseq):
 
-        """ c is the codon where the insertion comes after
-        "left" is with respect to the protein sequence.
-        that is, the insertion will be reported 
-        in the smallest codon coordinates.
+        """ index is the position where the insertion comes after
         """
 
         self.ensure_seq()
-        unit_len = len(insseq)
+        _taa_insseq_ = deque(taa_insseq)
+        taa_len = len(self.seq) / 3
         while True:
-            if index + unit_len >= len(self.seq)/3:
+            if index + 1 >= taa_len:
                 break
-            p_unit = translate_seq(
-                self.seq[index*3:(index+unit_len)*3])
-            if p_unit != insseq:
+            leftmost = _taa_insseq[0]
+            right_aa = translate_seq(
+                self.seq[index*3:(index+1)*3])
+            if leftmost != right_aa:
                 break
-            index += unit_len
+            _taa_insseq_.popleft()
+            _taa_insseq_.append(right_aa)
+            index += 1
 
-        return self.cpos2codon(index)
+        return self.cpos2codon(index), ''.join(_taa_insseq_)
 
-    def taa_left_align_insertion_g(self, index, insseq):
+    def taa_roll_3p_ins(self, index, insseq):
 
-        """ left align insertion
-        "left" is with respect to the genomic location
-        that is, the insertion will be reported
-        in the smallest genomic coordinates """
+        """ roll to 3' """
         if self.strand == '+':
             return self.taa_left_align_insertion(index, insseq)
         else:
             return self.taa_right_align_insertion(index, insseq)
 
-    def tnuc_left_align_insertion(self, pos1, insseq):
+    def taa_roll_left_del(self, taa_beg, taa_end):
 
         self.ensure_seq()
-        unit_len = len(insseq)
         while True:
-            if pos1 <= unit_len:
+            if taa_beg <= 1:
                 break
-            # print self.seq[pos1-unit_len:pos1], insseq
-            if self.seq[pos1-unit_len:pos1] != insseq:
+            left_aa = self.cpos2aa(taa_beg-1)
+            rightmost = self.cpos2aa(taa_end)
+            if left_aa != rightmost:
                 break
-            pos1 -= unit_len
+            taa_beg -= 1
+            taa_end -= 1
 
-        return Pos(pos1), Pos(pos1+1)
+        return taa_beg, taa_end
 
-    def tnuc_right_align_insertion(self, pos1, insseq):
+    def taa_roll_right_del(self, taa_beg, taa_end):
 
         self.ensure_seq()
-        unit_len = len(insseq)
+        taa_len = len(self.seq) / 3
         while True:
-            if pos1 + unit_len >= len(self.seq):
+            if taa_end + 1 >= taa_len:
                 break
-            if self.seq[pos1:pos1+unit_len] != insseq:
+            right_aa = self.cpos2aa(taa_end+1)
+            leftmost = self.cpos2aa(taa_beg)
+            if leftmost != right_aa:
                 break
-            pos1 += unit_len
+            taa_beg += 1
+            taa_end += 1
 
-        return Pos(pos1), Pos(pos1+1)
+        return taa_beg, taa_end
+
+    def tnuc_roll_left_ins(self, p, tnuc_insseq):
+
+        """ p is the position where insertion comes after """
+
+        self.ensure_seq()
+        _tnuc_insseq_ == deque(tnuc_insseq)
+        while True:
+            if p >= 1:
+                break
+            left_base = self.seq[p-1:p]
+            right_most = _tnuc_insseq_[-1]
+            if left_base != right_most:
+                break
+            _tnuc_insseq_.pop()
+            _tnuc_insseq_.appendleft(left_base)
+            p -= 1
+
+        return Pos(p), Pos(p+1), ''.join(_tnuc_insseq_)
+
+    def tnuc_roll_right_ins(self, p, tnuc_insseq):
+
+        self.ensure_seq()
+        _tnuc_insseq_ == deque(tnuc_insseq)
+        tnuc_len = len(self.seq)
+        while True:
+            if p + 1 >= tnuc_len:
+                break
+            right_base = self.seq[p:p+1]
+            left_most = _tnuc_insseq_
+            if right_base != left_most:
+                break
+            _tnuc_insseq_.popleft()
+            _tnuc_insseq_.append(right_base)
+            p += 1
+
+        return Pos(p), Pos(p+1), ''.join(_tnuc_insseq_)
+
+    def tnuc_roll_left_del(self, beg, end):
+
+        self.ensure_seq()
+        while True:
+            if beg <= 1:
+                break
+            left_base = self.seq[beg-2]
+            right_most = self.seq[end-1]
+            if left_base != right_most:
+                break
+            beg -= 1
+            end -= 1
+
+        return beg, end
+
+    def tnuc_roll_right_del(self, beg, end):
+
+        self.ensure_seq()
+        tnuc_len = len(self.seq)
+        while True:
+            if end >= tnuc_len - 1:
+                break
+            right_base = self.seq[end]
+            left_most = self.seq[beg-1]
+            if right_base != left_most:
+                break
+            beg += 1
+            end += 1
+
+        return beg, end
+
+    def getseq(self, beg, end):
+
+        self.ensure_seq()
+        return self.seq[beg-1:end]
+
+    def tnuc_del_id(self, pbeg, pend):
+
+        if pbeg == pend:
+            tnuc_posstr = str(pbeg)
+        else:
+            tnuc_posstr = '%s_%s' % (pbeg, pend)
+
+        tnuc_delseq = self.getseq(pbeg, pend)
+        if len(tnuc_delseq) > delrep_len:
+            tnuc_delrep = str(len(tnuc_delseq))
+        else:
+            tnuc_delrep = tnuc_delseq
+
+        return '%sdel%s' % (tnuc_posstr, tnuc_delrep)
+
+    def taa_del_id(self, taa_beg, taa_end):
+
+        if taa_beg == taa_end:
+            taa_posstr = str(taa_beg)
+        else:
+            taa_posstr = '%d_%d' % (taa_beg, taa_end)
+        taa_del_len = taa_end - taa_beg + 1
+        if taa_del_len > delrep_len:
+            taa_delrep = str(taa_del_len)
+        else:
+            taa_delrep = self.taa_range2aa_seq(taa_beg, taa_end)
+
+        return '%sdel%s' % (taa_posstr, taa_delrep)
+
+def gnuc_del_id(chrm, beg, end):
+
+    if beg == end:
+        gnuc_posstr = str(beg)
+    else:
+        gnuc_posstr = '%d_%d' % (beg, end)
+    del_len = end - beg + 1
+    if del_len > delrep_len:
+        gnuc_delrep = str(del_len)
+    else:
+        gnuc_delrep = faidx.getseq(chrm, beg, end)
+
+    return '%sdel%s' % (gnuc_posstr, gnuc_delrep)
+
+
+def gnuc_roll_left_del(chrm, beg, end):
+
+    """ beg and end are 1st and last base in the deleted sequence """
+
+    sb = faidx.SeqBuf(chrm, beg)
+    while True:
+        if beg <= 1:
+            break
+        left_base = sb.get_base(chrm, beg-1)
+        rightmost = sb.get_base(chrm, end)
+        if left_base != rightmost:
+            break
+        beg -= 1
+        end -= 1
+
+    return beg, end
+
+def gnuc_roll_right_del(chrm, beg, end):
+
+    """ beg and end are 1st and last base in the deleted sequence """
+
+    sb = faidx.SeqBuf(chrm, end)
+    chrmlen = faidx.refgenome.chrm2len(chrm)
+    while True:
+        # check end of chromosome
+        if end + 1 >= chrmlen:
+            break
+
+        right_base = sb.get_base(chrm, end+1)
+        leftmost = sb.get_base(chrm, beg)
+        if right_base != leftmost:
+            break
+        beg += 1
+        end += 1
+
+    return beg, end
 
 class Gene():
 
@@ -1208,21 +1367,4 @@ def translate_seq(seq):
             break
 
     return ''.join(aa_seq)
-
-# def tgpos2codon(thash, chrm, pos):
-
-#     for t in thash.get_transcripts(chrm, pos):
-#         c, p, r = t.gpos2codon(chrm, pos)
-#         yield t, c, p, r
-
-# def tgpos2codon_longest(thash, chrm, pos):
-
-#     l = None
-#     for t, c, p, r in gpos2codon(thash,chrm,pos):
-#         if (not l) or len(l) < len(t):
-#             l = t
-#             res = (t, c, p, r)
-
-#     if l:
-#         yield res
 

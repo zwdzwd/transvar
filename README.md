@@ -1,6 +1,7 @@
 **TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar has the following features:
 
  + supports HGVS nomenclature
+ + supports both left-alignment and right-alignment convention in reporting indels.
  + supports annotation of a region based on a transcript dependent characterization
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports mutations at both coding region and intronic/UTR regions
@@ -734,10 +735,15 @@ outputs
 ```
 #!text
 chr2:234183368_234183380del     chr2    234183368-234183380     CCDS2502.2
-    ATG16L1 (+, Coding)     chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5
-    BEGCodon=234183368/234183369/234183370;
-	ENDCodon=234183380/234183381/234183382;REG=Exonic_8
+    ATG16L1 (+, Coding)
+    chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5
+    LEFTALNG=g.234183367_234183379del13;
+	UALNG=g.234183368_234183380del13;
+	LEFTALNC=c.840_852del13;
+	UALNC=c.841_853del13;
+	REG=Exonic_8
 ```
+Note the difference between left-aligned identifier and the right aligned identifier.
 
 An in-frame deletion
 ```
@@ -752,6 +758,27 @@ chr2:234183368_234183379del     chr2    234183368-234183379     CCDS2502.2
 	BEGCodon=234183368/234183369/234183370;
 	ENDCodon=234183377/234183378/234183379;REG=Exonic_8
 ```
+
+Another example
+```
+#!bash
+transvar anno --ccds -i '12:53703425_53703427del'
+```
+outputs
+```
+#!text
+12:53703425_53703427del chr12   53703425-53703427       CCDS8856.1
+    AAAS (-, Coding)
+    chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.257delG
+    LEFTALNG=g.53703424_53703426delCCC;
+	UALNG=g.53703425_53703427delCCC;
+	LEFTALNC=c.766_768delGGG;
+	UALNC=c.768_770delGGG;
+	REG=Exonic_8;
+	LEFTALNP=p.256delG;
+	UALNP=p.256delG
+```
+Note the difference between left and right-aligned identifiers on both protein level and cDNA level.
 
 An in-frame out-of-phase deletion
 ```

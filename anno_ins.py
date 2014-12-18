@@ -37,7 +37,7 @@ def ins_gene_coding_inframe_outphase(t, r, c, p, insseq):
         # SdelinsSH becomes a pure insertion
         # [current_codon]_[codon_after]insH
         taa_insseq = taa_altseq[1:]
-        c1 = t.taa_right_align_insertion(c.index, taa_insseq)
+        c1, taa_insseq = t.taa_roll_right_ins(c.index, taa_insseq)
         c2 = t.cpos2codon(c1.index+1)
         r.taa_range = '%s%d_%s%dins%s' % (
             c1.aa(), c1.index, c2.aa(), c2.index, taa_insseq)
