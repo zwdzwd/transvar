@@ -824,6 +824,21 @@ outputs
     chr7:g.121753754insCA/c.1063_1064insTG/p.I355Mfs*10  .
 ```
 
+```
+#!bash
+transvar anno -i '17:79093270insGGGCGT' --ccds
+```
+outputs
+```
+17:79093270insGGGCGT    chr17   79093270        CCDS45807.1
+    AATK (-, Exonic_13)
+    chr17:g.79093273insCGTGGG/c.3993_3994insACGCCC/p.P1331_A1332insTP
+    LEFTALNG=g.79093270insGGGCGT;UALNG=g.79093270insGGGCGT;
+	LEFTALNC=c.3976_3977insCGCCCA;UALNC=c.3993_3994insACGCCC;
+	LEFTALNP=p.A1326_P1327insPT;UALNP=p.P1331_A1332insTP
+```
+Notice the difference in the inserted sequence when left-alignment and right-alignment conventions are followed.
+
 A frame-shift insertion of one nucleotides in a homopolymer
 ```
 #!bash

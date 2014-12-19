@@ -631,7 +631,7 @@ class Transcript():
             _taa_insseq_.appendleft(left_aa)
             index -= 1
 
-        return self.cpos2codon(index), ''.join(_taa_insseq_)
+        return index, ''.join(_taa_insseq_)
 
     def taa_roll_right_ins(self, index, taa_insseq):
 
@@ -644,24 +644,25 @@ class Transcript():
         while True:
             if index + 1 >= taa_len:
                 break
-            leftmost = _taa_insseq[0]
+            leftmost = _taa_insseq_[0]
             right_aa = translate_seq(
                 self.seq[index*3:(index+1)*3])
+            # print leftmost, right_aa, index
             if leftmost != right_aa:
                 break
             _taa_insseq_.popleft()
             _taa_insseq_.append(right_aa)
             index += 1
 
-        return self.cpos2codon(index), ''.join(_taa_insseq_)
+        return index, ''.join(_taa_insseq_)
 
     def taa_roll_3p_ins(self, index, insseq):
 
         """ roll to 3' """
         if self.strand == '+':
-            return self.taa_left_align_insertion(index, insseq)
+            return self.taa_roll_left_ins(index, insseq)
         else:
-            return self.taa_right_align_insertion(index, insseq)
+            return self.taa_roll_right_ins(index, insseq)
 
     def taa_roll_left_del(self, taa_beg, taa_end):
 
@@ -699,37 +700,39 @@ class Transcript():
         """ p is the position where insertion comes after """
 
         self.ensure_seq()
-        _tnuc_insseq_ == deque(tnuc_insseq)
+        _tnuc_insseq_ = deque(tnuc_insseq)
         while True:
-            if p >= 1:
+            if p <= 1:
                 break
-            left_base = self.seq[p-1:p]
+            left_base = self.seq[p-1]
             right_most = _tnuc_insseq_[-1]
+            # print p, left_base, right_most
             if left_base != right_most:
                 break
             _tnuc_insseq_.pop()
             _tnuc_insseq_.appendleft(left_base)
             p -= 1
 
-        return Pos(p), Pos(p+1), ''.join(_tnuc_insseq_)
+        return p, ''.join(_tnuc_insseq_)
 
     def tnuc_roll_right_ins(self, p, tnuc_insseq):
 
         self.ensure_seq()
-        _tnuc_insseq_ == deque(tnuc_insseq)
+        _tnuc_insseq_ = deque(tnuc_insseq)
         tnuc_len = len(self.seq)
         while True:
             if p + 1 >= tnuc_len:
                 break
-            right_base = self.seq[p:p+1]
-            left_most = _tnuc_insseq_
+            right_base = self.seq[p]
+            left_most = _tnuc_insseq_[0]
+            # print p, left_most, right_base
             if right_base != left_most:
                 break
             _tnuc_insseq_.popleft()
             _tnuc_insseq_.append(right_base)
             p += 1
 
-        return Pos(p), Pos(p+1), ''.join(_tnuc_insseq_)
+        return p, ''.join(_tnuc_insseq_)
 
     def tnuc_roll_left_del(self, beg, end):
 
@@ -796,6 +799,12 @@ class Transcript():
 
         return '%sdel%s' % (taa_posstr, taa_delrep)
 
+    def taa_ins_id(self, index, taa_insseq):
+
+        aa = self.cpos2aa(index)
+        aa2 = self.cpos2aa(index+1)
+        return '%s%d_%s%dins%s' % (aa, index, aa2, index+1, taa_insseq)
+
 def gnuc_del_id(chrm, beg, end):
 
     if beg == end:
@@ -847,6 +856,45 @@ def gnuc_roll_right_del(chrm, beg, end):
         end += 1
 
     return beg, end
+
+def gnuc_roll_left_ins(chrm, pos, gnuc_insseq):
+
+    """ pos is where insertion occur after """
+
+    sb = faidx.SeqBuf(chrm, pos)
+    _gnuc_insseq_ = deque(gnuc_insseq)
+    while True:
+        if pos <= 1:
+            break
+        left_base = sb.get_base(chrm, pos)
+        rightmost = gnuc_insseq[-1]
+        if left_base != rightmost:
+            break
+        _gnuc_insseq_.pop()
+        _gnuc_insseq_.appendleft(left_base)
+        pos -= 1
+
+    return pos, ''.join(_gnuc_insseq_)
+
+def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
+
+    """ pos is where insertion occur after """
+
+    sb = faidx.SeqBuf(chrm, pos)
+    chrmlen = faidx.refgenome.chrm2len(chrm)
+    _gnuc_insseq_ = deque(gnuc_insseq)
+    while True:
+        if pos + 1 >= chrmlen:
+            break
+        right_base = sb.get_base(chrm, pos+1)
+        leftmost = gnuc_insseq[0]
+        if right_base != leftmost:
+            break
+        _gnuc_insseq_.popleft()
+        _gnuc_insseq_.append(right_base)
+        pos += 1
+
+    return pos, ''.join(_gnuc_insseq_)
 
 class Gene():
 
