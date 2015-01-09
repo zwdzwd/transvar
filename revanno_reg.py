@@ -49,10 +49,13 @@ def nuc_revanno_reg(args, q, tpt):
             r.taa_ref = translate_seq(tpt.seq[beg_codon.index*3-3:end_codon.index*3])
             r.taa_range = 'p.%d_%d%s' % (beg_codon.index, end_codon.index, r.taa_ref)
     elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
-        r.info = 'CrossSplitSite'
+        r.append_info('CrossSplitSite')
         r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
     else:
         r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
+
+    if tpt.gene.dbxref:
+        r.append_info('DBXref=%s' % tpt.gene.dbxref)
 
     return r
 
@@ -110,6 +113,8 @@ def codon_revanno_reg(args, q, tpt):
     r.info = 'PRefSeq=%s;NRefSeq=%s;RefSeq=%s' % (printseq(taa_natrefseq),
                                                   printseq(r.natrefseq),
                                                   printseq(r.refrefseq))
+    if tpt.gene.dbxref:
+        r.append_info('DBXref=%s' % tpt.gene.dbxref)
 
     return r
 
