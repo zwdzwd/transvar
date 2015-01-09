@@ -592,7 +592,6 @@ def err_raise(cls, msg, fn):
 def err_print(msg):
     sys.stderr.write('%s\n' % str(msg))
 
-
 def double_trim(seq1, seq2):
 
     # trim head

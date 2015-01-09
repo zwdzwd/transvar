@@ -265,9 +265,16 @@ def list_parse_mutation(args, muttype=None):
 
     for line in args.l:
         # print line.strip()
-        fields = line.strip().split(args.d)
+        if args.d == 's':
+            fields = line.strip().split()
+        else:
+            fields = line.strip().split(args.d)
         try:
             q = _list_parse_mutation(args, fields, indices, muttype)
+        except IndexError as e:
+            err_print(str(e))
+            err_print("[%s] May be different delimiter in the input file? (try -d s)" % __name__)
+            sys.exit(1)
         except InvalidInputError as e:
             err_print(str(e))
             continue
@@ -282,7 +289,7 @@ def parser_add_mutation(parser):
                         type = argparse.FileType('r'), 
                         help='mutation list file')
     parser.add_argument('-d', default="\t",
-                        help="table delimiter [\\t]")
+                        help="table delimiter [\\t], use 's' for space.")
     parser.add_argument('-g', type=int,
                         default=-1, help='column for gene/chromosome (1-based)')
     parser.add_argument('-p', type=int, default=-1,

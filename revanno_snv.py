@@ -66,7 +66,8 @@ def nuc_mutation_snv(args, q, tpt):
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
-    r.info = 'DBXref=%s' % tpt.gene.dbxref
+    if tpt.gene.dbxref:
+        r.info = 'DBXref=%s' % tpt.gene.dbxref
 
     if q.pos.tpos == 0:                # coding region
         nuc_mutation_snv_coding(r, tpt, codon, q)
@@ -127,7 +128,8 @@ def codon_mutation_snv(args, q, tpt):
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
-    r.info = 'DBXref=%s' % tpt.gene.dbxref
+    if tpt.gene.dbxref:
+        r.info = 'DBXref=%s' % tpt.gene.dbxref
     r.pos = '-'.join(map(str, codon.locs))
 
     # if alternative amino acid is given

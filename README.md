@@ -7,7 +7,7 @@
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
  + supports UniProt protein id as transcript id
- + support GRCh36, 37, 38
+ + supports GRCh36, 37, 38
  + functionality of forward annotation.
 
 --------
@@ -36,7 +36,7 @@ Please see Install section for detailed instruction.
 
 #### dependency
 
-Basic functionalities requires just Python >= 2.6. Some additional annotation also depends on the pysam library.
+Basic functionalities requires just Python 2.7. Some additional annotation also depends on the pysam library.
 
 #### program
 
@@ -162,7 +162,7 @@ transvar config -k refversion -v hg38
 For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search. Take SNV for example,
 ```
 #!bash
-transvar revanno -l input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
+transvar revanno -l example/input_table -g 1 -m 4 -t 2 --ensembl -o 2,3,5
 ```
 As suggested by the command, TransVar takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of TransVar's performance.
 
@@ -683,6 +683,8 @@ chr3:g.178936091_178936192   3    178936091-178936192    CCDS43171.1
 ```
 	
 Results indicates the beginning position is at coding region while ending position is at intronic region (c.1633_1664+70).
+
+For intergenic sites, TransVar also reports the identity and distance to the gene upstream and downstream. For example, `chr6:116991832` is simply annotated as intergenic in the original annotation. TransVar reveals that it is 1,875 bp downstream to ZUFSP and 10,518 bp upstream to KPNA5 showing a vicinity to the gene ZUFSP. There is no limit in the reported distance. If a site is at the end of the chromosome, TransVar is able to report the distance to the telomere.
 
 #### annotate a long genomic region
 [back to top](#top)

@@ -74,13 +74,18 @@ def download_hg18_annotations(config):
 def download_hg19_annotations(config):
 
     fns = [
-        ('refseq', 'hg19.refseq.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/ref_GRCh37.p13_top_level.gff3.gz?dl=1'),
-        ('ccds', 'hg19.ccds.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/CCDS.current.txt?dl=1'),
-        ('ensembl', 'hg19.ensembl.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/Homo_sapiens.GRCh37.75.gtf.gz?dl=1'),
-        ('gencode', 'hg19.gencode.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/gencode.v19.annotation.gtf.gz?dl=1'),
+        ('refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
+        # ('refseq', 'hg19.refseq.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/ref_GRCh37.p13_top_level.gff3.gz?dl=1'),
+        ('ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
+        # ('ccds', 'hg19.ccds.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/CCDS.current.txt?dl=1'),
+        ('ensembl', 'hg19.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'),
+        # ('ensembl', 'hg19.ensembl.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/Homo_sapiens.GRCh37.75.gtf.gz?dl=1'),
+        ('gencode', 'hg19.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz'),
+        # ('gencode', 'hg19.gencode.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/gencode.v19.annotation.gtf.gz?dl=1'),
         ('ucsc', 'hg19.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.ucsc.refgene.txt.gz?dl=1'),
         ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
-        ('aceview', 'hg19.aceview.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/AceView.ncbi_37.genes_gff.gff.gz?dl=1'),
+        ('aceview', 'hg19.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_37_Aug10.human.genes/AceView.ncbi_37.genes_gff.gff.gz'),
+        # ('aceview', 'hg19.aceview.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/AceView.ncbi_37.genes_gff.gff.gz?dl=1'),
         ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
         ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
         ]
