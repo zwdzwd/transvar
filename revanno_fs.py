@@ -29,7 +29,7 @@ def codon_mutation_fs(args, q, tpt):
     if q.ref and codon.seq not in aa2codon(q.ref):
         raise IncompatibleTranscriptError('reference amino acid unmatched')
 
-    r = Record('FS')
+    r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
     r.pos = '-'.join(map(str, codon.locs))

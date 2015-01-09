@@ -255,7 +255,7 @@ PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
 ```
 #!bash
-transvar revanno -i ACSL4:p.R133R
+transvar revanno -i ACSL4:p.R133R --ccds
 ```
 ```
 #!text
@@ -287,7 +287,7 @@ Note that in order to use dbSNP, one must download the dbSNP database through `t
 TransVar infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
-$ transvar revanno --ccds -i 'PIK3CA:c.1633G>A'
+transvar revanno --ccds -i 'PIK3CA:c.1633G>A'
 ```
 outputs
 ```
@@ -303,7 +303,7 @@ An insertion may result in: 1) a pure insertion of amino acids; 2) a block subst
 Example: to annotate an **in-frame, in-phase insertion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
+transvar revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
 ```
 ```
 #!text
@@ -317,7 +317,7 @@ ACIN1:c.1932_1933insATTCAC    14     14:23548785-(ins)-23548786
 Example: to annotate an **out-of-phase, in-frame insertion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
+transvar revanno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
 ```
 ```
 #!text
@@ -329,7 +329,7 @@ ACIN1:c.1930_1931insATTCAC   14     14:23548787-(ins)-23548788      CCDS9587.1
 Example: to annotate a **frame-shift insertion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'AAAS:c.1225_1226insG'
+transvar revanno --ccds -i 'AAAS:c.1225_1226insG'
 ```
 ```
 #!text
@@ -340,7 +340,7 @@ AAAS:c.1225_1226insG    12   12:53702089-53702090    CCDS8856.1    AAAS (-, codi
 Example: to annotate an **intronic insertion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
+transvar revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
 ```
 ```
 #!text
@@ -358,7 +358,7 @@ Similar to insertions, deletion can be in-frame or frame-shift. The consequence 
 Example: to annotate an **in-frame deletion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'A4GNT:c.694_696delTTG'
+transvar revanno --ccds -i 'A4GNT:c.694_696delTTG'
 ```
 ```
 #!text

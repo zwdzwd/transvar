@@ -185,7 +185,7 @@ def nuc_mutation_del(args, q, tpt):
         delseq_end = len(q.delseq) + abs(gnuc_coding_end - gnuc_end)
         q_coding.delseq = q.delseq[delseq_beg:delseq_end]
 
-        r_coding = Record('del')
+        r_coding = Record()
         nuc_mutation_del_coding(args, q_coding, tpt, r_coding)
         r.taa_range = r_coding.taa_range
         reg += ',coding' if reg else 'coding'

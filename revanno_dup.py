@@ -10,7 +10,7 @@ def nuc_mutation_dup(args, q, tpt):
         raise IncompatibleTranscriptError("Transcript name unmatched")
     tpt.ensure_seq()
 
-    r = Record('dup')
+    r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
 
