@@ -369,7 +369,7 @@ A4GNT:c.694_696delTTG   3   137843433-137843435     CCDS3097.1    A4GNT (- codin
 Example: to annotate a **in-frame, out-of-phase deletion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'ABHD15.c.431_433delGTG'
+transvar revanno --ccds -i 'ABHD15.c.431_433delGTG'
 ```
 ```
 #!text
@@ -380,7 +380,7 @@ ABHD15.c.431_433delGTG  17   27893552-27893554    CCDS32602.1     ABHD15 (- codi
 Example: to annotate a **frame-shift deletion**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'AADACL3.c.374delG'
+transvar revanno --ccds -i 'AADACL3.c.374delG'
 ```
 ```
 #!text
@@ -391,7 +391,7 @@ AADACL3.c.374delG    1    12785494-12785494    CCDS41252.1   AADACL3 (+ coding)
 Example: to annotate a **deletion that span from intronic to coding region**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
+transvar revanno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
 ```
 ```
 #!text
@@ -408,7 +408,7 @@ ABCB11:c.1198-8_1199delcactccagAA       2       2:169833196-169833205
 Example: to annotate a block substitution in **coding region**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'A1CF:c.508_509CC>TT'
+transvar revanno --ccds -i 'A1CF:c.508_509CC>TT'
 ```
 ```
 #!text
@@ -421,7 +421,7 @@ A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7242.1
 Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion.
 ```
 #!bash
-$ transvar revanno --ccds -i 'CSRNP1.c.1212_1224>GGAGGAGGAA'
+transvar revanno --ccds -i 'CSRNP1.c.1212_1224>GGAGGAGGAA'
 ```
 ```
 #!text
@@ -432,7 +432,7 @@ CSRNP1.c.1212_1224>GGAGGAGGAA   3    39185092-39185104   CCDS2682.1   CSRNP1 (-,
 Example: to annotate a block substitution in **intronic region**,
 ```
 #!bash
-$ transvar revanno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
+transvar revanno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
 ```
 ```
 #!text
@@ -567,7 +567,7 @@ The pair of transcript id listed corresponds to the transcripts based on which, 
 Example: to search alternative identifiers of DHODH:G152R (knowing reference allele `G`, alternative allele here will be ignored),
 ```
 #!bash
-$ transvar codonsearch -i DHODH:G152R --refseq
+transvar codonsearch -i DHODH:G152R --refseq
 ```
 outputs
 ```
@@ -581,7 +581,7 @@ TransVar outputs genomic positions of codons based on original transcript (4th c
 Example: to run `transvar codonsearch` to **batch process** a list of mutation identifiers.
 ```
 #!bash
-$ transvar codonsearch -l input.txt --ccds -m 1 -o 1
+transvar codonsearch -l example/input.txt --ccds -m 1 -o 1
 ```
 Example input table
 ```
