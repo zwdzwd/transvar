@@ -867,6 +867,8 @@ transvar anno -i '12:109702119insACC' --ccds
     chr12:g.109702119insACC/c.6870_6871insACC/p.Y2290_H2291insT   .
 ```
 
+#### annotate block substitution from genomic locations
+
 A block-substitution that results in a frameshift.
 ```
 #!bash
