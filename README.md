@@ -867,6 +867,29 @@ transvar anno -i '12:109702119insACC' --ccds
     chr12:g.109702119insACC/c.6870_6871insACC/p.Y2290_H2291insT   .
 ```
 
+A block-substitution that results in a frameshift.
+```
+#!bash
+transvar anno -i 'chr10:g.27329002_27329002A>AT' --ccds
+```
+```
+#!text
+chr10:g.27329002_27329002A>AT   chr10   27329002-27329002
+    CCDS41499.1     ANKRD26 (-, CDS_21)
+    chr10:g.27329002_27329002A>AT/c.2267_2267T>AT/p.M756Nfs*6
+    BEGCodon=27329001-27329002-27329003;ENDCodon=27329001-27329002-27329003
+```
+
+A block-substitution that is in-frame,
+```
+#!bash
+transvar anno -i 'chr10:g.52595929_52595930GG>AA' --ccds
+```
+```
+#!text
+chr10:g.52595929_52595930GG>AA  chr10   52595929-52595930       CCDS7241.1      A1CF (-, CDS_4) chr10:g.52595929_52595930GG>AA/c.508_509CC>TT/p.P170L    BEGCodon=52595928-52595929-52595930;ENDCodon=52595928-52595929-52595930
+```
+
 ### FAQ
 
 + I got 'GeneNotRecognized', what's wrong?
@@ -879,7 +902,6 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Future work
 
- + test forward annotation of insertion/deletion
  + add cytoband annotation
  + forward annotation of splice site
  + forward annotation of non-coding RNA from GENCODE

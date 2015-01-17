@@ -131,6 +131,8 @@ def parse_mutation_str(mut_str, muttype=None):
             #           'Invalid nucleotide mutation: "%s".' % mut_str, __name__)
         q.is_codon = False
     elif (mg and not muttype) or muttype == 'g':
+        if not mg:
+            print mut_str
         (_, _, _beg, _end_s, _end, _, _is_del, _d,
          _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mg.groups()
         if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:

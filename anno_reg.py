@@ -27,33 +27,43 @@ def _annotate_reg_gene_point(args, q, t):
     r.info = 'CodonPos=%s' % ('-'.join(map(str, c.locs)),)
     return r
 
-def _annotate_reg_gene_short_range(args, q, t):
+def _annotate_reg_single_gene(args, q, t):
 
     r = Record()
     r.chrm = t.chrm
     r.tname = t.name
-    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, t.overlap_region(q.beg, q.end))
+    # TODO: t.overlap_region change to RegSpanAnno framework
+    # r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, t.overlap_region(q.beg, q.end))
+    r._reg_ = t.describe_span(q.beg, q.end)
+    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, r._reg_.format())
     r.pos = '%d-%d' % (q.beg, q.end)
-    cbeg, pbeg, regbeg = t.gpos2codon(q.beg)
-    cend, pend, regend = t.gpos2codon(q.end)
+    r.cbeg, r.pbeg, r.regbeg = t.gpos2codon(q.beg)
+    r.cend, r.pend, r.regend = t.gpos2codon(q.end)
+
+    # if t.strand == '+':
+    #     r.tnuc_beg = r.pbeg
+    # else:
+
     r.gnuc_range = '%d_%d' % (q.beg, q.end)
     if t.strand == '+':
-        r.tnuc_range = '%s_%s' % (pbeg, pend)
-        if cbeg.index == cend.index:
-            r.taa_ref = cbeg.aa()
-            r.taa_pos = cbeg.index
+        r.tnuc_range = '%s_%s' % (r.pbeg, r.pend)
+        if r.cbeg.index == r.cend.index:
+            r.taa_ref = r.cbeg.aa()
+            r.taa_pos = r.cbeg.index
         else:
-            r.taa_range = '%s%d_%s%d' % (cbeg.aa(), cbeg.index, cend.aa(), cend.index)
+            r.taa_range = '%s%d_%s%d' % (r.cbeg.aa(), r.cbeg.index,
+                                         r.cend.aa(), r.cend.index)
     else:
-        r.tnuc_range = '%s_%s' % (pend, pbeg)
-        if cbeg.index == cend.index:
-            r.taa_ref = cbeg.aa()
-            r.taa_pos = cbeg.index
+        r.tnuc_range = '%s_%s' % (r.pend, r.pbeg)
+        if r.cbeg.index == r.cend.index:
+            r.taa_ref = r.cbeg.aa()
+            r.taa_pos = r.cbeg.index
         else:
-            r.taa_range = '%s%d_%s%d' % (cend.aa(), cend.index, cbeg.aa(), cbeg.index)
+            r.taa_range = '%s%d_%s%d' % (r.cend.aa(), r.cend.index,
+                                         r.cbeg.aa(), r.cbeg.index)
     r.info = 'BEGCodon=%s;ENDCodon=%s' % (
-        '-'.join(map(str, cbeg.locs)), '-'.join(map(str, cend.locs)))
-    
+        '-'.join(map(str, r.cbeg.locs)), '-'.join(map(str, r.cend.locs)))
+
     return r
 
 def _annotate_reg_gene_long_range(args, q, tpts, genes, db):
@@ -82,24 +92,27 @@ def _annotate_reg_gene_long_range(args, q, tpts, genes, db):
             r.info = ';'.join(infocols)
             yield r
 
-
 def _annotate_reg_gene(args, q, db):
 
     tpts = [t for t in db.get_transcripts(q.tok, q.beg, q.end)]
     if tpts:
-        if args.longest:
-            tpts.sort(key=lambda t: len(t), reverse=True)
-            tpts = tpts[:1]
-
         if q.beg == q.end:
+            if args.longest:
+                tpts.sort(key=lambda t: len(t), reverse=True)
+                tpts = tpts[:1]
+
             q.pos = q.beg
             for t in tpts:
                 yield _annotate_reg_gene_point(args, q, t)
         else:
             genes = list(set([t.gene for t in tpts]))
             if len(genes) == 1:
+                if args.longest:
+                    tpts.sort(key=lambda t: len(t), reverse=True)
+                    tpts = tpts[:1]
+
                 for t in tpts:
-                    yield _annotate_reg_gene_short_range(args, q, t)
+                    yield _annotate_reg_single_gene(args, q, t)
             else:
                 for r in _annotate_reg_gene_long_range(args, q, tpts, genes, db):
                     yield r

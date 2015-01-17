@@ -4,78 +4,31 @@ from err import *
 from record import *
 from transcripts import *
 
-def nuc_mutation_mnv_coding_inframe(args, q, tpt, r):
+# def nuc_mutation_mnv_coding_inframe(beg, end, altseq, tpt, r):
 
-    beg_codon_index = (q.beg.pos + 2) / 3
-    end_codon_index = (q.end.pos + 2) / 3
-    
-    beg_codon_beg = beg_codon_index*3 - 2
-    end_codon_end = end_codon_index*3 # 1 past the last codon
 
-    old_seq = tpt.seq[beg_codon_beg-1:end_codon_end]
-    new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+q.altseq+tpt.seq[q.end.pos:end_codon_end]
-    old_taa_seq = translate_seq(old_seq)
-    new_taa_seq = translate_seq(new_seq)
-    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
-    if old_taa_seq == new_taa_seq:
-        r.taa_range = '(=)'
-    else:
-        # block substitution in nucleotide level may end up
-        # an insertion or deletion on the protein level
-        old_taa_seq1, new_taa_seq1, head_trim, tail_trim = double_trim(old_taa_seq, new_taa_seq)
-        if not old_taa_seq1:
-            _beg_index = beg_codon_index + head_trim - 1
-            _end_index = beg_codon_index + head_trim
-            _beg_aa = codon2aa(tpt.seq[_beg_index*3-3:_beg_index*3])
-            _end_aa = codon2aa(tpt.seq[_end_index*3-3:_end_index*3])
-            r.taa_range = '%s%d_%s%dins%s' % (
-                _beg_aa, _beg_index,
-                _end_aa, _end_index, new_taa_seq1)
-        elif not new_taa_seq1:
-            if len(old_taa_seq1) == 1:
-                r.taa_range = '%s%ddel' % (old_taa_seq1[0], beg_codon_index + head_trim)
-            else:
-                r.taa_range = '%s%d_%s%ddel' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim, 
-                    old_taa_seq1[1], end_codon_index - tail_trim)
-        else:
-            if len(old_taa_seq1) == 1:
-                if len(new_taa_seq1) == 1:
-                    r.taa_range = '%s%d%s' % (
-                        old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
-                else:
-                    r.taa_range = '%s%ddelins%s' % (
-                        old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
-            else:
-                r.taa_range = '%s%d_%s%ddelins%s' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim,
-                    old_taa_seq1[-1], end_codon_index - tail_trim, new_taa_seq1)
+# def nuc_mutation_mnv_coding_frameshift(beg, end, altseq, tpt, r):
 
-    return
+#     beg_codon_index = (beg + 2) / 3
+#     beg_codon_beg = beg_codon_index * 3 - 2
+#     old_seq = tpt.seq[beg_codon_beg-1:]
+#     new_seq = tpt.seq[beg_codon_beg-1:beg-1]+altseq+tpt.seq[end:]
 
-def nuc_mutation_mnv_coding_frameshift(orgs, q, tpt, r):
+#     ret = tpt.extend_taa_seq(beg_codon_beg, old_seq, new_seq)
+#     if ret:
+#         taa_pos, taa_ref, taa_alt, termlen = ret
+#         r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+#     else:
+#         r.taa_range = '(=)'
 
-    beg_codon_index = (q.beg.pos + 2) / 3
-    beg_codon_beg = beg_codon_index * 3 - 2
-    old_seq = tpt.seq[beg_codon_beg-1:]
-    new_seq = tpt.seq[beg_codon_beg-1:q.beg.pos-1]+q.altseq+tpt.seq[q.end.pos:]
+#     return
 
-    ret = extend_taa_seq(beg_codon_beg, old_seq, new_seq, tpt)
-    if ret:
-        taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
-    else:
-        r.taa_range = '(=)'
+# def nuc_mutation_mnv_coding(beg, end, altseq, tpt, r):
 
-    return
-
-def nuc_mutation_mnv_coding(args, q, tpt, r):
-
-    if (len(q.altseq) - (q.end.pos-q.beg.pos+1))  % 3 == 0:
-        nuc_mutation_mnv_coding_inframe(args, q, tpt, r)
-    else:
-        nuc_mutation_mnv_coding_frameshift(args, q, tpt, r)
-    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+#     if (len(q.altseq) - (q.end.pos-q.beg.pos+1))  % 3 == 0:
+#         nuc_mutation_mnv_coding_inframe(beg, end, altseq, tpt, r)
+#     else:
+#         nuc_mutation_mnv_coding_frameshift(beg, end, altseq, tpt, r)
 
 def nuc_mutation_mnv(args, q, tpt):
 
@@ -111,16 +64,20 @@ def nuc_mutation_mnv(args, q, tpt):
     r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
     r.tnuc_range = '%s_%s%s>%s' % (q.beg, q.end, r.natrefseq, q.altseq)
 
-    reg = ''
+    r._reg_ = tpt.describe_span(r.gnuc_beg, r.gnuc_end)
+    r.reg = '%s (%s, %s)' % (tpt.gene.name, tpt.strand, r._reg_.format())
+    if r._reg_.in_exon():
+        r.taa_range = tpt.tnuc_mnv_coding(q.beg.pos, q.end.pos, q.altseq, r)
 
-    if region_in_exon(np, q.beg, q.end):
-        nuc_mutation_mnv_coding(args, q, tpt, r)
-    elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
-        r.info = 'CrossSplitSite'
-        r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
-        # raise UnImplementedError('Block mutation occurs across splice site')
-    else:
-        r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
+    # if tnuc_region_in_exon(np, q.beg, q.end):
+    #     .tnunuc_mutation_mnv_coding(q.beg.pos, q.end.pos, q.altseq, tpt, r)
+    #     r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
+    # elif not tnuc_region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
+    #     r.info = 'CrossSpliceSite'
+    #     r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
+    #     # raise UnImplementedError('Block mutation occurs across splice site')
+    # else:
+    #     r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
 
     return r
 

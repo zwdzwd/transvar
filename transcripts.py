@@ -173,7 +173,7 @@ def check_exon_boundary(np, pos):
         if abs(tnuc2gnuc(np, pos.pos) - tnuc2gnuc(np, pos.pos-1)) == 1:
             raise IncompatibleTranscriptError()
 
-def region_in_exon(np, beg, end):
+def tnuc_region_in_exon(np, beg, end):
     """ region in tnuc positions """
 
     if beg.tpos != 0: return False
@@ -183,7 +183,7 @@ def region_in_exon(np, beg, end):
             return False
     return True
 
-def region_in_intron(np, beg, end):
+def tnuc_region_in_intron(np, beg, end):
     """ region in tnuc positions """
 
     if beg.tpos == 0 or end.tpos == 0: return False
@@ -313,12 +313,17 @@ class Transcript():
             raise IncompatibleTranscriptError('Incompatible reference amino acid')
         return codon2aa(self.seq[taa*3-3:taa*3])
 
-    def taa_range2aa_seq(self, taa_beg, taa_end):
+    def taa_range2tnuc_seq(self, taa_beg, taa_end):
 
         if taa_beg*3 > len(self) or taa_end*3 > len(self):
             raise IncompatibleTranscriptError('codon nonexistent')
 
-        return translate_seq(self.seq[taa_beg*3-3:taa_end*3])
+        self.ensure_seq()
+        return self.seq[taa_beg*3-3:taa_end*3]
+
+    def taa_range2aa_seq(self, taa_beg, taa_end):
+
+        return translate_seq(self.taa_range2tnuc_seq(taa_beg, taa_end))
 
     def tnuc2codon_(self, tnuc_pos):
         taa_pos = (tnuc_pos + 2) / 3
@@ -431,6 +436,7 @@ class Transcript():
 
     def describe(self, gpos):
         """ determine the position of a single site """
+
         rg = RegAnno()
         if gpos < self.cds_beg:
             rg.UTR = '5' if self.strand == '+' else '3'
@@ -475,6 +481,15 @@ class Transcript():
                     return rg
 
         raise Exception()       # you shouldn't reach here
+
+    def describe_span(self, gnuc_beg, gnuc_end):
+
+        rg = RegSpanAnno()
+        rg.b1 = self.describe(gnuc_beg)
+        rg.b2 = self.describe(gnuc_end)
+        rg.transcript_regs = self.overlap_region(gnuc_beg, gnuc_end)
+
+        return rg
 
     def _gpos2codon_p(self, gpos, np):
 
@@ -610,7 +625,7 @@ class Transcript():
             if intronic: regc.append('intronic')
             if UTR5: regc.append('UTR5')
 
-        return ','.join(regc)
+        return regc
 
     def taa_roll_left_ins(self, index, taa_insseq):
 
@@ -807,6 +822,120 @@ class Transcript():
         aa = self.cpos2aa(index)
         aa2 = self.cpos2aa(index+1)
         return '%s%d_%s%dins%s' % (aa, index, aa2, index+1, taa_insseq)
+
+    def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
+
+        taa_pos = None
+        termlen = None
+        seq_end = self.cds_end
+        i = 0
+        while True:
+            ci = i*3
+            old_codon_seq = old_seq[ci:ci+3]
+            new_codon_seq = new_seq[ci:ci+3]
+            # if sequence comes to ends, extend sequence from reference file
+            if (old_codon_seq not in standard_codon_table or 
+                new_codon_seq not in standard_codon_table):
+                seq_inc = faidx.refgenome.fetch_sequence(self.chrm, seq_end+1, seq_end+100)
+                old_seq += seq_inc
+                new_seq += seq_inc
+                old_codon_seq = old_seq[ci:ci+3]
+                new_codon_seq = new_seq[ci:ci+3]
+                seq_end += 100
+
+            taa_ref_run = codon2aa(old_codon_seq)
+            taa_alt_run = codon2aa(new_codon_seq)
+            #print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
+            if taa_pos == None and taa_ref_run != taa_alt_run:
+                taa_pos = i
+                taa_ref = taa_ref_run
+                taa_alt = taa_alt_run
+            if taa_alt_run == '*':
+                if taa_pos == None:
+                    # Terminating codon encountered before difference
+                    return None     # nothing occur to protein level
+                termlen = i + 1 - taa_pos
+                break
+            i += 1
+
+        if taa_pos == None:
+            print 'oldseq', old_seq
+            print 'newseq', new_seq
+        taa_pos += taa_pos_base
+
+        return taa_pos, taa_ref, taa_alt, str(termlen)
+
+
+    def tnuc_mnv_coding_inframe(self, beg, end, altseq, r):
+
+        """ beg and end are integer tnuc positions
+        altseq follows the tnuc (cDNA) order
+        set taa range
+        """
+
+        beg_codon_index = (beg + 2) / 3
+        end_codon_index = (end + 2) / 3
+
+        beg_codon_beg = beg_codon_index*3 - 2
+        end_codon_end = end_codon_index*3 # 1 past the last codon
+
+        old_seq = self.seq[beg_codon_beg-1:end_codon_end]
+        new_seq = self.seq[beg_codon_beg-1:beg-1]+altseq+self.seq[end:end_codon_end]
+        old_taa_seq = translate_seq(old_seq)
+        new_taa_seq = translate_seq(new_seq)
+        if old_taa_seq == new_taa_seq:
+            return '(=)'
+
+        # block substitution in nucleotide level may end up
+        # an insertion or deletion on the protein level
+        old_taa_seq1, new_taa_seq1, head_trim, tail_trim = double_trim(old_taa_seq, new_taa_seq)
+        if not old_taa_seq1:
+            _beg_index = beg_codon_index + head_trim - 1
+            _end_index = beg_codon_index + head_trim
+            _beg_aa = codon2aa(self.seq[_beg_index*3-3:_beg_index*3])
+            _end_aa = codon2aa(self.seq[_end_index*3-3:_end_index*3])
+            return '%s%d_%s%dins%s' % (
+                _beg_aa, _beg_index,
+                _end_aa, _end_index, new_taa_seq1)
+
+        if not new_taa_seq1:
+            if len(old_taa_seq1) == 1:
+                return '%s%ddel' % (old_taa_seq1[0], beg_codon_index + head_trim)
+            else:
+                return '%s%d_%s%ddel' % (
+                    old_taa_seq1[0], beg_codon_index + head_trim, 
+                    old_taa_seq1[1], end_codon_index - tail_trim)
+        if len(old_taa_seq1) == 1:
+            if len(new_taa_seq1) == 1:
+                return '%s%d%s' % (
+                    old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+            else:
+                return '%s%ddelins%s' % (
+                    old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+        return '%s%d_%s%ddelins%s' % (
+            old_taa_seq1[0], beg_codon_index + head_trim,
+            old_taa_seq1[-1], end_codon_index - tail_trim, new_taa_seq1)
+
+    def tnuc_mnv_coding_frameshift(self, beg, end, altseq, r):
+
+        beg_codon_index = (beg + 2) / 3
+        beg_codon_beg = beg_codon_index * 3 - 2
+        old_seq = self.seq[beg_codon_beg-1:]
+        new_seq = self.seq[beg_codon_beg-1:beg-1]+altseq+self.seq[end:]
+
+        ret = self.extend_taa_seq(beg_codon_index, old_seq, new_seq)
+        if ret:
+            taa_pos, taa_ref, taa_alt, termlen = ret
+            return '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+        else:
+            return '(=)'
+
+    def tnuc_mnv_coding(self, beg, end, altseq, r):
+
+        if (len(altseq) - (end-beg+1)) % 3 == 0:
+            return self.tnuc_mnv_coding_inframe(beg, end, altseq, r)
+        else:
+            return self.tnuc_mnv_coding_frameshift(beg, end, altseq, r)
 
 def gnuc_del_id(chrm, beg, end):
 
@@ -1363,47 +1492,6 @@ def parse_uniprot_mapping(fn):
     err_print('[%s] Loaded %d transcript with UniProt mapping.' % (__name__, len(tid2uniprot)))
 
     return tid2uniprot
-
-def extend_taa_seq(taa_pos_base, old_seq, new_seq, tpt):
-
-    taa_pos = None
-    termlen = None
-    seq_end = tpt.cds_end
-    i = 0
-    while True:
-        ci = i*3
-        old_codon_seq = old_seq[ci:ci+3]
-        new_codon_seq = new_seq[ci:ci+3]
-        # if sequence comes to ends, extend sequence from reference file
-        if (old_codon_seq not in standard_codon_table or 
-            new_codon_seq not in standard_codon_table):
-            seq_inc = faidx.refgenome.fetch_sequence(tpt.chrm, seq_end+1, seq_end+100)
-            old_seq += seq_inc
-            new_seq += seq_inc
-            old_codon_seq = old_seq[ci:ci+3]
-            new_codon_seq = new_seq[ci:ci+3]
-            seq_end += 100
-
-        taa_ref_run = codon2aa(old_codon_seq)
-        taa_alt_run = codon2aa(new_codon_seq)
-        #print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
-        if taa_pos == None and taa_ref_run != taa_alt_run:
-            taa_pos = i
-            taa_ref = taa_ref_run
-            taa_alt = taa_alt_run
-        if taa_alt_run == '*':
-            if taa_pos == None:
-                # Terminating codon encountered before difference
-                return None     # nothing occur to protein level
-            termlen = i + 1 - taa_pos
-            break
-        i += 1
-
-    if taa_pos == None:
-        print 'oldseq', old_seq
-        print 'newseq', new_seq
-    taa_pos += taa_pos_base
-    return taa_pos, taa_ref, taa_alt, str(termlen)
 
 def translate_seq(seq):
 

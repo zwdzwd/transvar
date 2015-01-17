@@ -49,7 +49,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, q, t, r):
     if not old_seq:
         raise IncompatibleTranscriptError()
 
-    ret = extend_taa_seq(cbeg.index, old_seq, new_seq, t)
+    ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
         r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
@@ -57,7 +57,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, q, t, r):
         r.taa_range = '(=)'
 
 
-def _annotate_del_gene_short_range(args, q, t):
+def _annotate_del_single_gene(args, q, t):
 
     r = Record()
     r.chrm = t.chrm
@@ -139,7 +139,7 @@ def _annotate_del_gene(args, q, db):
         genes = list(set([t.gene for t in tpts]))
         if len(genes) == 1:
             for t in tpts:
-                yield _annotate_del_gene_short_range(args, q, t)
+                yield _annotate_del_single_gene(args, q, t)
         else:
             for r in _annotate_reg_gene_long_range(args, q, tpts, genes, db):
                 yield r
