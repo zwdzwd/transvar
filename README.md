@@ -40,7 +40,7 @@ Basic functionalities requires just Python 2.7. Some additional annotation also 
 
 #### program
 
-current stable version: [version 1.27](https://bitbucket.org/wanding/transvar/get/v1.27.zip)
+current stable version: [version 1.28](https://bitbucket.org/wanding/transvar/get/v1.28.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
@@ -889,7 +889,9 @@ transvar anno -i 'chr10:g.52595929_52595930GG>AA' --ccds
 ```
 ```
 #!text
-chr10:g.52595929_52595930GG>AA  chr10   52595929-52595930       CCDS7241.1      A1CF (-, CDS_4) chr10:g.52595929_52595930GG>AA/c.508_509CC>TT/p.P170L    BEGCodon=52595928-52595929-52595930;ENDCodon=52595928-52595929-52595930
+chr10:g.52595929_52595930GG>AA  chr10   52595929-52595930
+    CCDS7241.1      A1CF (-, CDS_4) chr10:g.52595929_52595930GG>AA/c.508_509CC>TT/p.P170L
+    BEGCodon=52595928-52595929-52595930;ENDCodon=52595928-52595929-52595930
 ```
 
 ### FAQ
