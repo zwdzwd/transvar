@@ -1,6 +1,7 @@
 import re, sys, argparse
 from utils import *
 from record import *
+from err import *
 
 def parse_mutation_str(mut_str, muttype=None):
     mut_str = mut_str.strip()
@@ -10,6 +11,8 @@ def parse_mutation_str(mut_str, muttype=None):
     
     if (mp and not muttype) or muttype=='p':
         #print mp.groups()
+        if not mp:
+            raise InvalidInputError("Invalid protein level identifier: %s" % mut_str)
         (_, _, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
          _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i, _has_ref, _ref) = mp.groups()
         if _is_fs:
@@ -80,6 +83,8 @@ def parse_mutation_str(mut_str, muttype=None):
 
         q.is_codon = True
     elif (mn and not muttype) or muttype=='n':
+        if not mn:
+            raise InvalidInputError("Invalid cDNA level input: %s" % mut_str)
         (_, _, _beg, _end_s, _end, _, _is_del, _d,
          _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mn.groups()
         if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:
@@ -132,7 +137,7 @@ def parse_mutation_str(mut_str, muttype=None):
         q.is_codon = False
     elif (mg and not muttype) or muttype == 'g':
         if not mg:
-            print mut_str
+            raise InvalidInputError("Invalid genomic level input: %s" % mut_str)
         (_, _, _beg, _end_s, _end, _, _is_del, _d,
          _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = mg.groups()
         if _is_sub and len(_ref) <= 1 and len(_alt) <= 1:
