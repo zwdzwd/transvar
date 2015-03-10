@@ -69,7 +69,7 @@ def ins_gene_coding_frameshift(t, r, c, p, insseq):
     cbeg_beg = c.index * 3 - 2
     old_seq = t.seq[cbeg_beg-1:]
     new_seq = t.seq[cbeg_beg-1:p.pos]+insseq+t.seq[p.pos:]
-    ret = t.extend_taa_seq(c.index, old_seq, new_seq, t)
+    ret = t.extend_taa_seq(c.index, old_seq, new_seq)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
         if taa_alt == '*':      # a substitution into stop codon
