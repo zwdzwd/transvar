@@ -37,6 +37,14 @@ class Pos():
         else:
             return self.pos
 
+def same_intron(p1, p2):
+
+    if ((p1.included_minus() == p2.included_minus()) and
+        (p1.tpos != 0) and (p2.tpos != 0)):
+        return True
+    else:
+        return False
+
 def append_inf(f, a):
     if f:
         return f+';'+a

@@ -40,6 +40,9 @@ def _annotate_reg_single_gene(args, q, t):
     r.cbeg, r.pbeg, r.regbeg = t.gpos2codon(q.beg)
     r.cend, r.pend, r.regend = t.gpos2codon(q.end)
 
+    # print t.chrm
+    # print q.beg, r.pbeg, r.regbeg, r.cbeg.index
+    # print q.end, r.pend, r.regend, r.cend.index
     # if t.strand == '+':
     #     r.tnuc_beg = r.pbeg
     # else:
@@ -47,20 +50,22 @@ def _annotate_reg_single_gene(args, q, t):
     r.gnuc_range = '%d_%d' % (q.beg, q.end)
     if t.strand == '+':
         r.tnuc_range = '%s_%s' % (r.pbeg, r.pend)
-        if r.cbeg.index == r.cend.index:
-            r.taa_ref = r.cbeg.aa()
-            r.taa_pos = r.cbeg.index
-        else:
-            r.taa_range = '%s%d_%s%d' % (r.cbeg.aa(), r.cbeg.index,
-                                         r.cend.aa(), r.cend.index)
+        if not same_intron(r.pbeg, r.pend):
+            if r.cbeg.index == r.cend.index:
+                r.taa_ref = r.cbeg.aa()
+                r.taa_pos = r.cbeg.index
+            else:
+                r.taa_range = '%s%d_%s%d' % (r.cbeg.aa(), r.cbeg.index,
+                                             r.cend.aa(), r.cend.index)
     else:
         r.tnuc_range = '%s_%s' % (r.pend, r.pbeg)
-        if r.cbeg.index == r.cend.index:
-            r.taa_ref = r.cbeg.aa()
-            r.taa_pos = r.cbeg.index
-        else:
-            r.taa_range = '%s%d_%s%d' % (r.cend.aa(), r.cend.index,
-                                         r.cbeg.aa(), r.cbeg.index)
+        if not same_intron(r.pbeg, r.pend):
+            if r.cbeg.index == r.cend.index:
+                r.taa_ref = r.cbeg.aa()
+                r.taa_pos = r.cbeg.index
+            else:
+                r.taa_range = '%s%d_%s%d' % (r.cend.aa(), r.cend.index,
+                                             r.cbeg.aa(), r.cbeg.index)
     r.info = 'BEGCodon=%s;ENDCodon=%s' % (
         '-'.join(map(str, r.cbeg.locs)), '-'.join(map(str, r.cend.locs)))
 
