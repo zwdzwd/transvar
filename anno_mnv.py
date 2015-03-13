@@ -115,6 +115,7 @@ def _annotate_mnv(args, q, db):
     if not gene_found:
         r = __annotate_reg_intergenic(args, db, q.tok, q.beg, q.end)
         # r.gnuc_range = '%d_%d%s>%s'
-        r.gnuc_range += '%s>%s' % (q.refseq, q.altseq)
+        if hasattr(r, "gnuc_range"):
+            r.gnuc_range += '%s>%s' % (q.refseq, q.altseq)
         # TODO : add to reflect reference and alternative
         r.format(q.op)
