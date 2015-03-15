@@ -61,23 +61,24 @@ def add_mnv_single_gene(r, q, t):
     r.gnuc_refseq = q.refseq
     r.gnuc_altseq = q.altseq
     r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, r.gnuc_refseq, r.gnuc_altseq)
-    if t.strand == '+':
-        r.tnuc_refseq = r.gnuc_refseq
-        r.tnuc_altseq = r.gnuc_altseq
-        r.tnuc_beg = r.pbeg
-        r.tnuc_end = r.pend
-    else:
-        r.tnuc_refseq = reverse_complement(r.gnuc_refseq)
-        r.tnuc_altseq = reverse_complement(r.gnuc_altseq)
-        r.tnuc_beg = r.pend
-        r.tnuc_end = r.pbeg
-    r.tnuc_range = '%s_%s%s>%s' % (r.tnuc_beg, r.tnuc_end,
-                                   r.tnuc_refseq, r.tnuc_altseq)
-
+    if hasattr(r, 'tnuc_range'):
+        if t.strand == '+':
+            r.tnuc_refseq = r.gnuc_refseq
+            r.tnuc_altseq = r.gnuc_altseq
+            r.tnuc_beg = r.pbeg
+            r.tnuc_end = r.pend
+        else:
+            r.tnuc_refseq = reverse_complement(r.gnuc_refseq)
+            r.tnuc_altseq = reverse_complement(r.gnuc_altseq)
+            r.tnuc_beg = r.pend
+            r.tnuc_end = r.pbeg
+        r.tnuc_range = '%s_%s%s>%s' % (r.tnuc_beg, r.tnuc_end,
+                                       r.tnuc_refseq, r.tnuc_altseq)
 
     # r._reg_ is the raw RegSpanAnno object
-    # predict protein change if entire region is in exon
-    if r._reg_.in_exon():
+    # predict protein change if entire region is in cds region
+    if r._reg_.in_cds():
+        print r.tnuc_beg, r.tnuc_end
         r.taa_range = t.tnuc_mnv_coding(r.tnuc_beg.pos, r.tnuc_end.pos, r.tnuc_altseq, r)
     return
 

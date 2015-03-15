@@ -533,7 +533,7 @@ class Transcript():
     def _gpos2codon_n(self, gpos, np):
 
         if gpos < self.cds_beg:
-            p = Pos(1, gpos-self.cds_beg)
+            p = Pos(len(self.seq), self.cds_beg-gpos)
             c = self._init_codon_(1)
             c.seq = self.seq[:3]
             c.locs = np[:3]
@@ -541,7 +541,7 @@ class Transcript():
             return c, p, reg
 
         if gpos > self.cds_end:
-            p = Pos(len(self.seq), gpos-self.cds_end)
+            p = Pos(1, self.cds_end-gpos)
             c = self._init_codon_((len(self.seq)+2)/3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
@@ -582,7 +582,6 @@ class Transcript():
 
         # ret = self._gpos2codon_UTR(gpos, np)
         # if ret: return ret
-        
         if self.strand == "+":
             return self._gpos2codon_p(gpos, np)
         else:

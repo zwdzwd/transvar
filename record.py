@@ -103,9 +103,13 @@ class RegSpanAnno():
         return (self.b1.UTR and self.b2.UTR and self.b1.UTR == self.b2.UTR)
 
     def in_exon(self):
-
         return (self.b1.exonic and
                 self.b2.exonic and
+                self.b1.exon == self.b2.exon)
+
+    def in_cds(self):
+        return (self.b1.cds and
+                self.b2.cds and
                 self.b1.exon == self.b2.exon)
 
     def in_intron(self):
