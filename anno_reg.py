@@ -52,25 +52,34 @@ def _annotate_reg_single_gene(args, q, t):
     if q.end > t.cds_end and q.beg <= t.cds_end:
         r.append_info('%s_loss' % ('stop' if t.strand == '+' else 'start'))
 
-    if r.pbeg.tpos == 0 and r.pend.tpos == 0:
-        if t.strand == '+':
-            if not same_intron(r.pbeg, r.pend):
-                if r.cbeg.index == r.cend.index:
-                    r.taa_ref = r.cbeg.aa()
-                    r.taa_pos = r.cbeg.index
-                else:
-                    r.taa_range = '%s%d_%s%d' % (r.cbeg.aa(), r.cbeg.index,
-                                                 r.cend.aa(), r.cend.index)
+    # print r.pbeg, r.pend
+    # print q.beg, q.end
+    # print r.cbeg.seq, r.cend.seq
+    # print t.cds_beg, t.cds_end
+    # print len(t.seq)
+
+    if (r.pbeg.tpos == 0 and r.pend.tpos == 0):
+        if len(r.cbeg.seq) != 3 or len(r.cend.seq) != 3:
+            r.append_info('TruncatedRefSeqAtBoundary')
         else:
-            if not same_intron(r.pbeg, r.pend):
-                if r.cbeg.index == r.cend.index:
-                    r.taa_ref = r.cbeg.aa()
-                    r.taa_pos = r.cbeg.index
-                else:
-                    r.taa_range = '%s%d_%s%d' % (r.cend.aa(), r.cend.index,
-                                                 r.cbeg.aa(), r.cbeg.index)
-        r.append_info('BEGCodon=%s;ENDCodon=%s' % (
-            '-'.join(map(str, r.cbeg.locs)), '-'.join(map(str, r.cend.locs))))
+            if t.strand == '+':
+                if not same_intron(r.pbeg, r.pend):
+                    if r.cbeg.index == r.cend.index:
+                        r.taa_ref = r.cbeg.aa()
+                        r.taa_pos = r.cbeg.index
+                    else:
+                        r.taa_range = '%s%d_%s%d' % (r.cbeg.aa(), r.cbeg.index,
+                                                     r.cend.aa(), r.cend.index)
+            else:
+                if not same_intron(r.pbeg, r.pend):
+                    if r.cbeg.index == r.cend.index:
+                        r.taa_ref = r.cbeg.aa()
+                        r.taa_pos = r.cbeg.index
+                    else:
+                        r.taa_range = '%s%d_%s%d' % (r.cend.aa(), r.cend.index,
+                                                     r.cbeg.aa(), r.cbeg.index)
+            r.append_info('BEGCodon=%s;ENDCodon=%s' % (
+                '-'.join(map(str, r.cbeg.locs)), '-'.join(map(str, r.cend.locs))))
 
     return r
 

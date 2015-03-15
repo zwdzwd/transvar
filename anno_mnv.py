@@ -78,8 +78,10 @@ def add_mnv_single_gene(r, q, t):
     # r._reg_ is the raw RegSpanAnno object
     # predict protein change if entire region is in cds region
     if r._reg_.in_cds():
-        print r.tnuc_beg, r.tnuc_end
-        r.taa_range = t.tnuc_mnv_coding(r.tnuc_beg.pos, r.tnuc_end.pos, r.tnuc_altseq, r)
+        try:
+            r.taa_range = t.tnuc_mnv_coding(r.tnuc_beg.pos, r.tnuc_end.pos, r.tnuc_altseq, r)
+        except IncompatibleTranscriptError:
+            pass
     return
 
 def _annotate_mnv_gene(args, q, db):

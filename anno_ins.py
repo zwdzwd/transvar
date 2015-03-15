@@ -3,13 +3,15 @@ from record import *
 from anno_reg import __annotate_reg_intergenic
 
 def taa_set_ins(r, t, index, taa_insseq):
-
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
-    r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
-
-    i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
-    r.append_info('LEFTALNP=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
-    r.append_info('UALNP=p.%s' % t.taa_ins_id(index, taa_insseq))
+    try:
+        r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
+        i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
+        r.append_info('LEFTALNP=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
+        r.append_info('UALNP=p.%s' % t.taa_ins_id(index, taa_insseq))
+    except IncompatibleTranscriptError:
+        # r.taa_range = '.'
+        r.append_info("TruncatedRefSeqAtBoundary")
 
 def tnuc_set_ins(r, t, p1, tnuc_insseq):
 
@@ -38,24 +40,28 @@ def ins_gene_coding_inframe_outphase(t, r, c, p, insseq):
     codon_end = c.index*3
     codon_subseq1 = t.seq[codon_beg-1:p.pos]
     codon_subseq2 = t.seq[p.pos:codon_end]
-    alt_seq = codon_subseq1+insseq+codon_subseq2
-    taa_altseq = translate_seq(alt_seq)
-    if taa_altseq[-1] == '*':
-        return ins_gene_coding_frameshift(t, r, c, p, alt_seq)
 
-    taa_ref = codon2aa(c.seq)
-    if taa_ref == taa_altseq[0]:
-        # SdelinsSH becomes a pure insertion
-        # [current_codon]_[codon_after]insH
-        taa_set_ins(r, t, c.index, taa_altseq[1:])
+    try:
+        alt_seq = codon_subseq1+insseq+codon_subseq2
+        taa_altseq = translate_seq(alt_seq)
+        if taa_altseq[-1] == '*':
+            return ins_gene_coding_frameshift(t, r, c, p, alt_seq)
 
-    elif taa_ref == taa_altseq[-1]:
-        # SdelinsHS becomes a pure insertion
-        # [codon_before]_[current_codon]insH
-        taa_set_ins(r, t, c.index-1, taa_altseq[:-1])
-    else:
-        r.taa_range = '%s%ddelins%s' % (taa_ref, c.index, taa_altseq)
-    
+        taa_ref = codon2aa(c.seq)
+        if taa_ref == taa_altseq[0]:
+            # SdelinsSH becomes a pure insertion
+            # [current_codon]_[codon_after]insH
+            taa_set_ins(r, t, c.index, taa_altseq[1:])
+
+        elif taa_ref == taa_altseq[-1]:
+            # SdelinsHS becomes a pure insertion
+            # [codon_before]_[current_codon]insH
+            taa_set_ins(r, t, c.index-1, taa_altseq[:-1])
+        else:
+            r.taa_range = '%s%ddelins%s' % (taa_ref, c.index, taa_altseq)
+    except IncompatibleTranscriptError:
+        r.append_info("TruncatedRefSeqAtBoundary")
+
 
 def ins_gene_coding_inframe(t, r, c, p, insseq):
 
