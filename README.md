@@ -40,7 +40,7 @@ Basic functionalities requires just Python 2.7. Some additional annotation also 
 
 #### program
 
-current stable version: [version 1.32](https://bitbucket.org/wanding/transvar/get/v1.32.zip)
+current stable version: [version 1.33](https://bitbucket.org/wanding/transvar/get/v1.33.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
@@ -739,11 +739,9 @@ outputs
 chr2:234183368_234183380del     chr2    234183368-234183380     CCDS2502.2
     ATG16L1 (+, Coding)
     chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5
-    LEFTALNG=g.234183367_234183379del13;
-	UALNG=g.234183368_234183380del13;
-	LEFTALNC=c.840_852del13;
-	UALNC=c.841_853del13;
-	REG=Exonic_8
+    LEFTALNG=g.234183367_234183379del13;UALNG=g.234183368_234183380del13;
+  	LEFTALNC=c.840_852del13;UALNC=c.841_853del13;
+	  REG=Exonic_8
 ```
 Note the difference between left-aligned identifier and the right aligned identifier.
 
@@ -756,9 +754,9 @@ outputs
 ```
 #!text
 chr2:234183368_234183379del     chr2    234183368-234183379     CCDS2502.2
-    ATG16L1 (+, Coding)     chr2:g.234183368_234183379del12/c.841_852del12/p.T281_G284del
-	BEGCodon=234183368/234183369/234183370;
-	ENDCodon=234183377/234183378/234183379;REG=Exonic_8
+    ATG16L1 (+, Coding)     chr2:g.234183368_234183379del12/c.841_852del12/p.T281_G284delTHPG
+		LEFTALNG=g.234183367_234183378del12;UALNG=g.234183368_234183379del12;
+		LEFTALNC=c.840_851del12;UALNC=c.841_852del12;REG=Exonic_8;LEFTALNP=p.T281_G284delTHPG;UALNP=p.T281_G284delTHPG
 ```
 
 Another example
@@ -772,13 +770,10 @@ outputs
 12:53703425_53703427del chr12   53703425-53703427       CCDS8856.1
     AAAS (-, Coding)
     chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.257delG
-    LEFTALNG=g.53703424_53703426delCCC;
-	UALNG=g.53703425_53703427delCCC;
-	LEFTALNC=c.766_768delGGG;
-	UALNC=c.768_770delGGG;
-	REG=Exonic_8;
-	LEFTALNP=p.256delG;
-	UALNP=p.256delG
+    LEFTALNG=g.53703424_53703426delCCC; UALNG=g.53703425_53703427delCCC;
+  	LEFTALNC=c.766_768delGGG;	UALNC=c.768_770delGGG;
+  	REG=Exonic_8;
+		LEFTALNP=p.256delG;	UALNP=p.256delG
 ```
 Note the difference between left and right-aligned identifiers on both protein level and cDNA level.
 
