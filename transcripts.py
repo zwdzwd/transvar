@@ -1058,13 +1058,13 @@ class Gene():
 
         return self.std_tpt.cpos2codon(cpos)
 
-    def beg(self):
+    def get_beg(self):
         if hasattr(self, 'beg'):
             return self.beg
         else:
             return gene.longest_tpt().beg
 
-    def end(self):
+    def get_end(self):
         if hasattr(self, 'end'):
             return self.end
         else:

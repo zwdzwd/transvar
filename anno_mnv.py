@@ -96,10 +96,10 @@ def _annotate_mnv_gene(args, q, db):
         max_beg = None
         min_end = None
         for gene in genes:
-            if max_beg is None or max_beg < gene.beg():
-                max_beg = gene.beg()
-            if min_end is None or min_end > gene.end():
-                min_end = gene.end()
+            if max_beg is None or max_beg < gene.get_beg():
+                max_beg = gene.get_beg()
+            if min_end is None or min_end > gene.get_end():
+                min_end = gene.get_end()
 
         if max_beg < min_end:
             # TODO should judge by the number of genes, there might be nested genes.
