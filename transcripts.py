@@ -442,6 +442,7 @@ class Transcript():
             rg.UTR = '5' if self.strand == '+' else '3'
         if gpos > self.cds_end:
             rg.UTR = '3' if self.strand == '+' else '5'
+
         for i, exon in enumerate(self.exons):
             exind = i+1 if self.strand == '+' else len(self.exons) - i
             if i == 0 and exon[0] > gpos:
@@ -1057,6 +1058,17 @@ class Gene():
 
         return self.std_tpt.cpos2codon(cpos)
 
+    def beg(self):
+        if hasattr(self, 'beg'):
+            return self.beg
+        else:
+            return gene.longest_tpt().beg
+
+    def end(self):
+        if hasattr(self, 'end'):
+            return self.end
+        else:
+            return gene.longest_tpt().end
 
 def parse_ucsc_refgene(map_file, name2gene):
     """ start 1-based, end 1-based """

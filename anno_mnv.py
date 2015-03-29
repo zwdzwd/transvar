@@ -87,21 +87,26 @@ def add_mnv_single_gene(r, q, t):
 def _annotate_mnv_gene(args, q, db):
 
     tpts = [t for t in db.get_transcripts(q.tok, q.beg, q.end)]
-    genes = list(set([t.gene for t in tpts]))
-    max_beg = None
-    min_end = None
-    for gene in genes:
-        if max_beg is None or max_beg < gene.beg:
-            max_beg = gene.beg
-        if min_end is None or min_end > gene.end:
-            min_end = gene.end
+    if tpts:
+        if args.longest:
+            tpts.sort(key=lambda t: len(t), reverse=True)
+            tpts = tpts[:1]
 
-    if max_beg < min_end:
-        # TODO should judge by the number of genes, there might be nested genes.
-        for t in tpts:
-            r = _annotate_reg_single_gene(args, q, t)
-            add_mnv_single_gene(r, q, t)
-            yield r
+        genes = list(set([t.gene for t in tpts]))
+        max_beg = None
+        min_end = None
+        for gene in genes:
+            if max_beg is None or max_beg < gene.beg():
+                max_beg = gene.beg()
+            if min_end is None or min_end > gene.end():
+                min_end = gene.end()
+
+        if max_beg < min_end:
+            # TODO should judge by the number of genes, there might be nested genes.
+            for t in tpts:
+                r = _annotate_reg_single_gene(args, q, t)
+                add_mnv_single_gene(r, q, t)
+                yield r
 
 def _annotate_mnv(args, q, db):
 

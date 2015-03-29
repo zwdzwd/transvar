@@ -77,9 +77,9 @@ class RegAnno():
                            (self.intron_exon1, self.intron_exon2))
         elif self.exonic:
             if self.cds:
-                f = append_inf(f, 'Exonic_%d' % self.exon)
-            else:
                 f = append_inf(f, 'CDS_%d' % self.exon)
+            else:
+                f = append_inf(f, 'Exonic_%d' % self.exon)
         elif self.intergenic:
             f = append_inf(f, 'Intergenic%s' % self.intergenic)
 

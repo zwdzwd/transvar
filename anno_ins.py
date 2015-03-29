@@ -109,6 +109,7 @@ def _ins_gene(args, q, t):
     else:
         c1, p1, rg1 = t.gpos2codon(q.pos+1)
         tnuc_insseq = reverse_complement(q.insseq)
+
     r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, rg1.format())
 
     # assert p1.tpos == p2.tpos == 0
