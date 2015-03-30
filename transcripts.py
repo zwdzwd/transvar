@@ -1252,7 +1252,10 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             gene_id = info['gene_id']
             if gene_id not in id2ent: id2ent[gene_id] = Gene()
             g = id2ent[gene_id]
-            g.name = info['gene_name'].upper()
+            if 'gene_name' in info:
+                g.name = info['gene_name'].upper()
+            else:
+                g.name = gene_id
             if g.name not in name2gene: name2gene[g.name] = g
             g.beg = int(fields[3])
             g.end = int(fields[4])

@@ -112,18 +112,28 @@ def _annotate_reg_gene_long_range(args, q, tpts, genes, db):
 def _annotate_reg_gene(args, q, db):
 
     tpts = [t for t in db.get_transcripts(q.tok, q.beg, q.end)]
+
+    if args.longest:
+        genes = set([t.gene for t in tpts])
+        tpts = [sorted([_ for _ in g.tpts if _ in tpts], key=lambda t: len(t), reverse=True)[0]
+                for g in genes]
+
     if tpts:
         if q.beg == q.end:
-            if args.longest:
-                tpts.sort(key=lambda t: len(t), reverse=True)
-                tpts = tpts[:1]
-
             q.pos = q.beg
             for t in tpts:
                 yield _annotate_reg_gene_point(args, q, t)
         else:
             genes = list(set([t.gene for t in tpts]))
-            if len(genes) == 1:
+            max_beg = None
+            min_end = None
+            for gene in genes:
+                if max_beg is None or max_beg < gene.get_beg():
+                    max_beg = gene.get_beg()
+                if min_beg is None or min_end > gene.get_end():
+                    min_end = gene.get_end()
+
+            if max_beg < min_end:
                 if args.longest:
                     tpts.sort(key=lambda t: len(t), reverse=True)
                     tpts = tpts[:1]

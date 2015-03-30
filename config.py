@@ -102,9 +102,25 @@ def download_mm10_annotations(config):
          'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm38.1/CCDS.current.txt'),
         ('ensembl', 'mm10.ensembl.gtf.gz',
          'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz')
+        ('gencode', 'mm10.gencode.gtf.gz',
+         'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
         ]
     config.set('DEFAULT', 'refversion', 'mm10')
     _download_(config, 'mm10', fns)
+
+def download_mm9_annotations(config):
+
+    fns = [
+        ('refseq', 'mm9.refseq.gff.gz',
+         'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
+        ('ccds', 'mm9.ccds.txt',
+         'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
+        ('gencode', 'mm9.gencode.gtf.gz',
+         'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
+        ]
+    
+    config.set('DEFAULT', 'refversion', 'mm9')
+    _download_(config, 'mm9', fns)
 
 def download_idmap(config):
     fns = [('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1')]
@@ -160,6 +176,9 @@ def main(args):
     if args.download_mm10_anno:
         download_mm10_annotations(config)
 
+    if args.download_mm9_anno:
+        download_mm9_annotations(config)
+
     if args.download_hg19_dbsnp:
         download_hg19_dbsnp(config)
 
@@ -185,6 +204,7 @@ def add_parser_config(subparsers):
     parser.add_argument('--download_hg19_anno', action='store_true', help='download hg19 (GRCh37) annotations')
     parser.add_argument('--download_hg38_anno', action='store_true', help='download hg38 (GRCh38) annotations')
     parser.add_argument('--download_mm10_anno', action='store_true', help='download mm10 (GRCm38) annotations')
+    parser.add_argument('--download_mm9_anno', action='store_true', help='download mm9 (NCBIM37) annotations')
     parser.add_argument('--download_hg19_dbsnp', action='store_true', help='download hg19 dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
     parser.set_defaults(func=main)

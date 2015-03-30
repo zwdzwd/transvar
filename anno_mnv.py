@@ -102,11 +102,17 @@ def _annotate_mnv_gene(args, q, db):
                 min_end = gene.get_end()
 
         if max_beg < min_end:
-            # TODO should judge by the number of genes, there might be nested genes.
             for t in tpts:
                 r = _annotate_reg_single_gene(args, q, t)
                 add_mnv_single_gene(r, q, t)
                 yield r
+        else:
+            for r in _annotate_reg_gene_long_range(args, q, tpts, genes, db):
+                r.gnuc_refseq = q.refseq
+                r.gnuc_altseq = q.altseq
+                r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, r.gnuc_refseq, r.gnuc_altseq)
+                yield r
+
 
 def _annotate_mnv(args, q, db):
 

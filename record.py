@@ -1,4 +1,4 @@
-import re
+import re, sys
 from utils import *
 from err import *
 
@@ -348,5 +348,8 @@ class Record():
         s = op+'\t' if op else ''
         s += template.format(r=self,
                              gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
-        print s
+        try:
+            print s
+        except IOError:
+            sys.exit(1)
 

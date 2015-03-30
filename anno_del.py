@@ -137,7 +137,15 @@ def _annotate_del_gene(args, q, db):
             tpts = tpts[:1]
         
         genes = list(set([t.gene for t in tpts]))
-        if len(genes) == 1:
+        max_beg = None
+        min_end = None
+        for gene in genes:
+            if max_beg is None or max_beg < gene.get_beg():
+                max_beg = gene.get_beg()
+            if min_end is None or min_end > gene.get_end():
+                min_end = gene.get_end()
+
+        if max_beg < min_end:
             for t in tpts:
                 yield _annotate_del_single_gene(args, q, t)
         else:

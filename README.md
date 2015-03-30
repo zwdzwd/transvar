@@ -7,7 +7,7 @@
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
  + supports UniProt protein id as transcript id
- + supports GRCh36, 37, 38 (human),  GRCm38 (mouse)
+ + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
  + functionality of forward annotation.
 
 --------
