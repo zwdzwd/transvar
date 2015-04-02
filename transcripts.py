@@ -1065,13 +1065,13 @@ class Gene():
         if hasattr(self, 'beg'):
             return self.beg
         else:
-            return gene.longest_tpt().beg
+            return self.longest_tpt().beg
 
     def get_end(self):
         if hasattr(self, 'end'):
             return self.end
         else:
-            return gene.longest_tpt().end
+            return self.longest_tpt().end
 
 def parse_ucsc_refgene(map_file, name2gene):
     """ start 1-based, end 1-based """

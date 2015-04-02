@@ -192,6 +192,22 @@ def main(args):
         except IOError as e:
             pass
 
+def main_current(args):
+
+    config = ConfigParser.RawConfigParser()
+    config.read(cfg_fns)
+    if 'refversion' in config.defaults():
+        rv = config.get('DEFAULT', 'refversion')
+        print "Current reference version: %s" % rv
+        if 'reference' in config.options(rv):
+            print 'reference: %s' % config.get(rv, 'reference')
+        print "Available databases: "
+        for op in config.options(rv):
+            if op not in ['refversion', 'reference']:
+                print '%s: %s' % (op, config.get(rv, op))
+
+    return
+
 
 def add_parser_config(subparsers):
 
@@ -208,3 +224,8 @@ def add_parser_config(subparsers):
     parser.add_argument('--download_hg19_dbsnp', action='store_true', help='download hg19 dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
     parser.set_defaults(func=main)
+
+def add_parser_current(subparsers):
+
+    parser = subparsers.add_parser('current', help="view current config")
+    parser.set_defaults(func=main_current)
