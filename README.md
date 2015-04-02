@@ -157,6 +157,24 @@ To change the default reference,
 transvar config -k refversion -v hg38
 ```
 
+#### view current configuration
+
+One can read the transvar.cfg file for the information. Alternatively one may run
+```
+#!bash
+transvar current
+```
+which returns information about the setup regarding to the current reference selection, including the location of the reference file and database file.
+```
+#!text
+Current reference version: mm10
+reference: /home/wzhou/genomes_link/mm10/mm10.fa
+Available databases:
+refseq: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.refseq.gff.gz
+ccds: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ccds.txt
+ensembl: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ensembl.gtf.gz
+```
+
 #### batch processing
 
 For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search. Take SNV for example,

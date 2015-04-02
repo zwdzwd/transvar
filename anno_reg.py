@@ -130,7 +130,7 @@ def _annotate_reg_gene(args, q, db):
             for gene in genes:
                 if max_beg is None or max_beg < gene.get_beg():
                     max_beg = gene.get_beg()
-                if min_beg is None or min_end > gene.get_end():
+                if min_end is None or min_end > gene.get_end():
                     min_end = gene.get_end()
 
             if max_beg < min_end:
