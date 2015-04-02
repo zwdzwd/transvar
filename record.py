@@ -68,6 +68,7 @@ class RegAnno():
         self.intron_exon2 = None
         self.intergenic = None  # 'Upstream' or 'Downstream'
         self.splice = None      # 'NextToDonor' | 'Donor' | 'Acceptor' | 'NextToAcceptor'
+        self.promoter = None
 
     def format(self):
         f = ''
@@ -81,7 +82,7 @@ class RegAnno():
             else:
                 f = append_inf(f, 'Exonic_%d' % self.exon)
         elif self.intergenic:
-            f = append_inf(f, 'Intergenic%s' % self.intergenic)
+            f = append_inf(f, 'Intergenic_%s' % self.intergenic)
 
         return f
 

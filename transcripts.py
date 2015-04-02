@@ -438,19 +438,22 @@ class Transcript():
         """ determine the position of a single site """
 
         rg = RegAnno()
+
+        # intergenic
+        if i == 0 and gpos < exon[0][0]:
+            rg.intergenic = gpos - exon[0][0] # 'upstream' if self.strand == '+' else 'downstream'
+            return rg
+        if i == len(self.exons)-1 and gpos > exon[-1][1]:
+            rg.intergenic = gpos - exon[-1][1] # 'downstream' if self.strand == '+' else 'upstream'
+            return rg
+
         if gpos < self.cds_beg:
             rg.UTR = '5' if self.strand == '+' else '3'
         if gpos > self.cds_end:
             rg.UTR = '3' if self.strand == '+' else '5'
-
+            
         for i, exon in enumerate(self.exons):
             exind = i+1 if self.strand == '+' else len(self.exons) - i
-            if i == 0 and exon[0] > gpos:
-                rg.intergenic = 'Upstream'
-                return rg
-            if i == len(self.exons)-1 and exon[1] < gpos:
-                rg.intergenic = 'Downstream'
-                return rg
             if exon[0] <= gpos and exon[1] >= gpos: # exonic
                 rg.exonic = True
                 if gpos >= self.cds_beg and gpos <= self.cds_end:
