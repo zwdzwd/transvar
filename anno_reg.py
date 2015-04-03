@@ -62,10 +62,10 @@ def _annotate_reg(args, q, db):
 
             if hasattr(reg, 't'):
                 r.tname = reg.t.format()
-                r.gene = reg.t.gene.name
+                r.gene = reg.t.gene.name if reg.t.gene.name else '.'
                 r.strand = reg.t.strand
-                c1, p1 = reg.t.gpos2codon(q.beg, args, intronic_policy="g_greater")
-                c2, p2 = reg.t.gpos2codon(q.end, args, intronic_policy="g_smaller")
+                c1, p1 = reg.t.gpos2codon(q.beg, args)
+                c2, p2 = reg.t.gpos2codon(q.end, args)
 
                 if reg.t.strand == '+':
                     r.tnuc_range = '%s_%s' % (p1,p2)
@@ -74,6 +74,9 @@ def _annotate_reg(args, q, db):
 
                 # if protein coding transcript and not purely intronic region, set amino acid
                 if reg.t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
+                    c1, p1 = reg.t.intronic_lean(c1, p1, 'g_greater')
+                    c2, p2 = reg.t.intronic_lean(c2, p2, 'g_smaller')
+
                     if len(c1.seq) != 3 or len(c2.seq) != 3:
                         r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
                     elif c1.index == c2.index:

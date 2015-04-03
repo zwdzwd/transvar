@@ -541,7 +541,7 @@ class Transcript():
                     ci = i/3+1
                     
                 elif ((intronic_policy == 'closer' and gpos-np[i-1] >= pos-gpos) or
-                intronic_policy == 'c_greater'):
+                      intronic_policy == 'c_greater'):
                     
                     p = Pos(i+1, gpos-pos)
                     ci = (i+1)/3+1
@@ -587,7 +587,7 @@ class Transcript():
                     ci = i/3+1
                     
                 elif ((intronic_policy == 'closer' and np[i-1]-gpos >= gpos-pos) or
-                intronic_policy == 'c_greater'):
+                      intronic_policy == 'c_greater'):
                     
                     p = Pos(i+1, pos-gpos)
                     ci = (i+1)/3+1
@@ -600,6 +600,15 @@ class Transcript():
                 c.locs = np[ci*3-3:ci*3]
                 return c, p
 
+    def ensure_position_array(self):
+
+        if hasattr(self, 'np'):
+            return
+        self.ensure_seq()
+        self.np = self.position_array()
+        assert len(self.np) == len(self.seq)
+        return
+
     def gpos2codon(self, gpos, args, intronic_policy='closer'):
 
         """ intronic policy: 
@@ -610,14 +619,11 @@ class Transcript():
         g_smaller reports the smaller gDNA coordinate end
         g_greater reports the greater gDNA coordinate end
         """
-        self.ensure_seq()
         gpos = int(gpos)
 
         # no check chrm == self.chrm, due to differential
         # naming convention: chr12 vs 12.
-        np = self.position_array()
-        assert len(np) == len(self.seq)
-
+        self.ensure_position_array()
         if intronic_policy == 'g_greater':
             intronic_policy = 'c_greater' if self.strand == '+' else 'c_smaller'
 
@@ -627,9 +633,49 @@ class Transcript():
         # ret = self._gpos2codon_UTR(gpos, np)
         # if ret: return ret
         if self.strand == "+":
-            return self._gpos2codon_p(gpos, np, args, intronic_policy)
+            return self._gpos2codon_p(gpos, self.np, args, intronic_policy)
         else:
-            return self._gpos2codon_n(gpos, np, args, intronic_policy)
+            return self._gpos2codon_n(gpos, self.np, args, intronic_policy)
+
+    def intronic_lean(self, c, p, direc):
+
+        self.ensure_position_array()
+        if p.tpos == 0:
+            return (c, p)
+
+        if direc == 'g_greater':
+            if self.strand == '+':
+                direc = 'c_greater'
+            else:
+                direc = 'c_smaller'
+
+        if direc == 'g_smaller':
+            if self.strand == '+':
+                direc = 'c_smaller'
+            else:
+                direc = 'c_greater'
+
+        if direc == 'c_greater':
+            if p.tpos < 0:
+                return (c, p)
+            if p.tpos > 0:
+                p = Pos(p.pos+1, p.tpos-abs(self.np[p.pos]-self.np[p.pos-1]))
+                ci = p.pos/3+1
+                c = self._init_codon_(ci)
+                c.seq = self.seq[ci*3-3:ci*3]
+                c.locs = self.np[ci*3-3:ci*3]
+                return (c, p)
+
+        if direc == 'c_smaller':
+            if p.tpos > 0:
+                return (c, p)
+            if p.tpos < 0:
+                p = Pos(p.pos-1, abs(self.np[p.pos-2]-self.np[p.pos-1])+p.tpos)
+                ci = p.pos/3+1
+                c = self._init_codon_(ci)
+                c.seq = self.seq[ci*3-3:ci*3]
+                c.locs = self.np[ci*3-3:ci*3]
+                return (c, p)
 
     def overlap_region(self, beg, end):
 
@@ -1073,7 +1119,7 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
 
 class Gene():
 
-    def __init__(self, gene_type='protein_coding', name=''):
+    def __init__(self, name='', gene_type='protein_coding'):
 
         self.gene_type = gene_type
         self.name    = name
@@ -1127,7 +1173,7 @@ def parse_ucsc_refgene(map_file, name2gene):
         if gene_name in name2gene:
             gene = name2gene[gene_name]
         else:
-            gene = Gene(gene_name)
+            gene = Gene(name=gene_name)
             name2gene[gene_name] = gene
         t = Transcript()
         t.name = fields[1]
@@ -1164,7 +1210,7 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
         if gene_name in name2gene:
             gene = name2gene[gene_name]
         else:
-            gene = Gene(gene_name)
+            gene = Gene(name=gene_name)
             name2gene[gene_name] = gene
 
         t = Transcript()
@@ -1224,7 +1270,7 @@ def parse_refseq_gff(gff_fn, name2gene):
                 if hasattr(g, '_gene_id') and g._gene_id != info['ID']:
                     continue   # if a gene_name appears twice, then all the subsequent occurrences are all ignored.
             else:
-                g = Gene(gene_name)
+                g = Gene(name=gene_name)
                 name2gene[gene_name] = g
             g._gene_id = info['ID']
             g.beg = int(fields[3])
@@ -1232,18 +1278,26 @@ def parse_refseq_gff(gff_fn, name2gene):
             id2ent[info['ID']] = g
             if 'Dbxref' in info:
                 g.dbxref = info['Dbxref']
-        elif fields[2] == 'mRNA' and 'Parent' in info and info['Parent'] in id2ent:
-            t = Transcript()
+
+        elif (fields[2] in ['mRNA', 'ncRNA', 'rRNA', 'tRNA']
+              and 'Parent' in info and info['Parent'] in id2ent):
+
+            if fields[2] == 'mRNA':
+                fields[2] = 'protein_coding'
+            if fields[2] == 'ncRNA':
+                fields[2] = info['ncrna_class']
+            t = Transcript(transcript_type=fields[2])
             t.chrm = normalize_chrm(reg.name)
             t.strand = fields[6]
             t.beg = int(fields[3])
             t.end = int(fields[4])
-            t.name = info['Name']
+            t.name = info['Name'] if 'Name' in info else info['product']
             t.gene = id2ent[info['Parent']]
             t.gene.tpts.append(t)
             t.source = 'RefSeq'
             id2ent[info['ID']] = t
             cnt += 1
+            
         elif fields[2] == 'exon' and info['Parent'] in id2ent:
             t = id2ent[info['Parent']]
             if (isinstance(t, Gene)):
@@ -1294,7 +1348,8 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
         # info = dict([_.split('=') for _ in fields[8].split(';')])
         if fields[2] == 'gene' and info['gene_biotype'] == 'protein_coding':
             gene_id = info['gene_id']
-            if gene_id not in id2ent: id2ent[gene_id] = Gene()
+            if gene_id not in id2ent:
+                id2ent[gene_id] = Gene(gene_type=info['gene_biotype'])
             g = id2ent[gene_id]
             if 'gene_name' in info:
                 g.name = info['gene_name'].upper()
@@ -1306,7 +1361,8 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             
         elif fields[2] == 'transcript' and info['gene_biotype'] == 'protein_coding':
             tid = info['transcript_id']
-            if tid not in id2ent: id2ent[tid] = Transcript()
+            if tid not in id2ent: 
+                id2ent[tid] = Transcript(transcript_type=info['transcript_biotype'])
             t = id2ent[tid]
             t.chrm = normalize_chrm(fields[0])
             t.strand = fields[6]
@@ -1314,19 +1370,22 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             t.end = int(fields[4])
             t.name = info['transcript_id']
             gene_id = info['gene_id']
-            if gene_id not in id2ent: id2ent[gene_id] = Gene()
+            if gene_id not in id2ent:
+                id2ent[gene_id] = Gene(gene_type=info['gene_biotype'])
             t.gene = id2ent[gene_id]
             t.gene.tpts.append(t)
             t.source = 'Ensembl'
             cnt += 1
         elif fields[2] == 'exon' and info['gene_biotype'] == 'protein_coding':
             tid = info['transcript_id']
-            if tid not in id2ent: id2ent[tid] = Transcript()
+            if tid not in id2ent:
+                id2ent[tid] = Transcript(transcript_type=info['transcript_biotype'])
             t = id2ent[tid]
             t.exons.append((int(fields[3]), int(fields[4])))
         elif fields[2] == 'CDS' and info['gene_biotype'] == 'protein_coding':
             tid = info['transcript_id']
-            if tid not in id2ent: id2ent[tid] = Transcript()
+            if tid not in id2ent:
+                id2ent[tid] = Transcript(transcript_type=info['transcript_biotype'])
             t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
 
@@ -1345,7 +1404,7 @@ def parse_ccds_table(ccds_fn, name2gene):
             continue
         gene_name = fields[2].upper()
         if gene_name not in name2gene:
-            name2gene[gene_name] = Gene(gene_name)
+            name2gene[gene_name] = Gene(name=gene_name)
 
         g = name2gene[gene_name]
         t = Transcript()
@@ -1392,14 +1451,14 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
                 if alias in name2gene:
                     g = name2gene[alias]
             if not g:
-                g = Gene(fields[0])
+                g = Gene(name=fields[0])
             for alias in id2aliases[fields[0]]:
                 name2gene[alias] = g
         else:
             if fields[0] in name2gene:
                 g = name2gene[fields[0]]
             else:
-                g = Gene(fields[0])
+                g = Gene(name=fields[0])
             name2gene[fields[0]] = g
 
         t = Transcript()
@@ -1460,7 +1519,8 @@ def parse_gencode_gtf(gencode_fn, name2gene):
             t.end = int(fields[4])
             t.name = tid
             gid = info['gene_id']
-            if gid not in id2ent: id2ent[gid] = Gene(gene_type=info['gene_type'])
+            if gid not in id2ent:
+                id2ent[gid] = Gene(gene_type=info['gene_type'])
             t.gene = id2ent[gid]
             t.gene.tpts.append(t)
             t.source = 'GENCODE'
@@ -1496,7 +1556,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
             if gene_name in name2gene:
                 g = name2gene[gene_name]
             else:
-                g = Gene(gene_name)
+                g = Gene(name=gene_name)
                 name2gene[gene_name] = g
 
             if info['transcript_id'] in id2tpt:
@@ -1518,7 +1578,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
             if gene_name in name2gene:
                 g = name2gene[gene_name]
             else:
-                g = Gene(gene_name)
+                g = Gene(name=gene_name)
                 name2gene[gene_name] = g
 
             if info['transcript_id'] in id2tpt:

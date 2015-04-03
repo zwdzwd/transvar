@@ -430,11 +430,11 @@ def parse_annotation(args):
 
     if args.gencode:
         trs.parse_gencode_gtf(args.gencode, name2gene)
-        try:
-            import pysam
-            args.ffhs['GENCODE'] = pysam.Tabixfile(args.gencode)
-        except:
-            err_print("Cannot import non-coding features (may need pysam).")
+        # try:
+        #     import pysam
+        #     args.ffhs['GENCODE'] = pysam.Tabixfile(args.gencode)
+        # except:
+        #     err_print("Cannot import non-coding features (may need pysam).")
 
     if args.ucsc:
         trs.parse_ucsc_refgene(args.ucsc, name2gene)

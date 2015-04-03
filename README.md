@@ -75,14 +75,14 @@ These will also create default mappings under the corresponding reference versio
 ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
 ```
 
-##### Annotating nonprotein coding genomic features
-In annotating non-protein-coding genomic sequences such as lincRNA, pseudogenes etc. TransVar requires a tab-indexed transcript database.
-For example,
-```
-#!bash
-zgrep -v '^#' download/hg19.gencode.gtf.gz | sort -k1,1 -k4,4n | bgzip > download/hg19.gencode.sorted.gtf.gz
-tabix -p gff download/hg19.gencode.sorted.gtf.gz
-```
+<!-- ##### Annotating nonprotein coding genomic features -->
+<!-- In annotating non-protein-coding genomic sequences such as lncRNA, pseudogenes etc. TransVar requires a tab-indexed transcript database. -->
+<!-- For example, -->
+<!-- ``` -->
+<!-- #!bash -->
+<!-- zgrep -v '^#' download/hg19.gencode.gtf.gz | sort -k1,1 -k4,4n | bgzip > download/hg19.gencode.sorted.gtf.gz -->
+<!-- tabix -p gff download/hg19.gencode.sorted.gtf.gz -->
+<!-- ``` -->
 
 ### Usage
 
@@ -924,8 +924,8 @@ promoter_overlap_1564_bp(99.43%);start_codon=41950753-41950752-41950083;end_codo
 ```
 The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
 
-#### annotate long non-coding RNA
-Given Ensembl and GENCODE database, one could annotate non-coding transcripts such as lincRNA.
+#### annotate non-coding RNA
+Given Ensembl, GENCODE or RefSeq database, one could annotate non-coding transcripts such as lncRNA.
 E.g.,
 ```
 #!bash
@@ -936,6 +936,19 @@ results in
 #!text
 chr1:3985200_3985300    chr1    3985200-3985300 ENSMUST00000194643.1 (lincRNA)
 RP23-333I7.1    -       chr1:g.3985200_3985300/c.121_221/.      inside_[noncoding_exon_2]       .
+```
+or
+```
+#!bash
+transvar anno --refseq -i 'chr14:20568338_20569581'
+```
+results in
+```
+#!text
+chr14:20568338_20569581 chr14   20568338-20569581       NR_033571.1 (lncRNA)
+1810062O18Rik   +       chr14:g.20568338_20569581/c.260-1532_260-289/.  inside_[intron_between_exon_4_and_5]       .
+chr14:20568338_20569581 chr14   20568338-20569581       XM_006519705.2 (protein_coding)
+Usp54   -       chr14:g.20568338_20569581/c.2188+667_2188+1910/.        inside_[intron_between_exon_15_and_16]     .
 ```
 
 ### FAQ
