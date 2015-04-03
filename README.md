@@ -907,6 +907,37 @@ chr10:g.52595929_52595930GG>AA  chr10   52595929-52595930
     BEGCodon=52595928-52595929-52595930;ENDCodon=52595928-52595929-52595930
 ```
 
+### annotate promoter region
+
+One can define the promoter boundary through the `--prombeg` and `--promend` option. Default promoter region is defined from 1000bp upstream of the transcription start site to the transcription start site. One could customize this setting to e.g., [-1000bp, 2000bp] by
+
+```
+#!bash
+transvar anno -i 'chr19:41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
+```
+```
+#!text
+chr19:41950335_41951908 chr19   41950335-41951908       ENSMUST00000166517      MMS19   -
+chr19:g.41950335_41951908/c.1-564_593+417/p.L1_E198
+from_[intron_between_exon_1_and_2]_to_[intergenic_between_MMS19(564_bp_upstream)_and_MMS19(1,189_bp_downstream)]
+promoter_overlap_1564_bp(99.43%);start_codon=41950753-41950752-41950083;end_codon=41951344-41951343-41951342
+```
+The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
+
+#### annotate long non-coding RNA
+Given Ensembl and GENCODE database, one could annotate non-coding transcripts such as lincRNA.
+E.g.,
+```
+#!bash
+transvar anno --gencode -i 'chr1:3985200_3985300'
+```
+results in
+```
+#!text
+chr1:3985200_3985300    chr1    3985200-3985300 ENSMUST00000194643.1 (lincRNA)
+RP23-333I7.1    -       chr1:g.3985200_3985300/c.121_221/.      inside_[noncoding_exon_2]       .
+```
+
 ### FAQ
 
 + I got 'GeneNotRecognized', what's wrong?

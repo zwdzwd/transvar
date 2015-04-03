@@ -1,14 +1,15 @@
 from transcripts import *
 from record import *
-from anno_reg import __annotate_reg_intergenic, _annotate_reg_gene_long_range
+from describe import *
+# from anno_reg import __annotate_reg_intergenic, _annotate_reg_gene_long_range
 
 def taa_set_del(r, t, taa_beg, taa_end):
 
     i1r, i2r = t.taa_roll_right_del(taa_beg, taa_end)
     r.taa_range = t.taa_del_id(i1r, i2r)
     i1l, i2l = t.taa_roll_left_del(taa_beg, taa_end)
-    r.append_info('LEFTALNP=p.%s' % t.taa_del_id(i1l, i2l))
-    r.append_info('UALNP=p.%s' % t.taa_del_id(taa_beg, taa_end))
+    r.append_info('left_align_protein=p.%s' % t.taa_del_id(i1l, i2l))
+    r.append_info('unalign_protein=p.%s' % t.taa_del_id(taa_beg, taa_end))
 
 def del_coding_inframe(args, cbeg, cend, pbeg, pend, q, t, r):
 
@@ -57,113 +58,68 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, q, t, r):
         r.taa_range = '(=)'
 
 
-def _annotate_del_single_gene(args, q, t):
-
-    r = Record()
-    r.chrm = t.chrm
-    r.tname = t.name
-    r.pos = '%d-%d' % (q.beg, q.end)
-
-    # genomic annotation
-    gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(q.tok, q.beg, q.end)
-    r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r)
-    gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(q.tok, q.beg, q.end)
-    r.append_info('LEFTALNG=g.%s' % 
-                  gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l))
-    r.append_info('UALNG=g.%s' % 
-                  gnuc_del_id(q.tok, q.beg, q.end))
-
-    if q.end > t.cds_end-2 and q.beg < t.cds_beg + 2:
-        # whole gene gets deleted.
-        r.reg = '%s (%s, WholeGeneDeletion)' % (t.gene.name, t.strand)
-    elif q.beg <= t.cds_beg + 2 and q.end >= t.cds_beg:
-        # loss of start codon
-        # TransVar took a simplistic approach, as long as
-        # the deletion hit start codon, annotation is labeled as a start loss
-        r.reg = '%s (%s, StartLoss)' % (t.gene.name, t.strand)
-    elif q.beg <= t.cds_end and q.end >= t.cds_end - 2:
-        r.reg = '%s (%s, StopLoss)' % (t.gene.name, t.strand)
-    else:                       # in CDS
-        if t.strand == '+':
-            cbeg, pbeg, rg_beg = t.gpos2codon(q.beg)
-            cend, pend, rg_end = t.gpos2codon(q.end)
-        else:
-            cbeg, pbeg, rg_beg = t.gpos2codon(q.end)
-            cend, pend, rg_end = t.gpos2codon(q.beg)
-
-        # cDNA representation
-        p1r, p2r = t.tnuc_roll_right_del(pbeg.pos, pend.pos)
-        r.tnuc_range = t.tnuc_del_id(p1r, p2r)
-        # left-aligned cDNA identifier
-        p1l, p2l = t.tnuc_roll_left_del(pbeg.pos, pend.pos)
-        r.append_info('LEFTALNC=c.%s' % t.tnuc_del_id(p1l, p2l))
-        r.append_info('UALNC=c.%s' % t.tnuc_del_id(pbeg.pos, pend.pos))
-
-        # r.append_info('BEGCodon=%s' % '-'.join(map(str, cbeg.locs)))
-        # r.append_info('ENDCodon=%s' % '-'.join(map(str, cend.locs)))
-        if rg_beg.format() == rg_end.format():
-            r.append_info('REG=%s' % rg_beg.format())
-        else:
-            r.append_info('BEGREG=%s' % rg_beg.format())
-            r.append_info('ENDREG=%s' % rg_end.format())
-
-        # if beg and end are both in introns, still regarded as a
-        # valid splicing
-
-        # if one of the beg and end is in intron, the other in exon
-        # not valid splicng
-        if ((rg_beg.intronic and rg_end.exonic) or
-            (rg_beg.exonic and rg_end.intronic)):
-            r.reg = '%s (%s, Intronic;Exonic)' % (t.gene.name, t.strand)
-            r.append_info('DisruptedSplicing')
-        if (rg_beg.cds and rg_end.cds and
-            rg_beg.exon == rg_end.exon): # coding sequence deletion
-            r.reg = '%s (%s, Coding)' % (t.gene.name, t.strand)
-            if (q.end - q.beg + 1) % 3 == 0: # in-frame deletion
-                del_coding_inframe(args, cbeg, cend, pbeg, pend, q, t, r)
-            else:               # frame-shift deletion
-                del_coding_frameshift(args, cbeg, cend, pbeg, pend, q, t, r)
-                t.ensure_seq()
-                alt_seq = t.seq[pbeg.included_plus()-1:pend.included_minus()]
-
-    return r
-
-def _annotate_del_gene(args, q, db):
-
-    tpts = [t for t in db.get_transcripts(q.tok, q.beg, q.end)]
-    if tpts:
-        if args.longest:
-            tpts.sort(key=lambda t: len(t), reverse=True)
-            tpts = tpts[:1]
-        
-        genes = list(set([t.gene for t in tpts]))
-        max_beg = None
-        min_end = None
-        for gene in genes:
-            if max_beg is None or max_beg < gene.get_beg():
-                max_beg = gene.get_beg()
-            if min_end is None or min_end > gene.get_end():
-                min_end = gene.get_end()
-
-        if max_beg < min_end:
-            for t in tpts:
-                yield _annotate_del_single_gene(args, q, t)
-        else:
-            for r in _annotate_reg_gene_long_range(args, q, tpts, genes, db):
-                yield r
-
-def __annotate_del(args, q, db):
-    # if annotation is in the coding region
-    gene_found = False
-    for r in _annotate_del_gene(args, q, db):
-        yield r
-        gene_found = True
-
-    if not gene_found:
-        yield __annotate_reg_intergenic(args, db, q.tok, q.beg, q.end)
-
 def _annotate_del(args, q, db):
 
     normalize_reg(q)
-    for r in __annotate_del(args, q, db):
+    # for r in __annotate_del(args, q, db):
+    #     r.format(q.op)
+
+    for reg in describe(args, q, db):
+
+        r = Record()
+        r.reg = reg
+        r.chrm = q.tok
+
+        # right-align
+        gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(q.tok, q.beg, q.end)
+        r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r)
+
+        # left-align
+        gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(q.tok, q.beg, q.end)
+        r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l))
+        r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end))
+
+        if hasattr(reg, 't'):
+
+            r.tname = reg.t.format()
+            r.gene = reg.t.gene.name
+            r.strand = reg.t.strand
+            
+            # whole gene deletion
+            if q.end > t.cds_end-2 and q.beg < t.cds_beg + 2:
+                r.append_info('whole_gene_deletion')
+
+            # loss of start codon
+            # TransVar took a simplistic approach, as long as
+            # the deletion hit start codon, annotation is labeled as a start loss
+            if q.beg <= t.cds_beg + 2 and q.end >= t.cds_beg:
+                r.append_info('start_loss')
+
+            # loss of stop codon
+            if q.beg <= t.cds_end and q.end >= t.cds_end - 2:
+                r.append_info('stop_loss')
+
+            
+            if t.strand == '+':
+                c1, p1 = reg.t.gpos2codon(q.beg, args)
+                c2, p2 = reg.t.gpos2codon(q.end, args)
+            else:
+                c1, p1 = reg.t.gpos2codon(q.end, args)
+                c2, p2 = reg.t.gpos2codon(q.beg, args)
+
+            # cDNA representation
+            p1r, p2r = t.tnuc_roll_right_del(pbeg.pos, pend.pos)
+            r.tnuc_range = t.tnuc_del_id(p1r, p2r)
+            # left-aligned cDNA identifier
+            p1l, p2l = t.tnuc_roll_left_del(pbeg.pos, pend.pos)
+            r.append_info('left_align_cDNA=c.%s' % t.tnuc_del_id(p1l, p2l))
+            r.append_info('unalign_cDNA=c.%s' % t.tnuc_del_id(pbeg.pos, pend.pos))
+
+            if (q.end - q.beg + 1) % 3 == 0:
+                del_coding_inframe(args, c1, c2, p1, p2, q, t, r)
+            else:
+                del_coding_frameshift(args, c1, c2, p1, p2, q, t, r)
+                # t.ensure_seq()
+                # alt_seq = t.seq[pbeg.included_plus()-1:pend.included_minus()]
+
         r.format(q.op)

@@ -48,6 +48,9 @@ def main(args):
     db = AnnoDB(args)
     # name2gene, thash = parse_annotation(args)
 
+    if not args.noheader:
+        print_header()
+    
     if args.l:
         main_list(args, db) #thash)
 

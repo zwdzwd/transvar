@@ -101,7 +101,7 @@ def download_mm10_annotations(config):
         ('ccds', 'mm10.ccds.txt',
          'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm38.1/CCDS.current.txt'),
         ('ensembl', 'mm10.ensembl.gtf.gz',
-         'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz')
+         'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz'),
         ('gencode', 'mm10.gencode.gtf.gz',
          'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
         ]

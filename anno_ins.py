@@ -1,17 +1,17 @@
 from transcripts import *
 from record import *
-from anno_reg import __annotate_reg_intergenic
+from describe import *
+# from anno_reg import __annotate_reg_intergenic
 
 def taa_set_ins(r, t, index, taa_insseq):
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
     try:
         r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
         i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
-        r.append_info('LEFTALNP=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
-        r.append_info('UALNP=p.%s' % t.taa_ins_id(index, taa_insseq))
+        r.append_info('left_align_protein=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
+        r.append_info('unalign_protein=p.%s' % t.taa_ins_id(index, taa_insseq))
     except IncompatibleTranscriptError:
-        # r.taa_range = '.'
-        r.append_info("TruncatedRefSeqAtBoundary")
+        r.append_info("truncated_refseq_at_boundary")
 
 def tnuc_set_ins(r, t, p1, tnuc_insseq):
 
@@ -20,8 +20,8 @@ def tnuc_set_ins(r, t, p1, tnuc_insseq):
     p1r, tnuc_insseq_r = t.tnuc_roll_right_ins(p1, tnuc_insseq)
     r.tnuc_range = '%d_%dins%s' % (p1r, p1r+1, tnuc_insseq_r)
     p1l, tnuc_insseq_l = t.tnuc_roll_left_ins(p1, tnuc_insseq)
-    r.append_info('LEFTALNC=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
-    r.append_info('UALNC=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
+    r.append_info('left_align_cDNA=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
+    r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
 
 def ins_gene_coding_inframe_inphase(t, r, c, p, insseq):
 
@@ -60,7 +60,7 @@ def ins_gene_coding_inframe_outphase(t, r, c, p, insseq):
         else:
             r.taa_range = '%s%ddelins%s' % (taa_ref, c.index, taa_altseq)
     except IncompatibleTranscriptError:
-        r.append_info("TruncatedRefSeqAtBoundary")
+        r.append_info("truncated_refseq_at_boundary")
 
 
 def ins_gene_coding_inframe(t, r, c, p, insseq):
@@ -85,61 +85,49 @@ def ins_gene_coding_frameshift(t, r, c, p, insseq):
     else:
         r.taa_range = '(=)'
 
-def _ins_gene(args, q, t):
-
-    r = Record()
-    r.chrm = t.chrm
-    r.tname = t.name
-    r.pos = '%d' % q.pos
-
-    if q.insseq:
-        pos_r, gnuc_insseq_r = gnuc_roll_right_ins(t.chrm, q.pos, q.insseq)
-        r.gnuc_range = '%dins%s' % (pos_r, gnuc_insseq_r)
-        pos_l, gnuc_insseq_l = gnuc_roll_left_ins(t.chrm, q.pos, q.insseq)
-        r.append_info('LEFTALNG=g.%dins%s' % (pos_l, gnuc_insseq_l))
-        r.append_info('UALNG=g.%dins%s' % (q.pos, q.insseq))
-    else:
-        r.gnuc_range = '%dins%s' % (q.pos, q.insseq)
-
-
-    # c1 and c2 might be the same, rg1 and rg2 might be the same
-    if t.strand == '+':
-        c1, p1, rg1 = t.gpos2codon(q.pos)
-        tnuc_insseq = q.insseq
-    else:
-        c1, p1, rg1 = t.gpos2codon(q.pos+1)
-        tnuc_insseq = reverse_complement(q.insseq)
-
-    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, rg1.format())
-
-    # assert p1.tpos == p2.tpos == 0
-    tnuc_set_ins(r, t, p1.pos, tnuc_insseq)
-
-    # TODO: if insertion hits start codon
-    # infer protein level mutation if in cds
-    if rg1.cds and not rg1.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
-        if len(tnuc_insseq) % 3 == 0:
-            ins_gene_coding_inframe(t, r, c1, p1, tnuc_insseq)
-        else:
-            ins_gene_coding_frameshift(t, r, c1, p1, tnuc_insseq)
-
-    return r
-
-def __annotate_ins(args, q, db):
-
-    tpts = [t for t in db.get_transcripts(q.tok, q.pos)]
-    if tpts:
-        if args.longest:
-            tpts.sort(key=lambda t:len(t), reverse=True)
-            tpts = tpts[:1]
-        for t in tpts:
-            yield _ins_gene(args, q, t)
-    else:
-        yield __annotate_reg_intergenic(args, db, q.tok, q.pos, q.pos)
-
 def _annotate_ins(args, q, db):
-    for r in __annotate_ins(args, q, db):
+
+    for reg in describe(args, q, db):
+
+        r = Record()
+        r.reg = reg
+        r.chrm = q.tok
+        r.pos = q.pos
+
+        if q.insseq:
+            # right align
+            pos_r, gnuc_insseq_r = gnuc_roll_right_ins(t.chrm, q.pos, q.insseq)
+            r.gnuc_range = '%dins%s' % (pos_r, gnuc_insseq_r)
+            
+            # left align
+            pos_l, gnuc_insseq_l = gnuc_roll_left_ins(t.chrm, q.pos, q.insseq)
+            r.append_info('left_align_gDNA=g.%dins%s' % (pos_l, gnuc_insseq_l))
+            r.append_info('unalign_gDNA=g.%dins%s' % (q.pos, q.insseq))
+        else:
+            r.gnuc_range = '%dins' % (q.pos,)
+
+        if hasattr(reg, 't'):
+
+            r.tname = reg.t.format()
+            r.gene = reg.t.gene.name
+            r.strand = reg.t.strand
+
+            if t.strand == '+':
+                c, p = t.gpos2codon(q.pos, args)
+                tnuc_insseq = q.insseq
+            else:
+                c, p = t.gpos2codon(q.pos+1, args)
+                tnuc_insseq = reverse_complement(q.insseq)
+
+            tnuc_set_ins(r, t, p1.pos, tnuc_insseq)
+
+            # TODO: check if insertion hits start codon
+
+            # infer protein level mutation if in cds
+            if reg.cds and not reg.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
+                if len(tnuc_insseq) % 3 == 0:
+                    ins_gene_coding_inframe(reg.t, r, c, p, tnuc_insseq)
+                else:
+                    ins_gene_coding_frameshift(reg.t, r, c, p, tnuc_insseq)
+
         r.format(q.op)
-
-
-

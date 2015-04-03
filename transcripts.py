@@ -105,6 +105,9 @@ class Codon():
         else:
             return '<Codon unknown>'
 
+    def locformat(self):
+        return '-'.join(map(str, self.locs))
+
     def __eq__(self, other):
 
         return ((self.chrm, self.strand, self.sites[0].loc) == (other.chrm, other.strand, other.sites[0].loc))
@@ -204,10 +207,11 @@ def tnuc_range2gnuc_range_(np, tbeg, tend):
 
 class Transcript():
 
-    def __init__(self):
+    def __init__(self, transcript_type='protein_coding'):
 
         """ chrm, strand, start, end, seq (optional), cds_beg, cds_end """
 
+        self.transcript_type = transcript_type
         self.gene   = None
         self.seq    = None
         self.name   = '.'
@@ -220,6 +224,12 @@ class Transcript():
         else:
             return reduce(lambda x,y: x+y,
                           [end-beg+1 for beg, end in self.exons], 0)
+
+    def format(self):
+        # if self.transcript_type == 'protein_coding':
+        # return self.name
+        # else:
+        return '%s (%s)' % (self.name, self.transcript_type)
 
     def region(self, gnuc_beg, gnuc_end):
         """ annotate genomic region with respect to this transcript """
@@ -434,24 +444,28 @@ class Transcript():
     #         return c, p, reg
     #     return None
 
-    def describe(self, gpos):
+    def describe(self, gpos, args):
         """ determine the position of a single site """
 
         rg = RegAnno()
 
-        # intergenic
-        if i == 0 and gpos < exon[0][0]:
-            rg.intergenic = gpos - exon[0][0] # 'upstream' if self.strand == '+' else 'downstream'
+        rg.dist2tss = gpos - self.exons[0][0] if self.strand == '+' else self.exons[-1][1] - gpos
+        if rg.dist2tss >= -args.prombeg and rg.dist2tss <= args.promend:
+            rg.promoter = True
+        
+        # intergenic, NOTE USE describe_intergenic_neighbors
+        if gpos < self.exons[0][0]:
+            rg.intergenic = (self.exons[0][0] - gpos, 'upstream' if self.strand == '+' else 'downstream')
             return rg
-        if i == len(self.exons)-1 and gpos > exon[-1][1]:
-            rg.intergenic = gpos - exon[-1][1] # 'downstream' if self.strand == '+' else 'upstream'
+        if gpos > self.exons[-1][1]:
+            rg.intergenic = (gpos - self.exons[-1][1], 'downstream' if self.strand == '+' else 'upstream')
             return rg
 
         if gpos < self.cds_beg:
             rg.UTR = '5' if self.strand == '+' else '3'
         if gpos > self.cds_end:
             rg.UTR = '3' if self.strand == '+' else '5'
-            
+
         for i, exon in enumerate(self.exons):
             exind = i+1 if self.strand == '+' else len(self.exons) - i
             if exon[0] <= gpos and exon[1] >= gpos: # exonic
@@ -486,32 +500,30 @@ class Transcript():
 
         raise Exception()       # you shouldn't reach here
 
-    def describe_span(self, gnuc_beg, gnuc_end):
+    def describe_span(self, gnuc_beg, gnuc_end, args):
 
         rg = RegSpanAnno()
-        rg.b1 = self.describe(gnuc_beg)
-        rg.b2 = self.describe(gnuc_end)
+        rg.b1 = self.describe(gnuc_beg, args)
+        rg.b2 = self.describe(gnuc_end, args)
         rg.transcript_regs = self.overlap_region(gnuc_beg, gnuc_end)
 
         return rg
 
-    def _gpos2codon_p(self, gpos, np):
+    def _gpos2codon_p(self, gpos, np, args, intronic_policy):
 
         if gpos < self.cds_beg:
             p = Pos(1, gpos-self.cds_beg)
             c = self._init_codon_(1)
             c.seq = self.seq[:3]
             c.locs = np[:3]
-            reg = self.describe(gpos)
-            return c, p, reg
+            return c, p
 
         if gpos > self.cds_end:
             p = Pos(len(self.seq), gpos-self.cds_end)
             c = self._init_codon_((len(self.seq)+2)/3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
-            reg = self.describe(gpos)
-            return c, p, reg
+            return c, p
         
         for i, pos in enumerate(np):
             if gpos == pos:
@@ -519,38 +531,44 @@ class Transcript():
                 c.seq    = self.seq[i-i%3:i-i%3+3]
                 c.locs   = np[i-i%3:i-i%3+3]
                 p = Pos(i+1, 0)
-                reg = self.describe(gpos)
-                return c, p, reg
+                return c, p
             if gpos < pos:
-                if gpos - np[i-1] < pos - gpos:
+                
+                if ((intronic_policy == 'closer' and gpos-np[i-1] < pos-gpos) or
+                    intronic_policy == 'c_smaller'):
+                    
                     p = Pos(i, gpos-np[i-1])
                     ci = i/3+1
-                else:
+                    
+                elif ((intronic_policy == 'closer' and gpos-np[i-1] >= pos-gpos) or
+                intronic_policy == 'c_greater'):
+                    
                     p = Pos(i+1, gpos-pos)
                     ci = (i+1)/3+1
+                    
+                else:
+                    raise Exception()
+                            
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
-                reg = self.describe(gpos)
-                return c, p, reg
+                return c, p
 
-    def _gpos2codon_n(self, gpos, np):
+    def _gpos2codon_n(self, gpos, np, args, intronic_policy):
 
         if gpos < self.cds_beg:
             p = Pos(len(self.seq), self.cds_beg-gpos)
-            c = self._init_codon_(1)
-            c.seq = self.seq[:3]
-            c.locs = np[:3]
-            reg = self.describe(gpos)
-            return c, p, reg
-
-        if gpos > self.cds_end:
-            p = Pos(1, self.cds_end-gpos)
             c = self._init_codon_((len(self.seq)+2)/3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
-            reg = self.describe(gpos)
-            return c, p, reg
+            return c, p
+
+        if gpos > self.cds_end:
+            p = Pos(1, self.cds_end-gpos)
+            c = self._init_codon_(1)
+            c.seq = self.seq[:3]
+            c.locs = np[:3]
+            return c, p
 
         for i, pos in enumerate(np):
             if gpos == pos:
@@ -558,24 +576,40 @@ class Transcript():
                 c.seq = self.seq[i-i%3:i-i%3+3]
                 c.locs = tuple(reversed(np[i-i%3:i-i%3+3]))
                 p = Pos(i+1, 0)
-                reg = self.describe(gpos)
-                return c, p, reg
+                return c, p
             
             if gpos > pos:
-                if np[i-1] - gpos < gpos - pos:
-                    p = Pos(i, np[i-1] - gpos)
+                
+                if ((intronic_policy == 'closer' and np[i-1]-gpos < gpos-pos) or
+                    intronic_policy == 'c_smaller'):
+                    
+                    p = Pos(i, np[i-1]-gpos)
                     ci = i/3+1
-                else:
-                    p = Pos(i+1, pos - gpos)
+                    
+                elif ((intronic_policy == 'closer' and np[i-1]-gpos >= gpos-pos) or
+                intronic_policy == 'c_greater'):
+                    
+                    p = Pos(i+1, pos-gpos)
                     ci = (i+1)/3+1
+                    
+                else:
+                    raise Exception()
+                
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
-                reg = self.describe(gpos)
-                return c, p, reg
+                return c, p
 
-    def gpos2codon(self, gpos):
-        """ return Codon as well as (tnuc) Pos """
+    def gpos2codon(self, gpos, args, intronic_policy='closer'):
+
+        """ intronic policy: 
+        if gpos falls in intron, 
+        closer reports the closer end
+        c_smaller reports the smaller cDNA coordinate end
+        c_greater reports the greater cDNA coordinate end
+        g_smaller reports the smaller gDNA coordinate end
+        g_greater reports the greater gDNA coordinate end
+        """
         self.ensure_seq()
         gpos = int(gpos)
 
@@ -584,12 +618,18 @@ class Transcript():
         np = self.position_array()
         assert len(np) == len(self.seq)
 
+        if intronic_policy == 'g_greater':
+            intronic_policy = 'c_greater' if self.strand == '+' else 'c_smaller'
+
+        if intronic_policy == 'g_smaller':
+            intronic_policy = 'c_smaller' if self.strand == '+' else 'c_greater'
+        
         # ret = self._gpos2codon_UTR(gpos, np)
         # if ret: return ret
         if self.strand == "+":
-            return self._gpos2codon_p(gpos, np)
+            return self._gpos2codon_p(gpos, np, args, intronic_policy)
         else:
-            return self._gpos2codon_n(gpos, np)
+            return self._gpos2codon_n(gpos, np, args, intronic_policy)
 
     def overlap_region(self, beg, end):
 
@@ -1033,8 +1073,9 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
 
 class Gene():
 
-    def __init__(self, name=''):
+    def __init__(self, gene_type='protein_coding', name=''):
 
+        self.gene_type = gene_type
         self.name    = name
         self.dbxref  = ''       # for storing GENEID etc.
         self.tpts    = []
@@ -1392,23 +1433,26 @@ def parse_gencode_gtf(gencode_fn, name2gene):
         if line.startswith('#'): continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
-        if fields[2] == 'gene' and info['gene_type'] != 'pseudogene':
+        if fields[2] == 'gene':
             gene_name = info['gene_name'].upper()
             gid = info['gene_id']
             if gene_name in name2gene:
                 g = name2gene[gene_name]
                 id2ent[gid] = g
             else:
-                if gid not in id2ent: id2ent[gid] = Gene(gene_name)
+                if gid not in id2ent:
+                    id2ent[gid] = Gene(name=gene_name, gene_type=info['gene_type'])
                 g = id2ent[gid]
                 name2gene[gene_name] = g
             g.beg = int(fields[3])
             g.end = int(fields[4])
             # if info['gene_type'] == 'pseudogene':
             #     g.pseudo = True
-        elif fields[2] == 'transcript' and info['gene_type'] == 'protein_coding':
+        elif fields[2] == 'transcript':
             tid = info['transcript_id']
-            if tid not in id2ent: id2ent[tid] = Transcript()
+            if tid not in id2ent:
+                id2ent[tid] = Transcript(transcript_type=info['transcript_type'])
+                
             t = id2ent[tid]
             t.chrm = normalize_chrm(fields[0])
             t.strand = fields[6]
@@ -1416,19 +1460,22 @@ def parse_gencode_gtf(gencode_fn, name2gene):
             t.end = int(fields[4])
             t.name = tid
             gid = info['gene_id']
-            if gid not in id2ent: id2ent[gid] = Gene()
+            if gid not in id2ent: id2ent[gid] = Gene(gene_type=info['gene_type'])
             t.gene = id2ent[gid]
             t.gene.tpts.append(t)
             t.source = 'GENCODE'
             id2ent[t.name] = t
             cnt += 1
-        elif fields[2] == 'exon' and info['gene_type'] == 'protein_coding':
+        elif fields[2] == 'exon':
             tid = info['transcript_id']
-            if tid not in id2ent: id2ent[tid] = Transcript()
+            if tid not in id2ent:
+                id2ent[tid] = Transcript(transcript_type=info['transcript_type'])
             t = id2ent[tid]
             t.exons.append((int(fields[3]), int(fields[4])))
-        elif fields[2] == 'CDS' and info['gene_type'] == 'protein_coding':
+        elif fields[2] == 'CDS':
             tid = info['transcript_id']
+            if tid not in id2ent:
+                id2ent[tid] = Transcript(transcript_type=info['transcript_type'])
             if tid not in id2ent: id2ent[tid] = Transcript()
             t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))

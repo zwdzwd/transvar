@@ -24,7 +24,7 @@ def _main_core_(args, q, db):
         for cind in xrange(3):
             gpos = c1.locs[cind]
             for t2 in db.get_transcripts(t1.chrm, gpos):
-                c2, p, r = t2.gpos2codon(gpos)
+                c2, p, r = t2.gpos2codon(gpos, args)
                 if t1 == t2: continue
                 if p.tpos != 0: continue
                 # if c2.region != 'coding': continue

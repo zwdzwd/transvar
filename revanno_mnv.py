@@ -64,7 +64,7 @@ def nuc_mutation_mnv(args, q, tpt):
     r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
     r.tnuc_range = '%s_%s%s>%s' % (q.beg, q.end, r.natrefseq, q.altseq)
 
-    r._reg_ = tpt.describe_span(r.gnuc_beg, r.gnuc_end)
+    r._reg_ = tpt.describe_span(r.gnuc_beg, r.gnuc_end, args)
     r.reg = '%s (%s, %s)' % (tpt.gene.name, tpt.strand, r._reg_.format())
     if r._reg_.in_exon():
         r.taa_range = tpt.tnuc_mnv_coding(q.beg.pos, q.end.pos, q.altseq, r)

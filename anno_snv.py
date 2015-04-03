@@ -1,123 +1,71 @@
 from transcripts import *
 from record import *
-from anno_reg import __annotate_reg_intergenic
+# from anno_reg import __annotate_reg_intergenic
+from describe import *
 # import locale
 # locale.setlocale(locale.LC_ALL, '')
-
-def __annotate_snv_gene(args, q, t):
-
-    c, p, reg = t.gpos2codon(q.pos)
-
-    r = Record()
-    r.chrm = t.chrm
-    r.tname = t.name
-    r.reg = '%s (%s, %s)' % (t.gene.name, t.strand, reg.format())
-    r.pos = q.pos
-
-    # at the ends of retained intron transcripts from ENSEMBL,
-    # codon sequence is not always of length 3
-    if p.tpos == 0:
-        r.taa_ref = codon2aa(c.seq)
-        r.taa_pos = c.index
-
-        if q.alt:
-            if c.strand == "+":
-                alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
-            else:
-                alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
-            r.taa_alt = codon2aa(alt_seq)
-
-    r.gnuc_pos = q.pos
-    # r.gnuc_ref = c.refseq()[c.locs.index(q.pos)]
-    r.gnuc_ref = q.ref
-    r.gnuc_alt = q.alt
-    r.tnuc_pos = p
-    if c.strand == '+':
-        r.tnuc_ref = r.gnuc_ref
-        r.tnuc_alt = r.gnuc_alt
-    else:
-        r.tnuc_ref = complement(r.gnuc_ref)
-        r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
-
-    r.append_info('CodonPos=%s' % '-'.join(map(str, c.locs)))
-    r.append_info('NCodonSeq=%s' % c.seq)
-    if hasattr(r, 'taa_ref') and hasattr(r, 'taa_alt'):
-        r.append_info('Syn' if r.taa_ref == r.taa_alt else 'Nonsyn')
-
-    return r
-
-def _annotate_snv_gene(args, q, db):
-
-    tpts = [t for t in db.get_transcripts(q.tok, q.pos, q.pos)]
-    if tpts:
-        if args.longest:
-            tpts.sort(key=lambda t: len(t), reverse=True)
-            tpts = tpts[:1]
-
-        for t in tpts:
-            try:
-                r = __annotate_snv_gene(args, q, t)
-            except IncompatibleTranscriptError:
-                continue
-            yield r
-
 
 def _annotate_snv(args, q, db):
 
     # check reference base
     gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
     if q.ref and gnuc_ref != q.ref:
+        
         r = Record()
         r.chrm = q.tok
         r.pos = q.pos
-        r.info = "InvalidReferenceBase:%s(%s)" % (q.ref, gnuc_ref)
+        r.info = "invalid_reference_base_%s_(expect_%s)" % (q.ref, gnuc_ref)
         r.format(q.op)
-        err_print("Invalid reference base %s (%s), maybe wrong reference?" % (q.ref, gnuc_ref))
+        err_print("invalid reference base %s (expect %s), maybe wrong reference?" % (q.ref, gnuc_ref))
+        return
+    
     else:
         q.ref = gnuc_ref
 
-    # check if location in a gene
-    gene_found = False
-    for r in _annotate_snv_gene(args, q, db):
+    for reg in describe(args, q, db):
+
+        r = Record()
+        r.reg = reg
+        r.chrm = q.tok
+        r.gnuc_pos = q.pos
+        r.pos = r.gnuc_pos
+        r.gnuc_ref = gnuc_ref
+        r.gnuc_alt = q.alt if q.alt else ''
+        
+        if hasattr(reg, 't'):
+
+            c,p = reg.t.gpos2codon(q.pos, args)
+
+            r.tname = reg.t.format()
+            r.gene = reg.t.gene.name
+            r.strand = reg.t.strand
+            r.tnuc_pos = p
+
+            if c.strand == '+':
+                r.tnuc_ref = r.gnuc_ref
+                r.tnuc_alt = r.gnuc_alt
+            else:
+                r.tnuc_ref = complement(r.gnuc_ref)
+                r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
+
+            if p.tpos == 0:
+                if c.seq in standard_codon_table:
+                    if c.seq in standard_codon_table:
+                        r.taa_ref = standard_codon_table[c.seq]
+                    r.taa_pos = c.index
+
+                if q.alt:
+                    if c.strand == '+':
+                        alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
+                    else:
+                        alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
+                    r.taa_alt = codon2aa(alt_seq)
+                    if r.taa_alt == r.taa_ref:
+                        r.append_info('synonymous')
+                    else:
+                        r.append_info('nonsynonymous')
+
+                r.append_info('codon_pos=%s' % (c.locformat(),))
+                r.append_info('ref_codon_seq=%s' % c.seq)
+                
         r.format(q.op)
-        gene_found = True
-
-    if not gene_found:
-        r = __annotate_reg_intergenic(args, db, q.tok, q.pos, q.pos)
-        r.format(q.op)
-        # # annotate noncoding
-        # r = Record()
-        # tu, td  = thash.get_closest_transcripts(q.tok, q.pos, q.pos)
-        # if tu:
-        #     up = 'up: %s bp to %s' % (
-        #         locale.format('%d', q.pos - tu.end, grouping=True), tu.gene.name)
-        # else:
-        #     up = 'up: %s bp to 5-telomere' % (
-        #         locale.format('%d', q.pos, grouping=True), )
-        # if td:
-        #     down = 'down: %s bp to %s' % (
-        #         locale.format('%d', td.beg - q.pos, grouping=True), td.gene.name)
-        # else:
-        #     down = 'down: %s bp to 3-telomere' % (
-        #         locale.format('%d', reflen(q.tok)-q.pos, grouping=True), )
-        # r.reg = 'Intergenic (%s, %s)' % (up, down)
-        # r.format(q.op)
-
-    #     elif isinstance(c, NonCoding):
-    #         found = True
-
-    #         r = Record()
-    #         r.chrm = t.chrm
-    #         r.gnuc_pos = q.pos
-    #         r.tname = t.name
-    #         r.reg = '%s (%s noncoding)' % (t.gene.name, t.strand)
-    #         r.info = c.format()
-    #         r.format(q.op)
-
-    # if not found:
-    #     r = Record()
-    #     r.gnuc_ref = q.ref
-    #     r.gnuc_alt = q.alt
-    #     r.gnuc_pos = q.pos
-    #     r.info = 'status=NoValidTranscriptFound'
-    #     r.format(q.op)
