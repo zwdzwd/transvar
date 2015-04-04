@@ -96,11 +96,11 @@ def _annotate_ins(args, q, db):
 
         if q.insseq:
             # right align
-            pos_r, gnuc_insseq_r = gnuc_roll_right_ins(t.chrm, q.pos, q.insseq)
+            pos_r, gnuc_insseq_r = gnuc_roll_right_ins(q.tok, q.pos, q.insseq)
             r.gnuc_range = '%dins%s' % (pos_r, gnuc_insseq_r)
             
             # left align
-            pos_l, gnuc_insseq_l = gnuc_roll_left_ins(t.chrm, q.pos, q.insseq)
+            pos_l, gnuc_insseq_l = gnuc_roll_left_ins(q.tok, q.pos, q.insseq)
             r.append_info('left_align_gDNA=g.%dins%s' % (pos_l, gnuc_insseq_l))
             r.append_info('unalign_gDNA=g.%dins%s' % (q.pos, q.insseq))
         else:
@@ -108,9 +108,11 @@ def _annotate_ins(args, q, db):
 
         if hasattr(reg, 't'):
 
-            r.tname = reg.t.format()
-            r.gene = reg.t.gene.name
-            r.strand = reg.t.strand
+            t = reg.t
+
+            r.tname = t.format()
+            r.gene = t.gene.name
+            r.strand = t.strand
 
             if t.strand == '+':
                 c, p = t.gpos2codon(q.pos, args)
@@ -119,15 +121,15 @@ def _annotate_ins(args, q, db):
                 c, p = t.gpos2codon(q.pos+1, args)
                 tnuc_insseq = reverse_complement(q.insseq)
 
-            tnuc_set_ins(r, t, p1.pos, tnuc_insseq)
+            tnuc_set_ins(r, t, p.pos, tnuc_insseq)
 
             # TODO: check if insertion hits start codon
 
             # infer protein level mutation if in cds
             if reg.cds and not reg.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
                 if len(tnuc_insseq) % 3 == 0:
-                    ins_gene_coding_inframe(reg.t, r, c, p, tnuc_insseq)
+                    ins_gene_coding_inframe(t, r, c, p, tnuc_insseq)
                 else:
-                    ins_gene_coding_frameshift(reg.t, r, c, p, tnuc_insseq)
+                    ins_gene_coding_frameshift(t, r, c, p, tnuc_insseq)
 
         r.format(q.op)

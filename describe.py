@@ -3,12 +3,20 @@ import copy
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
-def reg_set_promoter(args, reg, dist2tss1, dist2tss2):
+def site_set_promoter(args, reg, dist2tss, t):
 
-    if dist2tss1 <= args.promend and dist2tss2 >= -args.prombeg:
-        reg.promoter = min(dist2tss2, args.promend) - max(dist2tss1, -args.prombeg)
+    if dist2tss >= -args.prombeg and dist2tss <= args.promend:
+        if not hasattr(reg, 'promoter'):
+            reg.promoter = []
+        reg.promoter.append(t)
 
-    return
+def reg_set_promoter(args, reg, dist2tss1, dist2tss2, t, qlen):
+
+    if dist2tss2 >= -args.prombeg and dist2tss1 <= args.promend:
+        if not hasattr(reg, 'promoter'):
+            reg.promoter = []
+        olen = min(dist2tss2, args.promend)-max(dist2tss1, -args.prombeg)
+        reg.promoter.append((t, olen, float(olen)/qlen)*100)
 
 def get_transcripts(args, q, db):
     
@@ -24,15 +32,15 @@ def get_transcripts(args, q, db):
 
     return (tpts, genes)
 
-def are_all_genes_overlap(genes):
+def are_all_transcripts_overlap(tpts):
 
     max_beg = None
     min_end = None
-    for gene in genes:
-        if max_beg is None or max_beg < gene.get_beg():
-            max_beg = gene.get_beg()
-        if min_end is None or min_end > gene.get_end():
-            min_end = gene.get_end()
+    for t in tpts:
+        if max_beg is None or max_beg < t.beg:
+            max_beg = t.beg
+        if min_end is None or min_end > t.end:
+            min_end = t.end
 
     if max_beg < min_end:
         return True
@@ -96,18 +104,22 @@ def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=No
         
     site = IntergenicSite()
     if tu:
+        site.e5 = tu
         site.e5_name = tu.gene.name
         site.e5_dist = beg-tu.end
         site.e5_strand = tu.gene.strand()
     else:
+        site.e5 = None
         site.e5_name = "5'-telomere"
         site.e5_dist = beg
 
     if td:
+        site.e3 = td
         site.e3_name = td.gene.name
         site.e3_dist = td.beg-end
         site.e3_strand = td.gene.strand()
     else:
+        site.e3 = None
         site.e3_name = "3'-telomere"
         site.e3_dist = reflen(chrm)-end
 
@@ -189,12 +201,11 @@ def describe(args, q, db):
                 reg = describe_genic_site(args, q.tok, q.pos, t, db)
                 
                 dist2tss = q.pos-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-q.pos
-                if dist2tss >= -args.prombeg and dist2tss <= args.promend:
-                    reg.promoter = 1
+                site_set_promoter(args, reg, dist2tss, t)
 
                 yield reg
                 
-        elif are_all_genes_overlap(genes): # short range, involving overlapping genes
+        elif are_all_transcripts_overlap(tpts): # short range, involving overlapping genes
             
             for t in tpts:
                 reg = RegSpanAnno()
@@ -204,13 +215,34 @@ def describe(args, q, db):
 
                 dist2tss1 = q.beg-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-q.end
                 dist2tss2 = q.end-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-q.beg
-                reg_set_promoter(args, reg, dist2tss1, dist2tss2)
-                
+                reg_set_promoter(args, reg, dist2tss1, dist2tss2, t, q.end-q.beg+1)
+
                 reg.spanning = [g for g in genes if g.get_beg() >= q.beg and g.get_end() <= q.end]
+                n = len(t.exons)
+                reg.splice_donors = []
+                reg.splice_acceptors = []
+                reg.splice_both = []
+                for i, exon in enumerate(t.exons):
+                    if exon[0] >= q.beg and exon[1] <= q.end:
+                        if t.strand == '+':
+                            reg.splice_both.append(i)
+                        else:
+                            reg.splice_both.append(n-i+1)
+                    elif exon[0] >= q.beg and exon[0] <= q.end and i != 0:
+                        if t.strand == '+':
+                            reg.splice_acceptors.append(i)
+                        else:
+                            reg.splice_donors.append(n-i+1)
+                    elif exon[1] >= q.beg and exon[1] <= q.end and i != n-1:
+                        if t.strand == '+':
+                            reg.splice_donors.append(i)
+                        else:
+                            reg.splice_acceptors.append(n-i+1)
+                            
                 if t.transcript_type == 'protein_coding':
-                    if q.beg < t.cds_beg and q.end >= t.cds_beg:
+                    if q.beg <= t.cds_beg and q.end >= t.cds_beg:
                         reg.cross_start = True
-                    if q.beg <= t.cds_end and q.end > t.cds_end:
+                    if q.beg <= t.cds_end and q.end >= t.cds_end:
                         reg.cross_end = True
                 yield reg
 
@@ -238,20 +270,30 @@ def describe(args, q, db):
 
             reg = RegAnno()
             reg.intergenic = describe_intergenic_site(args, db, q.tok, pos=q.pos)
+            
+            itg = reg.intergenic
+            if itg.e5 is not None and itg.e5_strand == '-':
+                dist2tss = -itg.e5_dist
+                site_set_promoter(args, reg, dist2tss, itg.e5)
+                
+            if itg.e3 is not None and itg.e3_strand == '+':
+                dist2tss = -itg.e3_dist
+                site_set_promoter(args, reg, dist2tss, itg.e3)
+                
         else:                   # range
             reg = RegSpanAnno()
             reg.intergenic = describe_intergenic_site(args, db, q.tok, beg=q.beg, end=q.end)
 
-        itg = reg.intergenic
-        if itg.e5_strand == '-':
-            dist2tss1 = -itg.e5_dist-(q.end-q.beg)
-            dist2tss2 = -itg.e5_dist
-            reg_set_promoter(args, reg, dist2tss1, dist2tss2)
-
-        if itg.e3_strand == '+':
-            dist2tss1 = -itg.e3_dist-(q.end-q.beg)
-            dist2tss2 = -itg.e3_dist
-            reg_set_promoter(args, reg, dist2tss1, dist2tss2)
+            itg = reg.intergenic
+            if itg.e5 is not None and itg.e5_strand == '-':
+                dist2tss1 = -itg.e5_dist-(q.end-q.beg)
+                dist2tss2 = -itg.e5_dist
+                reg_set_promoter(args, reg, dist2tss1, dist2tss2, itg.e5, q.end-q.beg+1)
+                
+            if itg.e3 is not None and itg.e3_strand == '+':
+                dist2tss1 = -itg.e3_dist-(q.end-q.beg)
+                dist2tss2 = -itg.e3_dist
+                reg_set_promoter(args, reg, dist2tss1, dist2tss2, itg.e3, q.end-q.beg+1)
 
         yield reg
 

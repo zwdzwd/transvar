@@ -10,8 +10,8 @@ def _annotate_reg(args, q, db):
         r = Record()
         r.reg = reg
         r.chrm = q.tok
-        if hasattr(reg, 'promoter') and reg.promoter > 0:
-            r.append_info('promoter_overlap_%d_bp(%1.2f%%)' % (reg.promoter, float(reg.promoter)/(q.end-q.beg)*100))
+
+        r.set_promoter(reg)
 
         if isinstance(reg, RegAnno):
 

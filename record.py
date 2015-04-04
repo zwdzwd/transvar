@@ -75,6 +75,10 @@ class RegAnno():
         else:
             return True
 
+    def entirely_in_cds(self):
+
+        return self.cds
+
     def format(self):
 
         if hasattr(self, 'intergenic'):
@@ -126,7 +130,7 @@ class RegSpanAnno():
                 self.b2.exonic and
                 self.b1.exon == self.b2.exon)
 
-    def entire_in_cds(self):
+    def entirely_in_cds(self):
         return (self.b1.cds and
                 self.b2.cds and
                 self.b1.exon == self.b2.exon)
@@ -362,6 +366,20 @@ class Record():
             self.info += ';'+app
         else:
             self.info = app
+
+    def set_promoter(self, reg):
+
+        if isinstance(reg, RegAnno):
+            if hasattr(reg, 'promoter'):
+                if reg.promoter:
+                    for t in promoter:
+                        r.append_info('promoter_region_of_[%s]' % t.gene.name)
+
+        if isinstance(reg, RegSpanAnno):
+            if hasattr(reg, 'promoter'):
+                if reg.promoter:
+                    for t, overlap, frac in reg.promoter:
+                        r.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene.name, overlap, frac))
 
     def gnuc(self):
         

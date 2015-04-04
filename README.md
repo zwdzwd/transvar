@@ -3,6 +3,7 @@
  + supports HGVS nomenclature
  + supports both left-alignment and right-alignment convention in reporting indels.
  + supports annotation of a region based on a transcript dependent characterization
+ + supports noncoding RNA annotation
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports mutations at both coding region and intronic/UTR regions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
@@ -949,6 +950,22 @@ chr14:20568338_20569581 chr14   20568338-20569581       NR_033571.1 (lncRNA)
 1810062O18Rik   +       chr14:g.20568338_20569581/c.260-1532_260-289/.  inside_[intron_between_exon_4_and_5]       .
 chr14:20568338_20569581 chr14   20568338-20569581       XM_006519705.2 (protein_coding)
 Usp54   -       chr14:g.20568338_20569581/c.2188+667_2188+1910/.        inside_[intron_between_exon_15_and_16]     .
+```
+
+or using Ensembl
+```
+#!bash
+transvar anno --ensembl -i 'chr1:29560_29570'
+```
+results in
+```
+#!text
+chr1:29560_29570        chr1    29560-29570     ENST00000473358 (lincRNA)       MIR1302-10      +       chr1:g.29560_29570/c.7_17/.
+    inside_[noncoding_exon_1]       .
+chr1:29560_29570        chr1    29560-29570     ENST00000488147 (pseudogene)    WASH7P  -       chr1:g.29560_29570/c.1_11/.
+    inside_[noncoding_exon_1]       .
+chr1:29560_29570        chr1    29560-29570     ENST00000538476 (pseudogene)    WASH7P  -       chr1:g.29560_29570/c.237_247/.
+    inside_[noncoding_exon_1]       .
 ```
 
 ### FAQ

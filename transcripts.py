@@ -840,6 +840,8 @@ class Transcript():
 
     def tnuc_roll_left_del(self, beg, end):
 
+        """ handles exonic region only """
+
         self.ensure_seq()
         while True:
             if beg <= 1:
@@ -874,14 +876,13 @@ class Transcript():
         self.ensure_seq()
         return self.seq[beg-1:end]
 
-    def tnuc_del_id(self, pbeg, pend):
+    def tnuc_del_id(self, pbeg, pend, tnuc_delseq):
 
         if pbeg == pend:
             tnuc_posstr = str(pbeg)
         else:
             tnuc_posstr = '%s_%s' % (pbeg, pend)
 
-        tnuc_delseq = self.getseq(pbeg, pend)
         if len(tnuc_delseq) > delrep_len:
             tnuc_delrep = str(len(tnuc_delseq))
         else:
@@ -970,6 +971,16 @@ class Transcript():
 
         old_seq = self.seq[beg_codon_beg-1:end_codon_end]
         new_seq = self.seq[beg_codon_beg-1:beg-1]+altseq+self.seq[end:end_codon_end]
+
+        if beg_codon_index == end_codon_index:
+            r.append_info('codon_cDNA=%s' % '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
+        else:
+            r.append_info('begin_codon_cDNA=%s' % '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
+            r.append_info('end_codon_cDNA=%s' % '-'.join(map(str, range(end_codon_end-2, end_codon_end+1))))
+        
+        if len(old_seq) % 3 != 0:
+            raise IncompatibleTranscriptError(beg, end, len(self.seq))
+        
         old_taa_seq = translate_seq(old_seq)
         new_taa_seq = translate_seq(new_seq)
         if old_taa_seq == new_taa_seq:
@@ -1001,6 +1012,7 @@ class Transcript():
             else:
                 return '%s%ddelins%s' % (
                     old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+            
         return '%s%d_%s%ddelins%s' % (
             old_taa_seq1[0], beg_codon_index + head_trim,
             old_taa_seq1[-1], end_codon_index - tail_trim, new_taa_seq1)
@@ -1346,7 +1358,7 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
         # info = dict([_.split('=') for _ in fields[8].split(';')])
-        if fields[2] == 'gene' and info['gene_biotype'] == 'protein_coding':
+        if fields[2] == 'gene':
             gene_id = info['gene_id']
             if gene_id not in id2ent:
                 id2ent[gene_id] = Gene(gene_type=info['gene_biotype'])
@@ -1359,10 +1371,11 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             g.beg = int(fields[3])
             g.end = int(fields[4])
             
-        elif fields[2] == 'transcript' and info['gene_biotype'] == 'protein_coding':
+        elif fields[2] == 'transcript':
             tid = info['transcript_id']
             if tid not in id2ent: 
-                id2ent[tid] = Transcript(transcript_type=info['transcript_biotype'])
+                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else info['gene_biotype']
+                id2ent[tid] = Transcript(transcript_type=transcript_type)
             t = id2ent[tid]
             t.chrm = normalize_chrm(fields[0])
             t.strand = fields[6]
@@ -1376,16 +1389,18 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             t.gene.tpts.append(t)
             t.source = 'Ensembl'
             cnt += 1
-        elif fields[2] == 'exon' and info['gene_biotype'] == 'protein_coding':
+        elif fields[2] == 'exon':
             tid = info['transcript_id']
             if tid not in id2ent:
-                id2ent[tid] = Transcript(transcript_type=info['transcript_biotype'])
+                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else info['gene_biotype']
+                id2ent[tid] = Transcript(transcript_type=transcript_type)
             t = id2ent[tid]
             t.exons.append((int(fields[3]), int(fields[4])))
-        elif fields[2] == 'CDS' and info['gene_biotype'] == 'protein_coding':
+        elif fields[2] == 'CDS':
             tid = info['transcript_id']
             if tid not in id2ent:
-                id2ent[tid] = Transcript(transcript_type=info['transcript_biotype'])
+                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else info['gene_biotype']
+                id2ent[tid] = Transcript(transcript_type=transcript_type)
             t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
 
