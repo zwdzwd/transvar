@@ -77,7 +77,6 @@ def _annotate_ins(args, q, db):
         if q.insseq:
             # right align
             pos_r, gnuc_insseq_r = gnuc_roll_right_ins(q.tok, q.pos, q.insseq)
-            print pos_r, gnuc_insseq_r
             r.gnuc_range = '%dins%s' % (pos_r, gnuc_insseq_r)
             
             # left align

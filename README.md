@@ -915,10 +915,12 @@ transvar anno -i '2:69741762insTGC' --ccds
 outputs
 ```
 #!text
-2:69741762insTGC        chr2    69741762        CCDS1893.2
-    AAK1 (-, Exonic_12)
-    chr2:g.69741762insTGC/c.1616_1617insGCA/p.Q546_L547insQ
-	LEFTALNP=p.Y532_Q533insQ
+2:69741762insTGC        chr2    69741762        CCDS1893.2 (protein_coding)     AAK1    -
+  chr2:g.69741782insCTG/c.1616_1617insGCA/p.Q546_L547insQ
+  cds_in_exon_12
+  left_align_gDNA=g.69741762insTGC;unalign_gDNA=g.69741762insTGC;
+  left_align_cDNA=c.1596_1597insCAG;unalign_cDNA=c.1616_1617insGCA;
+  left_align_protein=p.Y532_Q533insQ;unalign_protein=p.Q539_Q540insQ
 ```
 Note the proper right-alignment of protein level insertion Q. The left-aligned identifier is also given in the `LEFTALN` field.
 
