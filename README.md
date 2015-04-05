@@ -447,6 +447,23 @@ ADAM33:c.991-3_991-2insC        chr20   3654145 CCDS13058.1     ADAM33  -
 ```
 In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`. But cDNA and gDNA identifier are right-aligned according to their natural order, respecting HGVS nomenclature.
 
+Insertion could occur to *splice sites*. TransVar identifies such cases and report splice site and repress translation of protein change.
+```
+#!bash
+transvar revanno --ccds -i 'ADAM33:c.991_992insC'
+```
+results in
+```
+#!text
+ADAM33:c.991_992insC    chr20   3654142 CCDS13058.1     ADAM33  -
+  chr20:g.3654142insG/c.991_992insC/.
+  inside_[cds_in_exon_11]
+  left_align_gDNA=g.3654142insG;unalign_gDNA=g.3654142insG;
+  left_align_cDNA=c.991_992insC;unalign_cDNA=c.991_992insC;
+  insertion_gDNA=G;insertion_cDNA=C;
+  acceptor_splice_site_on_exon_12
+```
+
 ---
 
 #### reverse annotation of nucleotide deletion
