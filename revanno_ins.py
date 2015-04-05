@@ -177,6 +177,9 @@ def codon_mutation_ins(args, q, t, db):
     t.ensure_seq()
 
     r = Record()
+    taa_set_ins(r, t, q.beg, q.insseq)
+    r.reg = RegCDSAnno(t)
+    r.reg.from_cindex(q.beg)
     if q.beg*3 > len(t) or q.end*3 > len(t):
         raise IncompatibleTranscriptError('codon nonexistent')
 
@@ -187,9 +190,14 @@ def codon_mutation_ins(args, q, t, db):
     if hasattr(q, 'end_aa') and q.end_aa and q.end_aa != t.taa2aa(q.end):
         raise IncompatibleTranscriptError('Unmatched reference amino acid')
     gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.tnuc_range = '(%d-%d)ins%d' % (tnuc_beg-1, tnuc_end, len(q.insseq)*3)
-    r.gnuc_range = '(%d-%d)ins%d' % (gnuc_beg-1, gnuc_end, len(q.insseq)*3)
-    r.pos = gnuc_beg
+    r.gnuc_range = '(%dins%d)' % (gnuc_beg-1, len(q.insseq)*3)
+    c, p1 = t.gpos2codon(gnuc_beg-1)
+    r.tnuc_range = '(%s_%sins%d)' % (p1, tnuc_beg, len(q.insseq)*3)
+    tnuc_insseq = aaseq2nuc(q.insseq)
+    r.append_info('insertion_cDNA='+tnuc_insseq)
+    r.append_info('insertion_gDNA=%s' % (tnuc_insseq if t.strand == '+' else reverse_complement(tnuc_insseq)))
+    r.append_info('inaccurate')
+    r.pos = gnuc_beg-1
 
     return r
 
@@ -199,20 +207,18 @@ def _core_annotate_codon_ins(args, q, tpts, db):
     for t in tpts:
         try:
             r = codon_mutation_ins(args, q, t, db)
+            r.chrm = t.chrm
+            r.tname = t.name
+            r.gene = t.gene.name
+            r.strand = t.strand
+            r.format(q.op)
+            found = True
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
             continue
         except UnknownChromosomeError:
             continue
-
-        r.taa_range = '%s%s_%s%sins%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.insseq)
-        r.chrm = t.chrm
-        r.tname = t.name
-        r.gene = t.gene.name
-        r.strand = t.strand
-        r.format(q.op)
-        found = True
 
     if not found:
         r = Record()

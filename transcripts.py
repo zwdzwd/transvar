@@ -71,6 +71,11 @@ reverse_codon_table = {
     '*': ['TAA', 'TAG', 'TGA']
 }
 
+def aaseq2nuc(aaseq):
+
+    # only choose first codon
+    return ''.join([reverse_codon_table[aa][0] for aa in aaseq if aa in reverse_codon_table])
+
 def aa2codon(aa):
     if aa not in reverse_codon_table:
         raise IncompatibleTranscriptError('Invalid amino acid')
@@ -335,7 +340,7 @@ class Transcript():
 
         return translate_seq(self.taa_range2tnuc_seq(taa_beg, taa_end))
 
-    def tnuc2codon_(self, tnuc_pos):
+    def tnuc2codon(self, tnuc_pos):
         taa_pos = (tnuc_pos + 2) / 3
         codon = self.cpos2codon(taa_pos)
         pos_r = (tnuc_pos-1) % 3 # 0,1,2 for first, second and third base
@@ -679,7 +684,7 @@ class Transcript():
 
         self.ensure_position_array()
         if p.tpos == 0:
-            c = self._init_codon2_(p.pos/3+1)
+            c = self._init_codon2_((p.pos+2)/3)
             return (c, p)
 
         if direc == 'g_greater':
@@ -696,20 +701,20 @@ class Transcript():
 
         if direc == 'c_greater':
             if p.tpos < 0:
-                c = self._init_codon2_(p.pos/3+1)
+                c = self._init_codon2_((p.pos+2)/3)
                 return (c, p)
             if p.tpos > 0:
                 p = Pos(p.pos+1, p.tpos-abs(self.np[p.pos]-self.np[p.pos-1]))
-                c = self._init_codon2_(p.pos/3+1)
+                c = self._init_codon2_((p.pos+2)/3)
                 return (c, p)
 
         if direc == 'c_smaller':
             if p.tpos > 0:
-                c = self._init_codon2_(p.pos/3+1)
+                c = self._init_codon2_((p.pos+2)/3)
                 return (c, p)
             if p.tpos < 0:
                 p = Pos(p.pos-1, abs(self.np[p.pos-2]-self.np[p.pos-1])+p.tpos)
-                c = self._init_codon2_(p.pos/3+1)
+                c = self._init_codon2_((p.pos+2)/3)
                 return (c, p)
 
     def overlap_region(self, beg, end):
@@ -911,36 +916,22 @@ class Transcript():
         self.ensure_seq()
         return self.seq[beg-1:end]
 
-    def tnuc_del_id(self, pbeg, pend, tnuc_delseq):
-
-        if pbeg == pend:
-            tnuc_posstr = str(pbeg)
-        else:
-            tnuc_posstr = '%s_%s' % (pbeg, pend)
-
-        if len(tnuc_delseq) > delrep_len:
-            tnuc_delrep = str(len(tnuc_delseq))
-        else:
-            tnuc_delrep = tnuc_delseq
-
-        return '%sdel%s' % (tnuc_posstr, tnuc_delrep)
-
     def taa_del_id(self, taa_beg, taa_end):
 
         if taa_beg == taa_end:
-            taa_posstr = '%s%d' % (
-                self.cpos2aa(taa_beg), taa_beg)
+            s = '%s%ddel' % (self.cpos2aa(taa_beg), taa_beg)
         else:
-            taa_posstr = '%s%d_%s%d' % (
+            taa_del_len = taa_end - taa_beg + 1
+            if taa_del_len > delrep_len:
+                taa_delrep = str(taa_del_len)
+            else:
+                taa_delrep = self.taa_range2aa_seq(taa_beg, taa_end)
+            s = '%s%d_%s%ddel%s' % (
                 self.cpos2aa(taa_beg), taa_beg,
-                self.cpos2aa(taa_end), taa_end)
-        taa_del_len = taa_end - taa_beg + 1
-        if taa_del_len > delrep_len:
-            taa_delrep = str(taa_del_len)
-        else:
-            taa_delrep = self.taa_range2aa_seq(taa_beg, taa_end)
+                self.cpos2aa(taa_end), taa_end,
+                taa_delrep)
 
-        return '%sdel%s' % (taa_posstr, taa_delrep)
+        return s
 
     def taa_ins_id(self, index, taa_insseq):
 
@@ -1073,6 +1064,23 @@ class Transcript():
         else:
             return self.tnuc_mnv_coding_frameshift(beg, end, altseq, r)
 
+def tnuc_del_id(pbeg, pend, tnuc_delseq=None):
+
+    if pbeg == pend:
+        tnuc_posstr = str(pbeg)
+    else:
+        tnuc_posstr = '%s_%s' % (pbeg, pend)
+
+    if tnuc_delseq is None and tnuc_delseq:
+        tnuc_delrep = ''
+    else:
+        if len(tnuc_delseq) > delrep_len:
+            tnuc_delrep = str(len(tnuc_delseq))
+        else:
+            tnuc_delrep = tnuc_delseq
+
+    return '%sdel%s' % (tnuc_posstr, tnuc_delrep)
+
 def gnuc_del_id(chrm, beg, end, gnuc_delseq=None):
 
     if beg == end:
@@ -1167,6 +1175,14 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
 
     return pos, ''.join(_gnuc_insseq_)
 
+def taa_set_del(r, t, taa_beg, taa_end):
+
+    i1r, i2r = t.taa_roll_right_del(taa_beg, taa_end)
+    r.taa_range = t.taa_del_id(i1r, i2r)
+    i1l, i2l = t.taa_roll_left_del(taa_beg, taa_end)
+    r.append_info('left_align_protein=p.%s' % t.taa_del_id(i1l, i2l))
+    r.append_info('unalign_protein=p.%s' % t.taa_del_id(taa_beg, taa_end))
+
 def taa_set_ins(r, t, index, taa_insseq):
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
     try:
@@ -1189,6 +1205,68 @@ def tnuc_set_ins(r, t, p, tnuc_insseq):
         p1l, tnuc_insseq_l = t.tnuc_roll_left_ins(p1, tnuc_insseq)
         r.append_info('left_align_cDNA=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
         r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
+
+def del_coding_inframe(args, c1, c2, p1, p2, t, r):
+
+    if p1.pos % 3 == 1:       # in phase
+        taa_set_del(r, t, c1.index, c2.index)
+    else:                       # out-of-phase
+
+        if len(c1.seq) != 3 or len(c2.seq) != 3:
+            if len(t.seq) % 3 != 0:
+                r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
+                return
+            raise IncompatibleTranscriptError()
+        
+        beg_codon_beg = c1.index*3-2
+        end_codon_end = c2.index*3
+        new_codon_seq = t.seq[beg_codon_beg-1:p1.pos-1] + \
+                        t.seq[p2.pos:end_codon_end]
+
+        if len(new_codon_seq) != 3:
+            sys.stderr.write(t.gene.name+'\t'+t.transcript_type+'\n')
+            err_print(p1)
+            err_print(p2)
+            err_print(len(t.seq))
+            err_print(c1.seq)
+            err_print(c2.seq)
+            err_print(len(t.seq) % 3)
+            err_print(t.seq[-10:])
+            if (len(t.seq)%3 != 0):
+                r.append_info('truncated_refseq_at_boundary_(codon_seq_%s)' % c1.seq)
+            raise IncompatibleTranscriptError('new_codon_seq: %s' % new_codon_seq)
+
+        r.taa_alt = codon2aa(new_codon_seq)
+        tnuc_delseq = t.seq[beg_codon_beg-1:end_codon_end]
+        taa_delseq = translate_seq(tnuc_delseq)
+        # if taa_delseq[-1] == '*':
+        if r.taa_alt == taa_delseq[-1]:
+            # G100_S200delinsS becomes a pure deletion G100_D199del
+            taa_set_del(r, t, c1.index, c2.index-1)
+        elif r.taa_alt == taa_delseq[0]:
+            # S100_G200delinsS becomes a pure deletion D101_G200del
+            taa_set_del(r, t, c1.index+1, c2.index)
+        else:
+            r.taa_range = '%s%d_%s%ddelins%s' % (
+                taa_delseq[0], c1.index,
+                taa_delseq[-1], c2.index, r.taa_alt)
+
+def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
+
+    """ assume frame-shift does not affect splicing """
+    cbeg_beg = cbeg.index*3 - 2
+    old_seq = t.seq[cbeg_beg-1:]
+    new_seq = t.seq[cbeg_beg-1:pbeg.pos-1]+t.seq[pend.pos:]
+    if not old_seq:
+        raise IncompatibleTranscriptError()
+
+    ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
+    if ret:
+        taa_pos, taa_ref, taa_alt, termlen = ret
+        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+    else:
+        r.taa_range = '(=)'
+
 
 class Gene():
 

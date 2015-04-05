@@ -26,7 +26,7 @@ def _core_annotate_codon(args, q, db):
     elif isinstance(q, QueryINS):
         return _core_annotate_codon_ins(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
-        return _core_annotate_codon_mnv(args, q, tpts)
+        return _core_annotate_codon_mnv(args, q, tpts, db)
     elif isinstance(q, QueryFrameShift):
         return _core_annotate_codon_fs(args, q, tpts)
     else:
@@ -44,7 +44,7 @@ def _core_annotate_nuc(args, q, db):
     elif isinstance(q, QueryINS):
         return _core_annotate_nuc_ins(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
-        return _core_annotate_nuc_mnv(args, q, tpts)
+        return _core_annotate_nuc_mnv(args, q, tpts, db)
     elif isinstance(q, QueryDUP):
         return _core_annotate_nuc_dup(args, q, tpts)
     else:

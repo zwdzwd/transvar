@@ -81,7 +81,7 @@ def nuc_mutation_mnv(args, q, tpt):
 
     return r
 
-def _core_annotate_nuc_mnv(args, q, tpts):
+def _core_annotate_nuc_mnv(args, q, tpts, db):
 
     found = False
     for tpt in tpts:
@@ -143,7 +143,7 @@ def codon_mutation_mnv(args, q, tpt):
 
     return r
 
-def _core_annotate_codon_mnv(args, q, tpts):
+def _core_annotate_codon_mnv(args, q, tpts, db):
 
     found = False
     for tpt in tpts:

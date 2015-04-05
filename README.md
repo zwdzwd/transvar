@@ -476,6 +476,14 @@ transvar revanno --ccds -i 'A4GNT:c.694_696delTTG'
 ```
 ```
 #!text
+A4GNT:c.694_696delTTG   chr3    137843435_137843437     CCDS3097.1      A4GNT   -
+  chr3:g.137843435_137843437delACA/c.694_696delTTG/p.L232delL
+  inside_[cds_in_exon_2]
+  left_align_gDNA=g.137843433_137843435delCAA;unaligned_gDNA=g.137843433_137843435delCAA;
+  left_align_cDNA=c.692_694delTGT;unalign_cDNA=c.694_696delTTG;
+  left_align_protein=p.L232delL;unalign_protein=p.L232delL;
+  deletion_gDNA=ACA;deletion_cDNA=TTG
+
 A4GNT:c.694_696delTTG   3   137843433-137843435     CCDS3097.1    A4GNT (- coding)
     3:137843433_137843435del/c.694_696del/p.L232del RefDelSeq=CAA;NatDelSeq=TTG
 ```
@@ -617,9 +625,11 @@ transvar revanno --ccds -i 'AATK.p.P1331_A1332insTP'
 ```
 ```
 #!text
-AATK    c.3993_3994insACGCCC   p.P1331_A1332insTP   17:79093270-79093271
-    17    79093268-79093273 (insertion)   CCDS45807.1     AATK (-, coding)
-    17:79093268-79093273ins6/c.3991-3996ins6/p.P1331_A1332insTP     Uncertain
+AATK.p.P1331_A1332insTP chr17   79093267        CCDS45807.1     AATK    -
+  chr17:g.(79093267ins6)/c.(3997_3991ins6)/p.P1331_A1332insTP
+  cds_in_exon_13
+  left_align_protein=p.A1326_P1327insPT;unalign_protein=p.P1331_A1332insTP;
+  insertion_cDNA=ACACCT;insertion_gDNA=AGGTGT;inaccurate
 ```
 
 #### reverse annotation of amino acid deletion
@@ -947,6 +957,7 @@ transvar anno -i '17:79093270insGGGCGT' --ccds
 ```
 outputs
 ```
+#!text
 17:79093270insGGGCGT    chr17   79093270        CCDS45807.1 (protein_coding)
     AATK    -       chr17:g.79093287insTGGGCG/c.3993_3994insACGCCC/p.P1331_A1332insTP
     cds_in_exon_13
