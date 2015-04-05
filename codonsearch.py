@@ -6,7 +6,7 @@ from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mut
 from transcripts import *
 from utils import *
 from config import read_config
-from revanno_snv import __core_annotate_codon_snv
+from snv import __core_annotate_codon_snv
 from record import Query, QueryREG
 
 outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
