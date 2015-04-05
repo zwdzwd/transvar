@@ -74,18 +74,10 @@ def _annotate_ins(args, q, db):
         r.chrm = q.tok
         r.pos = q.pos
 
-        if q.insseq:
-            # right align
-            pos_r, gnuc_insseq_r = gnuc_roll_right_ins(q.tok, q.pos, q.insseq)
-            r.gnuc_range = '%dins%s' % (pos_r, gnuc_insseq_r)
-            
-            # left align
-            pos_l, gnuc_insseq_l = gnuc_roll_left_ins(q.tok, q.pos, q.insseq)
-            r.append_info('left_align_gDNA=g.%dins%s' % (pos_l, gnuc_insseq_l))
-            r.append_info('unalign_gDNA=g.%dins%s' % (q.pos, q.insseq))
-        else:
-            r.gnuc_range = '%dins' % (q.pos,)
-
+        gnuc_ins = gnuc_set_ins(q.tok, q.pos, q.insseq, r)
+        # assume q.insseq exists
+        # r.gnuc_range = '%dins' % (q.pos,)
+        
         if hasattr(reg, 't'):
 
             t = reg.t
@@ -94,39 +86,42 @@ def _annotate_ins(args, q, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            if t.strand == '+':
-                c1, p1 = t.gpos2codon(q.pos)
-                c2, p2 = t.gpos2codon(q.pos+1)
-                tnuc_insseq = q.insseq
-                c1l, p1l = t.gpos2codon(pos_l)
-                c2l, p2l = t.gpos2codon(pos_l+1)
-                tnuc_insseq_l = gnuc_insseq_l
-                c1r, p1r = t.gpos2codon(pos_r)
-                c2r, p2r = t.gpos2codon(pos_r+1)
-                tnuc_insseq_r = gnuc_insseq_r
-            else:
-                c1, p1 = t.gpos2codon(q.pos+1)
-                c2, p2 = t.gpos2codon(q.pos)
-                tnuc_insseq = reverse_complement(q.insseq)
-                c1l, p1l = t.gpos2codon(pos_r+1)
-                c2l, p2l = t.gpos2codon(pos_r)
-                tnuc_insseq_l = reverse_complement(gnuc_insseq_r)
-                c1r, p1r = t.gpos2codon(pos_l+1)
-                c2r, p2r = t.gpos2codon(pos_l)
-                tnuc_insseq_r = reverse_complement(gnuc_insseq_l)
+            tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
 
-                
-            r.tnuc_range = '%s_%sins%s' % (p1r, p2r, tnuc_insseq_r)
-            r.append_info('left_align_cDNA=c.%s_%sins%s' % (p1l, p2l, tnuc_insseq_l))
-            r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p2, tnuc_insseq))
+            # if t.strand == '+':
+            #     c1, p1 = t.gpos2codon(q.pos)
+            #     c2, p2 = t.gpos2codon(q.pos+1)
+            #     tnuc_insseq = q.insseq
+            #     c1l, p1l = t.gpos2codon(pos_l)
+            #     c2l, p2l = t.gpos2codon(pos_l+1)
+            #     tnuc_insseq_l = gnuc_insseq_l
+            #     c1r, p1r = t.gpos2codon(pos_r)
+            #     c2r, p2r = t.gpos2codon(pos_r+1)
+            #     tnuc_insseq_r = gnuc_insseq_r
+            # else:
+            #     c1, p1 = t.gpos2codon(q.pos+1)
+            #     c2, p2 = t.gpos2codon(q.pos)
+            #     tnuc_insseq = reverse_complement(q.insseq)
+            #     c1l, p1l = t.gpos2codon(pos_r+1)
+            #     c2l, p2l = t.gpos2codon(pos_r)
+            #     tnuc_insseq_l = reverse_complement(gnuc_insseq_r)
+            #     c1r, p1r = t.gpos2codon(pos_l+1)
+            #     c2r, p2r = t.gpos2codon(pos_l)
+            #     tnuc_insseq_r = reverse_complement(gnuc_insseq_l)
+
+            # r.tnuc_range = '%s_%sins%s' % (p1r, p2r, tnuc_insseq_r)
+            # r.append_info('left_align_cDNA=c.%s_%sins%s' % (p1l, p2l, tnuc_insseq_l))
+            # r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p2, tnuc_insseq))
 
             # TODO: check if insertion hits start codon
 
             # infer protein level mutation if in cds
             if reg.cds and not reg.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
-                if len(tnuc_insseq) % 3 == 0:
-                    ins_gene_coding_inframe(t, r, c1, p1, tnuc_insseq)
+                c1 = t.cpos2codon((tnuc_ins.beg.pos+2)/3)
+                p1 = tnuc_ins.beg
+                if len(tnuc_ins.insseq) % 3 == 0:
+                    ins_gene_coding_inframe(t, r, c1, p1, tnuc_ins.insseq)
                 else:
-                    ins_gene_coding_frameshift(t, r, c1, p1, tnuc_insseq)
+                    ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
 
         r.format(q.op)

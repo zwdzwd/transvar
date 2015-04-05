@@ -103,38 +103,11 @@ def annotate_nuc_ins(args, q, t, db):
 
     r.pos = gnuc_beg
 
-    # right align
-    gnuc_beg_r, gnuc_insseq_r = gnuc_roll_right_ins(t.chrm, gnuc_beg, gnuc_insseq)
-    r.gnuc_range = '%dins%s' % (gnuc_beg_r, gnuc_insseq_r)
-    
-    # left align
-    gnuc_beg_l, gnuc_insseq_l = gnuc_roll_left_ins(t.chrm, gnuc_beg, gnuc_insseq)
-    r.append_info('left_align_gDNA=g.%dins%s' % (gnuc_beg_l, gnuc_insseq_l))
-    r.append_info('unalign_gDNA=g.%dins%s' % (gnuc_beg, gnuc_insseq))
-
-    if t.strand == '+':
-        c1l, p1l = t.gpos2codon(gnuc_beg_l)
-        c2l, p2l = t.gpos2codon(gnuc_beg_l+1)
-        tnuc_insseq_l = gnuc_insseq_l
-        c1r, p1r = t.gpos2codon(gnuc_beg_r)
-        c2r, p2r = t.gpos2codon(gnuc_beg_r+1)
-        tnuc_insseq_r = gnuc_insseq_r
-    else:
-        c1l, p1l = t.gpos2codon(gnuc_beg_r+1)
-        c2l, p2l = t.gpos2codon(gnuc_beg_r)
-        tnuc_insseq_l = reverse_complement(gnuc_insseq_r)
-        c1r, p1r = t.gpos2codon(gnuc_beg_l+1)
-        c2r, p2r = t.gpos2codon(gnuc_beg_l)
-        tnuc_insseq_r = reverse_complement(gnuc_insseq_l)
-
-    r.tnuc_range = '%s_%sins%s' % (p1r, p2r, tnuc_insseq_r)
-    r.append_info('left_align_cDNA=c.%s_%sins%s' % (p1l, p2l, tnuc_insseq_l))
-    r.append_info('unalign_cDNA=c.%s_%sins%s' % (tnuc_beg, tnuc_end, q.insseq))
+    gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg, gnuc_insseq, r)
+    tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
 
     # tnuc_set_ins(r, t, tnuc_beg, q.insseq)
     # r.tnuc_range = '%s_%sins%s' % (tnuc_beg, tnuc_end, q.insseq)
-    r.append_info('insertion_gDNA='+gnuc_insseq)
-    r.append_info('insertion_cDNA='+q.insseq)
     r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
 
     return r
@@ -151,6 +124,7 @@ def _core_annotate_nuc_ins(args, q, tpts, db):
             r = annotate_nuc_ins(args, q, t, db)
             expt = r.set_splice()
             if not expt and r.reg.entirely_in_cds():
+                # tnuc_coding_ins(args, q, t, r, db)
                 nuc_mutation_ins_coding(args, q, t, r, db)
         except IncompatibleTranscriptError:
             continue

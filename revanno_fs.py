@@ -66,7 +66,6 @@ def _core_annotate_codon_fs(args, q, tpts, db):
     if not found:
         r = Record()
         r.taa_range = '%s%d%sfs*%d' % (q.ref, q.pos, q.alt, q.stop_index)
-        r.info = 'NoValidTranscriptFound'
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
