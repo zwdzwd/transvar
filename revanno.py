@@ -9,10 +9,11 @@ from config import read_config
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from revanno_snv import _core_annotate_nuc_snv, _core_annotate_codon_snv
 from revanno_del import _core_annotate_nuc_del, _core_annotate_codon_del
-from revanno_ins import _core_annotate_nuc_ins, _core_annotate_codon_ins
+# from revanno_ins import _core_annotate_nuc_ins, _core_annotate_codon_ins
+from insertion import annotate_insertion_protein, annotate_insertion_cdna, annotate_duplication_cdna
 from revanno_mnv import _core_annotate_nuc_mnv, _core_annotate_codon_mnv
 from revanno_fs import _core_annotate_codon_fs
-from revanno_dup import _core_annotate_nuc_dup
+# from revanno_dup import _core_annotate_nuc_dup
 from revanno_reg import _core_annotate_nuc_reg, _core_annotate_codon_reg
 
 def _core_annotate_codon(args, q, db):
@@ -24,7 +25,7 @@ def _core_annotate_codon(args, q, db):
     elif isinstance(q, QueryDEL):
         return _core_annotate_codon_del(args, q, tpts, db)
     elif isinstance(q, QueryINS):
-        return _core_annotate_codon_ins(args, q, tpts, db)
+        return annotate_insertion_protein(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
         return _core_annotate_codon_mnv(args, q, tpts, db)
     elif isinstance(q, QueryFrameShift):
@@ -42,11 +43,11 @@ def _core_annotate_nuc(args, q, db):
     elif isinstance(q, QueryDEL):
         return _core_annotate_nuc_del(args, q, tpts, db)
     elif isinstance(q, QueryINS):
-        return _core_annotate_nuc_ins(args, q, tpts, db)
+        return annotate_insertion_cdna(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
         return _core_annotate_nuc_mnv(args, q, tpts, db)
     elif isinstance(q, QueryDUP):
-        return _core_annotate_nuc_dup(args, q, tpts)
+        return annotate_duplication_cdna(args, q, tpts, db)
     else:
         return _core_annotate_nuc_reg(args, q, tpts, db)
 

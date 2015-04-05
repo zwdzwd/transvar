@@ -10,8 +10,9 @@ from record import *
 from anno_reg import _annotate_reg
 from anno_snv import _annotate_snv
 from anno_del import _annotate_del
-from anno_ins import _annotate_ins
 from anno_mnv import _annotate_mnv
+
+from insertion import annotate_insertion_gdna
 
 def _main_core_(args, db, q):
 
@@ -20,7 +21,7 @@ def _main_core_(args, db, q):
     elif isinstance(q, QueryDEL):
         return _annotate_del(args, q, db)
     elif isinstance(q, QueryINS):
-        return _annotate_ins(args, q, db)
+        return forward_annotate_insertion(args, q, db)
     elif isinstance(q, QueryMNV):
         return _annotate_mnv(args, q, db)
     else:

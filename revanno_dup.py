@@ -37,7 +37,7 @@ def nuc_mutation_dup(args, q, t):
     else:
         gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg-1, gnuc_dupseq, r)
 
-    tnuc_set_ins(gnuc_ins, t, r)
+    tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
     r.reg = describe_genic(args, t.chrm, gnuc_ins.beg_r, gnuc_ins.end_r, t, db)
     tnuc_coding_ins(args, q, t, r, db)
     

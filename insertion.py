@@ -4,7 +4,7 @@ from utils import *
 from record import *
 from describe import *
 
-def tnuc_coding_ins_frameshift(args, q, t, r):
+def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
 
     insseq = tnuc_ins.insseq
     tnuc_pos = tnuc_ins.beg.pos
@@ -89,7 +89,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
         tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
 
 
-def _core_annotate_nuc_ins(args, q, tpts, db):
+def annotate_insertion_cdna(args, q, tpts, db):
 
     found = False
     for t in tpts:
@@ -124,7 +124,6 @@ def _core_annotate_nuc_ins(args, q, tpts, db):
             expt = r.set_splice()
             if not expt and r.reg.entirely_in_cds():
                 tnuc_coding_ins(args, tnuc_ins, t, r, db)
-                # nuc_mutation_ins_coding(args, q, t, r, db)
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -174,7 +173,7 @@ def codon_mutation_ins(args, q, t, db):
 
     return r
 
-def _core_annotate_codon_ins(args, q, tpts, db):
+def annotate_insertion_protein(args, q, tpts, db):
 
     found = False
     for t in tpts:
@@ -201,7 +200,7 @@ def _core_annotate_codon_ins(args, q, tpts, db):
 
 
 
-def forward_annotate_insertion(args, q, db):
+def annotate_insertion_gdna(args, q, db):
 
     for reg in describe(args, q, db):
 
@@ -234,4 +233,62 @@ def forward_annotate_insertion(args, q, db):
                 else:
                     ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
 
+        r.format(q.op)
+        
+
+def annotate_duplication_cdna(args, q, tpts, db):
+
+    found = False
+    for t in tpts:
+        try:
+            if q.tpt and t.name != q.tpt:
+                raise IncompatibleTranscriptError("Transcript name unmatched")
+            t.ensure_seq()
+
+            r = Record()
+            r.chrm = t.chrm
+            r.tname = t.format()
+            r.gene = t.gene.name
+            r.strand = t.strand
+
+            if q.beg.pos > len(t) or q.end.pos > len(t):
+                raise IncompatibleTranscriptError('codon nonexistent')
+
+            t.ensure_position_array()
+            check_exon_boundary(t.np, q.beg)
+            check_exon_boundary(t.np, q.end)
+
+            _gnuc_beg = t.tnuc2gnuc(q.beg)
+            _gnuc_end = t.tnuc2gnuc(q.end)
+            gnuc_beg = min(_gnuc_beg, _gnuc_end)
+            gnuc_end = max(_gnuc_beg, _gnuc_end)
+            gnuc_dupseq = faidx.getseq(t.chrm, gnuc_beg, gnuc_end)
+            tnuc_dupseq = gnuc_dupseq if t.strand == '+' else reverse_complement(gnuc_dupseq)
+            if q.dupseq and tnuc_dupseq != q.dupseq:
+                raise IncompatibleTranscriptError('unmatched reference')
+
+            if t.strand == '+':
+                gnuc_ins = gnuc_set_ins(t.chrm, gnuc_end, gnuc_dupseq, r)
+            else:
+                gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg-1, gnuc_dupseq, r)
+
+            r.pos = gnuc_ins.beg_r
+            tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
+            r.reg = describe_genic(args, t.chrm, gnuc_ins.beg_r, gnuc_ins.end_r, t, db)
+            tnuc_coding_ins(args, tnuc_ins, t, r, db)
+
+        except IncompatibleTranscriptError:
+            continue
+        except SequenceRetrievalError:
+            continue
+        except UnknownChromosomeError:
+            continue
+        found = True
+        r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
+        r.format(q.op)
+
+    if not found:
+        r = Record()
+        r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
+        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)

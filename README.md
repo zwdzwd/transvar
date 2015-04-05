@@ -590,8 +590,8 @@ A1CF:c.1459_1460+3ATGTG>CC      chr10   52570797-52570801       CCDS7241.1      
 
 #### reverse annotation of nucleotide duplication
 
-Duplication can be thought of as insertion where the inserted sequence is identical to the sequence flanking the breakpoint.
-Similar to insertion, the annotation of duplication assumes no change in splicing.
+Duplication can be thought of as special insertion where the inserted sequence is identical to the sequence flanking the breakpoint.
+Similar to insertion, the annotation of duplication may possess alternative alignment.
 
 Example: to annotate a duplication coding region,
 ```
@@ -600,9 +600,15 @@ transvar revanno --ccds -i 'CHD7:c.1669_1674dup'
 ```
 ```
 #!text
-CHD7:c.1669_1674dup    8    61693562-61693567 (dup) CCDS47865.1     CHD7 (+, Coding)
-    8:61693562-61693567dupTCCCCG/c.1669_1674dup/p.S557_P558dupSP
-    RefDupSeq=TCCCCG;NatDupSeq=TCCCCG
+CHD7:c.1669_1674dup     chr8    61693569        CCDS47865.1 (protein_coding)    CHD7    +
+  chr8:g.61693564_61693569dupCCCGTC/c.1669_1674dup/p.P558_S559dupPS
+  inside_[cds_in_exon_2]
+  left_align_gDNA=g.61693561_61693562insTCCCCG;unalign_gDNA=g.61693562_61693567dupTCCCCG;
+  insertion_gDNA=CCCGTC;
+  left_align_cDNA=c.1668_1669insTCCCCG;unalign_cDNA=c.1669_1674dupTCCCCG;
+  insertion_cDNA=CCCGTC;
+  left_align_protein=p.H556_S557insSP;unalign_protein=p.S557_P558dupSP;
+  phase=0
 ```
 
 Example: a duplication on the nucleotide level may lead to frame-shift or block substitution on the amino acid level,
