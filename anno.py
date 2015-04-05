@@ -4,42 +4,40 @@ annotate nucleotide position(s) or mutations
 import sys, argparse, re
 from transcripts import *
 from utils import *
+from record import *
 from config import read_config
 from mutation import parse_tok_mutation_str, list_parse_mutation, parser_add_mutation
-from record import *
-from anno_reg import _annotate_reg
-from anno_snv import _annotate_snv
-from anno_del import _annotate_del
-from anno_mnv import _annotate_mnv
 
+from mnv import annotate_mnv_gdna
+from snv import annotate_snv_gdna
 from insertion import annotate_insertion_gdna
+from deletion import annotate_deletion_gdna
+from region import annotate_region_gdna
 
 def _main_core_(args, db, q):
 
     if isinstance(q, QuerySNV):
-        return _annotate_snv(args, q, db)
+        return annotate_snv_gdna(args, q, db)
     elif isinstance(q, QueryDEL):
-        return _annotate_del(args, q, db)
+        return annotate_deletion_gdna(args, q, db)
     elif isinstance(q, QueryINS):
-        return forward_annotate_insertion(args, q, db)
+        return annotate_insertion_gdna(args, q, db)
     elif isinstance(q, QueryMNV):
-        return _annotate_mnv(args, q, db)
+        return annotate_mnv_gdna(args, q, db)
     else:
-        return _annotate_reg(args, q, db)
+        return annotate_region_gdna(args, q, db)
 
 def main_list(args, db):
 
     for q, line in list_parse_mutation(args, muttype='g'):
         q.tok = normalize_chrm(q.tok)
         _main_core_(args, db, q)
-        # _main_core_(args, thash, q)
 
 def main_one(args, db):
 
     q = parse_tok_mutation_str(args.i, muttype='g')
     q.op = args.i
     q.tok = normalize_chrm(q.tok)
-    # _main_core_(args, thash, q)
     _main_core_(args, db, q)
 
 def main(args):
@@ -47,31 +45,16 @@ def main(args):
     config = read_config()
     replace_defaults(args, config)
     db = AnnoDB(args)
-    # name2gene, thash = parse_annotation(args)
 
     if not args.noheader:
         print_header()
     
     if args.l:
-        main_list(args, db) #thash)
+        main_list(args, db)
 
     if args.i:
-        main_one(args, db) #thash)
+        main_one(args, db)
 
-# def main(args):
-
-#     name2gene, thash = parse_annotation(args)
-#     for line in args.l:
-#         fields = line.strip().split('\t')
-#         name = fields[int(args.i)-1]
-#         tn = fields[int(args.t)-1]
-#         if name in name2gene:
-#             gene = name2gene[name]
-#             ts = [t for t in gene.tpts if tn == t.name]
-#             if ts:
-#                 o = len([t for t in gene.tpts if len(t) > len(ts[0])])
-#                 print o
-    
 def add_parser_anno(subparsers, config):
 
     parser = subparsers.add_parser('anno', help=__doc__)

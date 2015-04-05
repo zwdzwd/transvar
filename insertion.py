@@ -275,7 +275,9 @@ def annotate_duplication_cdna(args, q, tpts, db):
             r.pos = gnuc_ins.beg_r
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
             r.reg = describe_genic(args, t.chrm, gnuc_ins.beg_r, gnuc_ins.end_r, t, db)
-            tnuc_coding_ins(args, tnuc_ins, t, r, db)
+            expt = r.set_splice()
+            if r.reg.entirely_in_cds() and not expt:
+                tnuc_coding_ins(args, tnuc_ins, t, r, db)
 
         except IncompatibleTranscriptError:
             continue

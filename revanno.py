@@ -7,31 +7,30 @@ from utils import *
 from record import *
 from config import read_config
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
-from revanno_snv import _core_annotate_nuc_snv, _core_annotate_codon_snv
-from revanno_del import _core_annotate_nuc_del, _core_annotate_codon_del
-# from revanno_ins import _core_annotate_nuc_ins, _core_annotate_codon_ins
+
+from snv import annotate_snv_protein, annotate_snv_cdna
+from deletion import annotate_deletion_protein, annotate_deletion_cdna
 from insertion import annotate_insertion_protein, annotate_insertion_cdna, annotate_duplication_cdna
-from revanno_mnv import _core_annotate_nuc_mnv, _core_annotate_codon_mnv
-from revanno_fs import _core_annotate_codon_fs
-# from revanno_dup import _core_annotate_nuc_dup
-from revanno_reg import _core_annotate_nuc_reg, _core_annotate_codon_reg
+from mnv import annotate_mnv_protein, annotate_mnv_cdna
+from region import annotate_region_protein, annotate_region_cdna
+from frameshift import annotate_frameshift
 
 def _core_annotate_codon(args, q, db):
 
     if args.longest: tpts = [q.gene.longest_tpt()]
     else: tpts = q.gene.tpts
     if isinstance(q, QuerySNV):
-        return _core_annotate_codon_snv(args, q, tpts, db)
+        return annotate_snv_protein(args, q, tpts, db)
     elif isinstance(q, QueryDEL):
-        return _core_annotate_codon_del(args, q, tpts, db)
+        return annotate_deletion_protein(args, q, tpts, db)
     elif isinstance(q, QueryINS):
         return annotate_insertion_protein(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
-        return _core_annotate_codon_mnv(args, q, tpts, db)
+        return annotate_mnv_protein(args, q, tpts, db)
     elif isinstance(q, QueryFrameShift):
-        return _core_annotate_codon_fs(args, q, tpts, db)
+        return annotate_frameshift(args, q, tpts, db)
     else:
-        return _core_annotate_codon_reg(args, q, tpts, db)
+        return annotate_region_protein(args, q, tpts, db)
 
 def _core_annotate_nuc(args, q, db):
 
@@ -39,21 +38,21 @@ def _core_annotate_nuc(args, q, db):
     else: tpts = q.gene.tpts
 
     if isinstance(q, QuerySNV):
-        return _core_annotate_nuc_snv(args, q, tpts, db)
+        return annotate_deletion_cdna(args, q, tpts, db)
     elif isinstance(q, QueryDEL):
-        return _core_annotate_nuc_del(args, q, tpts, db)
+        return annotate_deletion_cdna(args, q, tpts, db)
     elif isinstance(q, QueryINS):
         return annotate_insertion_cdna(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
-        return _core_annotate_nuc_mnv(args, q, tpts, db)
+        return annotate_mnv_cdna(args, q, tpts, db)
     elif isinstance(q, QueryDUP):
         return annotate_duplication_cdna(args, q, tpts, db)
     else:
-        return _core_annotate_nuc_reg(args, q, tpts, db)
+        return annotate_region_cdna(args, q, tpts, db)
 
 def _main_core_(args, q, db):
 
-    if q.is_codon:                # in codon coordinate
+    if q.is_codon:              # in codon coordinate
         _core_annotate_codon(args, q, db)
     else:                       # in nucleotide coordinate
         _core_annotate_nuc(args, q, db)

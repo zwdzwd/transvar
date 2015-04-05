@@ -2,7 +2,7 @@ from transcripts import *
 from utils import *
 from record import *
 
-def _annotate_protein_fs(args, q, t):
+def _annotate_frameshift(args, q, t):
 
     if q.alt and q.alt not in reverse_codon_table:
         sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
@@ -47,12 +47,12 @@ def _annotate_protein_fs(args, q, t):
     return r
 
 
-def annotate_protein_fs(args, q, tpts, db):
+def annotate_frameshift(args, q, tpts, db):
 
     found = False
     for t in tpts:
         try:
-            r = _annotate_protein_fs(args, q, t)
+            r = _annotate_frameshift(args, q, t)
         except IncompatibleTranscriptError:
             continue
         except UnknownChromosomeError:

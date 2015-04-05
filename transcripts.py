@@ -1000,95 +1000,6 @@ class Transcript():
         return taa_pos, taa_ref, taa_alt, str(termlen)
 
 
-    def tnuc_mnv_coding_inframe(self, beg, end, altseq, r):
-
-        """ beg and end are integer tnuc positions
-        altseq follows the tnuc (cDNA) order
-        set taa range
-        """
-
-        beg_codon_index = (beg + 2) / 3
-        end_codon_index = (end + 2) / 3
-
-        beg_codon_beg = beg_codon_index*3 - 2
-        end_codon_end = end_codon_index*3 # 1 past the last codon
-
-        old_seq = self.seq[beg_codon_beg-1:end_codon_end]
-        new_seq = self.seq[beg_codon_beg-1:beg-1]+altseq+self.seq[end:end_codon_end]
-
-        if beg_codon_index == end_codon_index:
-            r.append_info('codon_cDNA=%s' % '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
-        else:
-            r.append_info('begin_codon_cDNA=%s' % '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
-            r.append_info('end_codon_cDNA=%s' % '-'.join(map(str, range(end_codon_end-2, end_codon_end+1))))
-        
-        if len(old_seq) % 3 != 0:
-            raise IncompatibleTranscriptError(beg, end, len(self.seq))
-        
-        old_taa_seq = translate_seq(old_seq)
-        new_taa_seq = translate_seq(new_seq)
-        if old_taa_seq == new_taa_seq:
-            r.taa_range = '(=)'
-            return
-
-        # block substitution in nucleotide level may end up
-        # an insertion or deletion on the protein level
-        old_taa_seq1, new_taa_seq1, head_trim, tail_trim = double_trim(old_taa_seq, new_taa_seq)
-        if not old_taa_seq1:
-            _beg_index = beg_codon_index + head_trim - 1
-            _end_index = beg_codon_index + head_trim
-            _beg_aa = codon2aa(self.seq[_beg_index*3-3:_beg_index*3])
-            _end_aa = codon2aa(self.seq[_end_index*3-3:_end_index*3])
-            taa_set_ins(r, self, _beg_index, new_taa_seq1)
-            return
-            # return '%s%d_%s%dins%s' % (
-            #     _beg_aa, _beg_index,
-            #     _end_aa, _end_index, new_taa_seq1)
-
-        if not new_taa_seq1:
-            taa_set_del(r, self, beg_codon_index+head_trim, end_codon_index-tail_trim)
-            return
-            # if len(old_taa_seq1) == 1:
-            #     return '%s%ddel' % (old_taa_seq1[0], beg_codon_index + head_trim)
-            # else:
-            #     return '%s%d_%s%ddel' % (
-            #         old_taa_seq1[0], beg_codon_index + head_trim, 
-            #         old_taa_seq1[1], end_codon_index - tail_trim)
-        if len(old_taa_seq1) == 1:
-            if len(new_taa_seq1) == 1:
-                r.taa_range = '%s%d%s' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
-                return
-            else:
-                r.taa_range = '%s%ddelins%s' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
-                return
-            
-        r.taa_range = '%s%d_%s%ddelins%s' % (
-            old_taa_seq1[0], beg_codon_index + head_trim,
-            old_taa_seq1[-1], end_codon_index - tail_trim, new_taa_seq1)
-
-    def tnuc_mnv_coding_frameshift(self, beg, end, altseq, r):
-
-        beg_codon_index = (beg + 2) / 3
-        beg_codon_beg = beg_codon_index * 3 - 2
-        old_seq = self.seq[beg_codon_beg-1:]
-        new_seq = self.seq[beg_codon_beg-1:beg-1]+altseq+self.seq[end:]
-
-        ret = self.extend_taa_seq(beg_codon_index, old_seq, new_seq)
-        if ret:
-            taa_pos, taa_ref, taa_alt, termlen = ret
-            r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
-        else:
-            r.taa_range = '(=)'
-
-    def tnuc_mnv_coding(self, beg, end, altseq, r):
-
-        if (len(altseq) - (end-beg+1)) % 3 == 0:
-            self.tnuc_mnv_coding_inframe(beg, end, altseq, r)
-        else:
-            self.tnuc_mnv_coding_frameshift(beg, end, altseq, r)
-
 def tnuc_del_id(pbeg, pend, tnuc_delseq=None):
 
     if pbeg == pend:
@@ -1199,14 +1110,6 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
         pos += 1
 
     return pos, ''.join(_gnuc_insseq_)
-
-def taa_set_del(r, t, taa_beg, taa_end):
-
-    i1r, i2r = t.taa_roll_right_del(taa_beg, taa_end)
-    r.taa_range = t.taa_del_id(i1r, i2r)
-    i1l, i2l = t.taa_roll_left_del(taa_beg, taa_end)
-    r.append_info('left_align_protein=p.%s' % t.taa_del_id(i1l, i2l))
-    r.append_info('unalign_protein=p.%s' % t.taa_del_id(taa_beg, taa_end))
 
 def taa_set_ins(r, t, index, taa_insseq):
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
@@ -1406,68 +1309,6 @@ def _old_tnuc_set_ins(r, t, p, tnuc_insseq):
         p1l, tnuc_insseq_l = t.tnuc_roll_left_ins(p1, tnuc_insseq)
         r.append_info('left_align_cDNA=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
         r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
-
-def del_coding_inframe(args, c1, c2, p1, p2, t, r):
-
-    if p1.pos % 3 == 1:       # in phase
-        taa_set_del(r, t, c1.index, c2.index)
-    else:                       # out-of-phase
-
-        if len(c1.seq) != 3 or len(c2.seq) != 3:
-            if len(t.seq) % 3 != 0:
-                r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
-                return
-            raise IncompatibleTranscriptError()
-        
-        beg_codon_beg = c1.index*3-2
-        end_codon_end = c2.index*3
-        new_codon_seq = t.seq[beg_codon_beg-1:p1.pos-1] + \
-                        t.seq[p2.pos:end_codon_end]
-
-        if len(new_codon_seq) != 3:
-            sys.stderr.write(t.gene.name+'\t'+t.transcript_type+'\n')
-            err_print(p1)
-            err_print(p2)
-            err_print(len(t.seq))
-            err_print(c1.seq)
-            err_print(c2.seq)
-            err_print(len(t.seq) % 3)
-            err_print(t.seq[-10:])
-            if (len(t.seq)%3 != 0):
-                r.append_info('truncated_refseq_at_boundary_(codon_seq_%s)' % c1.seq)
-            raise IncompatibleTranscriptError('new_codon_seq: %s' % new_codon_seq)
-
-        r.taa_alt = codon2aa(new_codon_seq)
-        tnuc_delseq = t.seq[beg_codon_beg-1:end_codon_end]
-        taa_delseq = translate_seq(tnuc_delseq)
-        # if taa_delseq[-1] == '*':
-        if r.taa_alt == taa_delseq[-1]:
-            # G100_S200delinsS becomes a pure deletion G100_D199del
-            taa_set_del(r, t, c1.index, c2.index-1)
-        elif r.taa_alt == taa_delseq[0]:
-            # S100_G200delinsS becomes a pure deletion D101_G200del
-            taa_set_del(r, t, c1.index+1, c2.index)
-        else:
-            r.taa_range = '%s%d_%s%ddelins%s' % (
-                taa_delseq[0], c1.index,
-                taa_delseq[-1], c2.index, r.taa_alt)
-
-def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
-
-    """ assume frame-shift does not affect splicing """
-    cbeg_beg = cbeg.index*3 - 2
-    old_seq = t.seq[cbeg_beg-1:]
-    new_seq = t.seq[cbeg_beg-1:pbeg.pos-1]+t.seq[pend.pos:]
-    if not old_seq:
-        raise IncompatibleTranscriptError()
-
-    ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
-    if ret:
-        taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
-    else:
-        r.taa_range = '(=)'
-
 
 class Gene():
 

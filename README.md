@@ -618,8 +618,13 @@ transvar revanno --ccds -i 'CHD7:c.1668_1669dup'
 ```
 ```
 #!text
-CHD7:c.1668_1669dup    8    61693561-61693562 (dup) CCDS47865.1     CHD7 (+, Coding)
-    8:61693561-61693562dupTT/c.1668_1669dup/p.S557Ffs*8   RefDupSeq=TT;NatDupSeq=TT
+CHD7:c.1668_1669dup     chr8    61693562        CCDS47865.1 (protein_coding)    CHD7    +
+  chr8:g.61693561_61693562dupTT/c.1668_1669dup/p.S557Ffs*8
+  inside_[cds_in_exon_2]
+  left_align_gDNA=g.61693560_61693561insTT;unalign_gDNA=g.61693561_61693562dupTT;
+  insertion_gDNA=TT;
+  left_align_cDNA=c.1667_1668insTT;unalign_cDNA=c.1668_1669dupTT;
+  insertion_cDNA=TT
 ```
 
 Example: to annotate a duplication in intronic region,
@@ -629,10 +634,15 @@ transvar revanno --ccds -i 'CHD7:c.1666-5_1666-3dup'
 ```
 ```
 #!text
-CHD7:c.1666-5_1666-3dup 8   61693554-61693556 (dup) CCDS47865.1   CHD7 (+, Intronic)
-    8:61693554-61693556dupCTC/c.1666-5_1666-3dup/.  RefDupSeq=CTC;NatDupSeq=CTC
-```
 
+CHD7:c.1666-5_1666-3dup chr8    61693556        CCDS47865.1 (protein_coding)    CHD7    +
+  chr8:g.61693554_61693556dupCTC/c.1666-5_1666-3dup/.
+  inside_[intron_between_exon_1_and_2]
+  left_align_gDNA=g.61693553_61693554insCTC;unalign_gDNA=g.61693554_61693556dupCTC;
+  insertion_gDNA=CTC;
+  left_align_cDNA=c.1666-6_1666-5insCTC;unalign_cDNA=c.1666-5_1666-3dupCTC;
+  insertion_cDNA=CTC
+```
 
 ---
 
@@ -1141,3 +1151,4 @@ We are working on an application note on this topic :-).
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
+

@@ -1,3 +1,5 @@
+
+""" obsolete """
 import faidx
 from transcripts import *
 from record import *
