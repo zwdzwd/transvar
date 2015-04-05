@@ -125,24 +125,24 @@ def _annotate_del(args, q, db):
                 r.append_info('stop_loss')
 
             if t.strand == '+':
-                c1, p1 = t.gpos2codon(q.beg, args)
-                c2, p2 = t.gpos2codon(q.end, args)
+                c1, p1 = t.gpos2codon(q.beg)
+                c2, p2 = t.gpos2codon(q.end)
                 tnuc_delseq = gnuc_delseq
-                c1l, p1l = t.gpos2codon(gnuc_beg_l, args)
-                c2l, p2l = t.gpos2codon(gnuc_end_l, args)
+                c1l, p1l = t.gpos2codon(gnuc_beg_l)
+                c2l, p2l = t.gpos2codon(gnuc_end_l)
                 tnuc_delseq_l = gnuc_delseq_l
-                c1r, p1r = t.gpos2codon(gnuc_beg_r, args)
-                c2r, p2r = t.gpos2codon(gnuc_end_r, args)
+                c1r, p1r = t.gpos2codon(gnuc_beg_r)
+                c2r, p2r = t.gpos2codon(gnuc_end_r)
                 tnuc_delseq_r = gnuc_delseq_r
             else:
-                c1, p1 = t.gpos2codon(q.end, args)
-                c2, p2 = t.gpos2codon(q.beg, args)
+                c1, p1 = t.gpos2codon(q.end)
+                c2, p2 = t.gpos2codon(q.beg)
                 tnuc_delseq = reverse_complement(gnuc_delseq)
-                c1l, p1l = t.gpos2codon(gnuc_end_r, args)
-                c2l, p2l = t.gpos2codon(gnuc_beg_r, args)
+                c1l, p1l = t.gpos2codon(gnuc_end_r)
+                c2l, p2l = t.gpos2codon(gnuc_beg_r)
                 tnuc_delseq_l = reverse_complement(gnuc_delseq_r)
-                c1r, p1r = t.gpos2codon(gnuc_end_l, args)
-                c2r, p2r = t.gpos2codon(gnuc_beg_l, args)
+                c1r, p1r = t.gpos2codon(gnuc_end_l)
+                c2r, p2r = t.gpos2codon(gnuc_beg_l)
                 tnuc_delseq_r = reverse_complement(gnuc_delseq_l)
 
             # cDNA representation
@@ -153,27 +153,7 @@ def _annotate_del(args, q, db):
             r.append_info('unalign_cDNA=c.%s' % t.tnuc_del_id(p1.pos, p2.pos, tnuc_delseq))
 
             if t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
-                expt = False
-                if hasattr(reg, 'splice_donors') and reg.splice_donors:
-                    r.append_info('donor_splice_site_on_exon_%d_lost' % reg.splice_donors[0])
-                    expt = True
-                    
-                if hasattr(reg, 'splice_acceptors') and reg.splice_acceptors:
-                    r.append_info('acceptor_splice_site_on_exon_%d_lost' % reg.splice_acceptors[0])
-                    expt = True
-
-                if hasattr(reg, 'splice_both') and reg.splice_both:
-                    r.append_info('whole_exon_[%s]_lost' % ','.join(map(str,reg.splice_both)))
-                    expt = True
-
-                if hasattr(reg, 'cross_start') and reg.cross_start:
-                    r.append_info('cds_start_(%s:%d)_lost' % (t.chrm, t.cds_beg))
-                    expt = True
-
-                if hasattr(reg, 'cross_end') and reg.cross_end:
-                    r.append_info('cds_end_(%s:%d)_lost' % (t.chrm, t.cds_end))
-                    expt = True
-
+                expt = r.set_splice('lost')
                 # print q.beg, t.cds_end, q.end
                 # print hasattr(reg, 'cross_end')
                 # if hasattr(reg, 'cross_end'):

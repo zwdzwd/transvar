@@ -1,4 +1,5 @@
-**TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar has the following features:
+**TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation.
+TransVar has the following features:
 
  + supports HGVS nomenclature
  + supports both left-alignment and right-alignment convention in reporting indels.
@@ -41,7 +42,7 @@ Basic functionalities requires just Python 2.7. Some additional annotation also 
 
 #### program
 
-current stable version: [version 1.37](https://bitbucket.org/wanding/transvar/get/v1.37.zip)
+current stable version: [version 1.36](https://bitbucket.org/wanding/transvar/get/v1.36.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
@@ -254,6 +255,20 @@ HTR1B.p.365_369refNPxxY 6   78172014-78172028    CCDS4986.1
     HTR1B (-, coding)   6:g.78172014_78172028/c.1093_1107/p.365_369
     PRefSeq=NPIIY;NRefSeq=AAC..TAT;RefSeq=ATA..GTT
 ```
+---
+#### reverse annotation of protein range
+
+```
+#!bash
+transvar revanno --ccds -i 'ABCB11:p.200_400'
+```
+outputs
+```
+#!text
+ABCB11:p.200_400        chr2    169833195-169851872     CCDS46444.1     ABCB11  -
+  chr2:g.169833195_169851872/c.598_1200/p.T200_K400       cds_in_exons_[6,7,8,9,10,11]
+  protein_sequence=TRF..DRK;cDNA_sequence=ACA..AAA;gDNA_sequence=TTT..TGT
+```
 
 ---
 #### reverse annotation of single amino acid substitution
@@ -301,6 +316,7 @@ Note that in order to use dbSNP, one must download the dbSNP database through `t
 
 
 ---
+
 #### reverse annotation of single nucleotide variation (SNV)
 
 TransVar infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
@@ -314,6 +330,35 @@ outputs
 PIK3CA:c.1633G>A     3     178936091-178936092-178936093   CCDS43171.1
 	PIK3CA (+ coding)  3:G178936091A/c.1633G>A/p.E545K NCodonSeq=GAG;NAltCodonSeq=AAG
 ```
+
+The SNV can be in the intronic region, e.g.,
+```
+#!bash
+transvar revanno --ccds -i 'ABCB11:c.1198-8C>A'
+```
+outputs
+```
+#!text
+ABCB11:c.1198-8C>A      chr2    169833205       CCDS46444.1     ABCB11  -
+  chr2:g.169833205G>T/c.1198-8C>A/.       intron_between_exon_10_and_11   .
+```
+---
+
+#### reverse annotation of cDNA region
+
+```
+#!bash
+transvar revanno --ccds -i 'ABCB11:c.1198-8_1202'
+```
+outputs
+```
+#!text
+ABCB11:c.1198-8_1202    chr2    169833193-169833205     CCDS46444.1     ABCB11  -
+  chr2:g.169833193_169833205GGTTTCTGGAGTG/c.1198-8_1202CACTCCAGAAACC/p.400_401KP
+  from_[cds_in_exon_11]_to_[intron_between_exon_10_and_11]
+  acceptor_splice_site_on_exon_12_included
+```
+
 ---
 
 #### reverse annotation of nucleotide insertion
@@ -835,9 +880,13 @@ transvar anno -i '7:121753754insCA' --ccds
 outputs
 ```
 #!text
-7:121753754insCA    chr7    121753754      CCDS5783.1
-    AASS (-, Exonic_9)
-    chr7:g.121753754insCA/c.1063_1064insTG/p.I355Mfs*10  .
+7:121753754insCA        chr7    121753754       CCDS5783.1 (protein_coding)
+    AASS    -       chr7:g.121753754insCA/c.1064_1065insGT/p.I355Mfs*10
+    cds_in_exon_9
+	left_align_gDNA=g.121753753insAC;
+	unalign_gDNA=g.121753754insCA;
+	left_align_cDNA=c.1063_1064insTG;
+	unalign_cDNA=c.1063_1064insTG
 ```
 
 ```
@@ -846,12 +895,14 @@ transvar anno -i '17:79093270insGGGCGT' --ccds
 ```
 outputs
 ```
-17:79093270insGGGCGT    chr17   79093270        CCDS45807.1
-    AATK (-, Exonic_13)
-    chr17:g.79093273insCGTGGG/c.3993_3994insACGCCC/p.P1331_A1332insTP
-    LEFTALNG=g.79093270insGGGCGT;UALNG=g.79093270insGGGCGT;
-	LEFTALNC=c.3976_3977insCGCCCA;UALNC=c.3993_3994insACGCCC;
-	LEFTALNP=p.A1326_P1327insPT;UALNP=p.P1331_A1332insTP
+17:79093270insGGGCGT    chr17   79093270        CCDS45807.1 (protein_coding)
+    AATK    -       chr17:g.79093287insTGGGCG/c.3993_3994insACGCCC/p.P1331_A1332insTP
+    cds_in_exon_13
+	left_align_gDNA=g.79093270insGGGCGT;
+	unalign_gDNA=g.79093270insGGGCGT;
+	left_align_cDNA=c.3976_3977insCGCCCA;
+	unalign_cDNA=c.3993_3994insACGCCC;
+	left_align_protein=p.A1326_P1327insPT;unalign_protein=p.P1331_A1332insTP
 ```
 Notice the difference in the inserted sequence when left-alignment and right-alignment conventions are followed.
 

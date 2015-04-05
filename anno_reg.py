@@ -11,7 +11,7 @@ def _annotate_reg(args, q, db):
         r.reg = reg
         r.chrm = q.tok
 
-        r.set_promoter(reg)
+        r.set_promoter()
 
         if isinstance(reg, RegAnno):
 
@@ -33,7 +33,7 @@ def _annotate_reg(args, q, db):
                 #     r.info = 'gene_type=%s;' % ','.join(list(iis))
                 
             elif hasattr(reg, 't'):
-                c, p = reg.t.gpos2codon(q.pos, args)
+                c, p = reg.t.gpos2codon(q.pos)
 
                 r.append_info("is_gene_body")
                 r.tname = reg.t.format()
@@ -64,8 +64,8 @@ def _annotate_reg(args, q, db):
                 r.tname = reg.t.format()
                 r.gene = reg.t.gene.name if reg.t.gene.name else '.'
                 r.strand = reg.t.strand
-                c1, p1 = reg.t.gpos2codon(q.beg, args)
-                c2, p2 = reg.t.gpos2codon(q.end, args)
+                c1, p1 = reg.t.gpos2codon(q.beg)
+                c2, p2 = reg.t.gpos2codon(q.end)
 
                 if reg.t.strand == '+':
                     r.tnuc_range = '%s_%s' % (p1,p2)
@@ -74,8 +74,8 @@ def _annotate_reg(args, q, db):
 
                 # if protein coding transcript and not purely intronic region, set amino acid
                 if reg.t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
-                    c1, p1 = reg.t.intronic_lean(c1, p1, 'g_greater')
-                    c2, p2 = reg.t.intronic_lean(c2, p2, 'g_smaller')
+                    c1, p1 = reg.t.intronic_lean(p1, 'g_greater')
+                    c2, p2 = reg.t.intronic_lean(p2, 'g_smaller')
 
                     if len(c1.seq) != 3 or len(c2.seq) != 3:
                         r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))

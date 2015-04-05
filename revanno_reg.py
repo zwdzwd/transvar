@@ -2,9 +2,9 @@
 from err import *
 from record import *
 from transcripts import *
+from describe import *
 
-
-def nuc_revanno_reg(args, q, tpt):
+def nuc_revanno_reg(args, q, tpt, db):
 
     if q.tpt and tpt.name != q.tpt:
         raise IncompatibleTranscriptError('Transcript name unmatched')
@@ -13,7 +13,9 @@ def nuc_revanno_reg(args, q, tpt):
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
-    r.muttype = 'mnv'
+    # r.muttype = 'mnv'
+    r.gene = tpt.gene.name
+    r.strand = tpt.strand
 
     np = tpt.position_array()
     check_exon_boundary(np, q.beg)
@@ -33,38 +35,41 @@ def nuc_revanno_reg(args, q, tpt):
     if q.ref and r.natrefseq != q.ref:
         raise IncompatibleTranscriptError()
 
-    r.gnuc_range = '%d_%d%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq)
+    r.gnuc_range = '%d_%d%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq) if r.gnuc_beg != r.gnuc_end else '%d%s' % (r.gnuc_beg, r.refrefseq)
     r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
-    r.tnuc_range = '%s_%s%s' % (q.beg, q.end, r.natrefseq)
+    r.tnuc_range = '%s_%s%s' % (q.beg, q.end, r.natrefseq) if q.beg != q.end else '%s%s' % (q.beg, r.natrefseq)
 
-    reg = ''
-    if region_in_exon(np, q.beg, q.end):
-        beg_codon = tpt.cpos2codon(q.beg.pos/3)
-        end_codon = tpt.cpos2codon(q.end.pos/3)
-        print q.beg, q.end, len(tpt)
-        if beg_codon.index == end_codon.index:
-            r.taa_pos = beg_codon.index
-            r.taa_ref = codon2aa(beg_codon.seq)
+    r.reg = describe_genic(args, tpt.chrm, r.gnuc_beg, r.gnuc_end, tpt, db)
+    expt = r.set_splice('included')
+    if hasattr(r.reg, 'cover_cds') and r.reg.cover_cds: #region_in_exon(np, q.beg, q.end):
+        c1, p1 = tpt.intronic_lean(q.beg, 'c_greater')
+        c2, p2 = tpt.intronic_lean(q.end, 'c_smaller')
+        
+        # beg_codon = tpt.cpos2codon(q.beg.pos/3)
+        # end_codon = tpt.cpos2codon(q.end.pos/3)
+        if c1.index == c2.index:
+            r.taa_pos = c1.index
+            r.taa_ref = codon2aa(c1.seq)
         else:
-            r.taa_ref = translate_seq(tpt.seq[beg_codon.index*3-3:end_codon.index*3])
-            r.taa_range = 'p.%d_%d%s' % (beg_codon.index, end_codon.index, r.taa_ref)
-    elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
-        r.append_info('CrossSplitSite')
-        r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
-    else:
-        r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
+            r.taa_ref = translate_seq(tpt.seq[c1.index*3-3:c2.index*3])
+            r.taa_range = '%d_%d%s' % (c1.index, c2.index, r.taa_ref)
+    # elif not region_in_intron(np, q.beg, q.end): # if block mutation occurs across splice site
+    #     r.append_info('CrossSplitSite')
+    #     r.reg = '%s (%s, coding;intronic)' % (tpt.gene.name, tpt.strand)
+    # else:
+    #     r.reg = '%s (%s, intronic)' % (tpt.gene.name, tpt.strand)
 
     if tpt.gene.dbxref:
         r.append_info('DBXref=%s' % tpt.gene.dbxref)
 
     return r
 
-def _core_annotate_nuc_reg(args, q, tpts):
+def _core_annotate_nuc_reg(args, q, tpts, db):
 
     found = False
     for tpt in tpts:
         try:
-            r = nuc_revanno_reg(args, q, tpt)
+            r = nuc_revanno_reg(args, q, tpt, db)
         except IncompatibleTranscriptError:
             continue
         except UnknownChromosomeError:
@@ -74,7 +79,7 @@ def _core_annotate_nuc_reg(args, q, tpts):
 
     if not found:
         r = Record()
-        r.info = 'NoValidTranscriptFound'
+        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
     return
@@ -107,19 +112,21 @@ def codon_revanno_reg(args, q, tpt):
         raise IncompatibleTranscriptError('reference sequence unmatched')
     r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
     r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
-    r.taa_range = '%d_%d' % (q.beg, q.end) if q.beg != q.end else '%d' % q.beg
+    r.taa_range = '%s%d_%s%d' % (taa_natrefseq[0], q.beg, taa_natrefseq[-1], q.end) if q.beg != q.end else '%d%s' % (q.beg, taa_natrefseq[0])
     r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
-    r.reg = '%s (%s, coding)' % (tpt.gene.name, tpt.strand)
-    r.info = 'PRefSeq=%s;NRefSeq=%s;RefSeq=%s' % (printseq(taa_natrefseq),
-                                                  printseq(r.natrefseq),
-                                                  printseq(r.refrefseq))
+    r.gene = tpt.gene.name
+    r.strand = tpt.strand
+
+    r.reg = RegCDSAnno(tpt)
+    r.reg.from_taa_ranges(q.beg, q.end)
+    r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (printseq(taa_natrefseq), printseq(r.natrefseq), printseq(r.refrefseq)))
     if tpt.gene.dbxref:
         r.append_info('DBXref=%s' % tpt.gene.dbxref)
 
     return r
 
 
-def _core_annotate_codon_reg(args, q, tpts):
+def _core_annotate_codon_reg(args, q, tpts, db):
 
     found = False
     for tpt in tpts:

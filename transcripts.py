@@ -342,6 +342,36 @@ class Transcript():
         if self.strand == '-': pos_r = 2 - pos_r
         return codon, pos_r, codon.locs[pos_r]
 
+    def _tnuc2gnuc(self, tnuc_pos):
+        """ np is the position array
+        take integer as input
+        """
+        self.ensure_position_array()
+        if tnuc_pos >= len(self.np):
+            raise IncompatibleTranscriptError()
+        return self.np[tnuc_pos-1]
+
+    def tnuc2gnuc(self, tnuc_pos):
+        """ take Pos as input """
+        if self.strand == '-':
+            return self._tnuc2gnuc(tnuc_pos.pos) - tnuc_pos.tpos
+        else:
+            return self._tnuc2gnuc(tnuc_pos.pos) + tnuc_pos.tpos
+
+    def gnuc2exoninds(self, gnuc_beg, gnuc_end): # not used
+
+        exoninds = []
+        if self.strand == '+':
+            for i, (beg, end) in enumerate(self.exons):
+                if tnuc_beg <= end and tnuc_end >= beg:
+                    exoninds.append(i)
+        else:
+            for i, (beg, end) in enumerate(reversed(self.exons)):
+                if tnuc_beg <= end and tnuc_end >= beg:
+                    exoninds.append(i)
+
+        return exoninds
+    
     def _tnuc_range2exon_inds(self, tnuc_beg, tnuc_end):
 
         exoninds = []
@@ -424,6 +454,14 @@ class Transcript():
         c.strand = self.strand
         c.index = index
         return c
+
+    def _init_codon2_(self, index):
+        c = self._init_codon_(index)
+        self.ensure_position_array()
+        c.seq = self.seq[index*3-3:index*3]
+        c.locs = self.np[index*3-3:index*3]
+        return c
+
 
     # def _gpos2codon_UTR(self, gpos, np):
     #     """ UTR region """
@@ -509,7 +547,7 @@ class Transcript():
 
         return rg
 
-    def _gpos2codon_p(self, gpos, np, args, intronic_policy):
+    def _gpos2codon_p(self, gpos, np, intronic_policy):
 
         if gpos < self.cds_beg:
             p = Pos(1, gpos-self.cds_beg)
@@ -554,7 +592,7 @@ class Transcript():
                 c.locs = np[ci*3-3:ci*3]
                 return c, p
 
-    def _gpos2codon_n(self, gpos, np, args, intronic_policy):
+    def _gpos2codon_n(self, gpos, np, intronic_policy):
 
         if gpos < self.cds_beg:
             p = Pos(len(self.seq), self.cds_beg-gpos)
@@ -609,7 +647,7 @@ class Transcript():
         assert len(self.np) == len(self.seq)
         return
 
-    def gpos2codon(self, gpos, args, intronic_policy='closer'):
+    def gpos2codon(self, gpos, intronic_policy='closer'):
 
         """ intronic policy: 
         if gpos falls in intron, 
@@ -633,14 +671,15 @@ class Transcript():
         # ret = self._gpos2codon_UTR(gpos, np)
         # if ret: return ret
         if self.strand == "+":
-            return self._gpos2codon_p(gpos, self.np, args, intronic_policy)
+            return self._gpos2codon_p(gpos, self.np, intronic_policy)
         else:
-            return self._gpos2codon_n(gpos, self.np, args, intronic_policy)
+            return self._gpos2codon_n(gpos, self.np, intronic_policy)
 
-    def intronic_lean(self, c, p, direc):
+    def intronic_lean(self, p, direc):
 
         self.ensure_position_array()
         if p.tpos == 0:
+            c = self._init_codon2_(p.pos/3+1)
             return (c, p)
 
         if direc == 'g_greater':
@@ -657,24 +696,20 @@ class Transcript():
 
         if direc == 'c_greater':
             if p.tpos < 0:
+                c = self._init_codon2_(p.pos/3+1)
                 return (c, p)
             if p.tpos > 0:
                 p = Pos(p.pos+1, p.tpos-abs(self.np[p.pos]-self.np[p.pos-1]))
-                ci = p.pos/3+1
-                c = self._init_codon_(ci)
-                c.seq = self.seq[ci*3-3:ci*3]
-                c.locs = self.np[ci*3-3:ci*3]
+                c = self._init_codon2_(p.pos/3+1)
                 return (c, p)
 
         if direc == 'c_smaller':
             if p.tpos > 0:
+                c = self._init_codon2_(p.pos/3+1)
                 return (c, p)
             if p.tpos < 0:
                 p = Pos(p.pos-1, abs(self.np[p.pos-2]-self.np[p.pos-1])+p.tpos)
-                ci = p.pos/3+1
-                c = self._init_codon_(ci)
-                c.seq = self.seq[ci*3-3:ci*3]
-                c.locs = self.np[ci*3-3:ci*3]
+                c = self._init_codon2_(p.pos/3+1)
                 return (c, p)
 
     def overlap_region(self, beg, end):
@@ -1038,20 +1073,23 @@ class Transcript():
         else:
             return self.tnuc_mnv_coding_frameshift(beg, end, altseq, r)
 
-def gnuc_del_id(chrm, beg, end):
+def gnuc_del_id(chrm, beg, end, gnuc_delseq=None):
 
     if beg == end:
         gnuc_posstr = str(beg)
     else:
         gnuc_posstr = '%d_%d' % (beg, end)
+
+    if gnuc_delseq is None:
+        gnuc_delseq = faidx.getseq(chrm, beg, end)
+
     del_len = end - beg + 1
     if del_len > delrep_len:
         gnuc_delrep = str(del_len)
     else:
-        gnuc_delrep = faidx.getseq(chrm, beg, end)
+        gnuc_delrep = gnuc_delseq
 
     return '%sdel%s' % (gnuc_posstr, gnuc_delrep)
-
 
 def gnuc_roll_left_del(chrm, beg, end):
 
@@ -1100,7 +1138,7 @@ def gnuc_roll_left_ins(chrm, pos, gnuc_insseq):
         if pos <= 1:
             break
         left_base = sb.get_base(chrm, pos)
-        rightmost = gnuc_insseq[-1]
+        rightmost = _gnuc_insseq_[-1]
         if left_base != rightmost:
             break
         _gnuc_insseq_.pop()
@@ -1120,7 +1158,7 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
         if pos + 1 >= chrmlen:
             break
         right_base = sb.get_base(chrm, pos+1)
-        leftmost = gnuc_insseq[0]
+        leftmost = _gnuc_insseq_[0]
         if right_base != leftmost:
             break
         _gnuc_insseq_.popleft()
@@ -1128,6 +1166,29 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
         pos += 1
 
     return pos, ''.join(_gnuc_insseq_)
+
+def taa_set_ins(r, t, index, taa_insseq):
+    i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
+    try:
+        r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
+        i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
+        r.append_info('left_align_protein=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
+        r.append_info('unalign_protein=p.%s' % t.taa_ins_id(index, taa_insseq))
+    except IncompatibleTranscriptError:
+        r.append_info("truncated_refseq_at_boundary")
+
+def tnuc_set_ins(r, t, p, tnuc_insseq):
+
+    # obsolete
+    if p.tpos == 0:
+        p1 = p.pos
+        # note that intronic indel are NOT re-aligned,
+        # because they are anchored with respect to exon boundaries.
+        p1r, tnuc_insseq_r = t.tnuc_roll_right_ins(p1, tnuc_insseq)
+        r.tnuc_range = '%d_%dins%s' % (p1r, p1r+1, tnuc_insseq_r)
+        p1l, tnuc_insseq_l = t.tnuc_roll_left_ins(p1, tnuc_insseq)
+        r.append_info('left_align_cDNA=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
+        r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
 
 class Gene():
 

@@ -1,10 +1,13 @@
 from transcripts import *
 from utils import *
 from record import *
+from describe import *
 
-def nuc_mutation_snv_coding(r, tpt, codon, q):
+def nuc_mutation_snv_coding(args, r, tpt, codon, q, db):
 
-    r.reg = '%s (%s coding)' % (tpt.gene.name, tpt.strand)
+    r.gene = tpt.gene.name
+    r.strand = tpt.strand
+    r.reg = RegCDSAnno(tpt, codon=codon)
     r.pos = '-'.join(map(str, codon.locs))
     r.tnuc_pos = q.cpos()
     r.tnuc_ref = q.ref
@@ -29,15 +32,18 @@ def nuc_mutation_snv_coding(r, tpt, codon, q):
         mut_seq = list(codon.seq[:])
         mut_seq[(q.cpos()-1) % 3] = q.alt
         r.taa_alt = codon2aa(''.join(mut_seq))
-        r.append_info('NCodonSeq=%s;NAltCodonSeq=%s' % (codon.seq, ''.join(mut_seq)))
+        r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
 
-def nuc_mutation_snv_intronic(r, tpt, codon, q):
+def nuc_mutation_snv_intronic(args, r, tpt, codon, q, db):
 
-    r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
+    r.gene = tpt.gene.name
+    r.strand = tpt.strand
+    # r.reg = '%s (%s intronic)' % (tpt.gene.name, tpt.strand)
     i = q.cpos() - (codon.index-1)*3 - 1
     np = tpt.position_array()
     check_exon_boundary(np, q.pos)
     r.gnuc_pos = tnuc2gnuc2(np, q.pos, tpt)
+    r.reg = describe_genic_site(args, tpt.chrm, r.gnuc_pos, tpt, db)
     r.gnuc_ref = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_pos, r.gnuc_pos)
     r.pos = r.gnuc_pos
     r.gnuc_ref = faidx.refgenome.fetch_sequence(tpt.chrm, r.gnuc_pos, r.gnuc_pos)
@@ -51,7 +57,7 @@ def nuc_mutation_snv_intronic(r, tpt, codon, q):
     r.tnuc_ref = r.gnuc_ref if tpt.strand == '+' else complement(r.gnuc_ref)
     r.tnuc_alt = q.alt
 
-def nuc_mutation_snv(args, q, tpt):
+def nuc_mutation_snv(args, q, tpt, db):
 
     if q.tpt and tpt.name != q.tpt:
         raise IncompatibleTranscriptError('transcript id unmatched')
@@ -70,18 +76,18 @@ def nuc_mutation_snv(args, q, tpt):
         r.info = 'DBXref=%s' % tpt.gene.dbxref
 
     if q.pos.tpos == 0:                # coding region
-        nuc_mutation_snv_coding(r, tpt, codon, q)
+        nuc_mutation_snv_coding(args, r, tpt, codon, q, db)
     else:          # coordinates are with respect to the exon boundary
-        nuc_mutation_snv_intronic(r, tpt, codon, q)
+        nuc_mutation_snv_intronic(args, r, tpt, codon, q, db)
 
     return r
 
-def _core_annotate_nuc_snv(args, q, tpts):
+def _core_annotate_nuc_snv(args, q, tpts, db):
 
     found = False
     for tpt in tpts:
         try:
-            r = nuc_mutation_snv(args, q, tpt)
+            r = nuc_mutation_snv(args, q, tpt, db)
         except IncompatibleTranscriptError:
             continue
         except UnknownChromosomeError:
@@ -94,7 +100,7 @@ def _core_annotate_nuc_snv(args, q, tpts):
         r.tnuc_pos = q.pos
         r.tnuc_ref = q.ref
         r.tnuc_alt = q.alt
-        r.info = 'NoValidTranscriptFound'
+        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
     return
@@ -211,25 +217,26 @@ def codon_mutation_snv(args, q, tpt):
                                                     reverse_complement(tnuc_ref),
                                                     reverse_complement(tnuc_alt))
                 cdd_mnv_muts.append(gnuc_tok)
-                                                    
-        r.append_info('NCodonSeq=%s;NCddSeqs=%s' % (codon.seq, ','.join(tgt_codon_seqs)))
+
+        r.append_info('reference_codon=%s;candidate_codons=%s' % (codon.seq, ','.join(tgt_codon_seqs)))
         if cdd_snv_muts:
-            r.append_info('CddSNVMuts=%s' % ','.join(cdd_snv_muts))
+            r.append_info('candidate_snv_variants=%s' % ','.join(cdd_snv_muts))
         if cdd_mnv_muts:
-            r.append_info('CddMNVMuts=%s' % ','.join(cdd_mnv_muts))
+            r.append_info('candidate_mnv_variants=%s' % ','.join(cdd_mnv_muts))
         if args.dbsnp_fh:
             dbsnps = []
             for entry in args.dbsnp_fh.fetch(tpt.chrm, codon.locs[0]-3, codon.locs[0]):
                 f = entry.split('\t')
                 dbsnps.append('%s(%s:%s%s>%s)' % (f[2], f[0], f[1], f[3], f[4]))
             if dbsnps:
-                r.append_info('DBSNP=%s' % ','.join(dbsnps))
+                r.append_info('dbsnp=%s' % ','.join(dbsnps))
     else:
         r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
         r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
 
     return r, codon
 
+# used by codon search
 def __core_annotate_codon_snv(args, q):
     for tpt in q.gene.tpts:
         try:
@@ -242,7 +249,7 @@ def __core_annotate_codon_snv(args, q):
             continue
         yield tpt, c
 
-def _core_annotate_codon_snv(args, q, tpts):
+def _core_annotate_codon_snv(args, q, tpts, db=None):
 
     found = False
     for tpt in tpts:
@@ -258,9 +265,10 @@ def _core_annotate_codon_snv(args, q, tpts):
         r.taa_pos = q.pos
         r.taa_ref = q.ref
         r.taa_alt = q.alt
-        r.reg = '%s (%s, coding, exon %s)' % (
-            tpt.gene.name, tpt.strand,
-            tpt.tnuc_range2exon_inds(c.index*3-2, c.index*3))
+        r.gene = tpt.gene.name
+        r.strand = tpt.strand
+
+        r.reg = RegCDSAnno(tpt, c)
         r.format(q.op)
         found = True
 
@@ -269,6 +277,6 @@ def _core_annotate_codon_snv(args, q, tpts):
         r.taa_pos = q.pos
         r.taa_ref = q.ref
         r.taa_alt = q.alt
-        r.info = 'NoValidTranscriptFound'
+        r.info = 'no_valid_transcript_found'
         r.format(q.op)
 

@@ -1,5 +1,5 @@
 from record import *
-import copy
+from copy import copy
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
@@ -131,6 +131,9 @@ def describe_genic_site(args, chrm, gpos, t, db):
     reg = RegAnno()
     reg.t = t
 
+    dist2tss = gpos-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-gpos
+    site_set_promoter(args, reg, dist2tss, t)
+
     if gpos < t.exons[0][0]:
         reg.intergenic = describe_intergenic_site(args, db, chrm, pos=gpos, td=t)
         return reg
@@ -181,6 +184,62 @@ def describe_genic_site(args, chrm, gpos, t, db):
 
     raise Exception()       # you shouldn't reach here
 
+
+def describe_genic_range(args, chrm, beg, end, t, db, genes):
+
+    reg = RegSpanAnno()
+    reg.t = t
+    reg.b1 = describe_genic_site(args, chrm, beg, t, db)
+    reg.b2 = describe_genic_site(args, chrm, end, t, db)
+
+    dist2tss1 = beg-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-end
+    dist2tss2 = end-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-beg
+    reg_set_promoter(args, reg, dist2tss1, dist2tss2, t, end-beg+1)
+
+    reg.spanning = [g for g in genes if g.get_beg() >= beg and g.get_end() <= end]
+    n = len(t.exons)
+    reg.splice_donors = []
+    reg.splice_acceptors = []
+    reg.splice_both = []
+    for i, exon in enumerate(t.exons):
+        if exon[0] >= beg and exon[1] <= end:
+            if t.strand == '+':
+                reg.splice_both.append(i)
+            else:
+                reg.splice_both.append(n-i+1)
+        elif exon[0] >= beg and exon[0] <= end and i != 0:
+            if t.strand == '+':
+                reg.splice_acceptors.append(i)
+            else:
+                reg.splice_donors.append(n-i+1)
+        elif exon[1] >= beg and exon[1] <= end and i != n-1:
+            if t.strand == '+':
+                reg.splice_donors.append(i)
+            else:
+                reg.splice_acceptors.append(n-i+1)
+
+    if t.transcript_type == 'protein_coding':
+        if beg <= t.cds_beg and end >= t.cds_beg:
+            reg.cross_start = True
+        if beg <= t.cds_end and end >= t.cds_end:
+            reg.cross_end = True
+
+        for exon in enumerate(t.exons):
+            if exon[0] <= end and exon[1] >= beg:
+                reg.cover_exon = True
+        if reg.cover_exon and beg <= t.cds_end and end >= t.cds_beg:
+            reg.cover_cds = True
+                
+
+    return reg
+
+def describe_genic(args, chrm, beg, end, t, db, genes=[]):
+
+    if beg == end:
+        return describe_genic_site(args, chrm, beg, t, db)
+    else:
+        return describe_genic_range(args, chrm, beg, end, t, db, genes)
+
 def describe(args, q, db):
 
     """ return
@@ -199,59 +258,20 @@ def describe(args, q, db):
                 
             for t in tpts:
                 reg = describe_genic_site(args, q.tok, q.pos, t, db)
-                
-                dist2tss = q.pos-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-q.pos
-                site_set_promoter(args, reg, dist2tss, t)
-
                 yield reg
                 
         elif are_all_transcripts_overlap(tpts): # short range, involving overlapping genes
             
             for t in tpts:
-                reg = RegSpanAnno()
-                reg.t = t
-                reg.b1 = describe_genic_site(args, q.tok, q.beg, t, db)
-                reg.b2 = describe_genic_site(args, q.tok, q.end, t, db)
-
-                dist2tss1 = q.beg-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-q.end
-                dist2tss2 = q.end-t.exons[0][0] if t.strand == '+' else t.exons[-1][1]-q.beg
-                reg_set_promoter(args, reg, dist2tss1, dist2tss2, t, q.end-q.beg+1)
-
-                reg.spanning = [g for g in genes if g.get_beg() >= q.beg and g.get_end() <= q.end]
-                n = len(t.exons)
-                reg.splice_donors = []
-                reg.splice_acceptors = []
-                reg.splice_both = []
-                for i, exon in enumerate(t.exons):
-                    if exon[0] >= q.beg and exon[1] <= q.end:
-                        if t.strand == '+':
-                            reg.splice_both.append(i)
-                        else:
-                            reg.splice_both.append(n-i+1)
-                    elif exon[0] >= q.beg and exon[0] <= q.end and i != 0:
-                        if t.strand == '+':
-                            reg.splice_acceptors.append(i)
-                        else:
-                            reg.splice_donors.append(n-i+1)
-                    elif exon[1] >= q.beg and exon[1] <= q.end and i != n-1:
-                        if t.strand == '+':
-                            reg.splice_donors.append(i)
-                        else:
-                            reg.splice_acceptors.append(n-i+1)
-                            
-                if t.transcript_type == 'protein_coding':
-                    if q.beg <= t.cds_beg and q.end >= t.cds_beg:
-                        reg.cross_start = True
-                    if q.beg <= t.cds_end and q.end >= t.cds_end:
-                        reg.cross_end = True
+                reg = describe_genic_range(args, q.tok, q.beg, q.end, t, db, genes=genes)
                 yield reg
 
         else:   # long range, involving multiple non-overlapping genes
 
             # do not care about promoter
-            q1 = copy.copy(q)
+            q1 = copy(q)
             q1.end = q1.beg
-            q2 = copy.copy(q)
+            q2 = copy(q)
             q2.beg = q2.end
             for reg_beg in describe(args, q1, db):
                 for reg_end in describe(args, q2, db):

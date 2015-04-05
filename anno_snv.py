@@ -34,7 +34,7 @@ def _annotate_snv(args, q, db):
         
         if hasattr(reg, 't'):
 
-            c,p = reg.t.gpos2codon(q.pos, args)
+            c,p = reg.t.gpos2codon(q.pos)
 
             r.tname = reg.t.format()
             r.gene = reg.t.gene.name

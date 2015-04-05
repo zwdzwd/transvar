@@ -2,6 +2,7 @@ from transcripts import *
 from utils import *
 from record import *
 from copy import copy
+from describe import *
 
 def nuc_mutation_del_coding_inframe_inphase(args, q, tpt, r):
 
@@ -137,8 +138,7 @@ def nuc_mutation_del_coding(args, q, tpt, r):
     else:   # frame-shift
         nuc_mutation_del_coding_frameshift(args, q, tpt, r)
 
-
-def nuc_mutation_del(args, q, tpt):
+def nuc_mutation_del(args, q, tpt, db):
 
     if q.tpt and tpt.name != q.tpt:
         raise IncompatibleTranscriptError("Transcript name unmatched")
@@ -147,7 +147,8 @@ def nuc_mutation_del(args, q, tpt):
     r = Record()
     r.chrm = tpt.chrm
     r.tname = tpt.name
-    r.muttype = 'del'
+    r.gene = tpt.gene.name
+    r.strand = tpt.strand
 
     # if q.beg.pos == q.end.pos+43241: # with respect to one exome boundary
     #     _nuc_mutation_del_intronic(args, q, tpt, r)
@@ -156,11 +157,12 @@ def nuc_mutation_del(args, q, tpt):
     check_exon_boundary(np, q.beg)
     check_exon_boundary(np, q.end)
 
+    r.tnuc_range = tpt.tnuc_del_id(q.beg, q.end, q.delseq)
+    
     gnuc_beg = tnuc2gnuc2(np, q.beg, tpt)
     gnuc_end = tnuc2gnuc2(np, q.end, tpt)
     r.gnuc_beg = min(gnuc_beg, gnuc_end)
     r.gnuc_end = max(gnuc_beg, gnuc_end)
-    r.gnuc_range = '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
     tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1
     tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1
     gnuc_coding_beg = tnuc2gnuc(np, tnuc_coding_beg)
@@ -171,7 +173,10 @@ def nuc_mutation_del(args, q, tpt):
     if q.delseq and natdelseq != q.delseq:
         raise IncompatibleTranscriptError()
 
-    reg = ''
+    r.gnuc_range = gnuc_del_id(tpt.chrm, r.gnuc_beg, r.gnuc_end, refdelseq) # '%d_%ddel' % (r.gnuc_beg, r.gnuc_end)
+
+    r.reg = describe_genic(args, tpt.chrm, r.gnuc_beg, r.gnuc_end, tpt, db)
+    # reg = ''
 
     # if deletion affects coding region
     if tnuc_coding_beg <= tnuc_coding_end:
@@ -187,30 +192,23 @@ def nuc_mutation_del(args, q, tpt):
 
         r_coding = Record()
         nuc_mutation_del_coding(args, q_coding, tpt, r_coding)
+
         r.taa_range = r_coding.taa_range
-        reg += ',coding' if reg else 'coding'
-    else:
-        r.taa_range = ''
 
-    if r.gnuc_beg == r.gnuc_end:
-        r.tnuc_range = '%sdel' % (q.beg, )
-    else:
-        r.tnuc_range = '%s_%sdel' % (q.beg, q.end)
-
-    if q.beg.tpos != 0 or q.end.tpos != 0:
-        reg += ',intronic' if reg else 'intronic'
-    r.reg = '%s (%s %s)' % (tpt.gene.name, tpt.strand, reg)
-    r.info = 'RefDelSeq=%s;NatDelSeq=%s' % (refdelseq, natdelseq)
+    # if q.beg.tpos != 0 or q.end.tpos != 0:
+    #     reg += ',intronic' if reg else 'intronic'
+    # r.reg = '%s (%s %s)' % (tpt.gene.name, tpt.strand, reg)
+    r.info = 'deletion_gDNA=%s;deletion_cDNA=%s' % (refdelseq, natdelseq)
     r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
 
     return r
 
-def _core_annotate_nuc_del(args, q, tpts):
+def _core_annotate_nuc_del(args, q, tpts, db):
 
     found = False
     for tpt in tpts:
         try:
-            r = nuc_mutation_del(args, q, tpt)
+            r = nuc_mutation_del(args, q, tpt, db)
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -228,7 +226,7 @@ def _core_annotate_nuc_del(args, q, tpts):
 
     return
 
-def codon_mutation_del(args, q, tpt):
+def codon_mutation_del(args, q, tpt, db):
     
     if q.tpt and tpt.name != q.tpt:
         raise IncompatibleTranscriptError("Transcript name unmatched")
@@ -253,19 +251,19 @@ def codon_mutation_del(args, q, tpt):
 
     return r
 
-def _core_annotate_codon_del(args, q, tpts):
+def _core_annotate_codon_del(args, q, tpts, db):
 
     found = False
     for tpt in tpts:
         try:
-            r = codon_mutation_del(args, q, tpt)
+            r = codon_mutation_del(args, q, tpt, db)
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
             continue
         except UnknownChromosomeError:
             continue
-        r.muttype = 'del'
+
         r.taa_range = '%s%s_%s%sdel%s' % (q.beg_aa if q.beg_aa else '', str(q.beg),
                                           q.end_aa if q.end_aa else '', str(q.end),
                                           q.delseq)
@@ -277,7 +275,8 @@ def _core_annotate_codon_del(args, q, tpts):
     if not found:
         r = Record()
         r.taa_range = '%s%s_%s%sdel%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.delseq)
-        r.info = 'NoValidTranscriptFound'
+        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+
         r.format(q.op)
 
 

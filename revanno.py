@@ -15,47 +15,47 @@ from revanno_fs import _core_annotate_codon_fs
 from revanno_dup import _core_annotate_nuc_dup
 from revanno_reg import _core_annotate_nuc_reg, _core_annotate_codon_reg
 
-def _core_annotate_codon(args, q):
+def _core_annotate_codon(args, q, db):
 
     if args.longest: tpts = [q.gene.longest_tpt()]
     else: tpts = q.gene.tpts
     if isinstance(q, QuerySNV):
-        return _core_annotate_codon_snv(args, q, tpts)
+        return _core_annotate_codon_snv(args, q, tpts, db)
     elif isinstance(q, QueryDEL):
-        return _core_annotate_codon_del(args, q, tpts)
+        return _core_annotate_codon_del(args, q, tpts, db)
     elif isinstance(q, QueryINS):
-        return _core_annotate_codon_ins(args, q, tpts)
+        return _core_annotate_codon_ins(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
         return _core_annotate_codon_mnv(args, q, tpts)
     elif isinstance(q, QueryFrameShift):
         return _core_annotate_codon_fs(args, q, tpts)
     else:
-        return _core_annotate_codon_reg(args, q, tpts)
+        return _core_annotate_codon_reg(args, q, tpts, db)
 
-def _core_annotate_nuc(args, q):
+def _core_annotate_nuc(args, q, db):
 
     if args.longest: tpts = [q.gene.longest_tpt()]
     else: tpts = q.gene.tpts
 
     if isinstance(q, QuerySNV):
-        return _core_annotate_nuc_snv(args, q, tpts)
+        return _core_annotate_nuc_snv(args, q, tpts, db)
     elif isinstance(q, QueryDEL):
-        return _core_annotate_nuc_del(args, q, tpts)
+        return _core_annotate_nuc_del(args, q, tpts, db)
     elif isinstance(q, QueryINS):
-        return _core_annotate_nuc_ins(args, q, tpts)
+        return _core_annotate_nuc_ins(args, q, tpts, db)
     elif isinstance(q, QueryMNV):
         return _core_annotate_nuc_mnv(args, q, tpts)
     elif isinstance(q, QueryDUP):
         return _core_annotate_nuc_dup(args, q, tpts)
     else:
-        return _core_annotate_nuc_reg(args, q, tpts)
+        return _core_annotate_nuc_reg(args, q, tpts, db)
 
-def _main_core_(args, q):
+def _main_core_(args, q, db):
 
     if q.is_codon:                # in codon coordinate
-        _core_annotate_codon(args, q)
+        _core_annotate_codon(args, q, db)
     else:                       # in nucleotide coordinate
-        _core_annotate_nuc(args, q)
+        _core_annotate_nuc(args, q, db)
 
 def main_list(args, db):
 
@@ -68,7 +68,7 @@ def main_list(args, db):
             r.format(q.op)
             continue
         try:
-            _main_core_(args, q)
+            _main_core_(args, q, db)
         except UnImplementedError as e:
             err_print(line)
             raise e
@@ -89,13 +89,16 @@ def main_one(args, db):
         return
 
     q.op = args.i
-    _main_core_(args, q)
+    _main_core_(args, q, db)
 
 def main(args):
 
     config = read_config()
     replace_defaults(args, config)
     db = AnnoDB(args)
+
+    if not args.noheader:
+        print_header()
 
     if args.l:
         main_list(args, db)

@@ -36,8 +36,8 @@ def _annotate_mnv(args, q, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            c1, p1 = t.gpos2codon(q.beg, args, intronic_policy="g_greater")
-            c2, p2 = t.gpos2codon(q.end, args, intronic_policy="g_smaller")
+            c1, p1 = t.gpos2codon(q.beg, intronic_policy="g_greater")
+            c2, p2 = t.gpos2codon(q.end, intronic_policy="g_smaller")
 
             if t.strand == '+':
                 tnuc_beg = p1

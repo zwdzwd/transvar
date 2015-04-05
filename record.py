@@ -67,6 +67,37 @@ class RegAnno():
         self.intron_exon1 = None
         self.intron_exon2 = None
         self.splice = None      # 'NextToDonor' | 'Donor' | 'Acceptor' | 'NextToAcceptor'
+
+    # def from_tnuc(self, t, p):
+
+    #     self.t = t
+    #     if p.tpos == 0:
+    #         self.exonic = True
+    #         self.intronic = False
+    #         self.exon = t.tnuc2exoninds(p.pos, p.pos)[0]
+    #     elif p.tpos > 0:
+    #         if p.pos == len(t):
+    #             self.UTR = '3'
+    #             exons = t.gnuc2exoninds(self.cds_beg, p.pos)
+    #             if exons
+    #             self.exonic = False
+    #             self.intronic = False
+
+    #         else:
+    #             self.exonic = False
+    #             self.intronic = True
+    #             self.intronic_exon1 = t.tnuc2exoninds(p.pos, p.pos)[0]
+    #             self.intronic_exon2 = t.tnuc2exoninds(p.pos+1, p.pos+1)[0]
+    #     else:
+    #         if p.pos == 1:
+    #             self.UTR = '5'
+    #             self.exonic = False
+    #             self.intronic = False
+    #         else:
+    #         self.exonic = False
+    #         self.intronic = True
+    #         self.intronic_exon1 = t._tnuc_range2exon_inds(p.pos-1, p.pos-1)[0]
+    #         self.intronic_exon2 = t._tnuc_range2exon_inds(p.pos, p.pos)[0]
         
     def genic(self):
 
@@ -105,6 +136,31 @@ class RegAnno():
 def same_region(r1, r2):
     
     return r1.format() == r2.format()
+
+class RegCDSAnno():
+
+    def __init__(self, t, codon=None):
+        self.exons = []
+        self.t = t
+        if codon is not None:
+            self.from_codon(codon)
+
+    def from_codon(self, c):
+        self.exons = self.t._tnuc_range2exon_inds(c.index*3-2, c.index*3)
+
+
+    def from_taa_ranges(self, taa_beg, taa_end):
+        self.exons = self.t._tnuc_range2exon_inds(taa_beg*3-2, taa_end*3)
+        
+    def format(self):
+
+        s = ''
+        if len(self.exons) == 1:
+            s = append_inf(s, 'cds_in_exon_%s' % str(self.exons[0]))
+        else:
+            s = append_inf(s, 'cds_in_exons_[%s]' % ','.join(map(str, self.exons)))
+
+        return s
 
 class RegSpanAnno():
 
@@ -369,17 +425,46 @@ class Record():
 
     def set_promoter(self, reg):
 
-        if isinstance(reg, RegAnno):
-            if hasattr(reg, 'promoter'):
-                if reg.promoter:
+        if isinstance(self.reg, RegAnno):
+            if hasattr(self.reg, 'promoter'):
+                if self.reg.promoter:
                     for t in promoter:
                         r.append_info('promoter_region_of_[%s]' % t.gene.name)
 
-        if isinstance(reg, RegSpanAnno):
-            if hasattr(reg, 'promoter'):
-                if reg.promoter:
-                    for t, overlap, frac in reg.promoter:
+        if isinstance(self.reg, RegSpanAnno):
+            if hasattr(self.reg, 'promoter'):
+                if self.reg.promoter:
+                    for t, overlap, frac in self.reg.promoter:
                         r.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene.name, overlap, frac))
+
+    def set_splice(self, action=''):
+
+        expt = False
+        if action:
+            action = '_'+action
+
+        if isinstance(self.reg, RegSpanAnno):
+            if hasattr(self.reg, 'splice_donors') and self.reg.splice_donors:
+                self.append_info('donor_splice_site_on_exon_%d%s' % (self.reg.splice_donors[0], action))
+                expt = True
+
+            if hasattr(self.reg, 'splice_acceptors') and self.reg.splice_acceptors:
+                self.append_info('acceptor_splice_site_on_exon_%d%s' % (self.reg.splice_acceptors[0], action))
+                expt = True
+
+            if hasattr(self.reg, 'splice_both') and self.reg.splice_both:
+                self.append_info('whole_exon_[%s]%s' % (','.join(map(str,self.reg.splice_both)), action))
+                expt = True
+
+            if hasattr(self.reg, 'cross_start') and self.reg.cross_start:
+                self.append_info('cds_start_(%s:%d)%s' % (self.t.chrm, self.t.cds_beg, action))
+                expt = True
+
+            if hasattr(self.reg, 'cross_end') and self.reg.cross_end:
+                self.append_info('cds_end_(%s:%d)%s' % (self.t.chrm, self.t.cds_end, action))
+                expt = True
+        
+        return expt
 
     def gnuc(self):
         

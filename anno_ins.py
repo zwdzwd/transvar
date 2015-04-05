@@ -3,26 +3,6 @@ from record import *
 from describe import *
 # from anno_reg import __annotate_reg_intergenic
 
-def taa_set_ins(r, t, index, taa_insseq):
-    i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
-    try:
-        r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
-        i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
-        r.append_info('left_align_protein=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
-        r.append_info('unalign_protein=p.%s' % t.taa_ins_id(index, taa_insseq))
-    except IncompatibleTranscriptError:
-        r.append_info("truncated_refseq_at_boundary")
-
-def tnuc_set_ins(r, t, p1, tnuc_insseq):
-
-    # note that intronic indel are NOT re-aligned,
-    # because they are anchored with respect to exon boundaries.
-    p1r, tnuc_insseq_r = t.tnuc_roll_right_ins(p1, tnuc_insseq)
-    r.tnuc_range = '%d_%dins%s' % (p1r, p1r+1, tnuc_insseq_r)
-    p1l, tnuc_insseq_l = t.tnuc_roll_left_ins(p1, tnuc_insseq)
-    r.append_info('left_align_cDNA=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
-    r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
-
 def ins_gene_coding_inframe_inphase(t, r, c, p, insseq):
 
     taa_insseq = translate_seq(insseq)
@@ -97,6 +77,7 @@ def _annotate_ins(args, q, db):
         if q.insseq:
             # right align
             pos_r, gnuc_insseq_r = gnuc_roll_right_ins(q.tok, q.pos, q.insseq)
+            print pos_r, gnuc_insseq_r
             r.gnuc_range = '%dins%s' % (pos_r, gnuc_insseq_r)
             
             # left align
@@ -115,21 +96,38 @@ def _annotate_ins(args, q, db):
             r.strand = t.strand
 
             if t.strand == '+':
-                c, p = t.gpos2codon(q.pos, args)
+                c1, p1 = t.gpos2codon(q.pos)
+                c2, p2 = t.gpos2codon(q.pos+1)
                 tnuc_insseq = q.insseq
+                c1l, p1l = t.gpos2codon(pos_l)
+                c2l, p2l = t.gpos2codon(pos_l+1)
+                tnuc_insseq_l = gnuc_insseq_l
+                c1r, p1r = t.gpos2codon(pos_r)
+                c2r, p2r = t.gpos2codon(pos_r+1)
+                tnuc_insseq_r = gnuc_insseq_r
             else:
-                c, p = t.gpos2codon(q.pos+1, args)
+                c1, p1 = t.gpos2codon(q.pos+1)
+                c2, p2 = t.gpos2codon(q.pos)
                 tnuc_insseq = reverse_complement(q.insseq)
+                c1l, p1l = t.gpos2codon(pos_r+1)
+                c2l, p2l = t.gpos2codon(pos_r)
+                tnuc_insseq_l = reverse_complement(gnuc_insseq_r)
+                c1r, p1r = t.gpos2codon(pos_l+1)
+                c2r, p2r = t.gpos2codon(pos_l)
+                tnuc_insseq_r = reverse_complement(gnuc_insseq_l)
 
-            tnuc_set_ins(r, t, p.pos, tnuc_insseq)
+                
+            r.tnuc_range = '%s_%sins%s' % (p1r, p2r, tnuc_insseq_r)
+            r.append_info('left_align_cDNA=c.%s_%sins%s' % (p1l, p2l, tnuc_insseq_l))
+            r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p2, tnuc_insseq))
 
             # TODO: check if insertion hits start codon
 
             # infer protein level mutation if in cds
             if reg.cds and not reg.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
                 if len(tnuc_insseq) % 3 == 0:
-                    ins_gene_coding_inframe(t, r, c, p, tnuc_insseq)
+                    ins_gene_coding_inframe(t, r, c1, p1, tnuc_insseq)
                 else:
-                    ins_gene_coding_frameshift(t, r, c, p, tnuc_insseq)
+                    ins_gene_coding_frameshift(t, r, c1, p1, tnuc_insseq)
 
         r.format(q.op)
