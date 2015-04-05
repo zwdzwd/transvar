@@ -371,10 +371,13 @@ transvar revanno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
 ```
 ```
 #!text
-ACIN1:c.1932_1933insATTCAC    14     14:23548785-(ins)-23548786
-    CCDS55905.1    ACIN1 (-, coding)       
-    14:23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH
-    NatInsSeq=ATTCAC;RefInsSeq=GTGAAT;Phase=0
+ACIN1:c.1932_1933insATTCAC      chr14   23548785        CCDS9587.1      ACIN1   -
+  chr14:g.23548785insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH
+  inside_[cds_in_exon_6]
+  left_align_gDNA=g.23548785insGTGAAT;unalign_gDNA=g.23548785insGTGAAT;
+  left_align_cDNA=c.1932_1933insATTCAC;unalign_cDNA=c.1932_1933insATTCAC;
+  insertion_gDNA=GTGAAT;insertion_cDNA=ATTCAC;
+  left_align_protein=p.R644_S645insIH;unalign_protein=p.R644_S645insIH;phase=0
 ```
 `Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
 
@@ -385,20 +388,46 @@ transvar revanno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
 ```
 ```
 #!text
-ACIN1:c.1930_1931insATTCAC   14     14:23548787-(ins)-23548788      CCDS9587.1
-    ACIN1 (-, coding)       14:23548787_23548788insGTGAAT/c.1930_1931insATTCAC/p.S643_R644insHS
-    NatInsSeq=C(ATTCAC)GT;RefInsSeq=GTGAAT;Phase=1
+ACIN1:c.1930_1931insATTCAC      chr14   23548787        CCDS9587.1      ACIN1   -
+  chr14:g.23548792insTGTGAA/c.1930_1931insATTCAC/p.S643_R644insHS
+  inside_[cds_in_exon_6]
+  left_align_gDNA=g.23548787insGTGAAT;unalign_gDNA=g.23548787insGTGAAT;
+  left_align_cDNA=c.1925_1926insTTCACA;unalign_cDNA=c.1930_1931insATTCAC;
+  insertion_gDNA=GTGAAT;insertion_cDNA=ATTCAC;
+  left_align_protein=p.R642_S643insSH;unalign_protein=p.S643_R644insHS;phase=1
+```
+Reverse annotation can result in different identifiers after left/right alignments, e.g., 
+```
+#!bash
+transvar revanno --ccds -i 'AATK:c.3976_3977insCGCCCA'
+```
+results in
+```
+#!text
+AATK:c.3976_3977insCGCCCA       chr17   79093287        CCDS45807.1     AATK    -
+  chr17:g.79093287insTGGGCG/c.3993_3994insACGCCC/p.P1331_A1332insTP
+  inside_[cds_in_exon_13]
+  left_align_gDNA=g.79093270insGGGCGT;
+  unalign_gDNA=g.79093287insTGGGCG;
+  left_align_cDNA=c.3976_3977insCGCCCA;
+  unalign_cDNA=c.3976_3977insCGCCCA;
+  insertion_gDNA=TGGGCG;insertion_cDNA=CGCCCA;
+  left_align_protein=p.A1326_P1327insPT;unalign_protein=p.A1326_P1327insPT;phase=1
 ```
 
-Example: to annotate a **frame-shift insertion**,
+Example: to annotate a **frame-shift insertion**, frameshift mutations have not alternative alignments. Hence only cDNA and gDNA have left alignment and unalignment reports.
 ```
 #!bash
 transvar revanno --ccds -i 'AAAS:c.1225_1226insG'
 ```
 ```
 #!text
-AAAS:c.1225_1226insG    12   12:53702089-53702090    CCDS8856.1    AAAS (-, coding)
-    12:53702089_53702090insC/c.1225_1226insG/p.E409Gfs*17   NatInsSeq=G;RefInsSeq=C
+AAAS:c.1225_1226insG    chr12   53702089        CCDS8856.1      AAAS    -
+  chr12:g.53702093insC/c.1225_1226insG/p.E409Gfs*17
+  inside_[cds_in_exon_13]
+  left_align_gDNA=g.53702089insC;unalign_gDNA=g.53702089insC;
+  left_align_cDNA=c.1221_1222insG;unalign_cDNA=c.1225_1226insG;
+  insertion_gDNA=C;insertion_cDNA=G
 ```
 
 Example: to annotate an **intronic insertion**,
@@ -406,13 +435,17 @@ Example: to annotate an **intronic insertion**,
 #!bash
 transvar revanno --ccds -i 'ADAM33:c.991-3_991-2insC'
 ```
+outputs
 ```
 #!text
-ADAM33:c.991-3_991-2insC   20   20:3654141-3654142-3654143-(3654145)-(ins)-(3654146)
-    CCDS13058.1     ADAM33 (-, intronic)     20:3654145_3654146insG/c.991-3_991-2insC/.
-    RefInsSeq=G;NatInsSeq=C
+ADAM33:c.991-3_991-2insC        chr20   3654145 CCDS13058.1     ADAM33  -
+  chr20:g.3654151insG/c.991-3_991-2insC/.
+  inside_[intron_between_exon_10_and_11]
+  left_align_gDNA=g.3654145insG;unalign_gDNA=g.3654145insG;
+  left_align_cDNA=c.991-9_991-8insC;unalign_cDNA=c.991-3_991-2insC;
+  insertion_gDNA=G;insertion_cDNA=C
 ```
-In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`.
+In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`. But cDNA and gDNA identifier are right-aligned according to their natural order, respecting HGVS nomenclature.
 
 ---
 

@@ -43,9 +43,7 @@ def nuc_mutation_ins_coding(args, q, t, r, db):
                 c2 = t.cpos2codon((q.pos.pos+3)/3)
                 if not c1 or not c2:
                     raise IncompatibleTranscriptError()
-                r.taa_range = '%s%d_%s%dins%s' % (codon2aa(c1.seq), c1.index, 
-                                                  codon2aa(c2.seq), c2.index, 
-                                                  taa_insseq)
+                taa_set_ins(r, t, c1.index, taa_insseq)
                 r.append_info('phase=0')
         else:
             # insertion is after 1st or 2nd base of a codon
@@ -70,13 +68,11 @@ def nuc_mutation_ins_coding(args, q, t, r, db):
             if taa_ref == taa_insseq[0]:
                 # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
                 taa_ref_after = codon2aa(t.seq[codon.index*3:codon.index*3+3])
-                r.taa_range = '%s%d_%s%dins%s' % (taa_ref, codon.index,
-                                                  taa_ref_after, codon.index+1, taa_insseq[1:])
+                taa_set_ins(r, t, codon.index, taa_insseq[1:])
             elif taa_ref == taa_insseq[-1]:
                 # SdelinsHS becomes a pure insertion [codon_before]_[current_codon]insH
                 taa_ref_before = codon2aa(t.seq[codon.index*3-6:codon.index*3-3])
-                r.taa_range = '%s%d_%s%dins%s' % (taa_ref_before, codon.index-1,
-                                                  taa_ref, codon.index, taa_insseq[:-1])
+                taa_set_ins(r, t, codon.index-1, taa_insseq[:-1])
             else:
                 r.taa_range = '%s%ddelins%s' % (taa_ref, codon.index, taa_insseq)
             # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
@@ -154,7 +150,7 @@ def _core_annotate_nuc_ins(args, q, tpts, db):
             t.ensure_seq()
             r = annotate_nuc_ins(args, q, t, db)
             expt = r.set_splice()
-            if not expt:
+            if not expt and r.reg.entirely_in_cds():
                 nuc_mutation_ins_coding(args, q, t, r, db)
         except IncompatibleTranscriptError:
             continue
