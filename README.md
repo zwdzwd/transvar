@@ -534,32 +534,35 @@ transvar revanno --ccds -i 'A1CF:c.508_509CC>TT'
 ```
 ```
 #!text
-A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7241.1
-      A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
-A1CF:c.508_509CC>TT     10      52595929-52595930       CCDS7242.1
-      A1CF (-, coding)        10:52595929_52595930GG>AA/c.508_509CC>TT/p.P170L        .
+A1CF:c.508_509CC>TT     chr10   52595929-52595930       CCDS7241.1      A1CF    -
+  chr10:g.52595929_52595930GG>AA/c.508_509CC>TT/p.P170L
+  inside_[cds_in_exon_4]  codon_cDNA=508-509-510
 ```
 
-Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion.
+Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion, where protein alternative alignment should be reported.
 ```
 #!bash
 transvar revanno --ccds -i 'CSRNP1.c.1212_1224>GGAGGAGGAA'
 ```
 ```
 #!text
-CSRNP1.c.1212_1224>GGAGGAGGAA   3    39185092-39185104   CCDS2682.1   CSRNP1 (-, coding)
-    3:39185092_39185104TTCCTCCTCCTCC>TTCCTCCTCC/c.1212_1224GGAGGAGGAGGAA>GGAGGAGGAA/p.E408del .
+CSRNP1.c.1212_1224>GGAGGAGGAA   chr3    39185092-39185104       CCDS2682.1      CSRNP1  -
+  chr3:g.39185092_39185104TTCCTCCTCCTCC>TTCCTCCTCC/c.1212_1224GGAGGAGGAGGAA>GGAGGAGGAA/p.E411del
+  inside_[cds_in_exon_4]
+  begin_codon_cDNA=1210-1211-1212;end_codon_cDNA=1222-1223-1224;
+  left_align_protein=p.E405del;unalign_protein=p.E408del
 ```
 
-Example: to annotate a block substitution in **intronic region**,
+Likewise, block substitution could occur to **intronic region**,
 ```
 #!bash
 transvar revanno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
 ```
 ```
 #!text
-A1CF:c.1460+2_1460+3TG>CC    10    52570797-52570798   CCDS7241.1    A1CF (-, intronic)
-    10:52570797_52570798CA>GG/c.1460+2_1460+3TG>CC/.        .
+A1CF:c.1460+2_1460+3TG>CC       chr10   52570797-52570798       CCDS7241.1      A1CF    -
+  chr10:g.52570797_52570798CA>GG/c.1460+2_1460+3TG>CC/.
+  inside_[intron_between_exon_9_and_10]   .
 ```
 
 When block substitution occurs **across splice site**, TransVar put a tag in the info fields and does not predict amino acid change.
@@ -569,8 +572,11 @@ transvar revanno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
 ```
 ```
 #!text
-A1CF:c.1459_1460+3ATGTG>CC    10   52570797-52570801   CCDS7241.1   A1CF (-, coding;intronic)
-	10:52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.    CrossSplitSite
+
+A1CF:c.1459_1460+3ATGTG>CC      chr10   52570797-52570801       CCDS7241.1      A1CF    -
+  chr10:g.52570797_52570801CACAT>GG/c.1459_1460+3ATGTG>CC/.
+  from_[intron_between_exon_9_and_10]_to_[cds_in_exon_9]
+  donor_splice_site_on_exon_10
 ```
 
 ---
@@ -629,7 +635,7 @@ AATK.p.P1331_A1332insTP chr17   79093267        CCDS45807.1     AATK    -
   chr17:g.(79093267ins6)/c.(3997_3991ins6)/p.P1331_A1332insTP
   cds_in_exon_13
   left_align_protein=p.A1326_P1327insPT;unalign_protein=p.P1331_A1332insTP;
-  insertion_cDNA=ACACCT;insertion_gDNA=AGGTGT;inaccurate
+  insertion_cDNA=ACACCT;insertion_gDNA=AGGTGT;imprecise
 ```
 
 #### reverse annotation of amino acid deletion
@@ -651,10 +657,9 @@ transvar revanno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
 ```
 ```
 #!text
-ABCC3:p.Y556_V557delinsRRR   17   48745254-48745259 (block substitution)  CCDS32681.1
-    ABCC3 (+, coding)
-    17:48745254-48745259TACGTG>AGGAGGAGG/c.1666-1671TACGTG>AGGAGGAGG/p.Y556_V557delinsRRR
-    CddNatAlt=AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT+AGG/AGA/CGA/CGC/CGG/CGT;Uncertain
+ABCC3:p.Y556_V557delinsRRR      chr17   48745254-48745259       CCDS32681.1 (protein_coding)   ABCC3   +
+  chr17:g.48745254_48745259TACGTG>AGGAGGAGG/c.1666_1671TACGTG>AGGAGGAGG/p.Y556_V557delinsRRR
+  cds_in_exon_13  imprecise
 ```
 
 #### reverse annotation of amino acid frame-shift
@@ -665,8 +670,8 @@ transvar revanno --ccds -i 'A1BG.p.G132fs*2'
 ```
 ```
 #!text
-A1BG.p.G132fs*2 19      58863866-58863867-58863868      CCDS12976.1     A1BG (-, coding)
-    19:58863860-58863868/c.394-402/p.G132fs*2       RoughEstimateFromFrameShift
+A1BG.p.G132fs*2 chr19   58863866-58863867-58863868      CCDS12976.1 (protein_coding)    A1BG    -
+  chr19:g.58863860-58863868/c.394-402/p.G132fs*2  cds_in_exon_4   imprecise
 ```
 
 ---

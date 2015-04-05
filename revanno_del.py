@@ -238,7 +238,7 @@ def _core_annotate_nuc_del(args, q, tpts, db):
 
         r = Record()
         r.chrm = t.chrm
-        r.tname = t.name
+        r.tname = t.format()
         r.gene = t.gene.name
         r.strand = t.strand
 
@@ -271,7 +271,7 @@ def codon_mutation_del(args, q, t, db):
 
     r = Record()
     r.chrm = t.chrm
-    r.tname = t.name
+    r.tname = t.format()
 
     if q.beg*3 > len(t) or q.end*3 > len(t):
         raise IncompatibleTranscriptError('codon nonexistent')
@@ -305,7 +305,7 @@ def _core_annotate_codon_del(args, q, tpts, db):
                                           q.end_aa if q.end_aa else '', str(q.end),
                                           q.delseq)
         r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
-        r.info = 'Uncertain' if r.info == '.' else (r.info+';Uncertain')
+        r.append_info('imprecise')
         r.format(q.op)
         found = True
 

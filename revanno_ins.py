@@ -85,7 +85,7 @@ def annotate_nuc_ins(args, q, t, db):
 
     r = Record()
     r.chrm = t.chrm
-    r.tname = t.name
+    r.tname = t.format()
     r.gene = t.gene.name
     r.strand = t.strand
     if t.strand == '+':
@@ -196,7 +196,7 @@ def codon_mutation_ins(args, q, t, db):
     tnuc_insseq = aaseq2nuc(q.insseq)
     r.append_info('insertion_cDNA='+tnuc_insseq)
     r.append_info('insertion_gDNA=%s' % (tnuc_insseq if t.strand == '+' else reverse_complement(tnuc_insseq)))
-    r.append_info('inaccurate')
+    r.append_info('imprecise')
     r.pos = gnuc_beg-1
 
     return r
@@ -208,7 +208,7 @@ def _core_annotate_codon_ins(args, q, tpts, db):
         try:
             r = codon_mutation_ins(args, q, t, db)
             r.chrm = t.chrm
-            r.tname = t.name
+            r.tname = t.format()
             r.gene = t.gene.name
             r.strand = t.strand
             r.format(q.op)

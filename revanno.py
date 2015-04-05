@@ -28,7 +28,7 @@ def _core_annotate_codon(args, q, db):
     elif isinstance(q, QueryMNV):
         return _core_annotate_codon_mnv(args, q, tpts, db)
     elif isinstance(q, QueryFrameShift):
-        return _core_annotate_codon_fs(args, q, tpts)
+        return _core_annotate_codon_fs(args, q, tpts, db)
     else:
         return _core_annotate_codon_reg(args, q, tpts, db)
 

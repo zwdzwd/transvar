@@ -118,7 +118,7 @@ def codon_revanno_reg(args, q, tpt):
     r.strand = tpt.strand
 
     r.reg = RegCDSAnno(tpt)
-    r.reg.from_taa_ranges(q.beg, q.end)
+    r.reg.from_taa_range(q.beg, q.end)
     r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (printseq(taa_natrefseq), printseq(r.natrefseq), printseq(r.refrefseq)))
     if tpt.gene.dbxref:
         r.append_info('DBXref=%s' % tpt.gene.dbxref)
@@ -141,7 +141,8 @@ def _core_annotate_codon_reg(args, q, tpts, db):
 
     if not found:
         r = Record()
-        r.info = 'NoValidTranscriptFound'
+        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+
         r.format(q.op)
 
     return

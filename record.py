@@ -151,7 +151,7 @@ class RegCDSAnno():
     def from_cindex(self, ci):
         self.exons = self.t._tnuc_range2exon_inds(ci*3-2, ci*3)
 
-    def from_taa_ranges(self, taa_beg, taa_end):
+    def from_taa_range(self, taa_beg, taa_end):
         self.exons = self.t._tnuc_range2exon_inds(taa_beg*3-2, taa_end*3)
         
     def format(self):

@@ -53,7 +53,7 @@ def _annotate_mnv(args, q, db):
 
             if r.reg.entirely_in_cds():
                 try:
-                    r.taa_range = t.tnuc_mnv_coding(tnuc_beg.pos, tnuc_end.pos, tnuc_altseq, r)
+                    t.tnuc_mnv_coding(tnuc_beg.pos, tnuc_end.pos, tnuc_altseq, r)
                 except IncompatibleTranscriptError as inst:
                     _beg, _end, _seqlen = inst
                     r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))

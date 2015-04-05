@@ -1010,7 +1010,8 @@ class Transcript():
         old_taa_seq = translate_seq(old_seq)
         new_taa_seq = translate_seq(new_seq)
         if old_taa_seq == new_taa_seq:
-            return '(=)'
+            r.taa_range = '(=)'
+            return
 
         # block substitution in nucleotide level may end up
         # an insertion or deletion on the protein level
@@ -1020,26 +1021,32 @@ class Transcript():
             _end_index = beg_codon_index + head_trim
             _beg_aa = codon2aa(self.seq[_beg_index*3-3:_beg_index*3])
             _end_aa = codon2aa(self.seq[_end_index*3-3:_end_index*3])
-            return '%s%d_%s%dins%s' % (
-                _beg_aa, _beg_index,
-                _end_aa, _end_index, new_taa_seq1)
+            taa_set_ins(r, self, _beg_index, new_taa_seq1)
+            return
+            # return '%s%d_%s%dins%s' % (
+            #     _beg_aa, _beg_index,
+            #     _end_aa, _end_index, new_taa_seq1)
 
         if not new_taa_seq1:
-            if len(old_taa_seq1) == 1:
-                return '%s%ddel' % (old_taa_seq1[0], beg_codon_index + head_trim)
-            else:
-                return '%s%d_%s%ddel' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim, 
-                    old_taa_seq1[1], end_codon_index - tail_trim)
+            taa_set_del(r, self, beg_codon_index+head_trim, end_codon_index-tail_trim)
+            return
+            # if len(old_taa_seq1) == 1:
+            #     return '%s%ddel' % (old_taa_seq1[0], beg_codon_index + head_trim)
+            # else:
+            #     return '%s%d_%s%ddel' % (
+            #         old_taa_seq1[0], beg_codon_index + head_trim, 
+            #         old_taa_seq1[1], end_codon_index - tail_trim)
         if len(old_taa_seq1) == 1:
             if len(new_taa_seq1) == 1:
-                return '%s%d%s' % (
+                r.taa_range = '%s%d%s' % (
                     old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+                return
             else:
-                return '%s%ddelins%s' % (
+                r.taa_range = '%s%ddelins%s' % (
                     old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+                return
             
-        return '%s%d_%s%ddelins%s' % (
+        r.taa_range = '%s%d_%s%ddelins%s' % (
             old_taa_seq1[0], beg_codon_index + head_trim,
             old_taa_seq1[-1], end_codon_index - tail_trim, new_taa_seq1)
 
@@ -1053,16 +1060,16 @@ class Transcript():
         ret = self.extend_taa_seq(beg_codon_index, old_seq, new_seq)
         if ret:
             taa_pos, taa_ref, taa_alt, termlen = ret
-            return '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+            r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
         else:
-            return '(=)'
+            r.taa_range = '(=)'
 
     def tnuc_mnv_coding(self, beg, end, altseq, r):
 
         if (len(altseq) - (end-beg+1)) % 3 == 0:
-            return self.tnuc_mnv_coding_inframe(beg, end, altseq, r)
+            self.tnuc_mnv_coding_inframe(beg, end, altseq, r)
         else:
-            return self.tnuc_mnv_coding_frameshift(beg, end, altseq, r)
+            self.tnuc_mnv_coding_frameshift(beg, end, altseq, r)
 
 def tnuc_del_id(pbeg, pend, tnuc_delseq=None):
 
