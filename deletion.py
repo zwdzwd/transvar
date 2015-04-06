@@ -148,7 +148,6 @@ def annotate_deletion_protein(args, q, tpts, db):
 
         taa_set_del(r, t, q.beg, q.end)
         r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
-        # r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
         r.append_info('imprecise')
         r.format(q.op)
         found = True

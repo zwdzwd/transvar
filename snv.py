@@ -80,10 +80,11 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.tname = t.format()
             if t.gene.dbxref:
                 r.info = 'DBXref=%s' % t.gene.dbxref
-
-            if q.pos.tpos == 0:                # coding region
+                
+            # coding region
+            if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
                 snv_coding(args, r, t, codon, q, db)
-            else:          # coordinates are with respect to the exon boundary
+            else:  # coordinates are with respect to the exon boundary
                 snv_intronic(args, r, t, codon, q, db)
 
         except IncompatibleTranscriptError:

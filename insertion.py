@@ -125,7 +125,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
             expt = r.set_splice()
-            if not expt and r.reg.entirely_in_cds():
+            if (not expt) and r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
                 tnuc_coding_ins(args, tnuc_ins, t, r, db)
         except IncompatibleTranscriptError:
             continue
@@ -228,7 +228,9 @@ def annotate_insertion_gdna(args, q, db):
             # TODO: check if insertion hits start codon
 
             # infer protein level mutation if in cds
-            if reg.cds and not reg.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
+            # this skips insertion that occur to sites next to donor or acceptor splicing site.
+            expt = t.set_splice()
+            if (not expt) and reg.cds and t.transcript_type=='protein_coding':
                 try:
                     tnuc_coding_ins(args, tnuc_ins, t, r, db)
                 except IncompatibleTranscriptError:
@@ -284,7 +286,7 @@ def annotate_duplication_cdna(args, q, tpts, db):
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
             r.reg = describe_genic(args, t.chrm, gnuc_ins.beg_r, gnuc_ins.end_r, t, db)
             expt = r.set_splice()
-            if r.reg.entirely_in_cds() and not expt:
+            if r.reg.entirely_in_cds() and not expt and t.transcript_type=='protein_coding':
                 tnuc_coding_ins(args, tnuc_ins, t, r, db)
 
         except IncompatibleTranscriptError:
