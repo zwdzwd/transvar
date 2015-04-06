@@ -6,6 +6,7 @@ from transcripts import *
 from describe import *
 from insertion import taa_set_ins
 from deletion import taa_set_del
+from snv import annotate_snv_gdna
 
 def annotate_mnv_cdna(args, q, tpts, db):
 
@@ -149,15 +150,28 @@ def annotate_mnv_gdna(args, q, db):
     else:                       # make sure q.refseq exists
         q.refseq = gnuc_refseq
 
+    gnuc_altseq = q.altseq
+    gnuc_refseq, gnuc_altseq, head_trim, tail_trim = double_trim(gnuc_refseq, gnuc_altseq)
+    q.beg += head_trim
+    q.end -= tail_trim
+
+    if q.beg == q.end and len(gnuc_altseq) == 1:
+        q.pos = q.beg
+        q.ref = gnuc_refseq
+        q.alt = gnuc_altseq
+        annotate_snv_gdna(args, q, db)
+        return
+    
     for reg in describe(args, q, db):
 
         r = Record()
         r.reg = reg
         r.chrm = q.tok
         r.pos = '%d-%d' % (q.beg, q.end)
-        r.gnuc_refseq = q.refseq
-        r.gnuc_altseq = q.altseq
-        r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, r.gnuc_refseq, r.gnuc_altseq)
+        if q.beg == q.end:
+            r.gnuc_range = '%d%s>%s' % (q.beg, gnuc_refseq, gnuc_altseq)
+        else:
+            r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, gnuc_refseq, gnuc_altseq)
 
         if hasattr(reg, 't'):
 
@@ -166,25 +180,26 @@ def annotate_mnv_gdna(args, q, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            c1, p1 = t.gpos2codon(q.beg, intronic_policy="g_greater")
-            c2, p2 = t.gpos2codon(q.end, intronic_policy="g_smaller")
-
+            c1, p1 = t.gpos2codon(q.beg)
+            c2, p2 = t.gpos2codon(q.end)
             if t.strand == '+':
                 tnuc_beg = p1
                 tnuc_end = p2
-                tnuc_refseq = q.refseq
-                tnuc_altseq = q.altseq
+                tnuc_refseq = gnuc_refseq
+                tnuc_altseq = gnuc_altseq
             else:
                 tnuc_beg = p2
                 tnuc_end = p1
-                tnuc_refseq = reverse_complement(q.refseq)
-                tnuc_altseq = reverse_complement(q.altseq)
+                tnuc_refseq = reverse_complement(gnuc_refseq)
+                tnuc_altseq = reverse_complement(gnuc_altseq)
             r.tnuc_range = '%s_%s%s>%s' % (tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
 
             expt = r.set_splice()
-            if (not expt) and r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
+            if r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
                 try:
-                    tnuc_mnv_coding(t, tnuc_beg.pos, tnuc_end.pos, tnuc_altseq, r)
+                    _, tnuc_beg_adj = t.intronic_lean(tnuc_beg, 'c_greater')
+                    _, tnuc_end_adj = t.intronic_lean(tnuc_end, 'c_smaller')
+                    tnuc_mnv_coding(t, tnuc_beg_adj.pos, tnuc_end_adj.pos, tnuc_altseq, r)
                 except IncompatibleTranscriptError as inst:
                     if len(inst) == 3:
                         _beg, _end, _seqlen = inst

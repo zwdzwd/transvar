@@ -179,14 +179,16 @@ def describe_genic_site(args, chrm, gpos, t, db):
 
             if gpos == exon[1]:
                 if t.strand == '+':
-                    reg.splice = 'next_to_donor_of_exon_%d' % exind
+                    reg.splice = 'next_to_donor'
                 else:
-                    reg.splice = 'next_to_acceptor_of_exon_%d' % exind
+                    reg.splice = 'next_to_acceptor'
+                reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, exon[1]+1)
             if gpos == exon[0]:
                 if t.strand == '+':
-                    reg.splice = 'next_to_acceptor_of_exon_%d' % exind
+                    reg.splice = 'next_to_acceptor'
                 else:
-                    reg.splice = 'next_to_donor_of_exon_%d' % exind
+                    reg.splice = 'next_to_donor'
+                reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, exon[0]-1)
             reg.exon = exind
             return reg
         if i > 0:
@@ -201,14 +203,16 @@ def describe_genic_site(args, chrm, gpos, t, db):
                     reg.intron_exon2 = exind+1
                 if gpos in [pexon[1]+1, pexon[1]+2]:
                     if t.strand == '+':
-                        reg.splice = 'donor_of_exon_%d' % exind
+                        reg.splice = 'donor'
                     else:
-                        reg.splice = 'acceptor_of_exon_%d' % exind
+                        reg.splice = 'acceptor'
+                    reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, pexon[1]+1)
                 if gpos in [exon[0]-2, exon[0]-1]:
                     if t.strand == '-':
-                        reg.splice = 'donor_of_exon_%d' % exind
+                        reg.splice = 'donor'
                     else:
-                        reg.splice = 'acceptor_of_exon_%d' % exind
+                        reg.splice = 'acceptor'
+                    reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, exon[0]-1)
 
                 return reg
 
@@ -234,19 +238,19 @@ def describe_genic_range(args, chrm, beg, end, t, db, genes):
     for i, exon in enumerate(t.exons):
         if exon[0] >= beg and exon[1] <= end:
             if t.strand == '+':
-                reg.splice_both.append(i)
+                reg.splice_both.append(i+1)
             else:
-                reg.splice_both.append(n-i+1)
+                reg.splice_both.append(n-i)
         elif exon[0] >= beg and exon[0] <= end and i != 0:
             if t.strand == '+':
-                reg.splice_acceptors.append(i)
+                reg.splice_acceptors.append((i+1, t.chrm, exon[0]-1))
             else:
-                reg.splice_donors.append(n-i+1)
+                reg.splice_donors.append((n-i, t.chrm, exon[0]-1))
         elif exon[1] >= beg and exon[1] <= end and i != n-1:
             if t.strand == '+':
-                reg.splice_donors.append(i)
+                reg.splice_donors.append((i+1, t.chrm, exon[1]+1))
             else:
-                reg.splice_acceptors.append(n-i+1)
+                reg.splice_acceptors.append((n-i, t.chrm, exon[1]+1))
 
     if t.transcript_type == 'protein_coding':
         if beg <= t.cds_beg and end >= t.cds_beg:

@@ -201,8 +201,6 @@ def annotate_insertion_protein(args, q, tpts, db):
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
-
-
 def annotate_insertion_gdna(args, q, db):
 
     for reg in describe(args, q, db):

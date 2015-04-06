@@ -66,7 +66,7 @@ class RegAnno():
         self.intronic = False
         self.intron_exon1 = None
         self.intron_exon2 = None
-        self.splice = None      # 'NextToDonor' | 'Donor' | 'Acceptor' | 'NextToAcceptor'
+        # self.splice = None      # 'NextToDonor' | 'Donor' | 'Acceptor' | 'NextToAcceptor'
 
     # def from_tnuc(self, t, p):
 
@@ -451,41 +451,45 @@ class Record():
             action = '_'+action
 
         if isinstance(self.reg, RegSpanAnno):
-            if hasattr(self.reg, 'splice_donors') and self.reg.splice_donors:
-                self.append_info('donor_splice_site_on_exon_%d%s' % (self.reg.splice_donors[0], action))
+            if hasattr(self.reg, 'splice_donors'):
                 expt = True
+                for exind, chrm, spos in self.reg.splice_donors:
+                    self.append_info(
+                        'donor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
 
-            if hasattr(self.reg, 'splice_acceptors') and self.reg.splice_acceptors:
-                self.append_info('acceptor_splice_site_on_exon_%d%s' % (self.reg.splice_acceptors[0], action))
+            if hasattr(self.reg, 'splice_acceptors'):
                 expt = True
+                for exind, chrm, spos in self.reg.splice_acceptors:
+                    self.append_info(
+                        'acceptor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
 
             if hasattr(self.reg, 'splice_both') and self.reg.splice_both:
-                self.append_info('whole_exon_[%s]%s' % (','.join(map(str,self.reg.splice_both)), action))
                 expt = True
+                self.append_info('whole_exon_[%s]%s' % (','.join(map(str,self.reg.splice_both)), action))
 
             if hasattr(self.reg, 'cross_start') and self.reg.cross_start:
-                self.append_info('cds_start_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_beg, action))
                 expt = True
+                self.append_info('cds_start_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_beg, action))
 
             if hasattr(self.reg, 'cross_end') and self.reg.cross_end:
-                self.append_info('cds_end_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
                 expt = True
+                self.append_info('cds_end_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
         else:
             if hasattr(self.reg, 'splice'):
+                expt = True
                 self.append_info(self.reg.splice)
-                expt = True
             if hasattr(self.reg, 'cds_beg'):
+                expt = True
                 self.append_info('cds_start_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_beg))
-                expt = True
             if hasattr(self.reg, 'cds_end'):
+                expt = True
                 self.append_info('cds_end_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_end))
-                expt = True
             if hasattr(self.reg, 'tss'):
+                expt = True
                 self.append_info('transcription_start_at_%s:%d' % (self.reg.t.chrm, self.reg.tss))
-                expt = True
             if hasattr(self.reg, 'tes'):
-                self.append_info('transcription_end_at_%s:%d' % (self.reg.t.chrm, self.reg.tes))
                 expt = True
+                self.append_info('transcription_end_at_%s:%d' % (self.reg.t.chrm, self.reg.tes))
         
         return expt
 
