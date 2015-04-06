@@ -110,7 +110,7 @@ class RegAnno():
 
         return self.cds
 
-    def format(self):
+    def format(self, with_name=False):
 
         if hasattr(self, 'intergenic'):
             return self.intergenic.format()
@@ -130,6 +130,8 @@ class RegAnno():
                     f = append_inf(f, 'cds_in_exon_%d' % self.exon)
                 else:
                     f = append_inf(f, 'noncoding_exon_%d' % self.exon)
+            if with_name:
+                f = append_inf(f, self.t.gene.name)
             return f
 
 
@@ -214,12 +216,16 @@ class RegSpanAnno():
         if same_region(self.b1, self.b2):
             return 'inside_[%s]' % (self.b1.format(),)
         else:
-            s = 'from_[%s]_to_[%s]' % (self.b1.format(), self.b2.format())
+            if hasattr(self.b1, 't') and hasattr(self.b2, 't') and self.b1.t == self.b2.t:
+                s = 'from_[%s]_to_[%s]' % (self.b1.format(), self.b2.format())
+            else:
+                s = 'from_[%s]_to_[%s]' % (self.b1.format(with_name=True),
+                                           self.b2.format(with_name=True))
             if self.spanning:
                 if len(self.spanning) <= 5:
                     s += '_spanning_[%s]' % ','.join([g.name for g in self.spanning])
                 else:
-                    s += '_spanning_[%d_genes]' % len(self.genes)
+                    s += '_spanning_[%d_genes]' % len(self.spanning)
 
             return s
 
@@ -425,19 +431,19 @@ class Record():
         else:
             self.info = app
 
-    def set_promoter(self, reg):
+    def set_promoter(self):
 
         if isinstance(self.reg, RegAnno):
             if hasattr(self.reg, 'promoter'):
                 if self.reg.promoter:
                     for t in promoter:
-                        r.append_info('promoter_region_of_[%s]' % t.gene.name)
+                        self.append_info('promoter_region_of_[%s]' % t.gene.name)
 
         if isinstance(self.reg, RegSpanAnno):
             if hasattr(self.reg, 'promoter'):
                 if self.reg.promoter:
                     for t, overlap, frac in self.reg.promoter:
-                        r.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene.name, overlap, frac))
+                        self.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene.name, overlap, frac))
 
     def set_splice(self, action=''):
 
@@ -459,11 +465,11 @@ class Record():
                 expt = True
 
             if hasattr(self.reg, 'cross_start') and self.reg.cross_start:
-                self.append_info('cds_start_(%s:%d)%s' % (self.t.chrm, self.t.cds_beg, action))
+                self.append_info('cds_start_(%s:%d)%s' % (self.reg.t.chrm, self.reg.t.cds_beg, action))
                 expt = True
 
             if hasattr(self.reg, 'cross_end') and self.reg.cross_end:
-                self.append_info('cds_end_(%s:%d)%s' % (self.t.chrm, self.t.cds_end, action))
+                self.append_info('cds_end_(%s:%d)%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
                 expt = True
         
         return expt

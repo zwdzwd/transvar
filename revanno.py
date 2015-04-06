@@ -38,7 +38,7 @@ def _core_annotate_nuc(args, q, db):
     else: tpts = q.gene.tpts
 
     if isinstance(q, QuerySNV):
-        return annotate_deletion_cdna(args, q, tpts, db)
+        return annotate_snv_cdna(args, q, tpts, db)
     elif isinstance(q, QueryDEL):
         return annotate_deletion_cdna(args, q, tpts, db)
     elif isinstance(q, QueryINS):

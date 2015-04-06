@@ -27,7 +27,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
     gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(t.chrm, gnuc_beg, gnuc_end)
     gnuc_delseq_r = faidx.getseq(t.chrm, gnuc_beg_r, gnuc_end_r)
     r.gnuc_range = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r)
-    r.pos = '%d_%d' % (gnuc_beg_r, gnuc_end_r)
+    r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
 
     # left-align
     gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(t.chrm, gnuc_beg, gnuc_end)
@@ -124,6 +124,8 @@ def annotate_deletion_protein(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
+            r.gene = t.gene.name
+            r.strand = t.strand
 
             if q.beg*3 > len(t) or q.end*3 > len(t):
                 raise IncompatibleTranscriptError('codon nonexistent')
@@ -136,7 +138,7 @@ def annotate_deletion_protein(args, q, tpts, db):
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
             r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
             r.gnuc_range = '%d_%d' % (gnuc_beg, gnuc_end)
-            r.pos = '%d-%d (deletion)' % (gnuc_beg, gnuc_end)
+            r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -145,7 +147,8 @@ def annotate_deletion_protein(args, q, tpts, db):
             continue
 
         taa_set_del(r, t, q.beg, q.end)
-        r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
+        r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
+        # r.reg = '%s (%s, coding)' % (t.gene.name, t.strand)
         r.append_info('imprecise')
         r.format(q.op)
         found = True
@@ -184,6 +187,7 @@ def annotate_deletion_gdna(args, q, db):
             r.append_info(warning)
 
         r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r)
+        r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
         r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l))
         r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end))
 

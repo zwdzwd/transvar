@@ -189,9 +189,22 @@ def annotate_region_gdna(args, q, db):
 
             r.gnuc_range = '%d_%d' % (q.beg, q.end)
             r.pos = '%d-%d' % (q.beg, q.end)
-
+            r.set_splice('included')
+            
             if hasattr(reg, 't'):
                 r.tname = reg.t.format()
+            else:
+                if hasattr(reg.b1, 't') and hasattr(reg.b2, 't'):
+                    if reg.b1.t == reg.b2.t:
+                        r.tname = reg.b1.t.format()
+                    else:
+                        r.tname = '%s,%s' % (reg.b1.t.format(), reg.b2.t.format())
+                elif hasattr(reg.b1, 't'):
+                    r.tname = reg.b1.t.format()+','
+                elif hasattr(reg.b2, 't'):
+                    r.tname = ','+reg.b2.t.format()
+
+            if hasattr(reg, 't'):
                 r.gene = reg.t.gene.name if reg.t.gene.name else '.'
                 r.strand = reg.t.strand
                 c1, p1 = reg.t.gpos2codon(q.beg)

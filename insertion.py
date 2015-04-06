@@ -11,7 +11,9 @@ def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
 
     beg_codon_index = (tnuc_pos + 2) / 3
     beg_codon_beg = beg_codon_index*3 - 2
-    if beg_codon_beg+3 > len(t.seq):
+    if beg_codon_beg+2 > len(t.seq):
+        r.append_info("truncated_refseq_at_boundary")
+        err_print('truncated refseq at boundary codon end: %d, transcript length: %d' % (beg_codon_beg+3, len(t.seq)))
         raise IncompatibleTranscriptError()
 
     old_seq = t.seq[beg_codon_beg-1:]
@@ -67,7 +69,8 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(new_seq)/3):
                 if codon2aa(new_seq[i*3:i*3+3]) == '*':
-                    return nuc_mutation_ins_coding_frameshift(args, q, t, r)
+                    tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
+                    return
                 taa_insseq += codon2aa(new_seq[i*3:i*3+3])
 
             if not codon: raise IncompatibleTranscriptError()
@@ -226,12 +229,17 @@ def annotate_insertion_gdna(args, q, db):
 
             # infer protein level mutation if in cds
             if reg.cds and not reg.splice: # this skips insertion that occur to sites next to donor or acceptor splicing site.
-                c1 = t.cpos2codon((tnuc_ins.beg.pos+2)/3)
-                p1 = tnuc_ins.beg
-                if len(tnuc_ins.insseq) % 3 == 0:
-                    ins_gene_coding_inframe(t, r, c1, p1, tnuc_ins.insseq)
-                else:
-                    ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
+                try:
+                    tnuc_coding_ins(args, tnuc_ins, t, r, db)
+                except IncompatibleTranscriptError:
+                    pass
+
+                # c1 = t.cpos2codon((tnuc_ins.beg.pos+2)/3)
+                # p1 = tnuc_ins.beg
+                # if len(tnuc_ins.insseq) % 3 == 0:
+                #     ins_gene_coding_inframe(t, r, c1, p1, tnuc_ins.insseq)
+                # else:
+                #     ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
 
         r.format(q.op)
         
@@ -294,3 +302,15 @@ def annotate_duplication_cdna(args, q, tpts, db):
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
+
+
+def taa_set_ins(r, t, index, taa_insseq):
+    i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
+    try:
+        r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
+        i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
+        r.append_info('left_align_protein=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
+        r.append_info('unalign_protein=p.%s' % t.taa_ins_id(index, taa_insseq))
+    except IncompatibleTranscriptError:
+        r.append_info("truncated_refseq_at_boundary")
+

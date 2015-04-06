@@ -4,14 +4,14 @@ from err import *
 from record import *
 from transcripts import *
 from describe import *
-
+from insertion import taa_set_ins
+from deletion import taa_set_del
 
 def annotate_mnv_cdna(args, q, tpts, db):
 
     found = False
     for t in tpts:
         try:
-            r = _annotate_mnv_cdna(args, q, t, db)
 
             if q.tpt and t.name != q.tpt:
                 raise IncompatibleTranscriptError("Transcript name unmatched")
@@ -140,7 +140,7 @@ def annotate_mnv_gdna(args, q, db):
         
         r = Record()
         r.chrm = q.tok
-        r.pos = '%d-%d (block substitution)' % (q.beg, q.end)
+        r.pos = '%d-%d' % (q.beg, q.end)
         r.info = "invalid_reference_seq_%s_(expect_%s)" % (q.refseq, gnuc_refseq)
         r.format(q.op)
         err_print("Warning: %s invalid reference %s (expect %s), maybe wrong reference?" % (q.op, q.refseq, gnuc_refseq))
@@ -154,6 +154,7 @@ def annotate_mnv_gdna(args, q, db):
         r = Record()
         r.reg = reg
         r.chrm = q.tok
+        r.pos = '%d-%d' % (q.beg, q.end)
         r.gnuc_refseq = q.refseq
         r.gnuc_altseq = q.altseq
         r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, r.gnuc_refseq, r.gnuc_altseq)
@@ -251,11 +252,11 @@ def tnuc_mnv_coding(t, beg, end, altseq, r):
             _end_index = beg_codon_index + head_trim
             _beg_aa = codon2aa(t.seq[_beg_index*3-3:_beg_index*3])
             _end_aa = codon2aa(t.seq[_end_index*3-3:_end_index*3])
-            taa_set_ins(r, self, _beg_index, new_taa_seq1)
+            taa_set_ins(r, t, _beg_index, new_taa_seq1)
             return
 
         if not new_taa_seq1:
-            taa_set_del(r, self, beg_codon_index+head_trim, end_codon_index-tail_trim)
+            taa_set_del(r, t, beg_codon_index+head_trim, end_codon_index-tail_trim)
             return
 
         if len(old_taa_seq1) == 1:

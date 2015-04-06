@@ -15,8 +15,8 @@ def reg_set_promoter(args, reg, dist2tss1, dist2tss2, t, qlen):
     if dist2tss2 >= -args.prombeg and dist2tss1 <= args.promend:
         if not hasattr(reg, 'promoter'):
             reg.promoter = []
-        olen = min(dist2tss2, args.promend)-max(dist2tss1, -args.prombeg)
-        reg.promoter.append((t, olen, float(olen)/qlen)*100)
+        olen = min(dist2tss2, args.promend)-max(dist2tss1, -args.prombeg)+1
+        reg.promoter.append((t, olen, float(olen)/qlen*100))
 
 def get_transcripts(args, q, db):
     
@@ -261,7 +261,6 @@ def describe(args, q, db):
                 yield reg
                 
         elif are_all_transcripts_overlap(tpts): # short range, involving overlapping genes
-            
             for t in tpts:
                 reg = describe_genic_range(args, q.tok, q.beg, q.end, t, db, genes=genes)
                 yield reg

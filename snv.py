@@ -8,7 +8,7 @@ def snv_coding(args, r, t, codon, q, db):
     r.gene = t.gene.name
     r.strand = t.strand
     r.reg = RegCDSAnno(t, codon=codon)
-    r.pos = '-'.join(map(str, codon.locs))
+    r.pos = '%d-%d' % (codon.locs[0], codon.locs[-1])
     r.tnuc_pos = q.cpos()
     r.tnuc_ref = q.ref
     r.tnuc_alt = q.alt
@@ -32,6 +32,10 @@ def snv_coding(args, r, t, codon, q, db):
         mut_seq = list(codon.seq[:])
         mut_seq[(q.cpos()-1) % 3] = q.alt
         r.taa_alt = codon2aa(''.join(mut_seq))
+        if r.taa_ref != r.taa_alt:
+            r.append_info('missense')
+        elif r.taa_alt:
+            r.append_info('synonymous')
         r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
 
 def snv_intronic(args, r, t, codon, q, db):
@@ -73,7 +77,7 @@ def annotate_snv_cdna(args, q, tpts, db):
 
             r = Record()
             r.chrm = t.chrm
-            r.tname = t.name
+            r.tname = t.format()
             if t.gene.dbxref:
                 r.info = 'DBXref=%s' % t.gene.dbxref
 
@@ -127,10 +131,10 @@ def _annotate_snv_protein(args, q, t):
 
     r = Record()
     r.chrm = t.chrm
-    r.tname = t.name
+    r.tname = t.format()
     if t.gene.dbxref:
-        r.info = 'DBXref=%s' % t.gene.dbxref
-    r.pos = '-'.join(map(str, codon.locs))
+        r.append_info('DBXref=%s' % t.gene.dbxref)
+    r.pos = '%d-%d' % (codon.locs[0], codon.locs[-1])
 
     # if alternative amino acid is given
     # filter the target mutation set to those give
@@ -256,21 +260,17 @@ def annotate_snv_protein(args, q, tpts, db=None):
         except UnknownChromosomeError as e:
             sys.stderr.write(str(e))
             continue
-        r.taa_pos = q.pos
-        r.taa_ref = q.ref
-        r.taa_alt = q.alt
+        
         r.gene = t.gene.name
         r.strand = t.strand
-
+        set_taa_snv(r, q.pos, q.ref, q.alt)
         r.reg = RegCDSAnno(t, c)
         r.format(q.op)
         found = True
 
     if not found:
         r = Record()
-        r.taa_pos = q.pos
-        r.taa_ref = q.ref
-        r.taa_alt = q.alt
+        set_taa_snv(r, q.pos, q.ref, q.alt)
         r.info = 'no_valid_transcript_found'
         r.format(q.op)
 
@@ -330,12 +330,23 @@ def annotate_snv_gdna(args, q, db):
                     else:
                         alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
                     r.taa_alt = codon2aa(alt_seq)
-                    if r.taa_alt == r.taa_ref:
+                    if r.taa_alt != r.taa_ref:
+                        r.append_info('missense')
+                    elif r.taa_alt:
                         r.append_info('synonymous')
-                    else:
-                        r.append_info('nonsynonymous')
 
                 r.append_info('codon_pos=%s' % (c.locformat(),))
                 r.append_info('ref_codon_seq=%s' % c.seq)
                 
         r.format(q.op)
+
+
+def set_taa_snv(r, pos, ref, alt):
+
+    r.taa_pos = pos
+    r.taa_ref = ref
+    r.taa_alt = alt
+    if r.taa_ref != r.taa_alt:
+        r.append_info('missense')
+    elif r.taa_ref:
+        r.append_info('synonymous')

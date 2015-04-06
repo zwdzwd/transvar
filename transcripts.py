@@ -1111,16 +1111,6 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
 
     return pos, ''.join(_gnuc_insseq_)
 
-def taa_set_ins(r, t, index, taa_insseq):
-    i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
-    try:
-        r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
-        i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
-        r.append_info('left_align_protein=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
-        r.append_info('unalign_protein=p.%s' % t.taa_ins_id(index, taa_insseq))
-    except IncompatibleTranscriptError:
-        r.append_info("truncated_refseq_at_boundary")
-
 class NucInsertion():
 
     def __init__(self):
