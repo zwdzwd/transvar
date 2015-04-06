@@ -148,7 +148,7 @@ def annotate_region_gdna(args, q, db):
             if hasattr(reg, 'intergenic'):
 
                 r.gnuc_pos = q.pos if hasattr(q,'pos') else q.beg
-                r.pos = r.gnus_pos
+                r.pos = r.gnuc_pos
 
                 # # # annotate extra noncoding features
                 # if 'GENCODE' in args.ffhs:

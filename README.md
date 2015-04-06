@@ -1144,6 +1144,7 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
  + forward annotation of structural variation breakpoints
  + begin codon and end codon in deletion
  + distinguish non-transcribable element and suppress promoter setting (like "retained intron")
+ + dbsnp id 
 
 ## Bug report and feature request
 
