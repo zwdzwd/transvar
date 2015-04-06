@@ -31,7 +31,11 @@ def main_list(args, db):
 
     for q, line in list_parse_mutation(args, muttype='g'):
         q.tok = normalize_chrm(q.tok)
-        _main_core_(args, db, q)
+        try:
+            _main_core_(args, db, q)
+        except IncompatibleTranscriptError:
+            err_print(line)
+            raise Exception()
 
 def main_one(args, db):
 

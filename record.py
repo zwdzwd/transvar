@@ -395,9 +395,9 @@ def normalize_reg(q):
         err_print('Region end %d negative, truncated to 0.')
         q.end = 0    
 
-template = "{r.chrm}\t{r.pos}\t{r.tname}\t{r.gene}\t{r.strand}\t{gnuc}/{tnuc}/{taa}\t{reg}\t{r.info}"
+template = "{r.tname}\t{r.gene}\t{r.strand}\t{gnuc}/{tnuc}/{taa}\t{reg}\t{r.info}"
 def print_header():
-    print 'input\tchrm\tpos\ttranscript\tgene\tstrand\tcoordinates(gDNA/cDNA/protein)\tregion\tinfo'
+    print 'input\ttranscript\tgene\tstrand\tcoordinates(gDNA/cDNA/protein)\tregion\tinfo'
     
 class Record():
 
@@ -405,7 +405,6 @@ class Record():
 
         self.tname = '.'        # transcript name
         self.chrm = '.'         # genomic chromosome
-        self.pos = '.'          # genomic position string
         self.gene = '.'
         self.strand = '.'
         self.reg = '.'          # region
@@ -465,11 +464,27 @@ class Record():
                 expt = True
 
             if hasattr(self.reg, 'cross_start') and self.reg.cross_start:
-                self.append_info('cds_start_(%s:%d)%s' % (self.reg.t.chrm, self.reg.t.cds_beg, action))
+                self.append_info('cds_start_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_beg, action))
                 expt = True
 
             if hasattr(self.reg, 'cross_end') and self.reg.cross_end:
-                self.append_info('cds_end_(%s:%d)%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
+                self.append_info('cds_end_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
+                expt = True
+        else:
+            if hasattr(self.reg, 'splice'):
+                self.append_info(self.reg.splice)
+                expt = True
+            if hasattr(self.reg, 'cds_beg'):
+                self.append_info('cds_start_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_beg))
+                expt = True
+            if hasattr(self.reg, 'cds_end'):
+                self.append_info('cds_end_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_end))
+                expt = True
+            if hasattr(self.reg, 'tss'):
+                self.append_info('transcription_start_at_%s:%d' % (self.reg.t.chrm, self.reg.tss))
+                expt = True
+            if hasattr(self.reg, 'tes'):
+                self.append_info('transcription_end_at_%s:%d' % (self.reg.t.chrm, self.reg.tes))
                 expt = True
         
         return expt

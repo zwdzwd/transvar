@@ -318,7 +318,7 @@ def annotate_snv_gdna(args, q, db):
                 r.tnuc_ref = complement(r.gnuc_ref)
                 r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
 
-            if p.tpos == 0:
+            if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
                 if c.seq in standard_codon_table:
                     if c.seq in standard_codon_table:
                         r.taa_ref = standard_codon_table[c.seq]
@@ -329,6 +329,7 @@ def annotate_snv_gdna(args, q, db):
                         alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
                     else:
                         alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
+
                     r.taa_alt = codon2aa(alt_seq)
                     if r.taa_alt != r.taa_ref:
                         r.append_info('missense')

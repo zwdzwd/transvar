@@ -44,7 +44,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
 
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
             expt = r.set_splice()
-            if (not expt) and r.reg.entirely_in_cds():
+            if t.transcript_type == 'protein_coding' and (not expt) and r.reg.entirely_in_cds():
                 try:
                     tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r)
                 except IncompatibleTranscriptError as inst:
@@ -181,12 +181,16 @@ def annotate_mnv_gdna(args, q, db):
                 tnuc_altseq = reverse_complement(q.altseq)
             r.tnuc_range = '%s_%s%s>%s' % (tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
 
-            if r.reg.entirely_in_cds():
+            expt = r.set_splice()
+            if (not expt) and r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
                 try:
                     tnuc_mnv_coding(t, tnuc_beg.pos, tnuc_end.pos, tnuc_altseq, r)
                 except IncompatibleTranscriptError as inst:
-                    _beg, _end, _seqlen = inst
-                    r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+                    if len(inst) == 3:
+                        _beg, _end, _seqlen = inst
+                        r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+                    else:
+                        raise inst
 
         elif isinstance(reg, RegSpanAnno):
 
@@ -205,9 +209,12 @@ def annotate_mnv_gdna(args, q, db):
                     strands.append(reg.b2.t.strand)
                     genes.append(reg.b2.t.gene.name)
 
-            r.tname = ','.join(tnames)
-            r.strand = ','.join(strands)
-            r.gene = ','.join(genes)
+            if tnames:
+                r.tname = ','.join(tnames)
+            if strands:
+                r.strand = ','.join(strands)
+            if genes:
+                r.gene = ','.join(genes)
 
         r.format(q.op)
 
@@ -250,8 +257,6 @@ def tnuc_mnv_coding(t, beg, end, altseq, r):
         if not old_taa_seq1:
             _beg_index = beg_codon_index + head_trim - 1
             _end_index = beg_codon_index + head_trim
-            _beg_aa = codon2aa(t.seq[_beg_index*3-3:_beg_index*3])
-            _end_aa = codon2aa(t.seq[_end_index*3-3:_end_index*3])
             taa_set_ins(r, t, _beg_index, new_taa_seq1)
             return
 

@@ -156,14 +156,37 @@ def describe_genic_site(args, chrm, gpos, t, db):
                 if gpos >= t.cds_beg and gpos <= t.cds_end:
                     reg.cds = True
                 if gpos == t.cds_beg:
-                    reg.start = True
+                    if t.strand == '+':
+                        reg.cds_beg = t.cds_beg
+                    else:
+                        reg.cds_end = t.cds_beg
                 if gpos == t.cds_end:
-                    reg.stop = True
+                    if t.strand == '+':
+                        reg.cds_end = t.cds_end
+                    else:
+                        reg.cds_beg = t.cds_end
+
+                if gpos == t.beg:
+                    if t.strand == '+':
+                        reg.tss = t.beg
+                    else:
+                        reg.tes = t.beg
+                if gpos == t.end:
+                    if t.strand == '+':
+                        reg.tes = t.end
+                    else:
+                        reg.tss = t.end
 
             if gpos == exon[1]:
-                reg.splice = 'next_to_donor' if t.strand == '+' else 'next_to_acceptor'
+                if t.strand == '+':
+                    reg.splice = 'next_to_donor_of_exon_%d' % exind
+                else:
+                    reg.splice = 'next_to_acceptor_of_exon_%d' % exind
             if gpos == exon[0]:
-                reg.splice = 'next_to_acceptor' if t.strand == '+' else 'next_to_donor'
+                if t.strand == '+':
+                    reg.splice = 'next_to_acceptor_of_exon_%d' % exind
+                else:
+                    reg.splice = 'next_to_donor_of_exon_%d' % exind
             reg.exon = exind
             return reg
         if i > 0:
@@ -177,9 +200,16 @@ def describe_genic_site(args, chrm, gpos, t, db):
                     reg.intron_exon1 = exind
                     reg.intron_exon2 = exind+1
                 if gpos in [pexon[1]+1, pexon[1]+2]:
-                    reg.splice = 'donor' if t.strand == '+' else 'acceptor'
+                    if t.strand == '+':
+                        reg.splice = 'donor_of_exon_%d' % exind
+                    else:
+                        reg.splice = 'acceptor_of_exon_%d' % exind
                 if gpos in [exon[0]-2, exon[0]-1]:
-                    reg.splice = 'acceptor' if t.strand == '-' else 'donor'
+                    if t.strand == '-':
+                        reg.splice = 'donor_of_exon_%d' % exind
+                    else:
+                        reg.splice = 'acceptor_of_exon_%d' % exind
+
                 return reg
 
     raise Exception()       # you shouldn't reach here
