@@ -94,8 +94,7 @@ def main_one(args, db):
 def main(args):
 
     config = read_config()
-    replace_defaults(args, config)
-    db = AnnoDB(args)
+    db = AnnoDB(args, config)
 
     if not args.noheader:
         print_header()

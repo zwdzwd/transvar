@@ -16,18 +16,17 @@ def _annotate_region_cdna(args, q, t, db):
     r.gene = t.gene.name
     r.strand = t.strand
 
-    np = t.position_array()
-    check_exon_boundary(np, q.beg)
-    check_exon_boundary(np, q.end)
+    t.check_exon_boundary(q.beg)
+    t.check_exon_boundary(q.end)
 
-    gnuc_beg = tnuc2gnuc2(np, q.beg, t)
-    gnuc_end = tnuc2gnuc2(np, q.end, t)
+    gnuc_beg = t.tnuc2gnuc(q.beg)
+    gnuc_end = t.tnuc2gnuc(q.end)
     r.gnuc_beg = min(gnuc_beg, gnuc_end)
     r.gnuc_end = max(gnuc_beg, gnuc_end)
     tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1 # base after intron
     tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1 # base before intron
-    gnuc_coding_beg = tnuc2gnuc(np, tnuc_coding_beg)
-    gnuc_coding_end = tnuc2gnuc(np, tnuc_coding_end)
+    gnuc_coding_beg = t._tnuc2gnuc(tnuc_coding_beg)
+    gnuc_coding_end = t._tnuc2gnuc(tnuc_coding_end)
 
     r.refrefseq = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_beg, r.gnuc_end)
     r.natrefseq = reverse_complement(r.refrefseq) if t.strand == '-' else r.refrefseq

@@ -24,9 +24,8 @@ def annotate_mnv_cdna(args, q, tpts, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            t.ensure_position_array()
-            check_exon_boundary(t.np, q.beg)
-            check_exon_boundary(t.np, q.end)
+            t.check_exon_boundary(q.beg)
+            t.check_exon_boundary(q.end)
 
             _gnuc_beg = t.tnuc2gnuc(q.beg)
             _gnuc_end = t.tnuc2gnuc(q.end)

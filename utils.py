@@ -4,17 +4,28 @@ import faidx
 
 class AnnoDB():
     
-    def __init__(self, args):
+    def __init__(self, args, config):
+
+        if args.refversion:
+            self.rv = config.refversion
+        elif 'refversion' in config.defaults():
+            self.rv = config.get('DEFAULT', 'refversion')
+        else:
+            err_print('Please specify reference version, either in transvar.cfg, or as argument --refversion')
+            sys.exit(1)
+        
+        replace_defaults(args, config)
+        
         faidx.init_refgenome(args.reference if args.reference else None)
         self.session = None
         self.name2gene = None
         self.thash = None
-        args.ffhs = {}
-        if args.dbsnp:
-            import pysam
-            args.dbsnp_fh = pysam.Tabixfile(args.dbsnp)
-        else:
-            args.dbsnp_fh = None
+        # args.ffhs = {}
+        # if args.dbsnp:
+        #     import pysam
+        #     args.dbsnp_fh = pysam.Tabixfile(args.dbsnp)
+        # else:
+        #     args.dbsnp_fh = None
         
         if args.sql:
             import sqlmodel
@@ -41,6 +52,49 @@ class AnnoDB():
                 self.source.append('Ensembl')
         else:
             self.name2gene, self.thash = parse_annotation(args)
+
+        self.config = config
+        self.args = args
+        self.resources = {}
+        self.init_resource()
+
+    def init_resource(self):
+
+        for rname in ['dbsnp']:
+            if self.config.has_option(self.rv, 'dbsnp'):
+                import tabix
+                self.resources['dbsnp'] = tabix.open(self.config.get(self.rv, 'dbsnp'))
+
+
+    def _query_dbsnp_(self, chrm, beg, end, ref=None, alt=None):
+
+        if 'dbsnp' in self.resources:
+            ret = self.resources['dbsnp'].query(normalize_chrm_dbsnp(chrm), int(beg), int(end))
+            dbsnps = []
+            for fields in ret:
+                alts = fields[4].split(',')
+                if ref is not None and ref != fields[3]:
+                    continue
+                if alt is not None and alt not in alts:
+                    continue
+                for alt in alts:
+                    dbsnps.append('%s(%s:%s%s>%s)' % (fields[2], chrm, fields[1], fields[3], alt))
+
+        return dbsnps
+        
+    def query_dbsnp_codon(self, r, chrm, codon):
+
+        dbsnps = []
+        for i in xrange(3):
+            dbsnps.extend(self._query_dbsnp_(chrm, codon.locs[i], codon.locs[i]))
+        if dbsnps:
+            r.append_info('dbsnp='+','.join(dbsnps))
+        
+    def query_dbsnp(self, r, chrm, pos, ref=None, alt=None):
+
+        dbsnps = self._query_dbsnp_(chrm, pos, pos, ref, alt)
+        if dbsnps:
+            r.append_info('dbsnp='+','.join(dbsnps))
 
     def get_gene(self, name):
 
@@ -217,6 +271,18 @@ def normalize_chrm(chrm):
 
     return chrm
 
+def normalize_chrm_dbsnp(chrm):
+
+    if chrm == '23' or chrm == 'chr23': chrm = 'X'
+    if chrm == '24' or chrm == 'chr24': chrm = 'Y'
+    if chrm == '25' or chrm == 'chr25': chrm = 'MT'
+    if chrm == 'M' or chrm == 'chrM': chrm = 'MT'
+    if chrm.startswith('chr'):
+        chrm = chrm[3:]
+
+    return chrm
+
+        
 def reflen(chrm):
     return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
 
@@ -410,7 +476,7 @@ def replace_defaults(args, config):
             setattr(args, argname, get_config(config, argname, rv))
 
     argnames = ['ensembl', 'reference', 'refseq', 'ccds',
-                'gencode', 'ucsc', 'custom', 'kg', 'aceview', 'dbsnp']
+                'gencode', 'ucsc', 'custom', 'kg', 'aceview']
     for argname in argnames:
         _set_arg_(argname, rv)
 
@@ -524,8 +590,6 @@ def parser_add_annotation(parser):
                         help='A customized transcript table with sequence (config key: custom)')
     parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
                         help='use uniprot ID rather than gene id (config key: uniprot)')
-    parser.add_argument('--dbsnp', nargs='?', default=None, const='_DEF_',
-                        help='dbSNP information in annotation')
     parser.add_argument('--sql', action='store_true', help='SQL mode')
 
 

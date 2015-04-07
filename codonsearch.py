@@ -19,7 +19,7 @@ def _main_core_(args, q, db):
         q.ref = q.refseq
         q.alt = ''
 
-    for t1, c1 in __core_annotate_codon_snv(args, q):
+    for t1, c1 in __core_annotate_codon_snv(args, q, db):
         # search any of the 3 positions
         for cind in xrange(3):
             gpos = c1.locs[cind]
@@ -91,8 +91,7 @@ def main_one(args, db): #name2gene, thash):
 def main(args):
 
     config = read_config()
-    replace_defaults(args, config)
-    db = AnnoDB(args)
+    db = AnnoDB(args, config)
     # name2gene, thash = parse_annotation(args)
 
     if args.l:

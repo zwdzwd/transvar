@@ -262,9 +262,8 @@ def annotate_duplication_cdna(args, q, tpts, db):
             if q.beg.pos > len(t) or q.end.pos > len(t):
                 raise IncompatibleTranscriptError('codon nonexistent')
 
-            t.ensure_position_array()
-            check_exon_boundary(t.np, q.beg)
-            check_exon_boundary(t.np, q.end)
+            t.check_exon_boundary(q.beg)
+            t.check_exon_boundary(q.end)
 
             _gnuc_beg = t.tnuc2gnuc(q.beg)
             _gnuc_end = t.tnuc2gnuc(q.end)

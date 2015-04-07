@@ -5,13 +5,7 @@ from describe import *
 
 def snv_coding(args, r, t, codon, q, db):
 
-    r.gene = t.gene.name
-    r.strand = t.strand
     r.reg = RegCDSAnno(t, codon=codon)
-    r.pos = '%d-%d' % (codon.locs[0], codon.locs[-1])
-    r.tnuc_pos = q.cpos()
-    r.tnuc_ref = q.ref
-    r.tnuc_alt = q.alt
 
     if (q.ref and q.ref != t.seq[q.cpos()-1]):
         raise IncompatibleTranscriptError('SNV ref not matched')
@@ -38,28 +32,6 @@ def snv_coding(args, r, t, codon, q, db):
             r.append_info('synonymous')
         r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
 
-def snv_intronic(args, r, t, codon, q, db):
-
-    r.gene = t.gene.name
-    r.strand = t.strand
-    i = q.cpos() - (codon.index-1)*3 - 1
-    t.ensure_position_array()
-    check_exon_boundary(t.np, q.pos)
-    r.gnuc_pos = t.tnuc2gnuc(q.pos)
-    r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
-    r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
-    r.pos = r.gnuc_pos
-    r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
-    if t.strand == '+':
-        if q.ref and r.gnuc_ref != q.ref: raise IncompatibleTranscriptError()
-        r.gnuc_alt = q.alt if q.alt else ''
-    else:
-        if q.ref and r.gnuc_ref != complement(q.ref): raise IncompatibleTranscriptError()
-        r.gnuc_alt = complement(q.alt) if q.alt else ''
-    r.tnuc_pos = q.pos
-    r.tnuc_ref = r.gnuc_ref if t.strand == '+' else complement(r.gnuc_ref)
-    r.tnuc_alt = q.alt
-
 def annotate_snv_cdna(args, q, tpts, db):
 
     found = False
@@ -78,14 +50,35 @@ def annotate_snv_cdna(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
+            r.gene = t.gene.name
+            r.strand = t.strand
+
             if t.gene.dbxref:
                 r.info = 'DBXref=%s' % t.gene.dbxref
-                
+
+            r.gnuc_pos = t.tnuc2gnuc(q.pos)
+            r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
+            if t.strand == '+':
+                if q.ref and r.gnuc_ref != q.ref:
+                    raise IncompatibleTranscriptError()
+                r.gnuc_alt = q.alt if q.alt else ''
+            else:
+                if q.ref and r.gnuc_ref != complement(q.ref):
+                    raise IncompatibleTranscriptError()
+                r.gnuc_alt = complement(q.alt) if q.alt else ''
+
+            r.tnuc_pos = q.pos
+            r.tnuc_ref = r.gnuc_ref if t.strand == '+' else complement(r.gnuc_ref)
+            r.tnuc_alt = q.alt
+
+            db.query_dbsnp(t.chrm, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
+            
             # coding region
             if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
                 snv_coding(args, r, t, codon, q, db)
             else:  # coordinates are with respect to the exon boundary
-                snv_intronic(args, r, t, codon, q, db)
+                t.check_exon_boundary(q.pos)
+                r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
 
         except IncompatibleTranscriptError:
             continue
@@ -104,7 +97,7 @@ def annotate_snv_cdna(args, q, tpts, db):
 
     return
 
-def _annotate_snv_protein(args, q, t):
+def _annotate_snv_protein(args, q, t, db):
 
     """ find all the mutations given a codon position, yield records """
 
@@ -222,13 +215,8 @@ def _annotate_snv_protein(args, q, t):
             r.append_info('candidate_snv_variants=%s' % ','.join(cdd_snv_muts))
         if cdd_mnv_muts:
             r.append_info('candidate_mnv_variants=%s' % ','.join(cdd_mnv_muts))
-        if args.dbsnp_fh:
-            dbsnps = []
-            for entry in args.dbsnp_fh.fetch(t.chrm, codon.locs[0]-3, codon.locs[0]):
-                f = entry.split('\t')
-                dbsnps.append('%s(%s:%s%s>%s)' % (f[2], f[0], f[1], f[3], f[4]))
-            if dbsnps:
-                r.append_info('dbsnp=%s' % ','.join(dbsnps))
+
+        db.query_dbsnp_codon(r, t.chrm, codon)
     else:
         r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
         r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
@@ -236,10 +224,10 @@ def _annotate_snv_protein(args, q, t):
     return r, codon
 
 # used by codon search
-def __core_annotate_codon_snv(args, q):
+def __core_annotate_codon_snv(args, q, db):
     for t in q.gene.tpts:
         try:
-            r, c = _annotate_snv_protein(args, q, t)
+            r, c = _annotate_snv_protein(args, q, t, db)
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -248,12 +236,12 @@ def __core_annotate_codon_snv(args, q):
             continue
         yield t, c
 
-def annotate_snv_protein(args, q, tpts, db=None):
+def annotate_snv_protein(args, q, tpts, db):
 
     found = False
     for t in tpts:
         try:
-            r, c = _annotate_snv_protein(args, q, t)
+            r, c = _annotate_snv_protein(args, q, t, db)
         except IncompatibleTranscriptError as e:
             continue
         except SequenceRetrievalError as e:
@@ -302,6 +290,7 @@ def annotate_snv_gdna(args, q, db):
         r.pos = r.gnuc_pos
         r.gnuc_ref = gnuc_ref
         r.gnuc_alt = q.alt if q.alt else ''
+        db.query_dbsnp(r, q.tok, q.pos, q.ref, q.alt if q.alt else None)
         
         if hasattr(reg, 't'):
 

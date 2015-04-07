@@ -156,30 +156,20 @@ class NonCoding():
 
         return "%s\t%s\t%d\t%d" % (self.gene.name, self.region, self.closest_coding_pos, self.relative_coding_pos)
 
-def tnuc2gnuc(np, tnuc_pos):
-    """ np is the position array
-    take integer as input
-    """
-    if tnuc_pos >= len(np):
-        raise IncompatibleTranscriptError()
-    return np[tnuc_pos-1]
+# def tnuc2gnuc(np, tnuc_pos):
+#     """ np is the position array
+#     take integer as input
+#     """
+#     if tnuc_pos >= len(np):
+#         raise IncompatibleTranscriptError()
+#     return np[tnuc_pos-1]
 
-def tnuc2gnuc2(np, tnuc_pos, tpt):
-    """ take Pos as input """
-    if tpt.strand == '-':
-        return tnuc2gnuc(np, tnuc_pos.pos) - tnuc_pos.tpos
-    else:
-        return tnuc2gnuc(np, tnuc_pos.pos) + tnuc_pos.tpos
-
-def check_exon_boundary(np, pos):
-    """ check consistency with exon boundary """
-
-    if pos.tpos > 0:
-        if abs(tnuc2gnuc(np, pos.pos) - tnuc2gnuc(np, pos.pos+1)) == 1:
-            raise IncompatibleTranscriptError()
-    elif pos.tpos < 0:
-        if abs(tnuc2gnuc(np, pos.pos) - tnuc2gnuc(np, pos.pos-1)) == 1:
-            raise IncompatibleTranscriptError()
+# def tnuc2gnuc2(np, tnuc_pos, tpt):
+#     """ take Pos as input """
+#     if tpt.strand == '-':
+#         return tnuc2gnuc(np, tnuc_pos.pos) - tnuc_pos.tpos
+#     else:
+#         return tnuc2gnuc(np, tnuc_pos.pos) + tnuc_pos.tpos
 
 def tnuc_region_in_exon(np, beg, end):
     """ region in tnuc positions """
@@ -651,6 +641,19 @@ class Transcript():
         self.np = self.position_array()
         assert len(self.np) == len(self.seq)
         return
+
+    def check_exon_boundary(self, pos):
+        
+        """ check consistency with exon boundary """
+
+        self.ensure_position_array()
+        if pos.tpos > 0:
+            if abs(self._tnuc2gnuc(pos.pos) - self._tnuc2gnuc(pos.pos+1)) == 1:
+                raise IncompatibleTranscriptError()
+        elif pos.tpos < 0:
+            if abs(self._tnuc2gnuc(pos.pos) - self._tnuc2gnuc(pos.pos-1)) == 1:
+                raise IncompatibleTranscriptError()
+
 
     def gpos2codon(self, gpos, intronic_policy='closer'):
 
