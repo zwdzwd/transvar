@@ -239,9 +239,11 @@ def annotate_deletion_gdna(args, q, db):
             r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(p1.pos, p2.pos, tnuc_delseq))
 
             if t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
-
+                
                 expt = r.set_splice('lost')
+
                 if not expt:
+
                     if (q.end - q.beg + 1) % 3 == 0:
                         del_coding_inframe(args, c1, c2, p1, p2, t, r)
                     else:

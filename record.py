@@ -452,14 +452,14 @@ class Record():
 
         if isinstance(self.reg, RegSpanAnno):
             if hasattr(self.reg, 'splice_donors'):
-                expt = True
                 for exind, chrm, spos in self.reg.splice_donors:
+                    expt = True
                     self.append_info(
                         'donor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
 
             if hasattr(self.reg, 'splice_acceptors'):
-                expt = True
                 for exind, chrm, spos in self.reg.splice_acceptors:
+                    expt = True
                     self.append_info(
                         'acceptor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
 
@@ -476,7 +476,8 @@ class Record():
                 self.append_info('cds_end_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
         else:
             if hasattr(self.reg, 'splice'):
-                expt = True
+                if not self.reg.splice.startswith('next_to'):
+                    expt = True
                 self.append_info(self.reg.splice)
             if hasattr(self.reg, 'cds_beg'):
                 expt = True
@@ -523,6 +524,11 @@ class Record():
         return '%s/%s/%s' % (self.gnuc(), self.tnuc(), self.taa())
 
     def format(self, op):
+
+        if hasattr(self.reg, 't'):
+            if self.reg.t.gene.dbxref:
+                self.append_info('dbxref=%s' % self.reg.t.gene.dbxref)
+        
         s = op+'\t' if op else ''
         s += template.format(r=self, reg=self.reg.format(),
                              gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())

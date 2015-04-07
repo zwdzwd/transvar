@@ -227,7 +227,7 @@ def annotate_insertion_gdna(args, q, db):
 
             # infer protein level mutation if in cds
             # this skips insertion that occur to sites next to donor or acceptor splicing site.
-            expt = t.set_splice()
+            expt = r.set_splice()
             if (not expt) and reg.cds and t.transcript_type=='protein_coding':
                 try:
                     tnuc_coding_ins(args, tnuc_ins, t, r, db)

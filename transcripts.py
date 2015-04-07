@@ -922,7 +922,7 @@ class Transcript():
     def taa_del_id(self, taa_beg, taa_end):
 
         if taa_beg == taa_end:
-            s = '%s%ddel' % (self.cpos2aa(taa_beg), taa_beg)
+            s = '%s%ddel%s' % (self.cpos2aa(taa_beg), taa_beg, self.taa2aa(taa_beg))
         else:
             taa_del_len = taa_end - taa_beg + 1
             if taa_del_len > delrep_len:

@@ -3,35 +3,6 @@ from utils import *
 from record import *
 from describe import *
 
-def snv_coding(args, r, t, codon, q, db):
-
-    r.reg = RegCDSAnno(t, codon=codon)
-
-    if (q.ref and q.ref != t.seq[q.cpos()-1]):
-        raise IncompatibleTranscriptError('SNV ref not matched')
-    if codon.strand == '+':
-        r.gnuc_pos = codon.locs[0]+(q.cpos()-1)%3
-        r.gnuc_ref = q.ref if q.ref else codon.seq[(q.cpos()-1)%3]
-        if q.alt: r.gnuc_alt = q.alt
-    else:
-        r.gnuc_pos = codon.locs[-1]-(q.cpos()-1)%3
-        r.gnuc_ref = complement(q.ref if q.ref else codon.seq[(q.cpos()-1)%3])
-        if q.alt: r.gnuc_alt = complement(q.alt)
-
-    r.taa_ref = codon2aa(codon.seq)
-    r.taa_pos = codon.index
-    if not q.alt:
-        r.taa_alt = ''
-    else:
-        mut_seq = list(codon.seq[:])
-        mut_seq[(q.cpos()-1) % 3] = q.alt
-        r.taa_alt = codon2aa(''.join(mut_seq))
-        if r.taa_ref != r.taa_alt:
-            r.append_info('missense')
-        elif r.taa_alt:
-            r.append_info('synonymous')
-        r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
-
 def annotate_snv_cdna(args, q, tpts, db):
 
     found = False
@@ -53,9 +24,6 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            if t.gene.dbxref:
-                r.info = 'DBXref=%s' % t.gene.dbxref
-
             r.gnuc_pos = t.tnuc2gnuc(q.pos)
             r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
             if t.strand == '+':
@@ -71,14 +39,31 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.tnuc_ref = r.gnuc_ref if t.strand == '+' else complement(r.gnuc_ref)
             r.tnuc_alt = q.alt
 
-            db.query_dbsnp(t.chrm, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
+            db.query_dbsnp(r, t.chrm, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
+            r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
             
             # coding region
             if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
-                snv_coding(args, r, t, codon, q, db)
+
+                if (q.ref and q.ref != t.seq[q.cpos()-1]):
+                    raise IncompatibleTranscriptError('SNV ref not matched')
+
+                r.taa_ref = codon2aa(codon.seq)
+                r.taa_pos = codon.index
+                if not q.alt:
+                    r.taa_alt = ''
+                else:
+                    mut_seq = list(codon.seq[:])
+                    mut_seq[(q.cpos()-1) % 3] = q.alt
+                    r.taa_alt = codon2aa(''.join(mut_seq))
+                    if r.taa_ref != r.taa_alt:
+                        r.append_info('missense')
+                    elif r.taa_alt:
+                        r.append_info('synonymous')
+                    r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
+                
             else:  # coordinates are with respect to the exon boundary
                 t.check_exon_boundary(q.pos)
-                r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
 
         except IncompatibleTranscriptError:
             continue
@@ -126,9 +111,6 @@ def _annotate_snv_protein(args, q, t, db):
     r = Record()
     r.chrm = t.chrm
     r.tname = t.format()
-    if t.gene.dbxref:
-        r.append_info('DBXref=%s' % t.gene.dbxref)
-    r.pos = '%d-%d' % (codon.locs[0], codon.locs[-1])
 
     # if alternative amino acid is given
     # filter the target mutation set to those give
@@ -311,27 +293,28 @@ def annotate_snv_gdna(args, q, db):
             expt = r.set_splice()
             if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
                 if c.seq in standard_codon_table:
-                    if c.seq in standard_codon_table:
-                        r.taa_ref = standard_codon_table[c.seq]
+                    r.taa_ref = standard_codon_table[c.seq]
                     r.taa_pos = c.index
 
-                if q.alt:
-                    if c.strand == '+':
-                        alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
-                    else:
-                        alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
+                    if q.alt:
+                        if c.strand == '+':
+                            alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
+                        else:
+                            alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
 
-                    r.taa_alt = codon2aa(alt_seq)
-                    if r.taa_alt != r.taa_ref:
-                        r.append_info('missense')
-                    elif r.taa_alt:
-                        r.append_info('synonymous')
+                        r.taa_alt = codon2aa(alt_seq)
+                        if r.taa_alt != r.taa_ref:
+                            r.append_info('missense')
+                        elif r.taa_alt:
+                            r.append_info('synonymous')
+
+                else:
+                    r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, len(reg.t)/3))
 
                 r.append_info('codon_pos=%s' % (c.locformat(),))
                 r.append_info('ref_codon_seq=%s' % c.seq)
                 
         r.format(q.op)
-
 
 def set_taa_snv(r, pos, ref, alt):
 

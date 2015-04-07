@@ -50,9 +50,6 @@ def _annotate_region_cdna(args, q, t, db):
             r.taa_ref = translate_seq(t.seq[c1.index*3-3:c2.index*3])
             r.taa_range = '%d_%d%s' % (c1.index, c2.index, r.taa_ref)
 
-    if t.gene.dbxref:
-        r.append_info('DBXref=%s' % t.gene.dbxref)
-
     return r
 
 def annotate_region_cdna(args, q, tpts, db):
@@ -114,8 +111,6 @@ def annotate_region_protein(args, q, tpts, db):
             r.reg = RegCDSAnno(t)
             r.reg.from_taa_range(q.beg, q.end)
             r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (printseq(taa_natrefseq), printseq(r.natrefseq), printseq(r.refrefseq)))
-            if t.gene.dbxref:
-                r.append_info('DBXref=%s' % t.gene.dbxref)
         except IncompatibleTranscriptError:
             continue
         except UnknownChromosomeError:

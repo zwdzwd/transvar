@@ -159,8 +159,12 @@ def parse_mutation_str(mut_str, muttype=None):
         elif _is_ins and not _is_del:
             q = QueryINS()
             q.pos = int(_beg)
-            if _i: q.insseq = _i.upper()
-            else: err_die('Insertion without inserted sequence: %s.' % mut_str, __name__)
+            if _i:
+                q.insseq = _i.upper()
+            else:
+                err_raise(InvalidInputError,
+                          'Insertion without inserted sequence: %s.' % mut_str, __name__)
+
         elif _is_ins and _is_del:
             q = QueryMNV()
             q.beg = int(_beg)
