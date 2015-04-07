@@ -1,6 +1,7 @@
 """ configure TransVar """
 import ConfigParser
 import os, sys
+from err import *
 
 cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
            os.path.expanduser('~/.transvar.cfg')]
@@ -37,7 +38,7 @@ fns[('hg18', 'anno')] = [
 ]
 
 fns[('hg38', 'anno')] = [
-    ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38_top_level.gff3.gz'),
+    ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p2_top_level.gff3.gz'),
     # ('ccds', 'hg38.ccds.txt', ''),
     ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz'),
     ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz'),
@@ -81,7 +82,7 @@ def download_url(url, file_name):
     meta = u.info()
     raw_file_size = int(meta.getheaders("Content-Length")[0])
     file_size = raw_file_size / (1024.0 * 1024.0)
-    print "Downloading: %s (%1.1f MB)" % (file_name, file_size)
+    # err_print("downloading %s (%1.1f MB)" % (file_name, file_size))
 
     file_size_dl = 0
     block_sz = 8192*2
@@ -92,10 +93,13 @@ def download_url(url, file_name):
 
         file_size_dl += len(buffer)
         f.write(buffer)
-        status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / raw_file_size)
-        status = status + chr(8)*(len(status)+1)
-        print status,
+        # status = r"downloaded %s (%1.1f MB) %10d [%3.2f%%]\033\[K" % (file_name, file_size, file_size_dl, file_size_dl * 100. / raw_file_size)
+        # status = status + chr(8)*(len(status)+1)
+        progress = float(file_size_dl)/raw_file_size
+        print '\r[%-20s] %1.0f%% %s (%1.1f MB)' % ('#'*int(progress*20), progress*100, file_name, file_size),
 
+    print
+        
     f.close()
 
 def config_set(config, section, option, value):
@@ -109,15 +113,20 @@ def _download_(config, section, fns):
     for pdir in downloaddirs:
         # pdir = os.path.join(os.path.dirname(__file__), 'download')
 
-        try:
-            if not os.path.exists(pdir): os.makedirs(pdir)
-            for k, fn, url in fns:
-                fnn = os.path.join(pdir, fn)
-                download_url(url, fnn)
-                if k:
-                    config_set(config, section, k, fnn)
-        except:
-            continue
+        if not os.path.exists(pdir):
+            try:
+                os.makedirs(pdir)
+            except:
+                continue
+            
+        for k, fn, url in fns:
+            # try:
+            fnn = os.path.join(pdir, fn)
+            download_url(url, fnn)
+            if k:
+                config_set(config, section, k, fnn)
+            # except:
+            # err_warn('file not available: %s' % url)
 
         break
 
@@ -125,12 +134,10 @@ def download_idmap(config):
     fns = [('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1')]
     _download_(config, 'idmap', fns)
 
-def getrv(config):
+def getrv(args, config):
 
-    if args.refversion:
+    if args.refversion != 'DEFAULT':
         rv = args.refversion
-    elif args.s != 'DEFAULT':
-        rv = args.s
     elif 'refversion' in config.defaults():
         rv = config.get('DEFAULT', 'refversion')
     else:
@@ -138,11 +145,11 @@ def getrv(config):
 
     return rv
 
-def download_topic(config, topic):
+def download_topic(args, config, topic):
 
-    rv = getrv(config)
+    rv = getrv(args, config)
     if (rv, topic) in fns:
-        config.set('DEFAULT', 'refversion', fns[(rv, topic)])
+        config.set('DEFAULT', 'refversion', rv)
         _download_(config, rv, fns[(rv, topic)])
     else:
         err_die('no pre-built %s for %s, please build manually' % (topic, rv))
@@ -157,13 +164,13 @@ def main(args):
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
     if args.k and args.v:
-        config_set(config, args.s, args.k, args.v)
+        config_set(config, args.refversion, args.k, args.v)
 
     if args.download_anno:
-        download_topic(config, 'anno')
+        download_topic(args, config, 'anno')
 
     if args.download_dbsnp:
-        download_topic(config, 'dbsnp')    
+        download_topic(args, config, 'dbsnp')    
         
     if args.download_idmap:
         download_idmap(config)
@@ -197,17 +204,12 @@ def add_parser_config(subparsers):
     parser = subparsers.add_parser('config', help=__doc__)
     parser.add_argument('-k', default=None, help='key')
     parser.add_argument('-v', default=None, help='value')
-    parser.add_argument('-s', default='DEFAULT', help='reference version')
-    parser.add_argument('--download_hg19', action='store_true', help='download hg19 reference and annotations')
-    parser.add_argument('--download_hg18_anno', action='store_true', help='download hg18 (GRCh36) annotations')
-    parser.add_argument('--download_hg19_anno', action='store_true', help='download hg19 (GRCh37) annotations')
-    parser.add_argument('--download_hg38_anno', action='store_true', help='download hg38 (GRCh38) annotations')
-    parser.add_argument('--download_mm10_anno', action='store_true', help='download mm10 (GRCm38) annotations')
-    parser.add_argument('--download_mm9_anno', action='store_true', help='download mm9 (NCBIM37) annotations')
-    parser.add_argument('--download_hg19_dbsnp', action='store_true', help='download hg19 dbsnp')
+    parser.add_argument('--refversion', default='DEFAULT', help='reference version')
+    parser.add_argument('--download_anno', action='store_true', help='download annotations')
+    parser.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
     parser.set_defaults(func=main)
-
+    
 def add_parser_current(subparsers):
 
     parser = subparsers.add_parser('current', help="view current config")

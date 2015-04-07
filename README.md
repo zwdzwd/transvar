@@ -57,7 +57,7 @@ Once downloaded and indexed, the reference can be used through the "--reference"
 To set the default location of reference to ./hg19.fa,
 ```
 #!bash
-transvar config -k reference -v ./hg19.fa -s hg19
+transvar config -k reference -v ./hg19.fa --refversion hg19
 ```
 will create in transvar.cfg an entry
 ```
@@ -72,7 +72,7 @@ so that there is no need to specify the location of reference on subsequent usag
 TransVar provides automatic download of transcript annotations specific to common versions of human genome.
 ```
 #!bash
-transvar config --download_hg19_anno
+transvar config --download_anno --refversion hg19
 ```
 will automatically download annotation from Ensembl, RefSeq etc. to `[installdir]/lib/transvar/transvar.download` directory or your local `~/.transvar.download` if the installation directory is inaccessible.
 See `transvar config -h` for downloading more versions.
@@ -103,7 +103,7 @@ If one download transcripts through "transvar config", TransVar would use the do
 To set the default annotation of a particular reference version,
 ```
 #!bash
-transvar config -k ccds -v CCDS.current.txt -s hg19
+transvar config -k ccds -v CCDS.current.txt --refversion hg19
 ```
 The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
 
@@ -134,7 +134,7 @@ The "refversion" key specify the default reference version ("hg19" in the above 
 To add a new version and specify the location of some transcript annotation
 ```
 #!bash
-transvar config -k ccds -v ccds.myhg.txt -s myhg
+transvar config -k ccds -v ccds.myhg.txt --refversion myhg
 ```
 Will create in transvar.cfg a section like
 ```
