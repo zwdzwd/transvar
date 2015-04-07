@@ -20,7 +20,7 @@ TransVar has the following features:
 
 ### Quick start
 
-Suppose you have transvar installed (see install for installation instruction). run
+Suppose you have transvar installed (see below for installation instruction). run
 ```
 #!bash
 transvar config --download_hg19_anno
