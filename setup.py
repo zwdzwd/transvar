@@ -57,6 +57,8 @@ def main():
         author_email = "zhouwanding@gmail.com",
         license = "MIT",
         keywords = ["bioinformatics", "genomics"],
+        scripts = ['bin/transvar'],
+        packages = ['transvar'],
         # packages = ['pytabix'],
         # packages = find_packages(),
         #package_data = { "": ["*.gz", "*.gz.tbi"] },

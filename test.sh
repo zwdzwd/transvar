@@ -1,6 +1,6 @@
 #!/bin/bash
 function er() { echo "$@"; "$@"; }
-function er2() { echo "======="; echo "$@"; echo "======="; echo -e "\n";}
+function er2() { echo "======="; echo "$@"; echo "======="; echo "\n";}
 
 er transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
 er2 "Q5VUM1:47   6   71289191-71289193   CCDS4972.1  C6ORF57 (+, coding)    6:g.71289191_71289193/c.139_141/p.47    PRefSeq=S;NRefSeq=TCC;RefSeq=TCC"
@@ -16,7 +16,7 @@ er2 "HTR1B.p.365_369refNPxxY 6       78172014-78172028       CCDS4986.1      HTR
 er transvar revanno -i PIK3CA:E545K --ensembl
 er2 'PIK3CA:E545K    3       178936091-178936092-178936093   ENST00000263967 PIK3CA (+, coding, exon 10)     3:g.178936091G>A/c.1633G>A/p.E545K      NCodonSeq=GAG;NCddSeqs=AAG,AAA;CddMNVMuts=3:g.178936091_178936093GAG>AAA'
 
-er transvar revanno -i 'A1CF:p.A309A' --ccds --dbsnp
+er transvar revanno -i 'A1CF:p.A309A' --ccds
 er2 'A1CF:p.A309A    10    52576004-52576005-52576006    CCDS7243.1    A1CF (-, coding, exon 7)    10:g.52576004T>G/c.927A>C/p.A309A    NCodonSeq=GCA;NCddSeqs=GCC,GCG,GCT;CddSNVMuts=10:g.52576004T>C,10:g.52576004T>A; DBSNP=rs201831949(10:52576004T>G)'
 
 er transvar revanno --ccds -i 'PIK3CA:c.1633G>A'
