@@ -4,8 +4,8 @@ from err import *
 from record import *
 from transcripts import *
 from describe import *
-from insertion import taa_set_ins
-from deletion import taa_set_del
+from insertion import taa_set_ins, annotate_insertion_gdna
+from deletion import taa_set_del, annotate_deletion_gdna
 from snv import annotate_snv_gdna
 
 def annotate_mnv_cdna(args, q, tpts, db):
@@ -160,6 +160,19 @@ def annotate_mnv_gdna(args, q, db):
         q.alt = gnuc_altseq
         annotate_snv_gdna(args, q, db)
         return
+
+    if len(gnuc_refseq) == 0:
+        if len(gnuc_altseq) > 0:
+            q.pos = q.beg-1
+            q.insseq = gnuc_altseq
+            annotate_insertion_gdna(args, q, db)
+            return
+
+    if len(gnuc_altseq) == 0:
+        if len(gnuc_refseq) > 0:
+            q.delseq = gnuc_refseq
+            annotate_deletion_gdna(args, q, db)
+            return
     
     for reg in describe(args, q, db):
 

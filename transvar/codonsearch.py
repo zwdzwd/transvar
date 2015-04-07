@@ -4,6 +4,7 @@ search alternative codonpositions due to different transcript usage
 import sys, re, argparse
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 from transcripts import *
+from err import *
 from utils import *
 from config import read_config
 from snv import __core_annotate_codon_snv
@@ -56,12 +57,8 @@ def main_list(args, db): #name2gene, thash):
 
         q.gene = db.get_gene(q.tok)
         if not q.gene:
-            sys.stderr.write("Gene %s is not recognized.\n" % q.tok)
+            err_warn('gene %s is not recognized.' % q.tok)
             continue
-        # if q.tok not in name2gene:
-        #     sys.stderr.write("Gene %s is not recognized.\n" % q.tok)
-        #     continue
-        # q.gene = name2gene[q.tok]
         try:
             _main_core_(args, q, db)
         except UnImplementedError as e:
@@ -77,13 +74,9 @@ def main_one(args, db): #name2gene, thash):
     q.op = args.i
     q.gene = db.get_gene(q.tok)
     if not q.gene:
-        sys.stderr.write("Gene %s not recognized.\n" % q.tok)
+        err_die('gene %s is not recognized.' % q.tok)
         return
 
-    # if q.tok not in name2gene:
-    #     sys.stderr.write("Gene %s not recognized.\n" % q.tok)
-    #     return
-    # q.gene = db.name2gene[q.tok]
     q.op = args.i
 
     _main_core_(args, q, db)

@@ -523,7 +523,7 @@ def parse_annotation(args):
             names_no_tpts.append(name)
     for name in names_no_tpts:
         del name2gene[name]
-    sys.stderr.write('[%s] Loaded %d genes.\n' % (__name__, len(name2gene)))
+    err_print('loaded %d genes.' % len(name2gene))
 
     # index transcripts in a gene
     thash = THash()

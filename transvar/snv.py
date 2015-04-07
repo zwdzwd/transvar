@@ -2,6 +2,7 @@ from transcripts import *
 from utils import *
 from record import *
 from describe import *
+from err import *
 
 def annotate_snv_cdna(args, q, tpts, db):
 
@@ -87,7 +88,7 @@ def _annotate_snv_protein(args, q, t, db):
     """ find all the mutations given a codon position, yield records """
 
     if q.alt and q.alt not in reverse_codon_table:
-        sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
+        err_warn('unknown alternative: %s, ignore alternative.' % q.alt)
         q.alt = ''
 
     # when there's a transcript specification
@@ -229,7 +230,7 @@ def annotate_snv_protein(args, q, tpts, db):
         except SequenceRetrievalError as e:
             continue
         except UnknownChromosomeError as e:
-            sys.stderr.write(str(e))
+            err_print(str(e))
             continue
         
         r.gene = t.gene.name

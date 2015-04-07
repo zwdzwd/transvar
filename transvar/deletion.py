@@ -280,7 +280,7 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
                         t.seq[p2.pos:end_codon_end]
 
         if len(new_codon_seq) != 3:
-            sys.stderr.write(t.gene.name+'\t'+t.transcript_type+'\n')
+            err_print(t.gene.name+'\t'+t.transcript_type)
             err_print(p1)
             err_print(p2)
             err_print(len(t.seq))

@@ -1,11 +1,12 @@
 from transcripts import *
 from utils import *
 from record import *
+from err import *
 
 def _annotate_frameshift(args, q, t):
 
     if q.alt and q.alt not in reverse_codon_table:
-        sys.stderr.write("Unknown alternative: %s, ignore alternative.\n" % q.alt)
+        err_warn('unknown alternative: %s, ignore alternative' % q.alt)
         q.alt = ''
 
     # when there's a transcript specification

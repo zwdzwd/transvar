@@ -292,7 +292,7 @@ class Query(object):
             self.pos = int(pos_str)
             return True
         else:
-            err_warn('abnormal position %s. skip.\n' % pos_str)
+            err_warn('abnormal position %s. skip.' % pos_str)
             return False
 
 class QueryREG(Query):

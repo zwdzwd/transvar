@@ -54,7 +54,7 @@ class RefGenome:
                 chrom = 'chr'+chrom
             else:
                 # sys.stderr.write('Chromosome %s not found in reference\n' % chrom)
-                raise UnknownChromosomeError('Chromosome %s not found in reference\n' % chrom)
+                raise UnknownChromosomeError('chromosome %s not found in reference' % chrom)
 
         slen,offset,blen,bytelen=self.faidx[chrom]
         start = start-1 #To 0-base
