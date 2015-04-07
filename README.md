@@ -41,7 +41,7 @@ Basic functionalities requires just Python 2.7.
 
 #### program
 
-current stable version: 2.0.0.20150407(https://bitbucket.org/wanding/transvar/get/v2.0.0.20150407.zip)
+current stable version: [2.0.0.20150407](https://bitbucket.org/wanding/transvar/get/v2.0.0.20150407.zip)
 
 #### install
 
