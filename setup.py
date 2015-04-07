@@ -50,7 +50,7 @@ def main():
     
     setup(
         name = "TransVar",
-        version = "1.0.0.20150403",
+        version = "2.0.0.20150407",
         description = "Transcript-based Variant annotator",
         url = "https://bitbucket.org/wanding/transvar",
         author = "Wanding Zhou",
@@ -59,11 +59,7 @@ def main():
         keywords = ["bioinformatics", "genomics"],
         scripts = ['bin/transvar'],
         packages = ['transvar'],
-        # packages = ['pytabix'],
-        # packages = find_packages(),
-        #package_data = { "": ["*.gz", "*.gz.tbi"] },
         ext_modules = ext_modules,
-        #test_suite = "test",
         classifiers = [
             "Programming Language :: Python",
             "Development Status :: 4 - Beta",
