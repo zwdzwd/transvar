@@ -166,6 +166,7 @@ def main(args):
     if args.k and args.v:
         config_set(config, args.refversion, args.k, args.v)
 
+        
     if args.download_anno:
         download_topic(args, config, 'anno')
 
