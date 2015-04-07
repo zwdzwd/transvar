@@ -265,7 +265,7 @@ class Transcript():
         """
         if self.seq: return
         if not faidx.refgenome:
-            err_die("Please provide reference through --ref [reference fasta].", __name__)
+            err_die("please provide reference through --ref [reference fasta].")
         seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
         if (not seq) or (len(seq) != self.end - self.beg + 1):
@@ -1381,7 +1381,7 @@ def parse_ucsc_refgene(map_file, name2gene):
         t.gene = gene
         cnt += 1
 
-    sys.stderr.write('[%s] Loaded %d transcripts from UCSC refgene.\n' % (__name__, cnt))
+    err_print('loaded %d transcripts from UCSC refgene.\n' % cnt)
 
     return
 
@@ -1420,7 +1420,7 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
         t.gene = gene
         cnt += 1
 
-    sys.stderr.write('[%s] Loaded %d transcripts from customized table.\n' % (__name__, cnt))
+    err_print('loaded %d transcripts from customized table.\n' % cnt)
 
     return
 
@@ -1517,7 +1517,7 @@ def parse_refseq_gff(gff_fn, name2gene):
                 t = g.gene_t
             t.cds.append((int(fields[3]), int(fields[4])))
 
-    sys.stderr.write("[%s] Loaded %d transcripts from RefSeq GFF3 file.\n" % (__name__, cnt))
+    err_print("loaded %d transcripts from RefSeq GFF3 file.\n" % cnt)
 
 def parse_ensembl_gtf(gtf_fn, name2gene):
     """ gtf file is gffv2
@@ -1578,7 +1578,7 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
 
-    sys.stderr.write("[%s] Loaded %d transcripts from Ensembl GTF file.\n" % (__name__, cnt))
+    err_print("loaded %d transcripts from Ensembl GTF file.\n" % cnt)
 
 def parse_ccds_table(ccds_fn, name2gene):
 
@@ -1614,7 +1614,7 @@ def parse_ccds_table(ccds_fn, name2gene):
         g.tpts.append(t)
         cnt += 1
 
-    sys.stderr.write("[%s] Loaded %d transcripts from CCDS table.\n" % (__name__, cnt))
+    err_print("loaded %d transcripts from CCDS table.\n" % cnt)
 
 def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
 
@@ -1668,7 +1668,7 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
         t.gene = g
         cnt += 1
 
-    sys.stderr.write("[%s] Loaded %d transcripts from UCSC knownGene table.\n" % (__name__, cnt))
+    err_print("loaded %d transcripts from UCSC knownGene table.\n" % cnt)
 
 def parse_gencode_gtf(gencode_fn, name2gene):
 
@@ -1729,7 +1729,7 @@ def parse_gencode_gtf(gencode_fn, name2gene):
             t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
 
-    sys.stderr.write("[%s] Loaded %d transcripts from GENCODE GTF file.\n" % (__name__, cnt))
+    err_print("loaded %d transcripts from GENCODE GTF file.\n" % cnt)
 
 def parse_aceview_transcripts(aceview_gff_fn, name2gene):
 
@@ -1793,7 +1793,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
         else:
             t.gene.tpts.remove(t)
 
-    sys.stderr.write("[%s] Loaded %d transcripts from AceView GFF file.\n" % (__name__, len(id2tpt)))
+    err_print("loaded %d transcripts from AceView GFF file.\n" % len(id2tpt))
 
 def parse_uniprot_mapping(fn):
 
@@ -1802,7 +1802,7 @@ def parse_uniprot_mapping(fn):
         fields = line.strip().split('\t')
         tid2uniprot[fields[2]] = fields[0]
 
-    err_print('[%s] Loaded %d transcript with UniProt mapping.' % (__name__, len(tid2uniprot)))
+    err_print('loaded %d transcript with UniProt mapping.' % len(tid2uniprot))
 
     return tid2uniprot
 

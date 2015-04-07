@@ -11,7 +11,7 @@ class AnnoDB():
         elif 'refversion' in config.defaults():
             self.rv = config.get('DEFAULT', 'refversion')
         else:
-            err_print('Please specify reference version, either in transvar.cfg, or as argument --refversion')
+            err_warn('please specify reference version, either in transvar.cfg, or as argument --refversion')
             sys.exit(1)
         
         replace_defaults(args, config)
@@ -452,13 +452,13 @@ class THash():
 def get_config(config, option, rv=None):
 
     if not config.has_section(rv):
-        err_print('[Warning] %s (%s) has no default value, please specify' % (option, rv))
+        err_warn('%s (%s) has no default value, please specify' % (option, rv))
         return None
     
     if config.has_option(rv, option):
         return config.get(rv, option)
     else:
-        err_print('[Warning] %s (%s) has no default value, please specify' % (option, rv))
+        err_warn('%s (%s) has no default value, please specify' % (option, rv))
         return None
 
 def replace_defaults(args, config):
@@ -644,20 +644,24 @@ def opengz(fn):
 
     return fh
 
-def err_die(msg, fn):
-
+def err_die(msg):
+    import inspect
+    fn = inspect.stack()[1][3]
     sys.stderr.write('[%s] %s\n' % (fn, msg))
-    sys.stderr.write('[%s] Abort\n' % fn)
+    sys.stderr.write('[%s] abort\n' % fn)
     sys.exit(1)
 
-def err_warn(msg, fn):
-    sys.stderr.write('[%s] Warning: %s\n' % (fn, msg))
+def err_warn(msg):
+    fn = inspect.stack()[1][3]
+    sys.stderr.write('[%s] warning: %s\n' % (fn, msg))
 
-def err_raise(cls, msg, fn):
-    raise cls('[%s] Exception: %s' % (fn, msg))
+def err_raise(cls, msg):
+    fn = inspect.stack()[1][3]
+    raise cls('[%s] exception: %s' % (fn, msg))
 
 def err_print(msg):
-    sys.stderr.write('%s\n' % str(msg))
+    fn = inspect.stack()[1][3]
+    sys.stderr.write('[%s] %s\n' % (fn, str(msg)))
 
 def double_trim(seq1, seq2):
 

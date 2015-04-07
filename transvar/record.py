@@ -266,7 +266,8 @@ def parse_pos(posstr):
         p.tpos = 0
     else:
         m = re.match(r'(\d+)([+-]\d+)', posstr)
-        if not m: err_raise(InvalidInputError, 'Invalid position string %s.' % posstr, __name__)
+        if not m:
+            err_raise(InvalidInputError, 'invalid position string %s.' % posstr)
         p = Pos()
         p.pos = int(m.group(1))
         p.tpos = int(m.group(2))
@@ -291,7 +292,7 @@ class Query(object):
             self.pos = int(pos_str)
             return True
         else:
-            err_warn('Abnormal position %s. skip.\n' % pos_str, __name__)
+            err_warn('abnormal position %s. skip.\n' % pos_str)
             return False
 
 class QueryREG(Query):
@@ -380,19 +381,17 @@ def normalize_reg(q):
     respect to the length of the chromosome """
 
     if q.beg > reflen(q.tok):
-        err_print('Region beg %d greater than chromosome length %d, truncated.'
-                  % (q.beg, reflen(q.tok)))
+        err_warn('region beg %d greater than chromosome length %d, truncated.' % (q.beg, reflen(q.tok)))
         q.beg = reflen(q.tok)
 
     if q.end > reflen(q.tok):
-        err_print('Region end %d greater than chromosome length %d, truncated.'
-                  % (q.end, reflen(q.tok)))
+        err_warn('region end %d greater than chromosome length %d, truncated.' % (q.end, reflen(q.tok)))
         q.end = reflen(q.tok)
     if q.beg < 0:
-        err_print('Region beg %d negative, truncated to 0.')
+        err_warn('region beg %d negative, truncated to 0.')
         q.beg = 0    
     if q.end < 0:
-        err_print('Region end %d negative, truncated to 0.')
+        err_warn('region end %d negative, truncated to 0.')
         q.end = 0    
 
 template = "{r.tname}\t{r.gene}\t{r.strand}\t{gnuc}/{tnuc}/{taa}\t{reg}\t{r.info}"

@@ -1078,7 +1078,7 @@ chr10:g.52595929_52595930GG>AA  chr10   52595929-52595930       CCDS7241.1 (prot
   chr10:g.52595929_52595930GG>AA/c.508_509CC>TT/p.P170L   inside_[cds_in_exon_4]  codon_cDNA=508-509-510
 ```
 
-### annotate promoter region
+#### annotate promoter region
 
 One can define the promoter boundary through the `--prombeg` and `--promend` option. Default promoter region is defined from 1000bp upstream of the transcription start site to the transcription start site. One could customize this setting to e.g., [-1000bp, 2000bp] by
 

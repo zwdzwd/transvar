@@ -107,7 +107,7 @@ def parse_mutation_str(mut_str, muttype=None):
             q = QueryINS()
             q.pos = parse_pos(_beg)
             if _i: q.insseq = _i.upper()
-            else: err_die('Insertion without inserted sequence: %s.' % mut_str, __name__)
+            else: err_die('insertion without inserted sequence: %s.' % mut_str)
         elif _is_ins and _is_del:
             q = QueryMNV()
             q.beg = parse_pos(_beg)
@@ -162,8 +162,7 @@ def parse_mutation_str(mut_str, muttype=None):
             if _i:
                 q.insseq = _i.upper()
             else:
-                err_raise(InvalidInputError,
-                          'Insertion without inserted sequence: %s.' % mut_str, __name__)
+                err_raise(InvalidInputError, 'insertion without inserted sequence: %s.' % mut_str)
 
         elif _is_ins and _is_del:
             q = QueryMNV()
@@ -193,8 +192,7 @@ def parse_mutation_str(mut_str, muttype=None):
             #           'Invalid nucleotide mutation: "%s".' % mut_str, __name__)
         q.is_codon = False
     else:
-        err_raise(InvalidInputError,
-                  'Invalid mutation: "%s".' % mut_str, __name__)
+        err_raise(InvalidInputError, 'invalid mutation: "%s".' % mut_str)
 
     return q
 
@@ -208,8 +206,7 @@ def parse_tok_mutation_str(s, muttype=None):
         try:
             tok, mut_str = s.split(None, 1)
         except:
-            err_raise(InvalidInputError,
-                      'Invalid mutation string: "%s".' % s, __name__)
+            err_raise(InvalidInputError, 'invalid mutation string: "%s".' % s)
 
     q = parse_mutation_str(mut_str, muttype)
     q.tok = tok
@@ -264,7 +261,7 @@ def _list_parse_mutation(args, fields, indices, muttype=None):
         if args.t > 0: q.tpt = fields[args.t-1].strip()
 
     else:
-        err_raise(InvalidInputError, "Invalid line: %s" % line, __name__)
+        err_raise(InvalidInputError, "invalid line: %s" % line)
 
     return q
 
@@ -284,7 +281,7 @@ def list_parse_mutation(args, muttype=None):
             q = _list_parse_mutation(args, fields, indices, muttype)
         except IndexError as e:
             err_print(str(e))
-            err_print("[%s] May be different delimiter in the input file? (try -d s)" % __name__)
+            err_print("may be different delimiter in the input file? (try -d s)")
             sys.exit(1)
         except InvalidInputError as e:
             err_print(str(e))

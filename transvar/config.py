@@ -8,6 +8,70 @@ cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
 downloaddirs = [os.path.join(os.path.dirname(__file__), 'transvar.download'),
                 os.path.expanduser('~/.transvar.download')]
 
+fns = {}
+
+fns[('hg19', 'anno')] = [
+    ('refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
+    ('ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
+    ('ensembl', 'hg19.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'),
+    ('gencode', 'hg19.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz'),
+    ('ucsc', 'hg19.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.ucsc.refgene.txt.gz?dl=1'),
+    ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
+    ('aceview', 'hg19.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_37_Aug10.human.genes/AceView.ncbi_37.genes_gff.gff.gz'),
+    ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
+    ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
+]
+
+fns[('hg19', 'dbsnp')] = [
+    ('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz'),
+    ('dbsnp_index', 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
+]
+
+fns[('hg18', 'anno')] = [
+    ('refseq', 'hg18.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/GFF/ref_NCBI36_top_level.gff3.gz'),
+    ('ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
+    ('aceview', 'hg18.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
+    ('gencode', 'hg18.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_3c/gencode.v3c.annotation.NCBI36.gtf.gz'),
+    ('ucsc', 'hg18.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg18.ucsc.refgene.txt.gz?dl=1'),
+    ('ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
+]
+
+fns[('hg38', 'anno')] = [
+    ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38_top_level.gff3.gz'),
+    # ('ccds', 'hg38.ccds.txt', ''),
+    ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz'),
+    ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz'),
+    ('ucsc', 'hg38.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg38.ucsc.refgene.txt.gz?dl=1'),
+]
+
+fns[('mm9', 'anno')] = [
+    ('refseq', 'mm9.refseq.gff.gz',
+     'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
+    ('ccds', 'mm9.ccds.txt',
+     'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
+    ('gencode', 'mm9.gencode.gtf.gz',
+     'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
+]
+
+fns[('mm10', 'anno')] = [
+    ('refseq', 'mm10.refseq.gff.gz',
+     'ftp://ftp.ncbi.nlm.nih.gov/genomes/M_musculus/GFF/ref_GRCm38.p3_top_level.gff3.gz'),
+    ('ccds', 'mm10.ccds.txt',
+     'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm38.1/CCDS.current.txt'),
+    ('ensembl', 'mm10.ensembl.gtf.gz',
+     'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz'),
+    ('gencode', 'mm10.gencode.gtf.gz',
+     'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
+]
+
+# def download_hg19_reference(config):
+#     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
+#     _download_(config, 'hg38', fns)
+    
+# def download_hg38_reference(config):
+#     fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
+#     _download_(config, 'hg38', fns)
+
 def download_url(url, file_name):
 
     import urllib2
@@ -57,112 +121,31 @@ def _download_(config, section, fns):
 
         break
 
-def download_hg18_annotations(config):
-
-    fns = [
-        ('refseq', 'hg18.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/GFF/ref_NCBI36_top_level.gff3.gz'),
-        ('ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
-        ('aceview', 'hg18.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
-        ('gencode', 'hg18.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_3c/gencode.v3c.annotation.NCBI36.gtf.gz'),
-        ('ucsc', 'hg18.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg18.ucsc.refgene.txt.gz?dl=1'),
-        ('ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
-        ]
-
-    config.set('DEFAULT', 'refversion', 'hg18')
-    _download_(config, 'hg18', fns)
-
-def download_hg19_annotations(config):
-
-    fns = [
-        ('refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
-        # ('refseq', 'hg19.refseq.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/ref_GRCh37.p13_top_level.gff3.gz?dl=1'),
-        ('ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
-        # ('ccds', 'hg19.ccds.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/CCDS.current.txt?dl=1'),
-        ('ensembl', 'hg19.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'),
-        # ('ensembl', 'hg19.ensembl.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/Homo_sapiens.GRCh37.75.gtf.gz?dl=1'),
-        ('gencode', 'hg19.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz'),
-        # ('gencode', 'hg19.gencode.gtf.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/gencode.v19.annotation.gtf.gz?dl=1'),
-        ('ucsc', 'hg19.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.ucsc.refgene.txt.gz?dl=1'),
-        ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
-        ('aceview', 'hg19.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_37_Aug10.human.genes/AceView.ncbi_37.genes_gff.gff.gz'),
-        # ('aceview', 'hg19.aceview.gff.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/AceView.ncbi_37.genes_gff.gff.gz?dl=1'),
-        ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
-        ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
-        ]
-
-    config.set('DEFAULT', 'refversion', 'hg19')
-    _download_(config, 'hg19', fns)
-
-def download_mm10_annotations(config):
-
-    fns = [
-        ('refseq', 'mm10.refseq.gff.gz',
-         'ftp://ftp.ncbi.nlm.nih.gov/genomes/M_musculus/GFF/ref_GRCm38.p3_top_level.gff3.gz'),
-        ('ccds', 'mm10.ccds.txt',
-         'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm38.1/CCDS.current.txt'),
-        ('ensembl', 'mm10.ensembl.gtf.gz',
-         'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz'),
-        ('gencode', 'mm10.gencode.gtf.gz',
-         'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
-        ]
-    config.set('DEFAULT', 'refversion', 'mm10')
-    _download_(config, 'mm10', fns)
-
-def download_mm9_annotations(config):
-
-    fns = [
-        ('refseq', 'mm9.refseq.gff.gz',
-         'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
-        ('ccds', 'mm9.ccds.txt',
-         'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
-        ('gencode', 'mm9.gencode.gtf.gz',
-         'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
-        ]
-    
-    config.set('DEFAULT', 'refversion', 'mm9')
-    _download_(config, 'mm9', fns)
-
 def download_idmap(config):
     fns = [('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1')]
     _download_(config, 'idmap', fns)
 
-def download_hg38_annotations(config):
-
-    fns = [('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38_top_level.gff3.gz'),
-           # ('ccds', 'hg38.ccds.txt', ''),
-           ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz'),
-           ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz'),
-           ('ucsc', 'hg38.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg38.ucsc.refgene.txt.gz?dl=1'),
-       ]
-    config.set('DEFAULT', 'refversion', 'hg38')
-    _download_(config, 'hg38', fns)
-
-# def download_hg19_reference(config):
-#     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
-#     _download_(config, 'hg38', fns)
-    
-# def download_hg38_reference(config):
-#     fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
-#     _download_(config, 'hg38', fns)
-
-def download_dbsnp(config):
+def getrv(config):
 
     if args.refversion:
         rv = args.refversion
+    elif args.s != 'DEFAULT':
+        rv = args.s
     elif 'refversion' in config.defaults():
         rv = config.get('DEFAULT', 'refversion')
     else:
         rv = 'hg19'
 
-    if rv == 'hg19':
-        fns = [('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz'),
-               ('dbsnp_index', 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
-           ]
-    else:
-        err_print("No pre-built dbsnp for %s, please build manually" % rv)
-        sys.exit(1)
+    return rv
 
-    _download_(config, rv, fns)
+def download_topic(config, topic):
+
+    rv = getrv(config)
+    if (rv, topic) in fns:
+        config.set('DEFAULT', 'refversion', fns[(rv, topic)])
+        _download_(config, rv, fns[(rv, topic)])
+    else:
+        err_die('no pre-built %s for %s, please build manually' % (topic, rv))
 
 def read_config():
     config = ConfigParser.RawConfigParser()
@@ -176,24 +159,12 @@ def main(args):
     if args.k and args.v:
         config_set(config, args.s, args.k, args.v)
 
-    if args.download_hg18_anno:
-        download_hg18_annotations(config)
+    if args.download_anno:
+        download_topic(config, 'anno')
 
-    if args.download_hg19_anno:
-        download_hg19_annotations(config)
-
-    if args.download_hg38_anno:
-        download_hg38_annotations(config)
-
-    if args.download_mm10_anno:
-        download_mm10_annotations(config)
-
-    if args.download_mm9_anno:
-        download_mm9_annotations(config)
-
-    if args.download_hg19_dbsnp:
-        download_hg19_dbsnp(config)
-
+    if args.download_dbsnp:
+        download_topic(config, 'dbsnp')    
+        
     if args.download_idmap:
         download_idmap(config)
 

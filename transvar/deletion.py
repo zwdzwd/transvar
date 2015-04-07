@@ -166,7 +166,7 @@ def annotate_deletion_gdna(args, q, db):
     warning = None
     if q.delseq and q.delseq != gnuc_delseq:
         warning = "invalid_deletion_seq_%s_(expect_%s)" % (gnuc_delseq, q.delseq)
-        err_print("Warning: %s invalid deletion sequence %s (expect %s), maybe wrong reference?" % (q.op, gnuc_delseq, q.delseq))
+        err_warn("%s invalid deletion sequence %s (expect %s), maybe wrong reference?" % (q.op, gnuc_delseq, q.delseq))
 
     # right-align
     gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(q.tok, q.beg, q.end)
