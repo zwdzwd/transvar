@@ -20,7 +20,7 @@ TransVar has the following features:
 
 ### Quick start
 
-download program, unzip and cd to directory
+download program, unzip and cd to directory and run
 ```
 #!bash
 ./transvar config --download_hg19_anno
@@ -43,6 +43,26 @@ Basic functionalities requires just Python 2.7.
 #### program
 
 current stable version: [version 1.38](https://bitbucket.org/wanding/transvar/get/v1.38.zip)
+
+#### install
+
+##### System-wise install (need root)
+```
+#!bash
+python setup.py install
+```
+
+##### Local install
+```
+#!bash
+python setup.py install --prefix [localfolder]
+```
+After install, there will be two subfolders in `[localfolder]/lib` (which would contain libraries) and `[localfolder]/bin` (which would contain transvar executable).
+When you run transvar, makesure `[localfolder]/lib/python2.7/site-packages` is in your PYTHONPATH
+You can add it by putting
+`export PYTHONPATH=$PYTHONPATH:[localfolder]/lib/python-2.7/site-packages/` to your `.bashrc` (or `.profile` depending on your OS).
+
+The installed executable is `[localfolder]/bin/transvar`.
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
