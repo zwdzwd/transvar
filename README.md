@@ -57,7 +57,7 @@ python setup.py install
 python setup.py install --prefix [localfolder]
 ```
 After install, there will be two subfolders in `[localfolder]/lib` (which would contain libraries) and `[localfolder]/bin` (which would contain transvar executable).
-When you run transvar, makesure `[localfolder]/lib/python2.7/site-packages` is in your PYTHONPATH
+When you run transvar, make sure `[localfolder]/lib/python2.7/site-packages` is in your PYTHONPATH.
 You can add it by putting
 `export PYTHONPATH=$PYTHONPATH:[localfolder]/lib/python-2.7/site-packages/` to your `.bashrc` (or `.profile` depending on your OS).
 
