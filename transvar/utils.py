@@ -68,9 +68,9 @@ class AnnoDB():
 
     def _query_dbsnp_(self, chrm, beg, end, ref=None, alt=None):
 
+        dbsnps = []
         if 'dbsnp' in self.resources:
             ret = self.resources['dbsnp'].query(normalize_chrm_dbsnp(chrm), int(beg), int(end))
-            dbsnps = []
             for fields in ret:
                 alts = fields[4].split(',')
                 if ref is not None and ref != fields[3]:
