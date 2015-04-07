@@ -18,21 +18,6 @@ TransVar has the following features:
 
 --------
 
-### Quick start
-
-Suppose you have transvar installed (see below for installation instruction). run
-```
-#!bash
-transvar config --download_hg19_anno
-transvar revanno --custom -i 'PIK3CA.p.E545K'
-```
-Note that to use TransVar in full, one need to link to a (samtools faidx indexed) reference assembly. One can set the default location (e.g., ./hg19.fa) for the reference assembly via
-```
-#!bash
-transvar config -k reference -v ./hg19.fa -s hg19
-```
-Please see Install section for detailed instruction.
-
 ### Download and install
 
 #### dependency
@@ -114,7 +99,7 @@ The following table summarize the transcript annotations supported by TransVar a
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
  | custom | custom table | `--custom` | `--custom hg19.map` |
 
-If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt").
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt"). With the `custom` table, one may use TransVar without specifying the reference assembly.
 To set the default annotation of a particular reference version,
 ```
 #!bash
