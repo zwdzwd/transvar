@@ -43,7 +43,7 @@ Basic functionalities requires just Python 2.7.
 
 current stable version: [2.0.0.20150407](https://bitbucket.org/wanding/transvar/get/v2.0.0.20150407.zip)
 
-For previous versions, see [TAGS]{https://bitbucket.org/wanding/transvar/overview#tags}.
+For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
 #### install
 
