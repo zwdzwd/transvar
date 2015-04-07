@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-import re, argparse
+import re
+try:
+    import argparse
+except ImportError:
+    import transvar.argparse as argparse
+
 from itertools import chain
 """ TransVar (annotator for Transcript-dependent Variants) """
 
-from revanno import add_parser_revanno
-from anno import add_parser_anno
-from codonsearch import add_parser_codonsearch
-from config import add_parser_config, read_config, add_parser_current
+from transvar.revanno import add_parser_revanno
+from transvar.anno import add_parser_anno
+from transvar.codonsearch import add_parser_codonsearch
+from transvar.config import add_parser_config, read_config, add_parser_current
 
 if __name__ == '__main__':
 
