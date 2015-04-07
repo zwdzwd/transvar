@@ -38,7 +38,7 @@ Please see Install section for detailed instruction.
 
 #### dependency
 
-Basic functionalities requires just Python 2.7. Some additional annotation also depends on the pysam library.
+Basic functionalities requires just Python 2.7. 
 
 #### program
 
@@ -306,19 +306,30 @@ ACSL4:p.R133R   chrX    108926078-108926080     CCDS14548.1 (protein_coding)    
 ```
 In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
-If one wishes, he/she can also turn on the `--dbsnp` option to show further potential match to the dbSNP database. (This requires 1) pysam library installed in python path; 2) dbsnp library downloaded via `transvar config --download_hg19_dbsnp`)
+#### annotate with additional resources
+
+For example, one could annotate SNP with dbSNP id by downloading the dbSNP files.
+This can be done by
 ```
 #!bash
-transvar revanno -i 'A1CF:p.A309A' --ccds --dbsnp
+transvar config --download_dbsnp
+```
+TransVar automatically download dbSNP file which correspoding to the current default reference version (as set in `transvar.cfg`). This also sets the entry in `transvar.cfg`.
+With dbSNP file downloaded, TransVar automatically looks for dbSNP id when performing annotation.
+```
+#!bash
+transvar revanno -i 'A1CF:p.A309A' --ccds
 ```
 ```
 #!text
-A1CF:p.A309A    10    52576004-52576005-52576006    CCDS7243.1
-    A1CF (-, coding, exon 7)    10:g.52576004T>G/c.927A>C/p.A309A
-    NCodonSeq=GCA;NCddSeqs=GCC,GCG,GCT;CddSNVMuts=10:g.52576004T>C,10:g.52576004T>A;
-	DBSNP=rs201831949(10:52576004T>G)
+A1CF:p.A309A    CCDS7243.1 (protein_coding)     A1CF    -
+  chr10:g.52576004T>G/c.927A>C/p.A309A
+  cds_in_exon_7
+  reference_codon=GCA;candidate_codons=GCC,GCG,GCT;
+  candidate_snv_variants=chr10:g.52576004T>C,chr10:g.52576004T>A;
+  dbsnp=rs201831949(chr10:52576004T>G);synonymous
 ```
-Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_hg19_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. dbSNP file must be tabix indexed.
+Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. Manually set path for dbSNP file must have the file tabix indexed.
 
 
 ---
@@ -1144,7 +1155,6 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
  + forward annotation of structural variation breakpoints
  + begin codon and end codon in deletion
  + distinguish non-transcribable element and suppress promoter setting (like "retained intron")
- + dbsnp id 
 
 ## Bug report and feature request
 
