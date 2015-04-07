@@ -20,13 +20,12 @@ TransVar has the following features:
 
 ### Quick start
 
-download program, unzip and cd to directory and run
+Suppose you have transvar installed (see install for installation instruction). run
 ```
 #!bash
-./transvar config --download_hg19_anno
-./transvar revanno --custom -i 'PIK3CA.p.E545K'
+transvar config --download_hg19_anno
+transvar revanno --custom -i 'PIK3CA.p.E545K'
 ```
-
 Note that to use TransVar in full, one need to link to a (samtools faidx indexed) reference assembly. One can set the default location (e.g., ./hg19.fa) for the reference assembly via
 ```
 #!bash
