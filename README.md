@@ -37,9 +37,9 @@ Please see Install section for detailed instruction.
 
 #### dependency
 
-Basic functionalities requires just Python 2.7. 
+requires just Python 2.7. 
 
-#### program
+#### download the program
 
 current stable version: [2.0.0.20150407](https://bitbucket.org/wanding/transvar/get/v2.0.0.20150407.zip)
 
