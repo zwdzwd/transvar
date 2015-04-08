@@ -1,6 +1,5 @@
 import sys, re
 from utils import *
-from io_utils import *
 from err import *
 import faidx
 from record import *

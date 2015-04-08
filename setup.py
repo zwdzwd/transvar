@@ -45,9 +45,14 @@ def main():
                   libraries=["z"],
                   define_macros=[("_FILE_OFFSET_BITS", 64), ("_USE_KNETFILE", 1)],
                   extra_compile_args=["-w"],
-              )
+              ),
     ]
-    
+
+    libraries = [("ssw",
+                  {'sources': ['ssw/ssw.c', 'ssw/encode.c'],
+                   'include_dirs': ['ssw'],
+                   'extra_compile_args': ['-W', '-Wall', '-O2', '-finline-functions', '-fPIC', '-shared', '-Wl,-soname,sswlib']})]
+
     setup(
         name = "TransVar",
         version = "2.0.0.20150407",
@@ -60,6 +65,7 @@ def main():
         scripts = ['bin/transvar'],
         packages = ['transvar'],
         ext_modules = ext_modules,
+        libraries = libraries,
         classifiers = [
             "Programming Language :: Python",
             "Development Status :: 4 - Beta",
