@@ -217,7 +217,7 @@ Then one could use protein id instead of gene name by applying the `--uniprot` o
 
 ```
 #!bash
-transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
+transvar revanno --ccds -i 'Q5VUM1:p.47' --uniprot
 ```
 ```
 #!text
@@ -270,7 +270,7 @@ ABCB11:p.200_400        chr2    169833195-169851872     CCDS46444.1     ABCB11  
 
 ---
 #### reverse annotation of single amino acid substitution
-Mutation formats acceptable in TransVar are ```PIK3CA:E545K``` or ```PIK3CA:p.E545K```, or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. TransVar takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
+Mutation formats acceptable in TransVar are ```PIK3CA:p.E545K``` or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. TransVar takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
 
 ```
 #!bash

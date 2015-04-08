@@ -82,7 +82,7 @@ def annotate_mnv_protein(args, q, tpts, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            if q.beg*3 > len(t) or q.end*3 > len(t):
+            if q.end*3 > t.cdslen():
                 raise IncompatibleTranscriptError('codon nonexistent')
 
             tnuc_beg = q.beg*3-2

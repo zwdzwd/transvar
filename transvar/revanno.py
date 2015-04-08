@@ -8,51 +8,28 @@ from record import *
 from config import read_config
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
 
-from snv import annotate_snv_protein, annotate_snv_cdna
-from deletion import annotate_deletion_protein, annotate_deletion_cdna
-from insertion import annotate_insertion_protein, annotate_insertion_cdna, annotate_duplication_cdna
-from mnv import annotate_mnv_protein, annotate_mnv_cdna
-from region import annotate_region_protein, annotate_region_cdna
+from snv import 
+from deletion import 
+from insertion import
+from mnv import
+from region import 
 from frameshift import annotate_frameshift
 
 def _core_annotate_codon(args, q, db):
 
     if args.longest: tpts = [q.gene.longest_tpt()]
     else: tpts = q.gene.tpts
-    if isinstance(q, QuerySNV):
-        return annotate_snv_protein(args, q, tpts, db)
-    elif isinstance(q, QueryDEL):
-        return annotate_deletion_protein(args, q, tpts, db)
-    elif isinstance(q, QueryINS):
-        return annotate_insertion_protein(args, q, tpts, db)
-    elif isinstance(q, QueryMNV):
-        return annotate_mnv_protein(args, q, tpts, db)
-    elif isinstance(q, QueryFrameShift):
-        return annotate_frameshift(args, q, tpts, db)
-    else:
-        return annotate_region_protein(args, q, tpts, db)
+    
 
 def _core_annotate_nuc(args, q, db):
 
-    if args.longest: tpts = [q.gene.longest_tpt()]
-    else: tpts = q.gene.tpts
-
-    if isinstance(q, QuerySNV):
-        return annotate_snv_cdna(args, q, tpts, db)
-    elif isinstance(q, QueryDEL):
-        return annotate_deletion_cdna(args, q, tpts, db)
-    elif isinstance(q, QueryINS):
-        return annotate_insertion_cdna(args, q, tpts, db)
-    elif isinstance(q, QueryMNV):
-        return annotate_mnv_cdna(args, q, tpts, db)
-    elif isinstance(q, QueryDUP):
-        return annotate_duplication_cdna(args, q, tpts, db)
-    else:
-        return annotate_region_cdna(args, q, tpts, db)
+    
 
 def _main_core_(args, q, db):
 
-    if q.is_codon:              # in codon coordinate
+
+        
+    elif q.is_codon:              # in codon coordinate
         _core_annotate_codon(args, q, db)
     else:                       # in nucleotide coordinate
         _core_annotate_nuc(args, q, db)
@@ -78,13 +55,23 @@ def main_list(args, db):
 
 def main_one(args, db):
 
-    q = parse_tok_mutation_str(args.i)
+    try:
+        q = parse_tok_mutation_str(args.i)
+    except InvalidInputError:
+        r = Record()
+        r.append_info('invalid_mutation_string_%s' % args.i)
+        r.format(args.i)
+        return
+
+    if not q:
+        return
+    
     q.tok = q.tok.upper()
-    if not q: return
     q.gene = db.get_gene(q.tok)
     if not q.gene:
         r = Record()
-        r.info = 'GeneNotRecognized'
+        r.append_info('gene_not_recognized_(%s)' % q.tok)
+        err_warn('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
         r.format(q.op)
         return
 

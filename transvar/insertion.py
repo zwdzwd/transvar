@@ -155,7 +155,7 @@ def codon_mutation_ins(args, q, t, db):
     taa_set_ins(r, t, q.beg, q.insseq)
     r.reg = RegCDSAnno(t)
     r.reg.from_cindex(q.beg)
-    if q.beg*3 > len(t) or q.end*3 > len(t):
+    if q.beg*3 > t.cdslen() or q.end*3 > t.cdslen():
         raise IncompatibleTranscriptError('codon nonexistent')
 
     tnuc_beg = q.beg*3-2
@@ -259,7 +259,7 @@ def annotate_duplication_cdna(args, q, tpts, db):
             r.gene = t.gene.name
             r.strand = t.strand
 
-            if q.beg.pos > len(t) or q.end.pos > len(t):
+            if q.beg.pos > t.cdslen() or q.end.pos > t.cdslen():
                 raise IncompatibleTranscriptError('codon nonexistent')
 
             t.check_exon_boundary(q.beg)

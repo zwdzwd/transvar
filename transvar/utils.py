@@ -8,7 +8,7 @@ class AnnoDB():
     def __init__(self, args, config):
 
         if args.refversion:
-            self.rv = config.refversion
+            self.rv = args.refversion
         elif 'refversion' in config.defaults():
             self.rv = config.get('DEFAULT', 'refversion')
         else:
@@ -545,7 +545,7 @@ def parse_annotation(args):
                     t.cds_end = t.exons[-1][1]
 
             thash.insert(t)
-            if len(t) == 0:     # if no exon, use cds
+            if len(t.exons) == 0:     # if no exon, use cds
                 t.exons = t.cds[:]
 
         g.std_tpt = g.longest_tpt()
@@ -567,6 +567,10 @@ def parse_annotation(args):
 
 def parser_add_annotation(parser):
 
+    parser.add_argument("--longest", action="store_true",
+                        help="consider only longest transcript")
+    parser.add_argument("--longestcoding", action="store_true",
+                        help="consider only protein-coding transcript with longest cds")
     parser.add_argument('--refversion', nargs='?', default=None,
                         help='reference version (hg18, hg19, hg38 etc) (config key: refversion)')
     parser.add_argument('--reference', nargs='?', default='_DEF_',

@@ -107,6 +107,9 @@ def config_set(config, section, option, value):
     if section != 'DEFAULT' and not config.has_section(section):
         config.add_section(section)
     config.set(section, option, value)
+    if section != 'DEFAULT':
+        config.set('DEFAULT', 'refversion', rv)
+
 
 def _download_(config, section, fns):
 

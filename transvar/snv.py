@@ -13,7 +13,7 @@ def annotate_snv_cdna(args, q, tpts, db):
                 raise IncompatibleTranscriptError('transcript id unmatched')
             t.ensure_seq()
             
-            if (q.cpos() <= 0 or q.cpos() > len(t)):
+            if (q.cpos() <= 0 or q.cpos() > t.cdslen()):
                 raise IncompatibleTranscriptError()
             codon = t.cpos2codon((q.cpos()+2)/3)
             if not codon:
@@ -97,7 +97,7 @@ def _annotate_snv_protein(args, q, t, db):
 
     t.ensure_seq()
 
-    if (q.pos <= 0 or q.pos > len(t)):
+    if (q.pos <= 0 or q.pos > t.cdslen()):
         raise IncompatibleTranscriptError('codon nonexistent')
     codon = t.cpos2codon(q.pos)
     if not codon:

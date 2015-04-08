@@ -15,7 +15,7 @@ def _annotate_frameshift(args, q, t):
 
     t.ensure_seq()
 
-    if (q.pos <= 0 or q.pos > len(t)):
+    if (q.pos <= 0 or q.pos > t.cdslen()):
         raise IncompatibleTranscriptError('codon nonexistent')
     codon = t.cpos2codon(q.pos)
     if not codon:
@@ -36,10 +36,10 @@ def _annotate_frameshift(args, q, t):
     tnuc_beg = (codon.index-1)*3+1
     tnuc_end = (q.pos+q.stop_index)*3 # may be out of bound
     r.tnuc_range = '%d-%d' % (tnuc_beg, tnuc_end)
-    if tnuc_end >= len(t):
+    if tnuc_end >= t.cdslen():
         t.ensure_position_array()
         gnuc_beg = t.tnuc2gnuc(tnuc_beg)
-        gnuc_end = t.cds_end + tnuc_end - len(t)
+        gnuc_end = t.cds_end + tnuc_end - t.cdslen()
     else:
         gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
     r.gnuc_range = '%d-%d' % (gnuc_beg, gnuc_end)

@@ -12,7 +12,7 @@ def _annotate_region_cdna(args, q, t, db):
 
     r = Record()
     r.chrm = t.chrm
-    r.tname = t.name
+    r.tname = t.format()
     r.gene = t.gene.name
     r.strand = t.strand
 
@@ -30,7 +30,7 @@ def _annotate_region_cdna(args, q, t, db):
 
     r.refrefseq = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_beg, r.gnuc_end)
     r.natrefseq = reverse_complement(r.refrefseq) if t.strand == '-' else r.refrefseq
-    if q.ref and r.natrefseq != q.ref:
+    if q.refseq and r.natrefseq != q.refseq:
         raise IncompatibleTranscriptError()
 
     r.gnuc_range = '%d_%d%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq) if r.gnuc_beg != r.gnuc_end else '%d%s' % (r.gnuc_beg, r.refrefseq)
@@ -84,9 +84,9 @@ def annotate_region_protein(args, q, tpts, db):
 
             r = Record()
             r.chrm = t.chrm
-            r.tname = t.name
+            r.tname = t.format()
 
-            if q.beg*3 > len(t) or q.end*3 > len(t):
+            if q.end*3 > t.cdslen():
                 raise IncompatibleTranscriptError('codon nonexistent')
 
             tnuc_beg = q.beg*3 - 2
@@ -113,8 +113,8 @@ def annotate_region_protein(args, q, tpts, db):
             r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (printseq(taa_natrefseq), printseq(r.natrefseq), printseq(r.refrefseq)))
         except IncompatibleTranscriptError:
             continue
-        except UnknownChromosomeError:
-            continue
+        # except UnknownChromosomeError:
+            # continue
         found = True
         r.format(q.op)
 
@@ -233,4 +233,29 @@ def annotate_region_gdna(args, q, db):
         r.format(q.op)
                 
 
+def annotate_gene(args, q, tpts, db):
+
+    for t in tpts:
+        r = Record()
+        r.chrm = t.chrm
+        r.gene = q.tok
+        r.gnuc_range = '%d_%d' % (t.beg, t.end)
+        r.tnuc_range = '%d_%d' % (1, t.cdslen())
+        if t.strand == '+':
+            tss_tes = (t.chrm, t.beg-args.prombeg, t.beg+args.promend)
+        else:
+            tss_tes = (t.chrm, t.end-args.promend, t.end+args.prombeg)
+        r.append_info('promoter=%s:%d_%d' % tss_tes)
+        r.append_info('#exons=%d' % len(t.exons))
+        if t.transcript_type == 'protein_coding':
+            r.append_info('cds=%s:%d_%d' % (t.chrm, t.cds_beg, t.cds_end))
+            r.taa_range = '%s%d_%s%d' % (t.taa2aa(1), 1, t.taa2aa(t.cdslen()/3), t.cdslen()/3)
+            if t.cdslen() % 3 != 0:
+                r.append_info('truncated_refseq_at_boundary')
+
+        r.strand = t.strand
+        r.tname = t.format()
+        r.reg = 'whole_transcript'
+
+        r.format(q.op)
 

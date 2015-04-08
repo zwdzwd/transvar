@@ -66,39 +66,7 @@ class RegAnno():
         self.intronic = False
         self.intron_exon1 = None
         self.intron_exon2 = None
-        # self.splice = None      # 'NextToDonor' | 'Donor' | 'Acceptor' | 'NextToAcceptor'
 
-    # def from_tnuc(self, t, p):
-
-    #     self.t = t
-    #     if p.tpos == 0:
-    #         self.exonic = True
-    #         self.intronic = False
-    #         self.exon = t.tnuc2exoninds(p.pos, p.pos)[0]
-    #     elif p.tpos > 0:
-    #         if p.pos == len(t):
-    #             self.UTR = '3'
-    #             exons = t.gnuc2exoninds(self.cds_beg, p.pos)
-    #             if exons
-    #             self.exonic = False
-    #             self.intronic = False
-
-    #         else:
-    #             self.exonic = False
-    #             self.intronic = True
-    #             self.intronic_exon1 = t.tnuc2exoninds(p.pos, p.pos)[0]
-    #             self.intronic_exon2 = t.tnuc2exoninds(p.pos+1, p.pos+1)[0]
-    #     else:
-    #         if p.pos == 1:
-    #             self.UTR = '5'
-    #             self.exonic = False
-    #             self.intronic = False
-    #         else:
-    #         self.exonic = False
-    #         self.intronic = True
-    #         self.intronic_exon1 = t._tnuc_range2exon_inds(p.pos-1, p.pos-1)[0]
-    #         self.intronic_exon2 = t._tnuc_range2exon_inds(p.pos, p.pos)[0]
-        
     def genic(self):
 
         if hasattr(self, "intergenic"):
@@ -295,6 +263,14 @@ class Query(object):
             err_warn('abnormal position %s. skip.' % pos_str)
             return False
 
+
+class QueryGENE(Query):
+
+    def __init__(self):
+
+        super(QueryGENE, self).__init__()
+        self.gene = ''
+        
 class QueryREG(Query):
 
     def __init__(self):

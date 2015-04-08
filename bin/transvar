@@ -8,7 +8,6 @@ except ImportError:
 from itertools import chain
 """ TransVar (annotator for Transcript-dependent Variants) """
 
-from transvar.revanno import add_parser_revanno
 from transvar.anno import add_parser_anno
 from transvar.codonsearch import add_parser_codonsearch
 from transvar.config import add_parser_config, read_config, add_parser_current
@@ -19,7 +18,6 @@ if __name__ == '__main__':
 
     config = read_config()
     subparsers = parser.add_subparsers()
-    add_parser_revanno(subparsers, config)
     add_parser_anno(subparsers, config)
     add_parser_codonsearch(subparsers, config)
 

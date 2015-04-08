@@ -27,8 +27,7 @@ def get_transcripts(args, q, db):
 
     genes = list(set([t.gene for t in tpts]))
     if args.longest: # pick the longest transcript for each gene
-        tpts = [sorted([_ for _ in g.tpts if _ in tpts], key=lambda t: len(t), reverse=True)[0]
-                for g in genes]
+        tpts = [sorted([_ for _ in g.tpts if _ in tpts], key=lambda t: t.tlen(), reverse=True)[0] for g in genes]
 
     return (tpts, genes)
 

@@ -212,12 +212,31 @@ class Transcript():
         self.exons  = []
         self.cds    = []
 
-    def __len__(self):
-        if self.seq:
-            return len(self.seq)
-        else:
-            return reduce(lambda x,y: x+y,
-                          [end-beg+1 for beg, end in self.exons], 0)
+    # Note that this is ambiguous based on whether there is seq which is coding
+    # def __len__(self):
+
+    #     if self.seq:
+    #         return len(self.seq)
+    #     else:
+    #         return reduce(lambda x,y: x+y,
+    #                       [end-beg+1 for beg, end in self.exons], 0)
+
+    def tlen(self):
+        """ transcript length """
+
+        return reduce(lambda x,y: x+y,
+                      [end-beg+1 for beg, end in self.exons], 0)
+
+    def cdslen(self):
+
+        cdslen = 0
+        for ex_beg, ex_end in self.exons:
+            beg = max(ex_beg, self.cds_beg)
+            end = min(ex_end, self.cds_end)
+            if beg <= end:
+                cdslen += end-beg+1
+
+        return cdslen
 
     def format(self):
         # if self.transcript_type == 'protein_coding':
@@ -261,10 +280,12 @@ class Transcript():
     def ensure_seq(self):
         """ return True when successful,
         potential reason include patch chromosomes
+        only coding sequence
         """
         if self.seq: return
         if not faidx.refgenome:
             err_die("please provide reference through --ref [reference fasta].")
+
         seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
         if (not seq) or (len(seq) != self.end - self.beg + 1):
@@ -1316,9 +1337,18 @@ class Gene():
     def __repr__(self):
         return "<Gene: %s>" % self.name
 
+    def longest_coding_tpt(self):
+
+        return max([t for t in self.tpts if t.transcript_type=='protein_coding'],
+                   key=lambda x: x.cdslen())
+    
     def longest_tpt(self):
 
-        return max(self.tpts, key=lambda x: len(x))
+        return max(self.tpts, key=lambda x: x.tlen())
+
+    def coding_tpts(self):
+
+        return [t for t in self.tpts if t.transcript_type == 'protein_coding']
 
     def chrm(self):
         
@@ -1545,9 +1575,13 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
             g.end = int(fields[4])
             
         elif fields[2] == 'transcript':
+
+            # there exits two transcript format in ensembl gtf
+            # the old version has no 'transcript_biotype'
+            # the equivalent transcript_biotype is fields[1]
             tid = info['transcript_id']
             if tid not in id2ent: 
-                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else info['gene_biotype']
+                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else fields[1]
                 id2ent[tid] = Transcript(transcript_type=transcript_type)
             t = id2ent[tid]
             t.chrm = normalize_chrm(fields[0])
@@ -1565,14 +1599,14 @@ def parse_ensembl_gtf(gtf_fn, name2gene):
         elif fields[2] == 'exon':
             tid = info['transcript_id']
             if tid not in id2ent:
-                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else info['gene_biotype']
+                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else fields[1]
                 id2ent[tid] = Transcript(transcript_type=transcript_type)
             t = id2ent[tid]
             t.exons.append((int(fields[3]), int(fields[4])))
         elif fields[2] == 'CDS':
             tid = info['transcript_id']
             if tid not in id2ent:
-                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else info['gene_biotype']
+                transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else fields[1]
                 id2ent[tid] = Transcript(transcript_type=transcript_type)
             t = id2ent[tid]
             t.cds.append((int(fields[3]), int(fields[4])))
