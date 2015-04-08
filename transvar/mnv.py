@@ -131,6 +131,71 @@ def annotate_mnv_protein(args, q, tpts, db):
 
         r.format(q.op)
 
+def decompose_mut(q):
+    import ssw
+    # print q.altseq
+    # print q.refseq
+    aln = ssw.ssw_aln(q.altseq, q.refseq)
+    # b = 'GGGGGGGGGCGTACCCTGGAG'
+    # a = 'GCTACCCAGGAG'
+    # aln = ssw.ssw_aln(a, b)
+
+    # if aln.rbeg == 0 and aln.qbeg == 0:
+    rpos = 0
+    qpos = 0
+    for ct, cl in aln.cigar:
+        if ct == 0:
+            _altseq = ''
+            _refseq = ''
+            _coords = []
+            for i in xrange(cl):
+                if q.altseq[qpos+i] == q.refseq[rpos+i]:
+                    _altseq += ' '
+                    _refseq += ' '
+                else:
+                    if i == 0 or q.altseq[qpos+i-1] == q.refseq[rpos+i-1]:
+                        _coords.append(i)
+                    _altseq += q.altseq[qpos+i]
+                    _refseq += q.refseq[rpos+i]
+            ss = zip(_coords, _altseq.strip().split(), _refseq.strip().split())
+            for j, alt, ref in ss:
+                if len(ref) == 1:
+                    qq = QuerySNV()
+                    qq.pos = q.beg+rpos+j
+                    qq.ref = ref
+                    qq.alt = alt
+                    yield qq
+                else:
+                    qq = QueryMNV()
+                    qq.beg = q.beg+rpos+j
+                    qq.end = q.beg+rpos+j+len(ref)-1
+                    qq.refseq = ref
+                    qq.altseq = alt
+                    yield qq
+            rpos += cl
+            qpos += cl
+        elif ct == 1:
+            qq = QueryINS()
+            qq.pos = q.beg+rpos-1
+            qq.insseq = q.altseq[qpos:qpos+cl]
+            yield qq
+            qpos += cl
+        elif ct == 2:
+            qq = QueryDEL()
+            qq.beg = q.beg+rpos
+            qq.end = q.beg+rpos+cl-1
+            qq.delseq = q.refseq[rpos:rpos+cl]
+            yield qq
+            rpos += cl
+        elif ct == 4:
+            qq = QueryMNV()
+            qq.beg = q.beg+rpos
+            qq.end = q.beg+rpos+cl-1
+            qq.refseq = q.refseq[rpos:rpos+cl]
+            qq.altseq = q.altseq[qpos:qpos+cl]
+            yield qq
+            rpos += cl
+            qpos += cl
 
 def annotate_mnv_gdna(args, q, db):
 
@@ -148,6 +213,13 @@ def annotate_mnv_gdna(args, q, db):
     
     else:                       # make sure q.refseq exists
         q.refseq = gnuc_refseq
+
+    if args.haplotype:
+        import anno
+        for qq in decompose_mut(q):
+            qq.tok = q.tok
+            anno._main_core_(args, db, qq)
+        return
 
     gnuc_altseq = q.altseq
     gnuc_refseq, gnuc_altseq, head_trim, tail_trim = double_trim(gnuc_refseq, gnuc_altseq)

@@ -46,16 +46,17 @@ def main():
                   define_macros=[("_FILE_OFFSET_BITS", 64), ("_USE_KNETFILE", 1)],
                   extra_compile_args=["-w"],
               ),
+        Extension("_sswlib",
+                  sources = ['ssw/ssw.c', 'ssw/encode.c'],
+                  include_dirs = ['ssw'],
+                  extra_compile_args = ['-W', '-Wall', '-O2', '-finline-functions', '-fPIC', '-shared', '-Wl,-soname,sswlib'],
+              ),
     ]
 
-    libraries = [("ssw",
-                  {'sources': ['ssw/ssw.c', 'ssw/encode.c'],
-                   'include_dirs': ['ssw'],
-                   'extra_compile_args': ['-W', '-Wall', '-O2', '-finline-functions', '-fPIC', '-shared', '-Wl,-soname,sswlib']})]
 
     setup(
         name = "TransVar",
-        version = "2.0.0.20150407",
+        version = "2.0.2.20150407",
         description = "Transcript-based Variant annotator",
         url = "https://bitbucket.org/wanding/transvar",
         author = "Wanding Zhou",
@@ -63,9 +64,8 @@ def main():
         license = "MIT",
         keywords = ["bioinformatics", "genomics"],
         scripts = ['bin/transvar'],
-        packages = ['transvar'],
+        packages = ['transvar', 'ssw'],
         ext_modules = ext_modules,
-        libraries = libraries,
         classifiers = [
             "Programming Language :: Python",
             "Development Status :: 4 - Beta",

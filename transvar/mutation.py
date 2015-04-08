@@ -317,4 +317,5 @@ def parser_add_mutation(parser):
                         help='columns to be printed in output (1-based), e.g., 3,4,5-10')
     parser.add_argument('--skipheader', action='store_true',
                         help='skip header')
+    parser.add_argument('--haplotype', action='store_true', help='use haplotype mode for mnv')
 
