@@ -107,9 +107,6 @@ def config_set(config, section, option, value):
     if section != 'DEFAULT' and not config.has_section(section):
         config.add_section(section)
     config.set(section, option, value)
-    if section != 'DEFAULT':
-        config.set('DEFAULT', 'refversion', rv)
-
 
 def _download_(config, section, fns):
 
@@ -166,17 +163,30 @@ def main(args):
 
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
+
     if args.k and args.v:
-        config_set(config, args.refversion, args.k, args.v)
+        if args.k == 'refversion':
+            sec = 'DEFAULT'
+        else:
+            sec = getrv(args, config)
+        config_set(config, sec, args.k, args.v)
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
 
     if args.download_anno:
         download_topic(args, config, 'anno')
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
 
     if args.download_dbsnp:
-        download_topic(args, config, 'dbsnp')    
+        download_topic(args, config, 'dbsnp')
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
         
     if args.download_idmap:
         download_idmap(config)
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
 
     for cfg_fn in cfg_fns:
         try:

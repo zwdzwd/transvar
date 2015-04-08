@@ -2,12 +2,12 @@
 function er() { echo "$@"; "$@"; }
 function er2() { echo "======="; echo "$@"; echo "======="; echo "\n";}
 
-er transvar revanno --ccds -i 'Q5VUM1:47' --uniprot
-er2 "Q5VUM1:47   6   71289191-71289193   CCDS4972.1  C6ORF57 (+, coding)    6:g.71289191_71289193/c.139_141/p.47    PRefSeq=S;NRefSeq=TCC;RefSeq=TCC"
+er transvar panno --ccds -i 'Q5VUM1:47' --uniprot
+er2 "Q5VUM1:47       CCDS4972.1 (protein_coding)     C6ORF57 +       chr6:g.71289191_71289193/c.139_141/p.47S        cds_in_exon_2   protein_sequence=S;cDNA_sequence=TCC;gDNA_sequence=TCC"
 
-
-er transvar revanno -i 'P28222.p.146_148refDRY' --uniprot --ccds
-er2 "P28222.p.146_148refDRY  6       78172677-78172685       CCDS4986.1      HTR1B (-, coding)       6:g.78172677_78172685/c.436_444/p.146_148       PRefSeq=DRY;NRefSeq=GACCGCTAC;RefSeq=GTAGCGGTC"
+er transvar panno -i 'P28222:p.146_148refDRY' --uniprot --ccds
+er2 "
+P28222:p.146_148refDRY  CCDS4986.1 (protein_coding)     HTR1B   -       chr6:g.78172677_78172685/c.436_444/p.D146_Y148  cds_in_exon_1   protein_sequence=DRY;cDNA_sequence=GACCGCTAC;gDNA_sequence=GTAGCGGTC"
 
 er transvar revanno -i 'HTR1B.p.365_369refNPxxY' --ccds
 er2 "HTR1B.p.365_369refNPxxY 6       78172014-78172028       CCDS4986.1      HTR1B (-, coding)       6:g.78172014_78172028/c.1093_1107/p.365_369     PRefSeq=NPIIY;NRefSeq=AAC..TAT;RefSeq=ATA..GTT"
