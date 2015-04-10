@@ -16,11 +16,10 @@ def wrap(line):
         yield ' '*3+line[:k]
         line = line[k:]
 
-
-fh = open('README.md.temp', 'w')
+fh = open(sys.argv[2], 'w') # open('README.md.temp', 'w')
 
 result = ''
-for line in open('README.md.in'):
+for line in open(sys.argv[1]):
 
     if line.startswith('$'):
 

@@ -6,3 +6,20 @@ $ transvar ganno -i 'chr1:54721del' --ccds
 check dbsnp
 $ transvar ganno -i 'chr1:1066952_1066953AT>GC' --ccds
 @
+
+deletion + snv
+$ transvar ganno --ccds -i 'chr20:g.645097_645111GGGCGTACCCTGGAG>GGGCTACCCAGGAG' --haplotype
+@
+
+insertion + snv
+$ transvar ganno --ccds -i 'chr20:g.645097_645111GGGCGTACCCTGGAG>GGGCGATACCCAGGAG' --haplotype
+@
+
+snv + snv
+$ transvar ganno --ccds -i 'chr20:g.645097_645111GGGCGTACCCTGGAG>GTGCGTACCCAGGAG' --haplotype
+@
+
+snv + insertion + snv
+$ transvar ganno --ccds -i 'chr20:g.645097_645111GGGCGTACCCTGGAG>GTGCGATACCCAGGAG' --haplotype
+@
+

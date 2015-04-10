@@ -218,7 +218,7 @@ def annotate_mnv_gdna(args, q, db):
         import anno
         for qq in decompose_mut(q):
             qq.tok = q.tok
-            anno._main_core_(args, db, qq)
+            anno._main_core_(args, qq, db, 'g')
         return
 
     gnuc_altseq = q.altseq
