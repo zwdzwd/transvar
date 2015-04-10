@@ -53,7 +53,7 @@ def _main_core_(args, q, db):
 
 def main_list(args, db): #name2gene, thash):
 
-    for q, line in list_parse_mutation(args):
+    for q, line in list_parse_mutation(args, 'p'):
 
         q.gene = db.get_gene(q.tok)
         if not q.gene:
@@ -70,7 +70,7 @@ def main_list(args, db): #name2gene, thash):
 
 def main_one(args, db): #name2gene, thash):
 
-    q = parse_tok_mutation_str(args.i)
+    q = parse_tok_mutation_str(args.i, 'p')
     q.op = args.i
     q.gene = db.get_gene(q.tok)
     if not q.gene:

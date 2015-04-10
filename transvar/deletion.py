@@ -189,6 +189,7 @@ def annotate_deletion_gdna(args, q, db):
         r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l))
         r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end))
 
+        db.query_dbsnp_range(r, q.beg, q.end, '')
         if hasattr(reg, 't'):
 
             t = reg.t

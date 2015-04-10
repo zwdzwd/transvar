@@ -257,6 +257,7 @@ def annotate_mnv_gdna(args, q, db):
         else:
             r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, gnuc_refseq, gnuc_altseq)
 
+        db.query_dbsnp_range(r, q.beg, q.end, gnuc_altseq)
         if hasattr(reg, 't'):
 
             t = reg.t

@@ -210,6 +210,7 @@ def annotate_region_gdna(args, q, db):
                     r.tnuc_range = '%s_%s' % (p2,p1)
 
                 # if protein coding transcript and not purely intronic region, set amino acid
+                # print 0
                 if reg.t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
                     c1, p1 = reg.t.intronic_lean(p1, 'g_greater')
                     c2, p2 = reg.t.intronic_lean(p2, 'g_smaller')
@@ -217,10 +218,12 @@ def annotate_region_gdna(args, q, db):
                     if len(c1.seq) != 3 or len(c2.seq) != 3:
                         r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
                     elif c1.index == c2.index:
+                        # print 1
                         r.taa_ref = c1.aa()
                         r.taa_pos = c1.index
                         r.append_info('codon=%s' % c1.locformat())
                     else:
+                        # print 2
                         if reg.t.strand == '+':
                             r.taa_range = '%s%d_%s%d' % (c1.aa(), c1.index, c2.aa(), c2.index)
                         else:

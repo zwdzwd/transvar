@@ -40,7 +40,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.tnuc_ref = r.gnuc_ref if t.strand == '+' else complement(r.gnuc_ref)
             r.tnuc_alt = q.alt
 
-            db.query_dbsnp(r, t.chrm, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
+            db.query_dbsnp(r, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
             r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
             
             # coding region
@@ -199,7 +199,7 @@ def _annotate_snv_protein(args, q, t, db):
         if cdd_mnv_muts:
             r.append_info('candidate_mnv_variants=%s' % ','.join(cdd_mnv_muts))
 
-        db.query_dbsnp_codon(r, t.chrm, codon)
+        db.query_dbsnp_codon(r, codon, q.alt if q.alt else None)
     else:
         r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
         r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)
@@ -273,7 +273,7 @@ def annotate_snv_gdna(args, q, db):
         r.pos = r.gnuc_pos
         r.gnuc_ref = gnuc_ref
         r.gnuc_alt = q.alt if q.alt else ''
-        db.query_dbsnp(r, q.tok, q.pos, q.ref, q.alt if q.alt else None)
+        db.query_dbsnp(r, q.pos, q.ref, q.alt if q.alt else None)
         
         if hasattr(reg, 't'):
 

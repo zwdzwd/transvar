@@ -1,0 +1,922 @@
+**TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation.
+TransVar has the following features:
+
+ + supports HGVS nomenclature
+ + supports both left-alignment and right-alignment convention in reporting indels and duplications.
+ + supports annotation of a region based on a transcript-dependent characterization
+ + supports noncoding RNA annotation
+ + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
+ + supports mutations at both coding region and intronic/UTR regions
+ + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
+ + supports UniProt protein id as transcript id
+ + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
+ + functionality of forward annotation.
+
+--------
+
+[TOC]
+
+--------
+
+### Download and install
+
+#### dependency
+
+requires just Python 2.7. 
+
+#### download the program
+
+current stable version: [2.0.2.20150407](https://bitbucket.org/wanding/transvar/get/v2.0.2.20150407.zip)
+
+For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
+
+#### install
+
+##### System-wise install (need root)
+```
+#!bash
+python setup.py install
+```
+
+##### Local install
+```
+#!bash
+python setup.py install --prefix [localfolder]
+```
+After install, there will be two subfolders in `[localfolder]/lib` (which would contain libraries) and `[localfolder]/bin` (which would contain transvar executable).
+When you run transvar, make sure `[localfolder]/lib/python2.7/site-packages` is in your PYTHONPATH.
+You can add it by putting
+`export PYTHONPATH=$PYTHONPATH:[localfolder]/lib/python-2.7/site-packages/` to your `.bashrc` (or `.profile` depending on your OS).
+
+The installed executable is `[localfolder]/bin/transvar`.
+
+#### reference genome assembly
+For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
+Once downloaded and indexed, the reference can be used through the "--reference" option followed by the fasta filename.
+
+To set the default location of reference to ./hg19.fa,
+```
+#!bash
+transvar config -k reference -v ./hg19.fa --refversion hg19
+```
+will create in transvar.cfg an entry
+```
+#!text
+[hg19]
+reference = hg19.fa
+```
+so that there is no need to specify the location of reference on subsequent usages.
+
+#### transcript annotations
+
+TransVar provides automatic download of transcript annotations specific to common versions of human genome.
+```
+#!bash
+transvar config --download_anno --refversion hg19
+```
+will automatically download annotation from Ensembl, RefSeq etc. to `[installdir]/lib/transvar/transvar.download` directory or your local `~/.transvar.download` if the installation directory is inaccessible.
+See `transvar config -h` for downloading more versions.
+These will also create default mappings under the corresponding reference version section of transvar.cfg like
+```
+#!text
+[hg19]
+ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
+```
+### Usage
+
+#### specify transcript annotation
+
+The following table summarize the transcript annotations supported by TransVar as well as the option(s) to use each database in the annotation. TransVar can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
+
+ | Database | Format | Default  | Non-default     |
+ |:-------|:--------|:---------|:----|
+ | CCDS | CCDS flat text | `--ccds` | `--ccds CCDS.current.txt` |
+ | UCSC | UCSC RefGene | `--ucsc` | `--ucsc2 hg19.ucsc.txt` |
+ | Ensembl | Ensembl GTF | `--ensembl`  | `--ensembl GRCh37.75.gtf.gz`  |
+ | RefSeq | RefSeq GFF3 | `--refseq`  | `--refseq GRCh37.p13.gff3.gz`   |
+ | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi37.gff.gz`  |
+ | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.gtf.gz`  |
+ | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
+ | custom | custom table | `--custom` | `--custom hg19.map` |
+
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt"). With the `custom` table, one may use TransVar without specifying the reference assembly.
+To set the default annotation of a particular reference version,
+```
+#!bash
+transvar config -k ccds -v CCDS.current.txt --refversion hg19
+```
+The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
+
+---
+
+#### specify reference assembly
+
+TransVar provide native support for switching between reference assemblies. Each reference assembly is represented in a section such as
+```
+#!text
+[DEFAULT]
+refversion = hg19
+
+[hg19]
+refseq = /home/wzhou1/transvar/download/hg19.refseq.gff.gz
+ccds = /home/wzhou1/transvar/download/hg19.ccds.txt
+ensembl = /home/wzhou1/transvar/download/hg19.ensembl.gtf.gz
+reference = /projects/database/reference/hg19.fa
+
+[hg38]
+refseq = /home/wzhou1/transvar/download/hg38.refseq.gff.gz
+gencode = /home/wzhou1/transvar/download/hg38.gencode.gtf.gz
+ucsc = /home/wzhou1/transvar/download/hg38.ucsc.txt.gz
+reference = /home/wzhou1/reference/hg38.fa
+```
+The "refversion" key specify the default reference version ("hg19" in the above example).
+
+To add a new version and specify the location of some transcript annotation
+```
+#!bash
+transvar config -k ccds -v ccds.myhg.txt --refversion myhg
+```
+Will create in transvar.cfg a section like
+```
+#!text
+[myhg]
+ccds = ccds.myhg.txt
+```
+
+To switch to a version on the fly, one could use the "--refversion" option, e.g.,
+```
+#!bash
+transvar panno -i 'PIK3CA:p.E545K' --ucsc --refversion hg38
+```
+
+To change the default reference,
+```
+#!bash
+transvar config -k refversion -v hg38
+```
+
+#### view current configuration
+
+One can read the transvar.cfg file for the information. Alternatively one may run
+```
+#!bash
+transvar current
+```
+which returns information about the setup regarding to the current reference selection, including the location of the reference file and database file.
+```
+#!text
+Current reference version: mm10
+reference: /home/wzhou/genomes_link/mm10/mm10.fa
+Available databases:
+refseq: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.refseq.gff.gz
+ccds: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ccds.txt
+ensembl: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ensembl.gtf.gz
+```
+
+#### batch processing
+
+For all mutation types, one can batch process a list of mutation identifiers with optional transcript id to constraint the search. Take SNV for example,
+```
+#!bash
+$ transvar panno -l example/input_table -g 1 -m 5 -t 2 --ensembl -o 2,3,4
+```
+As suggested by the command, TransVar takes as input the 1st column as gene and 4th column as identifier. The 2nd column will be used as the transcript id from Ensembl to constrain the alternative identifier search. The 2nd, 3rd and 5th columns are chosen to be output as a validation of TransVar's performance.
+
+Input:
+```
+#!text
+ADAMTSL3        ENST00000286744 15:84442328     c.243G>A        p.W81*  Nonsense
+ADAMTSL3        ENST00000286744 15:84442326     c.241T>C        p.W81R  Missense
+ADAMTSL4        ENST00000369038 1:150530513     c.2270G>A       p.G757D Missense
+ADCY2   ENST00000338316 5:7802364       c.2662G>A       p.V888I Missense
+ADCY2   ENST00000338316 5:7802365       c.2663T>C       p.V888A Missense
+```
+Output:
+```
+#!text
+@
+```
+
+---
+
+
+#### reverse annotation of protein sites
+
+To use uniprot id as protein name, one must first download the uniprot id map by
+```
+#!bash
+transvar config --download_idmap
+```
+
+Then one could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
+
+```
+#!bash
+$ transvar panno --ccds -i 'Q5VUM1:47' --uniprot
+```
+```
+#!text
+@
+```
+TransVar use a keyword extension `ref` in `Q5VUM1:p.47refS` to differentiate from the synonymous mutation `Q5VUM1:p.47S`. The former notation specifies that the reference protein sequence is `S` while the later specifies the target protein sequence is `S`.
+
+---
+
+#### reverse annotation of protein motif
+
+For example, one can find the genomic location of a DRY motif in protein P28222 by issuing the following command,
+```
+#!bash
+$ transvar panno -i 'P28222:p.146_148refDRY' --uniprot --ccds
+```
+```
+#!text
+@
+```
+One can also use wildcard `x` (lowercase) in the motif.
+```
+#!bash
+$ transvar panno -i 'HTR1B:p.365_369refNPxxY' --ccds
+```
+```
+#!text
+@
+```
+---
+#### reverse annotation of protein range
+
+```
+#!bash
+$ transvar panno --ccds -i 'ABCB11:p.200_400'
+```
+outputs
+```
+#!text
+@
+```
+
+---
+#### reverse annotation of single amino acid substitution
+Mutation formats acceptable in TransVar are ```PIK3CA:p.E545K``` or without reference or alternative amino acid identity, e.g., ```PIK3CA:p.545K``` or ```PIK3CA:p.E545```. TransVar takes native HGVS format inputs and outputs. The reference amino acid is used to narrow the search scope of candidate transcripts. The alternative amino acid is used to infer nucleotide change which results in the amino acid.
+
+```
+#!bash
+$ transvar panno -i PIK3CA:E545K --ensembl
+```
+outputs
+```
+#!text
+@
+```
+
+One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
+```
+#!bash
+$ transvar panno -i ACSL4:p.R133R --ccds
+```
+```
+#!text
+@
+```
+In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
+
+#### annotate with additional resources
+
+For example, one could annotate SNP with dbSNP id by downloading the dbSNP files.
+This can be done by
+```
+#!bash
+transvar config --download_dbsnp
+```
+TransVar automatically download dbSNP file which correspoding to the current default reference version (as set in `transvar.cfg`). This also sets the entry in `transvar.cfg`.
+With dbSNP file downloaded, TransVar automatically looks for dbSNP id when performing annotation.
+```
+#!bash
+$ transvar panno -i 'A1CF:p.A309A' --ccds
+```
+```
+#!text
+@
+```
+Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. Manually set path for dbSNP file must have the file tabix indexed.
+
+
+---
+
+#### reverse annotation of single nucleotide variation (SNV)
+
+TransVar infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
+```
+#!bash
+$ transvar canno --ccds -i 'PIK3CA:c.1633G>A'
+```
+outputs
+```
+#!text
+@
+```
+
+The SNV can be in the intronic region, e.g.,
+```
+#!bash
+$ transvar canno --ccds -i 'ABCB11:c.1198-8C>A'
+```
+outputs
+```
+#!text
+@
+```
+---
+
+#### reverse annotation of cDNA region
+
+```
+#!bash
+$ transvar canno --ccds -i 'ABCB11:c.1198-8_1202'
+```
+outputs
+```
+#!text
+@
+```
+
+---
+
+#### reverse annotation of nucleotide insertion
+An insertion may result in: 1) a pure insertion of amino acids; 2) a block substitution of amino acids, when insertion occur after 1st or 2nd base in a codon; or 3) a frame-shift. Following HGVS nomenclature, TransVar labels the first different amino acid and the length of the peptide util stop codon, assuming no change in the splicing.
+
+Example: to annotate an **in-frame, in-phase insertion**,
+```
+#!bash
+$ transvar canno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
+```
+```
+#!text
+@
+```
+`Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
+
+Example: to annotate an **out-of-phase, in-frame insertion**,
+```
+#!bash
+$ transvar canno --ccds -i 'ACIN1:c.1930_1931insATTCAC'
+```
+```
+#!text
+@
+```
+Reverse annotation can result in different identifiers after left/right alignments, e.g., 
+```
+#!bash
+$ transvar canno --ccds -i 'AATK:c.3976_3977insCGCCCA'
+```
+results in
+```
+@
+```
+Note how insertion switch to duplication when 5'flanking is identical. This conforms to HGVS recommendation to replace insertion notation with duplication when possible.
+
+Example: to annotate a **frame-shift insertion**, frameshift mutations have not alternative alignments. Hence only cDNA and gDNA have left alignment and unalignment reports.
+```
+#!bash
+$ transvar canno --ccds -i 'AAAS:c.1225_1226insG'
+```
+results in
+```
+#!text
+@
+```
+
+Example: to annotate an **intronic insertion**,
+```
+#!bash
+$ transvar canno --ccds -i 'ADAM33:c.991-3_991-2insC'
+```
+outputs
+```
+#!text
+@
+```
+In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`. But cDNA and gDNA identifier are right-aligned according to their natural order, respecting HGVS nomenclature.
+
+Insertion could occur to *splice sites*. TransVar identifies such cases and report splice site and repress translation of protein change.
+```
+#!bash
+$ transvar canno --ccds -i 'ADAM33:c.991_992insC'
+```
+results in
+```
+#!text
+@
+```
+
+---
+
+#### reverse annotation of nucleotide deletion
+Similar to insertions, deletion can be in-frame or frame-shift. The consequence of deletion to amino acid sequence may appear a simple deletion or a block substitution (in the case where in-frame deletion is out of phase, i.e., partially delete codons).
+
+Example: to annotate an **in-frame deletion**,
+```
+#!bash
+$ transvar canno --ccds -i 'A4GNT:c.694_696delTTG'
+```
+```
+#!text
+@
+```
+
+Example: to annotate a **in-frame, out-of-phase deletion**,
+```
+#!bash
+$ transvar canno --ccds -i 'ABHD15:c.431_433delGTG'
+```
+```
+#!text
+@
+```
+
+Example: to annotate a **frame-shift deletion**,
+```
+#!bash
+$ transvar canno --ccds -i 'AADACL3:c.374delG'
+```
+```
+#!text
+@
+```
+
+Example: to annotate a **deletion that span from intronic to coding region**, protein prediction is suppressed due to loss of splice site.
+```
+#!bash
+$ transvar canno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
+```
+```
+#!text
+@
+```
+
+---
+
+#### reverse annotation of nucleotide block substitution
+
+Example: to annotate a block substitution in **coding region**,
+```
+#!bash
+$ transvar canno --ccds -i 'A1CF:c.508_509CC>TT'
+```
+```
+#!text
+@
+```
+
+Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion, where protein alternative alignment should be reported.
+```
+#!bash
+$ transvar canno --ccds -i 'CSRNP1:c.1212_1224>GGAGGAGGAA'
+```
+```
+#!text
+@
+```
+
+Likewise, block substitution could occur to **intronic region**,
+```
+#!bash
+$ transvar canno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
+```
+```
+#!text
+@
+```
+
+When block substitution occurs **across splice site**, TransVar put a tag in the info fields and does not predict amino acid change.
+```
+#!bash
+$ transvar canno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
+```
+```
+#!text
+@
+```
+
+---
+
+#### reverse annotation of nucleotide duplication
+
+Duplication can be thought of as special insertion where the inserted sequence is identical to the sequence flanking the breakpoint.
+Similar to insertion, the annotation of duplication may possess alternative alignment.
+
+Example: to annotate a duplication coding region,
+```
+#!bash
+$ transvar canno --ccds -i 'CHD7:c.1669_1674dup'
+```
+```
+#!text
+@
+```
+
+Example: a duplication on the nucleotide level may lead to frame-shift or block substitution on the amino acid level,
+```
+#!bash
+$ transvar canno --ccds -i 'CHD7:c.1668_1669dup'
+```
+```
+#!text
+@
+```
+
+Example: to annotate a duplication in intronic region,
+```
+#!bash
+$ transvar canno --ccds -i 'CHD7:c.1666-5_1666-3dup'
+```
+```
+#!text
+@
+```
+
+---
+
+#### reverse annotation of amino acid insertion
+
+```
+#!bash
+$ transvar panno --ccds -i 'AATK:p.P1331_A1332insTP'
+```
+```
+#!text
+@
+```
+
+#### reverse annotation of amino acid deletion
+```
+#!bash
+$ transvar panno --ccds -i 'AADACL4:p.W263_I267delWRDAI'
+```
+```
+#!text
+@
+```
+
+#### reverse annotation of amino acid block substitution
+```
+#!bash
+$ transvar panno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
+```
+```
+#!text
+@
+```
+
+#### reverse annotation of amino acid frame-shift
+
+```
+#!bash
+$ transvar panno --ccds -i 'A1BG:p.G132fs*2'
+```
+```
+#!text
+@
+```
+
+---
+
+#### search alternative codon identifiers
+
+An identifier is regarded as an alternative if the underlying codon overlap with the one from the original identifier.
+Example: to search alternative identifiers of CDKN2A.p.58 (without knowing reference allele),
+```
+#!bash
+$ transvar codonsearch --ccds -i CDKN2A:p.58
+```
+```
+#!text
+@
+```
+The pair of transcript id listed corresponds to the transcripts based on which, the original and alternative identifiers are defined. Multiple pairs of transcript definitions are appended following a `,`.
+
+Example: to search alternative identifiers of DHODH:G152R (knowing reference allele `G`, alternative allele here will be ignored),
+```
+#!bash
+$ transvar codonsearch -i DHODH:G152R --refseq
+```
+outputs
+```
+#!text
+@
+```
+TransVar outputs genomic positions of codons based on original transcript (4th column in the output) and alternative transcript (5th column in the output). The potential transcript usages are also appended.
+
+Example: to run `transvar codonsearch` to **batch process** a list of mutation identifiers.
+```
+#!bash
+$ transvar codonsearch -l example/input_table2 --ccds -m 1 -o 1
+```
+Example input table
+```
+#!text
+CDKN2A.p61
+CDKN2A.p69
+CDKN2A.p69
+ERBB2.p755
+ERBB2.p755
+```
+outputs
+```
+#!text
+@
+```
+The third column indicates the potential transcript usage for the alternative identifier. Each transcript usage is denoted by <listing transcript>/<actual transcript>. Different potential choices are separated by ','.
+
+---
+#### infer potential codon identity
+
+Example: to check if MET.p1010 and MET.p992 may be refering to one mutation due to different usage of transcripts,
+```
+#!bash
+$ transvar codonsearch --refseq -i MET:p.1010
+```
+gives
+```
+#!text
+@
+```
+Since MET.p.992 is in the list, the two identifiers might be due to the same genomic mutation.
+
+#### annotate SNP from genomic locations
+
+This is the forward annotation
+
+```
+#!bash
+$ transvar ganno --ccds -i 'chr3:178936091.G>A'
+```
+outputs
+```
+#!text
+@
+```
+
+Another example:
+```
+#!bash
+$ transvar ganno -i "9:135782704C>G" --ccds
+```
+outputs
+```
+#!text
+@
+```
+
+
+#### annotate a short genomic region
+
+To annotate a short genomic region in a gene,
+```
+#!bash
+$ transvar ganno --ccds -i 'chr3:g.178936091_178936192'
+```
+outputs
+```
+#!text
+@
+```
+	
+Results indicates the beginning position is at coding region while ending position is at intronic region (c.1633_1664+70).
+
+For intergenic sites, TransVar also reports the identity and distance to the gene upstream and downstream. For example, `chr6:116991832` is simply annotated as intergenic in the original annotation. TransVar reveals that it is 1,875 bp downstream to ZUFSP and 10,518 bp upstream to KPNA5 showing a vicinity to the gene ZUFSP. There is no limit in the reported distance. If a site is at the end of the chromosome, TransVar is able to report the distance to the telomere.
+
+#### annotate a long genomic region
+[back to top](#top)
+```
+#!bash
+$ transvar ganno -i '9:g.133750356_137990357' --ccds
+```
+outputs
+```
+#!text
+@
+```
+The result indicates that the region span 53 genes. The beginning of the region resides in the coding sequence of ABL1, c.1187A and the ending region resides in the intronic region of OLFM1, c.622+6C. 2 different usage of transcripts in annotating the starting position is represented in two lines, each line corresponding to a combination of transcript usage.
+This annotation not only shows the coverage of the region, also reveals the fine structure of the boundary.
+
+In another example, where the ending position exceeds the length of the chromosome, TransVar truncates the region and outputs upstream and downstream information of the ending position.
+```
+#!bash
+$ transvar ganno -i '9:g.133750356_1337503570' --ccds
+```
+outputs
+```
+#!text
+@
+```
+
+#### annotate a deletion from genomic location
+[back to top](#top)
+
+A frameshift deletion
+```
+#!bash
+$ transvar ganno -i "chr2:234183368_234183380del" --ccds
+```
+outputs
+```
+#!text
+@
+```
+Note the difference between left-aligned identifier and the right aligned identifier.
+
+An in-frame deletion
+```
+#!bash
+$ transvar ganno -i "chr2:234183368_234183379del" --ccds
+```
+outputs
+```
+#!text
+@
+```
+
+Another example
+```
+#!bash
+$ transvar ganno --ccds -i '12:53703425_53703427del'
+```
+outputs
+```
+#!text
+@
+```
+Note the difference between left and right-aligned identifiers on both protein level and cDNA level.
+
+An in-frame out-of-phase deletion
+```
+#!bash
+$ transvar ganno -i "chr2:234183372_234183383del" --ccds
+```
+outputs
+```
+@
+```
+
+#### annotate an insertion from genomic location
+
+An in-frame insertion of three nucleotides
+```
+#!bash
+$ transvar ganno -i '2:69741762insTGC' --ccds
+```
+outputs
+```
+#!text
+@
+```
+Note the proper right-alignment of protein level insertion Q. The left-aligned identifier is also given in the `LEFTALN` field.
+
+A frame-shift insertion of two nucleotides
+```
+#!bash
+$ transvar ganno -i '7:121753754insCA' --ccds
+```
+outputs
+```
+#!text
+@
+```
+
+```
+#!bash
+$ transvar ganno -i '17:79093270insGGGCGT' --ccds
+```
+outputs
+```
+#!text
+@
+```
+Notice the difference in the inserted sequence when left-alignment and right-alignment conventions are followed.
+
+A frame-shift insertion of one nucleotides in a homopolymer
+```
+#!bash
+$ transvar ganno -i '7:117230474insA' --ccds
+```
+outputs
+```
+#!text
+@
+```
+Notice the right alignment of cDNA level insertion and the left alignment reported as additional information.
+
+A in-frame, in-phase insertion
+```
+#!bash
+$ transvar ganno -i '12:109702119insACC' --ccds
+```
+```
+#!text
+@
+```
+
+#### annotate block substitution from genomic locations
+
+A block-substitution that results in a frameshift.
+```
+#!bash
+$ transvar ganno -i 'chr10:g.27329002_27329002A>AT' --ccds
+```
+```
+#!text
+@
+```
+
+A block-substitution that is in-frame,
+```
+#!bash
+$ transvar ganno -i 'chr10:g.52595929_52595930GG>AA' --ccds
+```
+```
+#!text
+@
+```
+
+#### annotate promoter region
+
+One can define the promoter boundary through the `--prombeg` and `--promend` option. Default promoter region is defined from 1000bp upstream of the transcription start site to the transcription start site. One could customize this setting to e.g., [-1000bp, 2000bp] by
+
+```
+#!bash
+$ transvar ganno -i 'chr19:41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
+```
+```
+#!text
+@
+```
+The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
+
+#### annotate non-coding RNA
+Given Ensembl, GENCODE or RefSeq database, one could annotate non-coding transcripts such as lncRNA.
+E.g.,
+```
+#!bash
+$ transvar ganno --gencode -i 'chr1:3985200_3985300' --refversion mm10
+```
+results in
+```
+#!text
+@
+```
+or
+```
+#!bash
+$ transvar ganno --refseq -i 'chr14:20568338_20569581' --refversion mm10
+```
+results in
+```
+#!text
+@
+```
+
+or using Ensembl
+```
+#!bash
+$ transvar ganno --ensembl -i 'chr1:29560_29570'
+```
+results in
+```
+#!text
+@
+```
+
+### FAQ
+
++ I got 'GeneNotRecognized', what's wrong?
+
+Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
+
+### Technical notes
+
+TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+
+## Future work
+
+ + add cytoband annotation
+ + option to output full long deletion sequence
+ + imprecise annotation
+ + forward annotation of binding sites
+ + forward annotation of structural variation breakpoints
+ + begin codon and end codon in deletion
+ + distinguish non-transcribable element and suppress promoter setting (like "retained intron")
+
+## Bug report and feature request
+
+If you find any bug (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
+
+## Reference
+
+We are working on an application note on this topic :-).
+
+## About
+This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
+
+

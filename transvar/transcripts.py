@@ -95,6 +95,12 @@ class Codon():
         self.seq    = '' # natural sequence, not the actural sequence, can be directly mapped to amino acids
         self.index  = -1
 
+    def tloc(self, i):
+        if self.strand == '+':
+            return self.locs[i]
+        else:
+            return self.locs[2-i]
+        
     def refseq(self):
 
         if self.strand == '+': return self.seq
@@ -229,6 +235,9 @@ class Transcript():
 
     def cdslen(self):
 
+        if hasattr(self, 'seq'):
+            return len(self.seq)
+
         cdslen = 0
         for ex_beg, ex_end in self.exons:
             beg = max(ex_beg, self.cds_beg)
@@ -334,13 +343,13 @@ class Transcript():
 
     def taa2aa(self, taa):
         self.ensure_seq()
-        if taa*3 > len(self.seq):
+        if taa*3 > self.cdslen():
             raise IncompatibleTranscriptError('Incompatible reference amino acid')
         return codon2aa(self.seq[taa*3-3:taa*3])
 
     def taa_range2tnuc_seq(self, taa_beg, taa_end):
 
-        if taa_beg*3 > len(self) or taa_end*3 > len(self):
+        if taa_beg*3 > self.cdslen() or taa_end*3 > self.cdslen():
             raise IncompatibleTranscriptError('codon nonexistent')
 
         self.ensure_seq()
