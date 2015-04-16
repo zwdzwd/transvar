@@ -77,7 +77,10 @@ def download_url(url, file_name):
 
     import urllib2
     # file_name = url.split('/')[-1]
+    # try:
     u = urllib2.urlopen(url)
+    # except urllib2.URLError:
+    # return
     f = open(file_name, 'wb')
     meta = u.info()
     raw_file_size = int(meta.getheaders("Content-Length")[0])
@@ -120,13 +123,13 @@ def _download_(config, section, fns):
                 continue
             
         for k, fn, url in fns:
-            # try:
-            fnn = os.path.join(pdir, fn)
-            download_url(url, fnn)
-            if k:
-                config_set(config, section, k, fnn)
-            # except:
-            # err_warn('file not available: %s' % url)
+            try:
+                fnn = os.path.join(pdir, fn)
+                download_url(url, fnn)
+                if k:
+                    config_set(config, section, k, fnn)
+            except:
+                err_warn('file not available: %s' % url)
 
         break
 
