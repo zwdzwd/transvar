@@ -85,4 +85,7 @@ if __name__ == '__main__':
     # # load_elem('hg18', 'Ensembl', 'transvar.download/hg18.ensembl.gtf.gz', parse_ensembl_gtf)
     # load_elem('hg18', 'CCDS', 'transvar.download/hg18.ccds.txt', parse_ccds_table)
     load_elem('hg18', 'RefSeq', 'transvar.download/hg18.refseq.gff.gz', parse_refseq_gff)
-    load_elem('hg18', 'AceView', 'transvar.download/hg18.aceview.gff.gz', parse_aceview_transcripts)
+    # # load_elem('hg18', 'AceView', 'transvar.download/hg18.aceview.gff.gz', parse_aceview_transcripts)
+    load_elem('mm10', 'Ensembl' ,'transvar.download/mm10.ensembl.gtf.gz', parse_ensembl_gtf)
+    load_elem('mm10', 'RefSeq' ,'transvar.download/mm10.refseq.gff.gz', parse_refseq_gff)
+    load_elem('mm10', 'CCDS', 'transvar.download/mm10.ccds.txt', parse_ccds_table)

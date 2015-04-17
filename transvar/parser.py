@@ -248,6 +248,9 @@ def parse_ensembl_gtf_hg18(gtf_fn, name2gene):
         if line.startswith('#'):
             continue
         fields = line.strip().split('\t')
+        info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+        if fields[2] == "gene":
+            pass
 
 def parse_ccds_table(ccds_fn, name2gene):
 
