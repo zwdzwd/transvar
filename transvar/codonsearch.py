@@ -3,6 +3,8 @@ search alternative codonpositions due to different transcript usage
 """
 import sys, re, argparse
 from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
+from parser import parser_add_annotation
+from annodb import AnnoDB
 from transcripts import *
 from err import *
 from utils import *

@@ -2,8 +2,10 @@
 annotate nucleotide position(s) or mutations
 """
 import sys, argparse, re
-from transcripts import *
-from utils import *
+from annodb import AnnoDB
+# from transcripts import *
+from parser import parser_add_annotation
+# import parser
 from record import *
 from err import *
 from config import read_config
@@ -100,11 +102,11 @@ def main_list(args, db, at):
                 r.format(q.op)
                 continue
             
-        try:
-            _main_core_(args, q, db, at)
-        except:
-            err_print('exception %s' % line)
-            raise Exception()
+        # try:
+        _main_core_(args, q, db, at)
+        # except:
+        # err_print('exception %s' % line)
+        # raise Exception()
 
 def main_one(args, db, at):
 

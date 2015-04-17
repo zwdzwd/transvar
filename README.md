@@ -12,6 +12,8 @@ TransVar has the following features:
  + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
  + functionality of forward annotation.
 
+![fig1raw.png](https://bitbucket.org/repo/L5dGpA/images/3663470848-fig1raw.png)
+
 --------
 
 [TOC]
@@ -1296,5 +1298,3 @@ We are working on an application note on this topic :-).
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
-
-

@@ -6,66 +6,84 @@ Base = declarative_base()
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, sessionmaker
 
-class FeatureType(Base):
-    __tablename__ = 'feature_type'
-    __table_args__ = {'mysql_engine':'InnoDB'}
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100))
-    features = relationship('Feature', backref='type')
+# class FeatureType(Base):
+#     __tablename__ = 'feature_type'
+#     __table_args__ = {'mysql_engine':'InnoDB'}
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     name = Column(String(100))
+#     features = relationship('Feature', backref='type')
 
-class Source(Base):
+class DSource(Base):
+    
     __tablename__ = 'source'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100))
-    features = relationship('Feature', backref='source')
+    transcripts = relationship('DTranscript', backref='source')
     
-class RefVersion(Base):
+class DRefVersion(Base):
+    
     __tablename__ = 'refversion'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100))
-    features = relationship('Feature', backref='refversion')
+    transcripts = relationship('DTranscript', backref='refversion')
 
-class Chromosome(Base):
+class DChromosome(Base):
+
     __tablename__ = 'chromosome'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100))
-    features = relationship('Feature', backref='chrm')
+    transcripts = relationship('DTranscript', backref='chrm')
+    # source_id = Column(Integer, ForeignKey('source.id'))    # primary key?
+    # refversion_id = Column(Integer, ForeignKey('refversion.id'))
+    # beg = Column(Integer, index=True)
+    # end = Column(Integer, index=True)
 
-class Feature(Base):
-    __tablename__ = 'feature'
-    __table_args__ = {'mysql_engine':'InnoDB'}
-    id = Column(Integer, primary_key = True, autoincrement=True)
-    ftype = Column(Integer, ForeignKey('feature_type.id'))
-    chrm_id = Column(Integer, ForeignKey('chromosome.id'))
-    beg = Column(Integer, index=True)
-    end = Column(Integer, index=True)
-    source_id = Column(Integer, ForeignKey('source.id'))    # primary key?
-    refversion_id = Column(Integer, ForeignKey('refversion.id'))
-    transcripts = relationship('Transcript', backref='feature')
+# class Feature(Base):
 
-class Gene(Base):
+#     __tablename__ = 'feature'
+#     __table_args__ = {'mysql_engine':'InnoDB'}
+#     id = Column(Integer, primary_key = True, autoincrement=True)
+#     ftype = Column(Integer, ForeignKey('feature_type.id'))
+
+class DGene(Base):
+
     __tablename__ = 'gene'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key = True, autoincrement=True)
     name = Column(String(100), primary_key=True)
-    transcripts = relationship('Transcript', backref='gene')
+    transcripts = relationship('DTranscript', backref='gene')
 
-class Transcript(Base):
+class DTranscriptType(Base):
+
+    __tablename__ = 'transcript_type'
+    __table_args__ = {'mysql_engine':'InnoDB'}
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    transcripts = relationship('DTranscript', backref='transcript_type')
+
+class DTranscript(Base):
+
     __tablename__ = 'transcript'
     __table_args__ = {'mysql_engine':'InnoDB'}
-    id = Column(Integer, ForeignKey('feature.id'), primary_key = True)
+    id = Column(Integer, autoincrement=True, primary_key = True)
     name = Column(String(30))
+    transcript_type_id = Column(Integer, ForeignKey('transcript_type.id'))
+    chrm_id = Column(Integer, ForeignKey('chromosome.id'))
+    source_id = Column(Integer, ForeignKey('source.id'))    # primary key?
+    refversion_id = Column(Integer, ForeignKey('refversion.id'))
+    beg = Column(Integer, index=True)
+    end = Column(Integer, index=True)
     cds_beg = Column(Integer)
     cds_end = Column(Integer)
     gene_id = Column(Integer, ForeignKey('gene.id'))
-    version = Column(Integer, primary_key = True, default=0)
+    version = Column(Integer, default=0)
     strand = Column(Boolean)
-    exons = relationship('Exon', backref='transcript')
+    exons = relationship('DExon', backref='transcript')
 
-class Exon(Base):
+class DExon(Base):
     __tablename__ = 'exon'
     __table_args__ = {'mysql_engine':'InnoDB'}
     id = Column(Integer, primary_key=True)
