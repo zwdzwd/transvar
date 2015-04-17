@@ -12,6 +12,8 @@ TransVar has the following features:
  + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
  + functionality of forward annotation.
 
+![fig1raw.png](https://bitbucket.org/repo/L5dGpA/images/3663470848-fig1raw.png)
+
 --------
 
 [TOC]
@@ -910,7 +912,7 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Bug report and feature request
 
-Please direct any bugs to Wanding Zhou <zhouwanding@gmail.com>. Thank you for using TransVar.
+Please direct any bugs to <zhouwanding@gmail.com>. Thank you for using TransVar.
 
 ## Reference
 

@@ -23,3 +23,7 @@ snv + insertion + snv
 $ transvar ganno --ccds -i 'chr20:g.645097_645111GGGCGTACCCTGGAG>GTGCGATACCCAGGAG' --haplotype
 @
 
+the following tests parsers
+hg18 refseq
+$ transvar panno -i 'PIK3CA:E545K' --refseq --refversion hg18
+$ transvar panno -i 'PIK3CA:E545K' --ensembl --refversion hg18

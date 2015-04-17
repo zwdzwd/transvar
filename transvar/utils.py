@@ -9,7 +9,8 @@ def normalize_chrm(chrm):
     if chrm == '24' or chrm == 'chr24': chrm = 'Y'
     if chrm == '25' or chrm == 'chr25': chrm = 'M'
     if chrm == 'MT' or chrm == 'chrMT': chrm = 'M'
-    if not chrm.startswith('chr'):
+    if chrm.isdigit() or chrm in ['X', 'Y', 'M']:
+        # not chrm.startswith('chr')
         chrm = 'chr'+chrm
 
     return chrm

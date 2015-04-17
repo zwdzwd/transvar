@@ -242,15 +242,60 @@ def parse_ensembl_gtf_hg18(gtf_fn, name2gene):
     """
 
     gtf_fh = opengz(gtf_fn)
-    id2ent = {}
+    tid2transcript = {}
     cnt = 0
     for line in gtf_fh:
         if line.startswith('#'):
             continue
         fields = line.strip().split('\t')
         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
-        if fields[2] == "gene":
-            pass
+        if fields[2] == "exon":
+            if info['transcript_id'] in tid2transcript:
+                t = tid2transcript[info['transcript_id']]
+            else:
+                t = Transcript(transcript_type=fields[1])
+                t.chrm = normalize_chrm(fields[0])
+                t.strand = fields[6]
+                t.name = info['transcript_id']
+                tid2transcript[t.name] = t
+                if info['gene_name'] in name2gene:
+                    g = name2gene[info['gene_name']]
+                else:
+                    g = Gene()
+                    g.name = info['gene_name']
+                    name2gene[g.name] = g
+                t.gene = g
+                g.tpts.append(t)
+                t.source = 'Ensembl'
+                cnt += 1
+            t.exons.append((int(fields[3]), int(fields[4])))
+        elif fields[2] == 'CDS':
+            if info['transcript_id'] in tid2transcript:
+                t = tid2transcript[info['transcript_id']]
+            else:
+                t = Transcript(transcript_type=fields[1])
+                t.chrm = normalize_chrm(fields[0])
+                t.strand = fields[6]
+                t.name = info['transcript_id']
+                tid2transcript[t.name] = t
+                if info['gene_name'] in name2gene:
+                    g = name2gene[info['gene_name']]
+                else:
+                    g = Gene()
+                    g.name = info['gene_name']
+                    name2gene[g.name] = g
+                t.gene = g
+                g.tpts.append(t)
+                t.source = 'Ensembl'
+                cnt += 1
+            t.cds.append((int(fields[3]), int(fields[4])))
+
+    for t in tid2transcript.values():
+        t.exons.sort()
+        t.beg = t.exons[0][0]
+        t.end = t.exons[-1][1]
+
+    err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
 
 def parse_ccds_table(ccds_fn, name2gene):
 

@@ -1257,20 +1257,20 @@ $ transvar ganno --ensembl -i 'chr1:29560_29570'
 results in
 ```
 #!text
+chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
+   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
+   .
 chr1:29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.1_11/.	inside_[noncoding_exon_1]
    promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%)
 chr1:29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.237_247/.	inside_[noncoding_exon_1]
    .
-chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
-   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
-   .
 ```
 
 ### FAQ
 
-+ I got 'GeneNotRecognized', what's wrong?
++ I got 'gene_not_recognized', what's wrong?
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
 
@@ -1290,11 +1290,13 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Bug report and feature request
 
-If you find any bug (very likely due to the complexity of genomics:-)) or you wish any feature, please direct to Wanding Zhou <zhouwanding@gmail.com>. Thank you.
+Please direct any bugs to <zhouwanding@gmail.com>. Thank you for using TransVar.
 
 ## Reference
 
-We are working on an application note on this topic :-).
+submitted
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
+
+

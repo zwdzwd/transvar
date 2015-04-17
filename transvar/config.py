@@ -202,15 +202,20 @@ def main_current(args):
 
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
-    if 'refversion' in config.defaults():
+    if args.refversion != 'DEFAULT':
+        rv = args.refversion
+    elif 'refversion' in config.defaults():
         rv = config.get('DEFAULT', 'refversion')
-        print "Current reference version: %s" % rv
-        if 'reference' in config.options(rv):
-            print 'reference: %s' % config.get(rv, 'reference')
-        print "Available databases: "
-        for op in config.options(rv):
-            if op not in ['refversion', 'reference']:
-                print '%s: %s' % (op, config.get(rv, op))
+    else:
+        err_die("no default reference version set.")
+
+    print "reference version: %s" % rv
+    if 'reference' in config.options(rv):
+        print 'reference: %s' % config.get(rv, 'reference')
+    print "Available databases: "
+    for op in config.options(rv):
+        if op not in ['refversion', 'reference']:
+            print '%s: %s' % (op, config.get(rv, op))
 
     return
 
@@ -229,4 +234,5 @@ def add_parser_config(subparsers):
 def add_parser_current(subparsers):
 
     parser = subparsers.add_parser('current', help="view current config")
+    parser.add_argument('--refversion', default='DEFAULT', help='reference version')
     parser.set_defaults(func=main_current)
