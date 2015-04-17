@@ -27,3 +27,7 @@ the following tests parsers
 hg18 refseq
 $ transvar panno -i 'PIK3CA:E545K' --refseq --refversion hg18
 $ transvar panno -i 'PIK3CA:E545K' --ensembl --refversion hg18
+$ transvar panno -i 'PIK3CA:E545K' --ensembl --refversion hg19
+
+reference length problem
+$ transvar ganno -i '17:79093270insGGGCGT' --ccds --refversion hg18
