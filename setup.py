@@ -56,7 +56,7 @@ def main():
 
     setup(
         name = "TransVar",
-        version = "2.0.2.20150407",
+        version = "2.0",
         description = "Transcript-based Variant annotator",
         url = "https://bitbucket.org/wanding/transvar",
         author = "Wanding Zhou",
