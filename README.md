@@ -42,7 +42,7 @@ Basic functionalities requires just Python 2.7. Some additional annotation also 
 
 #### program
 
-current stable version: [version 1.38](https://bitbucket.org/wanding/transvar/get/v1.38.zip)
+current stable version: [version 1.40](https://bitbucket.org/wanding/transvar/get/v1.40.zip)
 
 #### reference genome assembly
 For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
@@ -1156,5 +1156,3 @@ We are working on an application note on this topic :-).
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
-
-
