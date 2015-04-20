@@ -1,6 +1,6 @@
 import sqlalchemy
 from sqlalchemy import create_engine
-engine=create_engine('mysql://transvar_user:transvar_user@localhost/transvar_anno', echo=False)
+engine=create_engine('mysql://admin:admin_pass@dqsfacpriv03/TransvarDB', echo=False)
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
