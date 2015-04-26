@@ -297,12 +297,14 @@ class Transcript():
 
         if (not seq) or (len(seq) != self.end - self.beg + 1):
             raise SequenceRetrievalError()
+
         segs = []
         for ex_beg, ex_end in self.exons:
             beg = max(ex_beg, self.cds_beg)
             end = min(ex_end, self.cds_end)
             if beg <= end:
                 segs.append(seq[beg-self.beg:end+1-self.beg])
+
         self.seq = ''.join(segs)
         if self.strand == '-':
             self.seq = reverse_complement(self.seq)

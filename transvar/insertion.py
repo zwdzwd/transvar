@@ -248,7 +248,9 @@ def annotate_duplication_cdna(args, q, tpts, db):
 
     found = False
     for t in tpts:
+        print t.name
         try:
+
             if q.tpt and t.name != q.tpt:
                 raise IncompatibleTranscriptError("Transcript name unmatched")
             t.ensure_seq()

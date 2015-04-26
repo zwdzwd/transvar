@@ -70,7 +70,7 @@ class RefGenome:
             raise IndexError('Sequence window out of bound--Chr: %s\tStart:%d\tEnd:%s' % (chrom,start+1,end))
          
         self.fasta_handle.seek(offset+start/blen*bytelen+start%blen)
-         
+
         while len(seq)<end-start:
             line=self.fasta_handle.readline()
             line=line[:-1] #Remove newline symbols
