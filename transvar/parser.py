@@ -96,7 +96,7 @@ def parse_refseq_gff(gff_fn, name2gene):
             # reg = None
         elif (reg and fields[2] == 'gene' and
               ('pseudo' not in info or info['pseudo'] != 'true')):
-            gene_name = info['Name']
+            gene_name = info['Name'].upper()
             if gene_name in name2gene:
                 g = name2gene[gene_name]
                 if hasattr(g, '_gene_id') and g._gene_id != info['ID']:
