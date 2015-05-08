@@ -12,8 +12,6 @@ TransVar has the following features:
  + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
  + functionality of forward annotation.
 
-![fig1raw.png](https://bitbucket.org/repo/L5dGpA/images/3663470848-fig1raw.png)
-
 --------
 
 [TOC]
@@ -28,7 +26,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.4.20150417](https://bitbucket.org/wanding/transvar/get/v2.0.4.20150417.zip)
+current stable version: [v2.0.5.20150507](https://bitbucket.org/wanding/transvar/get/v2.0.5.20150507.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
