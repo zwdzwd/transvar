@@ -39,8 +39,8 @@ def annotate_mnv_cdna(args, q, tpts, db):
             if q.refseq and tnuc_refseq != q.refseq:
                 raise IncompatibleTranscriptError()
 
-            r.gnuc_range = '%d_%d%s>%s' % (gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
-            r.tnuc_range = '%s_%s%s>%s' % (q.beg, q.end, tnuc_refseq, q.altseq)
+            r.gnuc_range = '%d_%ddelins%s' % (gnuc_beg, gnuc_end, gnuc_altseq) # gnuc_refseq, 
+            r.tnuc_range = '%s_%sdelins%s' % (q.beg, q.end, q.altseq) # tnuc_refseq, 
 
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
             expt = r.set_splice()
@@ -105,8 +105,8 @@ def annotate_mnv_protein(args, q, tpts, db):
                 cdd_altseq.append('/'.join(aa2codon(aa)))
             tnuc_altseq = ''.join(tnuc_altseq)
             gnuc_altseq = reverse_complement(tnuc_altseq) if t.strand == '-' else tnuc_altseq
-            r.tnuc_range = '%d_%d%s>%s' % (tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
-            r.gnuc_range = '%d_%d%s>%s' % (gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
+            r.tnuc_range = '%d_%ddelins%s' % (tnuc_beg, tnuc_end, tnuc_altseq) # tnuc_refseq,
+            r.gnuc_range = '%d_%ddelins%s' % (gnuc_beg, gnuc_end, gnuc_altseq) # gnuc_refseq, 
             r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
             if len(cdd_altseq) <= 2:
                 r.append_info('candidate_alternative_sequence=%s' % ('+'.join(cdd_altseq), ))
@@ -115,8 +115,8 @@ def annotate_mnv_protein(args, q, tpts, db):
             continue
         except UnknownChromosomeError:
             continue
-        r.taa_range = '%s%s_%s%sdel%sins%s' % (
-            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.refseq, q.altseq)
+        r.taa_range = '%s%s_%s%sdelins%s' % (
+            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.altseq) # q.refseq, 
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.beg, q.end)
         r.append_info('imprecise')
@@ -125,8 +125,8 @@ def annotate_mnv_protein(args, q, tpts, db):
 
     if not found:
         r = Record()
-        r.taa_range = '%s%s_%s%sdel%sins%s' % (
-            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.refseq, q.altseq)
+        r.taa_range = '%s%s_%s%sdelins%s' % (
+            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.altseq) # q.refseq, 
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
         r.format(q.op)
@@ -255,7 +255,7 @@ def annotate_mnv_gdna(args, q, db):
         if q.beg == q.end:
             r.gnuc_range = '%d%s>%s' % (q.beg, gnuc_refseq, gnuc_altseq)
         else:
-            r.gnuc_range = '%d_%d%s>%s' % (q.beg, q.end, gnuc_refseq, gnuc_altseq)
+            r.gnuc_range = '%d_%ddelins%s' % (q.beg, q.end, gnuc_altseq)
 
         db.query_dbsnp_range(r, q.beg, q.end, gnuc_altseq)
         if hasattr(reg, 't'):
@@ -277,7 +277,7 @@ def annotate_mnv_gdna(args, q, db):
                 tnuc_end = p1
                 tnuc_refseq = reverse_complement(gnuc_refseq)
                 tnuc_altseq = reverse_complement(gnuc_altseq)
-            r.tnuc_range = '%s_%s%s>%s' % (tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
+            r.tnuc_range = '%s_%sdelins%s' % (tnuc_beg, tnuc_end, tnuc_altseq) # tnuc_refseq, 
 
             expt = r.set_splice()
             if r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():

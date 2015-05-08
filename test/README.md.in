@@ -464,7 +464,7 @@ $ transvar canno --ccds -i 'ABCB11:c.1198-8_1199delcactccagAA'
 Example: to annotate a block substitution in **coding region**,
 ```
 #!bash
-$ transvar canno --ccds -i 'A1CF:c.508_509CC>TT'
+$ transvar canno --ccds -i 'A1CF:c.508_509delinsTT'
 ```
 ```
 #!text
@@ -474,7 +474,7 @@ $ transvar canno --ccds -i 'A1CF:c.508_509CC>TT'
 Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion, where protein alternative alignment should be reported.
 ```
 #!bash
-$ transvar canno --ccds -i 'CSRNP1:c.1212_1224>GGAGGAGGAA'
+$ transvar canno --ccds -i 'CSRNP1:c.1212_1224delinsGGAGGAGGAA'
 ```
 ```
 #!text
@@ -484,7 +484,7 @@ $ transvar canno --ccds -i 'CSRNP1:c.1212_1224>GGAGGAGGAA'
 Likewise, block substitution could occur to **intronic region**,
 ```
 #!bash
-$ transvar canno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
+$ transvar canno --ccds -i 'A1CF:c.1460+2_1460+3delinsCC'
 ```
 ```
 #!text
@@ -494,7 +494,7 @@ $ transvar canno --ccds -i 'A1CF:c.1460+2_1460+3TG>CC'
 When block substitution occurs **across splice site**, TransVar put a tag in the info fields and does not predict amino acid change.
 ```
 #!bash
-$ transvar canno --ccds -i 'A1CF:c.1459_1460+3ATGTG>CC'
+$ transvar canno --ccds -i 'A1CF:c.1459_1460+3delinsCC'
 ```
 ```
 #!text
@@ -825,7 +825,7 @@ $ transvar ganno -i '12:109702119insACC' --ccds
 A block-substitution that results in a frameshift.
 ```
 #!bash
-$ transvar ganno -i 'chr10:g.27329002_27329002A>AT' --ccds
+$ transvar ganno -i 'chr10:g.27329002_27329002delinsAT' --ccds
 ```
 ```
 #!text
@@ -835,7 +835,7 @@ $ transvar ganno -i 'chr10:g.27329002_27329002A>AT' --ccds
 A block-substitution that is in-frame,
 ```
 #!bash
-$ transvar ganno -i 'chr10:g.52595929_52595930GG>AA' --ccds
+$ transvar ganno -i 'chr10:g.52595929_52595930delinsAA' --ccds
 ```
 ```
 #!text
