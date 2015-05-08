@@ -9,7 +9,7 @@ from parser import parser_add_annotation
 from record import *
 from err import *
 from config import read_config
-from mutation import parse_tok_mutation_str, list_parse_mutation, parser_add_mutation
+from mutation import parse_tok_mutation_str, list_parse_mutation, vcf_parse_mutation, parser_add_mutation
 
 from mnv import annotate_mnv_gdna, annotate_mnv_protein, annotate_mnv_cdna
 from snv import annotate_snv_gdna, annotate_snv_protein, annotate_snv_cdna
@@ -86,9 +86,9 @@ def _main_core_(args, q, db, at):
             raise Exception('mutation type inference error for %s' % q.op)
 
     
-def main_list(args, db, at):
+def main_list(args, db, at, mutation_parser):
 
-    for q, line in list_parse_mutation(args, at):
+    for q, line in mutation_parser:
 
         if at == 'g':
             q.tok = normalize_chrm(q.tok)
@@ -134,11 +134,16 @@ def main(args, at):
     config = read_config()
     db = AnnoDB(args, config)
 
-    if not args.noheader:
-        print_header()
+    if (not args.vcf) and (not args.noheader):
+        print print_header()
 
     if args.l:
-        main_list(args, db, at)
+        main_list(args, db, at, list_parse_mutation(args, at))
+
+    if args.vcf:
+        if at != 'g':
+            err_raise("can apply on ganno to VCF input")
+        main_list(args, db, at, vcf_parse_mutation(args, 'g'))
 
     if args.i:
         main_one(args, db, at)

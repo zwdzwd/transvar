@@ -371,8 +371,11 @@ def normalize_reg(q):
         q.end = 0    
 
 template = "{r.tname}\t{r.gene}\t{r.strand}\t{gnuc}/{tnuc}/{taa}\t{reg}\t{r.info}"
+def print_header_s():
+    return 'transcript\tgene\tstrand\tcoordinates(gDNA/cDNA/protein)\tregion\tinfo'
+    
 def print_header():
-    print 'input\ttranscript\tgene\tstrand\tcoordinates(gDNA/cDNA/protein)\tregion\tinfo'
+    return 'input\t'+print_header_s()
     
 class Record():
 

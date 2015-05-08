@@ -890,9 +890,20 @@ results in
 
 ### FAQ
 
++ how can TransVar take VCF as input?
+
+Yes. For example,
+```
+#!bash
+transvar ganno --vcf ALL.wgs.phase1_release_v3.20101123.snps_indel_sv.sites.vcf.gz --ccds
+# or
+transvar ganno --vcf demo.1kg.vcf --ccds
+```
+
 + I got 'gene_not_recognized', what's wrong?
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
+
 
 ### Technical notes
 

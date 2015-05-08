@@ -297,6 +297,59 @@ def _list_parse_mutation(args, fields, indices, muttype):
 
     return q
 
+def vcf_parse_mutation(args, at='g'):
+
+    for line in opengz(args.vcf):
+        if line.startswith('##'):
+            sys.stdout.write(line)
+            continue
+        if line.startswith('#CHROM'):
+            sys.stdout.write(line.strip()+'\t'+print_header_s()+'\n')
+            continue
+
+        fields = line.strip().split('\t')
+        chrm = fields[0]
+        pos = int(fields[1])
+        ref = fields[3]
+        alts = fields[4]
+        for alt in alts.split(','):
+            if alt == '<DEL>':
+                q = QueryDEL()
+                q.tok = chrm
+                m = re.match(r'.*END=(\d+)', fields[7])
+                q.beg = pos
+                q.end = int(m.group(1))
+            elif len(ref) == 1 and len(alt) == 1:
+                q = QuerySNV()
+                q.tok = chrm
+                q.pos = pos
+                q.ref = ref
+                q.alt = alt
+            elif len(ref) > 1 and len(alt) == 1 and ref[0] == alt:
+                q = QueryDEL()
+                q.tok = chrm
+                q.beg = pos + 1
+                q.end = pos + len(ref) - 1
+                q.delseq = ref[1:]
+            elif len(ref) == 1 and len(alt) > 1 and ref == alt[0]:
+                q = QueryINS()
+                q.tok = chrm
+                q.pos = pos
+                q.insseq = alt[1:]
+            elif len(ref) > 1 and len(alt) > 1:
+                q = QueryMNV()
+                q.tok = chrm
+                q.beg = pos
+                q.end = pos + len(ref) - 1
+                q.refseq = ref.upper()
+                q.altseq = alt.upper()
+            else:
+                err_raise(InvalidInputError, 'invalid VCF line: %s' % line)
+
+            q.op = line.strip()
+
+            yield q, line
+
 def list_parse_mutation(args, muttype):
 
     indices = parse_indices(args.o)
@@ -326,9 +379,8 @@ def parser_add_mutation(parser):
     parser.add_argument('--noheader', action='store_true', help='repress header print')
     parser.add_argument('-i', default=None,
                         help='<gene/chrm>:<mutation>, E.g., MET:1010, PIK3CA:E545K, PIK3CA:c.1633G>A, chr12:25398285')
-    parser.add_argument('-l', default=None,
-                        type = argparse.FileType('r'), 
-                        help='mutation list file')
+    parser.add_argument('-l', default=None, type = argparse.FileType('r'), help = 'mutation list file')
+    parser.add_argument('--vcf', default=None, help = 'vcf input file')
     parser.add_argument('-d', default="\t",
                         help="table delimiter [\\t], use 's' for space.")
     parser.add_argument('-g', type=int,

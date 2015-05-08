@@ -1224,6 +1224,9 @@ $ transvar ganno --refseq -i 'chr14:20568338_20569581' --refversion mm10
 results in
 ```
 #!text
+chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
+   chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
+   dbxref=GeneID:75602,MGI:MGI:1922852
 chr14:20568338_20569581	XM_006519705.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
    dbxref=GeneID:78787,MGI:MGI:1926037
@@ -1251,9 +1254,6 @@ chr14:20568338_20569581	XM_006519709.2 (protein_coding)	USP54	-
 chr14:20568338_20569581	XM_006519708.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
-   chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
-   dbxref=GeneID:75602,MGI:MGI:1922852
 ```
 
 or using Ensembl
@@ -1264,22 +1264,33 @@ $ transvar ganno --ensembl -i 'chr1:29560_29570'
 results in
 ```
 #!text
+chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
+   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
+   .
 chr1:29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.1_11/.	inside_[noncoding_exon_1]
    promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%)
 chr1:29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.237_247/.	inside_[noncoding_exon_1]
    .
-chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
-   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
-   .
 ```
 
 ### FAQ
 
++ how can TransVar take VCF as input?
+
+Yes. For example,
+```
+#!bash
+transvar ganno --vcf ALL.wgs.phase1_release_v3.20101123.snps_indel_sv.sites.vcf.gz --ccds
+# or
+transvar ganno --vcf demo.1kg.vcf --ccds
+```
+
 + I got 'gene_not_recognized', what's wrong?
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
+
 
 ### Technical notes
 

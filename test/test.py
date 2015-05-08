@@ -21,7 +21,7 @@ fh = open(sys.argv[2], 'w') # open('README.md.temp', 'w')
 result = ''
 for line in open(sys.argv[1]):
 
-    if line.startswith('$'):
+    if line.startswith('$'):    # exexcute sentinel
 
         fh.write(line)
         line = line[2:].strip()

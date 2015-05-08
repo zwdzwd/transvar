@@ -1,0 +1,2 @@
+$ transvar ganno --vcf ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites.vcf.gz --ccds > 1
+$ transvar ganno --vcf demo.1kg.vcf --ccds > 1
