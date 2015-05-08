@@ -12,8 +12,6 @@ TransVar has the following features:
  + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
  + functionality of forward annotation.
 
-![fig1raw.png](https://bitbucket.org/repo/L5dGpA/images/3663470848-fig1raw.png)
-
 --------
 
 [TOC]
@@ -28,7 +26,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.4.20150417](https://bitbucket.org/wanding/transvar/get/v2.0.4.20150417.zip)
+current stable version: [v2.0.5.20150507](https://bitbucket.org/wanding/transvar/get/v2.0.5.20150507.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -1226,36 +1224,36 @@ $ transvar ganno --refseq -i 'chr14:20568338_20569581' --refversion mm10
 results in
 ```
 #!text
-chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18Rik	+
-   chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
-   dbxref=GeneID:75602,MGI:MGI:1922852
-chr14:20568338_20569581	XM_006519705.2 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_006519705.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_006519703.2 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_006519703.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245225.1 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_011245225.1 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	NM_030180.2 (protein_coding)	Usp54	-
+chr14:20568338_20569581	NM_030180.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245226.1 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_011245226.1 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245228.1 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_011245228.1 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.1357+667_1357+1910/.	inside_[intron_between_exon_6_and_7]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245227.1 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_011245227.1 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_006519709.2 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_006519709.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_006519708.2 (protein_coding)	Usp54	-
+chr14:20568338_20569581	XM_006519708.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
+   chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
+   dbxref=GeneID:75602,MGI:MGI:1922852
 ```
 
 or using Ensembl
