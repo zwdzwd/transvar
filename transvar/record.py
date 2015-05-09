@@ -503,15 +503,35 @@ class Record():
 
     def format(self, op):
 
-        if hasattr(self.reg, 't'):
-            if self.reg.t.gene.dbxref:
-                self.append_info('dbxref=%s' % self.reg.t.gene.dbxref)
-        
         s = op+'\t' if op else ''
-        s += template.format(r=self, reg=self.reg.format(),
-                             gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
+        s += self.formats()
+        
         try:
             print s
         except IOError:
             sys.exit(1)
 
+    def formats(self):
+
+        if hasattr(self.reg, 't'):
+            if self.reg.t.gene.dbxref:
+                self.append_info('dbxref=%s' % self.reg.t.gene.dbxref)
+        
+        return template.format(r=self, reg=self.reg.format(),
+                               gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
+
+def format_one(r, rs, q, args):
+    if not args.oneline:
+        r.format(q.op)
+    else:
+        rs.append(r.formats())
+    
+def format_all(rs, q, args):
+
+    if args.oneline and len(rs) > 0:
+        s = q.op+'\t' if q.op else ''
+        s += '\t|||\t'.join(rs)
+        try:
+            print s
+        except IOError:
+            sys.exit(1)

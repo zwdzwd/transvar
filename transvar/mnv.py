@@ -11,6 +11,7 @@ from snv import annotate_snv_gdna
 def annotate_mnv_cdna(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
 
@@ -46,7 +47,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
             expt = r.set_splice()
             if t.transcript_type == 'protein_coding' and (not expt) and r.reg.entirely_in_cds():
                 try:
-                    tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r)
+                    tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r, args)
                 except IncompatibleTranscriptError as inst:
                     _beg, _end, _seqlen = inst
                     r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
@@ -58,7 +59,8 @@ def annotate_mnv_cdna(args, q, tpts, db):
         except UnknownChromosomeError:
             continue
         found = True
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
@@ -70,6 +72,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
 def annotate_mnv_protein(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
@@ -116,17 +119,19 @@ def annotate_mnv_protein(args, q, tpts, db):
         except UnknownChromosomeError:
             continue
         r.taa_range = '%s%s_%s%sdelins%s' % (
-            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.altseq) # q.refseq, 
+            aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.beg, q.end)
         r.append_info('imprecise')
-        r.format(q.op)
-        found = True
 
+        found = True
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
+    
     if not found:
         r = Record()
         r.taa_range = '%s%s_%s%sdelins%s' % (
-            q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.altseq) # q.refseq, 
+            aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
         r.format(q.op)
@@ -217,6 +222,7 @@ def annotate_mnv_gdna(args, q, db):
     if args.haplotype:
         import anno
         for qq in decompose_mut(q):
+            qq.op = q.op
             qq.tok = q.tok
             anno._main_core_(args, qq, db, 'g')
         return
@@ -245,7 +251,8 @@ def annotate_mnv_gdna(args, q, db):
             q.delseq = gnuc_refseq
             annotate_deletion_gdna(args, q, db)
             return
-    
+
+    rs = []
     for reg in describe(args, q, db):
 
         r = Record()
@@ -284,7 +291,7 @@ def annotate_mnv_gdna(args, q, db):
                 try:
                     _, tnuc_beg_adj = t.intronic_lean(tnuc_beg, 'c_greater')
                     _, tnuc_end_adj = t.intronic_lean(tnuc_end, 'c_smaller')
-                    tnuc_mnv_coding(t, tnuc_beg_adj.pos, tnuc_end_adj.pos, tnuc_altseq, r)
+                    tnuc_mnv_coding(t, tnuc_beg_adj.pos, tnuc_end_adj.pos, tnuc_altseq, r, args)
                 except IncompatibleTranscriptError as inst:
                     if len(inst) == 3:
                         _beg, _end, _seqlen = inst
@@ -316,10 +323,10 @@ def annotate_mnv_gdna(args, q, db):
             if genes:
                 r.gene = ','.join(genes)
 
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
-
-def tnuc_mnv_coding(t, beg, end, altseq, r):
+def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 
     if (len(altseq) - (end-beg+1)) % 3 == 0: # in frame
 
@@ -357,26 +364,26 @@ def tnuc_mnv_coding(t, beg, end, altseq, r):
         if not old_taa_seq1:
             _beg_index = beg_codon_index + head_trim - 1
             _end_index = beg_codon_index + head_trim
-            taa_set_ins(r, t, _beg_index, new_taa_seq1)
+            taa_set_ins(r, t, _beg_index, new_taa_seq1, args)
             return
 
         if not new_taa_seq1:
-            taa_set_del(r, t, beg_codon_index+head_trim, end_codon_index-tail_trim)
+            taa_set_del(r, t, beg_codon_index+head_trim, end_codon_index-tail_trim, args)
             return
 
         if len(old_taa_seq1) == 1:
             if len(new_taa_seq1) == 1:
                 r.taa_range = '%s%d%s' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+                    aaf(old_taa_seq1[0], args), beg_codon_index + head_trim, aaf(new_taa_seq1, args))
                 return
             else:
                 r.taa_range = '%s%ddelins%s' % (
-                    old_taa_seq1[0], beg_codon_index + head_trim, new_taa_seq1)
+                    aaf(old_taa_seq1[0], args), beg_codon_index + head_trim, aaf(new_taa_seq1, args))
                 return
 
         r.taa_range = '%s%d_%s%ddelins%s' % (
-            old_taa_seq1[0], beg_codon_index + head_trim,
-            old_taa_seq1[-1], end_codon_index - tail_trim, new_taa_seq1)
+            aaf(old_taa_seq1[0], args), beg_codon_index + head_trim,
+            aaf(old_taa_seq1[-1], args), end_codon_index - tail_trim, aaf(new_taa_seq1, args))
 
     else:                   # frame-shift
 
@@ -388,6 +395,6 @@ def tnuc_mnv_coding(t, beg, end, altseq, r):
         ret = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
         if ret:
             taa_pos, taa_ref, taa_alt, termlen = ret
-            r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+            r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
         else:
             r.taa_range = '(=)'

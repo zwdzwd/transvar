@@ -26,6 +26,86 @@ def normalize_chrm_dbsnp(chrm):
 
     return chrm
 
+aa_3to1_table = {
+    "Ala": "A",
+    "Arg": "R",
+    "Asn": "N",
+    "Asp": "D",
+    "Cys": "C",
+    "Glu": "E",
+    "Gln": "Q",
+    "Gly": "G",
+    "His": "H",
+    "Ile": "I",
+    "Leu": "L",
+    "Lys": "K",
+    "Met": "M",
+    "Phe": "F",
+    "Pro": "P",
+    "Ser": "S",
+    "Thr": "T",
+    "Trp": "W",
+    "Tyr": "Y",
+    "Val": "V",
+    "Sec": "U",
+    "Pyl": "O",
+    "X": "*",
+}
+
+aa_1to3_table = {
+    "A": "Ala",
+    "R": "Arg",
+    "N": "Asn",
+    "D": "Asp",
+    "C": "Cys",
+    "E": "Glu",
+    "Q": "Gln",
+    "G": "Gly",
+    "H": "His",
+    "I": "Ile",
+    "L": "Leu",
+    "K": "Lys",
+    "M": "Met",
+    "F": "Phe",
+    "P": "Pro",
+    "S": "Ser",
+    "T": "Thr",
+    "W": "Trp",
+    "Y": "Tyr",
+    "V": "Val",
+    "U": "Sec",
+    "O": "Pyl",
+    "*": "X",
+}
+
+def aa_3to1(aaseq):
+
+    aaseq1 = ''
+    for i in xrange(len(aaseq)/3):
+        aa = aaseq[3*i:3*i+3]
+        aaseq1 += aa_3to1_table[aa]
+
+    return aaseq1
+
+def aa_1to3(aaseq1):
+
+    aaseq3 = ''
+    for aa in aaseq1:
+        aaseq3 += aa_1to3_table[aa]
+
+    return aaseq3
+
+def aaf(aaseq, args):
+    if args.aa3:
+        return aa_1to3(aaseq)
+    else:
+        return aaseq
+
+def aafx(x, args):              # end codon
+    if args.aa3:
+        return 'X'
+    else:
+        return '*'
         
 def reflen(chrm):
     return faidx.refgenome.faidx[normalize_chrm(chrm)][0]

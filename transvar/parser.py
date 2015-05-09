@@ -640,7 +640,6 @@ def parser_add_annotation(parser):
     parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
                         help='use uniprot ID rather than gene id (config key: uniprot)')
     parser.add_argument('--sql', action='store_true', help='SQL mode')
-
     parser.add_argument('--prombeg', type=int, default=1000, help='promoter starts from n1 bases upstream of transcription start site (default: n1=1000)')
     parser.add_argument('--promend', type=int, default=0, help='promoter ends extends to n2 bases downstream of transcription start site (default: n2=0)')
 

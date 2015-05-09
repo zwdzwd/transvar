@@ -68,6 +68,7 @@ reverse_codon_table = {
     '*': ['TAA', 'TAG', 'TGA']
 }
 
+
 def aaseq2nuc(aaseq):
 
     # only choose first codon
@@ -947,47 +948,6 @@ class Transcript():
 
         self.ensure_seq()
         return self.seq[beg-1:end]
-
-    def taa_del_id(self, taa_beg, taa_end):
-
-        if taa_beg == taa_end:
-            s = '%s%ddel%s' % (self.cpos2aa(taa_beg), taa_beg, self.taa2aa(taa_beg))
-        else:
-            taa_del_len = taa_end - taa_beg + 1
-            if taa_del_len > delrep_len:
-                taa_delrep = str(taa_del_len)
-            else:
-                taa_delrep = self.taa_range2aa_seq(taa_beg, taa_end)
-            s = '%s%d_%s%ddel%s' % (
-                self.cpos2aa(taa_beg), taa_beg,
-                self.cpos2aa(taa_end), taa_end,
-                taa_delrep)
-
-        return s
-
-    def taa_ins_id(self, index, taa_insseq):
-
-        aa = self.cpos2aa(index)
-        aa2 = self.cpos2aa(index+1)
-        n = len(taa_insseq)
-        if index-n+1 > 0:
-            flank5_seq = self.taa_range2aa_seq(index-n+1, index)
-        else:
-            flank5_seq = None
-
-        # if index+n < len(self.seq)/3:
-        #     flank3_seq = self.taa_range2aa_seq(index+1, index+n)
-        # else:
-        #     flank3_seq = None
-        if flank5_seq is not None and flank5_seq == taa_insseq:
-            if len(flank5_seq) == 1:
-                s = '%s%ddup%s' % (aa, index, flank5_seq)
-            else:
-                s = '%s%d_%s%ddup%s' % (flank5_seq[0], index-n+1, flank5_seq[-1], index, flank5_seq)
-        else:
-            s = '%s%d_%s%dins%s' % (aa, index, aa2, index+1, taa_insseq)
-
-        return s
 
     def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
 

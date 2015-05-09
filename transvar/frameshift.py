@@ -51,6 +51,7 @@ def _annotate_frameshift(args, q, t):
 def annotate_frameshift(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
             r = _annotate_frameshift(args, q, t)
@@ -58,15 +59,17 @@ def annotate_frameshift(args, q, tpts, db):
             continue
         except UnknownChromosomeError:
             continue
-        r.taa_range = '%s%d%sfs*%d' % (q.ref, q.pos, q.alt, q.stop_index)
+        r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.pos, q.pos+q.stop_index)
         r.format(q.op)
         found = True
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
-        r.taa_range = '%s%d%sfs*%d' % (q.ref, q.pos, q.alt, q.stop_index)
+        r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 

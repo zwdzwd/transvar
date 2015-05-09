@@ -45,16 +45,17 @@ def _annotate_region_cdna(args, q, t, db):
         
         if c1.index == c2.index:
             r.taa_pos = c1.index
-            r.taa_ref = codon2aa(c1.seq)
+            r.taa_ref = aaf(codon2aa(c1.seq), args)
         else:
-            r.taa_ref = translate_seq(t.seq[c1.index*3-3:c2.index*3])
-            r.taa_range = '%d_%d%s' % (c1.index, c2.index, r.taa_ref)
+            taa_ref = aaf(translate_seq(t.seq[c1.index*3-3:c2.index*3]), args)
+            r.taa_range = '%d_%d%s' % (c1.index, c2.index, aaf(taa_ref, args))
 
     return r
 
 def annotate_region_cdna(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
             r = _annotate_region_cdna(args, q, t, db)
@@ -63,7 +64,8 @@ def annotate_region_cdna(args, q, tpts, db):
         except UnknownChromosomeError:
             continue
         found = True
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
@@ -76,6 +78,7 @@ def annotate_region_cdna(args, q, tpts, db):
 def annotate_region_protein(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
@@ -103,7 +106,7 @@ def annotate_region_protein(args, q, tpts, db):
                 raise IncompatibleTranscriptError('reference sequence unmatched')
             r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
             r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
-            r.taa_range = '%s%d_%s%d' % (taa_natrefseq[0], q.beg, taa_natrefseq[-1], q.end) if q.beg != q.end else '%d%s' % (q.beg, taa_natrefseq[0])
+            r.taa_range = '%s%d_%s%d' % (aaf(taa_natrefseq[0], args), q.beg, aaf(taa_natrefseq[-1], args), q.end) if q.beg != q.end else '%d%s' % (q.beg, aaf(taa_natrefseq[0], args))
             r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
             r.gene = t.gene.name
             r.strand = t.strand
@@ -122,7 +125,9 @@ def annotate_region_protein(args, q, tpts, db):
         r = Record()
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
+
 
     return
 
@@ -130,6 +135,7 @@ def annotate_region_protein(args, q, tpts, db):
 def annotate_region_gdna(args, q, db):
     
     normalize_reg(q)
+    rs = []
     for reg in describe(args, q, db):
         r = Record()
         r.reg = reg
@@ -166,7 +172,7 @@ def annotate_region_gdna(args, q, db):
 
                 if p.tpos == 0 and reg.t.transcript_type == 'protein_coding':
                     if c.seq in standard_codon_table:
-                        r.taa_ref = standard_codon_table[c.seq]
+                        r.taa_ref = aaf(standard_codon_table[c.seq], args)
                     r.taa_pos = c.index
 
                 r.gnuc_pos = q.pos
@@ -219,25 +225,27 @@ def annotate_region_gdna(args, q, db):
                         r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
                     elif c1.index == c2.index:
                         # print 1
-                        r.taa_ref = c1.aa()
+                        r.taa_ref = aaf(c1.aa(), args)
                         r.taa_pos = c1.index
                         r.append_info('codon=%s' % c1.locformat())
                     else:
                         # print 2
                         if reg.t.strand == '+':
-                            r.taa_range = '%s%d_%s%d' % (c1.aa(), c1.index, c2.aa(), c2.index)
+                            r.taa_range = '%s%d_%s%d' % (aaf(c1.aa(), args), c1.index, c2.aa(), c2.index)
                         else:
-                            r.taa_range = '%s%d_%s%d' % (c2.aa(), c2.index, c1.aa(), c1.index)
+                            r.taa_range = '%s%d_%s%d' % (aaf(c2.aa(), args), c2.index, c1.aa(), c1.index)
                         r.append_info('start_codon=%s;end_codon=%s' % (c1.locformat(), c2.locformat()))
 
         else:
             raise Exception()   # shouldn't reach
 
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
                 
 
 def annotate_gene(args, q, tpts, db):
 
+    rs = []
     for t in tpts:
         r = Record()
         r.chrm = t.chrm
@@ -252,7 +260,7 @@ def annotate_gene(args, q, tpts, db):
         r.append_info('#exons=%d' % len(t.exons))
         if t.transcript_type == 'protein_coding':
             r.append_info('cds=%s:%d_%d' % (t.chrm, t.cds_beg, t.cds_end))
-            r.taa_range = '%s%d_%s%d' % (t.taa2aa(1), 1, t.taa2aa(t.cdslen()/3), t.cdslen()/3)
+            r.taa_range = '%s%d_%s%d' % (aaf(t.taa2aa(1), args), 1, aaf(t.taa2aa(t.cdslen()/3), args), t.cdslen()/3)
             if t.cdslen() % 3 != 0:
                 r.append_info('truncated_refseq_at_boundary')
 
@@ -260,5 +268,7 @@ def annotate_gene(args, q, tpts, db):
         r.tname = t.format()
         r.reg = 'whole_transcript'
 
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
+
 

@@ -37,6 +37,11 @@ fns[('hg18', 'anno')] = [
     ('ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
 ]
 
+fns[('hg19', 'reference')] = [
+    ('reference', 'hg19.fa', 'https://dl.dropboxusercontent.com/u/6647241/hg19.fa?dl=1'),
+    ('reference_fai', 'hg19.fa.fai', 'https://dl.dropboxusercontent.com/u/6647241/hg19.fa.fai?dl=1'),
+]
+
 fns[('hg38', 'anno')] = [
     ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p2_top_level.gff3.gz'),
     # ('ccds', 'hg38.ccds.txt', ''),
@@ -176,6 +181,11 @@ def main(args):
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
+    if args.download_ref:
+        download_topic(args, config, 'reference')
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
+
     if args.download_anno:
         download_topic(args, config, 'anno')
         if args.refversion != 'DEFAULT':
@@ -227,6 +237,7 @@ def add_parser_config(subparsers):
     parser.add_argument('-v', default=None, help='value')
     parser.add_argument('--refversion', default='DEFAULT', help='reference version')
     parser.add_argument('--download_anno', action='store_true', help='download annotations')
+    parser.add_argument('--download_ref', action='store_true', help='download reference')
     parser.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
     parser.set_defaults(func=main)

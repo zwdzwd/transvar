@@ -21,7 +21,7 @@ def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
     ret = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+        r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
     else:
         r.taa_range = '(=)'
 
@@ -52,7 +52,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                 c2 = t.cpos2codon((tnuc_pos+3)/3)
                 if not c1 or not c2:
                     raise IncompatibleTranscriptError()
-                taa_set_ins(r, t, c1.index, taa_insseq)
+                taa_set_ins(r, t, c1.index, taa_insseq, args)
                 r.append_info('phase=0')
         else:
             # insertion is after 1st or 2nd base of a codon
@@ -78,13 +78,13 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             if taa_ref == taa_insseq[0]:
                 # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
                 taa_ref_after = codon2aa(t.seq[codon.index*3:codon.index*3+3])
-                taa_set_ins(r, t, codon.index, taa_insseq[1:])
+                taa_set_ins(r, t, codon.index, taa_insseq[1:], args)
             elif taa_ref == taa_insseq[-1]:
                 # SdelinsHS becomes a pure insertion [codon_before]_[current_codon]insH
                 taa_ref_before = codon2aa(t.seq[codon.index*3-6:codon.index*3-3])
-                taa_set_ins(r, t, codon.index-1, taa_insseq[:-1])
+                taa_set_ins(r, t, codon.index-1, taa_insseq[:-1], args)
             else:
-                r.taa_range = '%s%ddelins%s' % (taa_ref, codon.index, taa_insseq)
+                r.taa_range = '%s%ddelins%s' % (aaf(taa_ref, args), codon.index, aaf(taa_insseq, args))
             # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
             r.append_info('phase=%d' % (tnuc_pos - codon_beg + 1,))
 
@@ -95,6 +95,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
 def annotate_insertion_cdna(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
 
         try:
@@ -134,8 +135,9 @@ def annotate_insertion_cdna(args, q, tpts, db):
         except UnknownChromosomeError:
             continue
 
-        r.format(q.op)
         found = True
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
@@ -152,7 +154,7 @@ def codon_mutation_ins(args, q, t, db):
     t.ensure_seq()
 
     r = Record()
-    taa_set_ins(r, t, q.beg, q.insseq)
+    taa_set_ins(r, t, q.beg, q.insseq, args)
     r.reg = RegCDSAnno(t)
     r.reg.from_cindex(q.beg)
     if q.beg*3 > t.cdslen() or q.end*3 > t.cdslen():
@@ -179,6 +181,7 @@ def codon_mutation_ins(args, q, t, db):
 def annotate_insertion_protein(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
             r = codon_mutation_ins(args, q, t, db)
@@ -186,23 +189,25 @@ def annotate_insertion_protein(args, q, tpts, db):
             r.tname = t.format()
             r.gene = t.gene.name
             r.strand = t.strand
-            r.format(q.op)
-            found = True
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
             continue
         except UnknownChromosomeError:
             continue
+        found = True
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
-        r.taa_range = '%s%s_%s%sins%s' % (q.beg_aa, str(q.beg), q.end_aa, str(q.end), q.insseq)
+        r.taa_range = '%s%s_%s%sins%s' % (aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.insseq, args))
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
 def annotate_insertion_gdna(args, q, db):
 
+    rs = []
     for reg in describe(args, q, db):
 
         r = Record()
@@ -241,14 +246,15 @@ def annotate_insertion_gdna(args, q, db):
                 # else:
                 #     ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
 
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
         
 
 def annotate_duplication_cdna(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
-        print t.name
         try:
 
             if q.tpt and t.name != q.tpt:
@@ -294,9 +300,10 @@ def annotate_duplication_cdna(args, q, tpts, db):
             continue
         except UnknownChromosomeError:
             continue
-        found = True
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
-        r.format(q.op)
+        found = True
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
@@ -305,13 +312,37 @@ def annotate_duplication_cdna(args, q, tpts, db):
         r.format(q.op)
 
 
-def taa_set_ins(r, t, index, taa_insseq):
+def taa_ins_id(t, index, taa_insseq, args):
+
+    aa = t.cpos2aa(index)
+    aa2 = t.cpos2aa(index+1)
+    n = len(taa_insseq)
+    if index-n+1 > 0:
+        flank5_seq = t.taa_range2aa_seq(index-n+1, index)
+    else:
+        flank5_seq = None
+
+    # if index+n < len(self.seq)/3:
+    #     flank3_seq = self.taa_range2aa_seq(index+1, index+n)
+    # else:
+    #     flank3_seq = None
+    if flank5_seq is not None and flank5_seq == taa_insseq:
+        if len(flank5_seq) == 1:
+            s = '%s%ddup%s' % (aaf(aa, args), index, aaf(flank5_seq, args))
+        else:
+            s = '%s%d_%s%ddup%s' % (aaf(flank5_seq[0], args), index-n+1, aaf(flank5_seq[-1], args), index, aaf(flank5_seq, args))
+    else:
+        s = '%s%d_%s%dins%s' % (aaf(aa, args), index, aaf(aa2, args), index+1, aaf(taa_insseq, args))
+
+    return s
+        
+def taa_set_ins(r, t, index, taa_insseq, args):
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
     try:
-        r.taa_range = t.taa_ins_id(i1r, taa_insseq_r)
+        r.taa_range = taa_ins_id(t, i1r, taa_insseq_r, args)
         i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
-        r.append_info('left_align_protein=p.%s' % t.taa_ins_id(i1l, taa_insseq_l))
-        r.append_info('unalign_protein=p.%s' % t.taa_ins_id(index, taa_insseq))
+        r.append_info('left_align_protein=p.%s' % taa_ins_id(t, i1l, taa_insseq_l, args))
+        r.append_info('unalign_protein=p.%s' % taa_ins_id(t, index, taa_insseq, args))
     except IncompatibleTranscriptError:
         r.append_info("truncated_refseq_at_boundary")
 

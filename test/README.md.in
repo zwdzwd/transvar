@@ -1,12 +1,14 @@
-**TransVar** is a reverse annotator for inferring genomic characterization(s) of mutations (e.g., ```chr3:178936091 G=>A```) from transcript-dependent annotation(s) (e.g., ```PIK3CA p.E545K``` or ```PIK3CA c.1633G>A```). It is designed for resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation.
+**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., ```chr3:g.178936091G>A```) and transcript-dependent annotation(s) (e.g., ```PIK3CA:p.E545K``` or ```PIK3CA:c.1633G>A```). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
 TransVar has the following features:
 
  + supports HGVS nomenclature
  + supports both left-alignment and right-alignment convention in reporting indels and duplications.
  + supports annotation of a region based on a transcript-dependent characterization
- + supports noncoding RNA annotation
- + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports mutations at both coding region and intronic/UTR regions
+ + supports noncoding RNA annotation
+ + supports VCF inputs
+ + supports long haplotype decomposition
+ + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
  + supports UniProt protein id as transcript id
  + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
@@ -26,16 +28,19 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.5.20150507](https://bitbucket.org/wanding/transvar/get/v2.0.5.20150507.zip)
+current stable version: [v2.0.6.20150508](https://bitbucket.org/wanding/transvar/get/v2.0.6.20150508.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
+
+for older 1.x version:
+[v1.40](https://bitbucket.org/wanding/transvar/get/v1.40.zip)
 
 #### install
 
 ##### System-wise install (need root)
 ```
 #!bash
-python setup.py install
+sudo python setup.py install
 ```
 
 ##### Local install
@@ -50,11 +55,29 @@ You can add it by putting
 
 The installed executable is `[localfolder]/bin/transvar`.
 
-#### reference genome assembly
-For most annotation tasks, TransVar requires a samtools faidx indexed reference genome in fasta format, which is available at, e.g., [UCSC ftp](http://hgdownload.soe.ucsc.edu/goldenPath/hg19/).
+#### quick start
+
+Here we show how one can use TransVar on human hg19 (GRCh37).
+```
+#!bash
+# set up databases
+transvar config --download_anno --refversion hg19
+# in case, if you don't have a reference
+transvar config --download_ref --refversion hg19
+# in case you do
+transvar config -k reference -v [path_to_hg19.fa] --refversion hg19
+
+transvar panno -i 'PIK3CA:p.E545K' --ucsc --ccds
+# Enjoy using TransVar.
+```
+
+#### install/specify reference genome assembly
+
+For some genome assembly we provide download via `transvar config --download_ref --refversion hg19`. This will download the faidx indexed reference.
+For other genome assemblies,one could download the reference and index the reference using `samtools faidx`.
 Once downloaded and indexed, the reference can be used through the "--reference" option followed by the fasta filename.
 
-To set the default location of reference to ./hg19.fa,
+To set the default location of reference, say, to ./hg19.fa,
 ```
 #!bash
 transvar config -k reference -v ./hg19.fa --refversion hg19
@@ -900,6 +923,35 @@ transvar ganno --vcf ALL.wgs.phase1_release_v3.20101123.snps_indel_sv.sites.vcf.
 transvar ganno --vcf demo.1kg.vcf --ccds
 ```
 
++ Can TransVar automatically decompose a haplotype into multiple mutations?
+
+Yes, TransVar performs local alignment to allow long haplotype to be decomposed into multiple mutations.
+
+```
+#!bash
+$ transvar ganno --ccds -i 'chr20:g.645097_645111delinsGTGCGATACCCAGGAG' --haplotype
+```
+leads to 2 snv and one insertion
+```
+@
+```
+
++ Can TransVar use 3-letter code instead of 1-letter code for protein?
+
+Yes, TransVar automatically infer whether the input is a 3-letter code or 1-letter code.
+The output is default to 1-letter code. But can be switched to 3-letter code through the `--aa3` option.
+For example,
+```
+$ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
+```
+```
+@
+```
+
++ Can TransVar report results in one line for each query?
+
+Yes, with `--oneline` option. This separates the outputs from each transcript by '|||'.
+
 + I got 'gene_not_recognized', what's wrong?
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
@@ -912,7 +964,6 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 ## Future work
 
  + add cytoband annotation
- + option to output full long deletion sequence
  + imprecise annotation
  + forward annotation of binding sites
  + forward annotation of structural variation breakpoints

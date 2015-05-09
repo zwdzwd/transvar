@@ -80,6 +80,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
 def annotate_deletion_cdna(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         if q.tpt and t.name != q.tpt:
             raise IncompatibleTranscriptError("Transcript name unmatched")
@@ -101,7 +102,9 @@ def annotate_deletion_cdna(args, q, tpts, db):
             continue
 
         found = True
-        r.format(q.op)
+        format_one(r, rs, q, args)
+
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
@@ -114,6 +117,7 @@ def annotate_deletion_cdna(args, q, tpts, db):
 def annotate_deletion_protein(args, q, tpts, db):
 
     found = False
+    rs = []
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
@@ -145,15 +149,17 @@ def annotate_deletion_protein(args, q, tpts, db):
         except UnknownChromosomeError:
             continue
 
-        taa_set_del(r, t, q.beg, q.end)
+        taa_set_del(r, t, q.beg, q.end, args)
         r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
         r.append_info('imprecise')
-        r.format(q.op)
         found = True
+        format_one(r, rs, q, args)
+
+    format_all(rs, q, args)
 
     if not found:
         r = Record()
-        r.taa_range = t.taa_del_id(q.beg, q.end)
+        r.taa_range = taa_del_id(t, q.beg, q.end, args)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
         r.format(q.op)
@@ -176,6 +182,7 @@ def annotate_deletion_gdna(args, q, db):
     gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(q.tok, q.beg, q.end)
     gnuc_delseq_l = faidx.getseq(q.tok, gnuc_beg_l, gnuc_end_l)
 
+    rs = []
     for reg in describe(args, q, db):
 
         r = Record()
@@ -250,23 +257,41 @@ def annotate_deletion_gdna(args, q, db):
                     else:
                         del_coding_frameshift(args, c1, c2, p1, p2, t, r)
 
-        r.format(q.op)
+        format_one(r, rs, q, args)
+    format_all(rs, q, args)
 
 
 ### add taa feature in deletion ###
 
-def taa_set_del(r, t, taa_beg, taa_end):
+def taa_del_id(t, taa_beg, taa_end, args):
+
+    if taa_beg == taa_end:
+        s = '%s%ddel%s' % (aaf(t.cpos2aa(taa_beg), args), taa_beg, aaf(t.taa2aa(taa_beg), args))
+    else:
+        taa_del_len = taa_end - taa_beg + 1
+        if taa_del_len > delrep_len:
+            taa_delrep = str(taa_del_len)
+        else:
+            taa_delrep = aaf(t.taa_range2aa_seq(taa_beg, taa_end), args)
+        s = '%s%d_%s%ddel%s' % (
+            aaf(t.cpos2aa(taa_beg), args), taa_beg,
+            aaf(t.cpos2aa(taa_end), args), taa_end,
+            taa_delrep)
+
+    return s
+
+def taa_set_del(r, t, taa_beg, taa_end, args):
 
     i1r, i2r = t.taa_roll_right_del(taa_beg, taa_end)
-    r.taa_range = t.taa_del_id(i1r, i2r)
+    r.taa_range = taa_del_id(t, i1r, i2r, args)
     i1l, i2l = t.taa_roll_left_del(taa_beg, taa_end)
-    r.append_info('left_align_protein=p.%s' % t.taa_del_id(i1l, i2l))
-    r.append_info('unalign_protein=p.%s' % t.taa_del_id(taa_beg, taa_end))
+    r.append_info('left_align_protein=p.%s' % taa_del_id(t, i1l, i2l, args))
+    r.append_info('unalign_protein=p.%s' % taa_del_id(t, taa_beg, taa_end, args))
 
 def del_coding_inframe(args, c1, c2, p1, p2, t, r):
 
     if p1.pos % 3 == 1:       # in phase
-        taa_set_del(r, t, c1.index, c2.index)
+        taa_set_del(r, t, c1.index, c2.index, args)
     else:                       # out-of-phase
 
         if len(c1.seq) != 3 or len(c2.seq) != 3:
@@ -293,20 +318,20 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
                 r.append_info('truncated_refseq_at_boundary_(codon_seq_%s)' % c1.seq)
             raise IncompatibleTranscriptError('new_codon_seq: %s' % new_codon_seq)
 
-        r.taa_alt = codon2aa(new_codon_seq)
+        taa_alt = codon2aa(new_codon_seq)
         tnuc_delseq = t.seq[beg_codon_beg-1:end_codon_end]
         taa_delseq = translate_seq(tnuc_delseq)
         # if taa_delseq[-1] == '*':
-        if r.taa_alt == taa_delseq[-1]:
+        if taa_alt == taa_delseq[-1]:
             # G100_S200delinsS becomes a pure deletion G100_D199del
-            taa_set_del(r, t, c1.index, c2.index-1)
-        elif r.taa_alt == taa_delseq[0]:
+            taa_set_del(r, t, c1.index, c2.index-1, args)
+        elif taa_alt == taa_delseq[0]:
             # S100_G200delinsS becomes a pure deletion D101_G200del
-            taa_set_del(r, t, c1.index+1, c2.index)
+            taa_set_del(r, t, c1.index+1, c2.index, args)
         else:
             r.taa_range = '%s%d_%s%ddelins%s' % (
-                taa_delseq[0], c1.index,
-                taa_delseq[-1], c2.index, r.taa_alt)
+                aaf(taa_delseq[0], args), c1.index,
+                aaf(taa_delseq[-1], args), c2.index, taa_alt)
 
 def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
 
@@ -320,7 +345,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
     ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%s' % (taa_ref, taa_pos, taa_alt, termlen)
+        r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
     else:
         r.taa_range = '(=)'
 

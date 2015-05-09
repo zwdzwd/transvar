@@ -123,9 +123,24 @@ def _parse_cdna_mutation(s):
 
     return q
 
+def read_aa(aaseq):
+
+    if (not aaseq) or aaseq.isdigit():
+        return ''
+    if len(aaseq) < 3:
+        return aaseq.upper()
+    if aaseq[0].isupper() and aaseq[1].islower() and aaseq[2].islower() and len(aaseq) % 3 == 0:
+        try:
+            aaseq1 = aa_3to1(aaseq)
+        except KeyError:
+            return aaseq.upper()
+        return aaseq1
+    else:
+        return aaseq.upper()
+
 def _parse_protein_mutation(s):
 
-    m = re.match(r'(p\.)?([A-Z*?]*)(\d+)(_([A-Z*?]*)(\d+))?(del([A-Z*?\d]*)?)?(ins([A-Z*?]+))?>?([A-Z*?]+)?(fs\*(\d+))?(ref([A-Zx*]*))?$', s)
+    m = re.match(r'(p\.)?([A-Za-z*?]*)(\d+)(_([A-Za-z*?]*)(\d+))?(del([^i][A-Za-z*?\d]*)?)?(ins([A-Za-z*?]+))?>?([A-Za-z*?]+)?(fs[\*Xx](\d+))?(ref([A-Za-zx*]*))?$', s)
 
     if not m:
         err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
@@ -133,12 +148,19 @@ def _parse_protein_mutation(s):
     (_, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
      _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i, _has_ref, _ref) = m.groups()
 
+    _beg_aa = read_aa(_beg_aa)
+    _end_aa = read_aa(_end_aa)
+    _alt = read_aa(_alt)
+    _ref = read_aa(_ref)
+    _i = read_aa(_i)
+    _d = read_aa(_d)
+
     if _is_fs:
         #print 'fs'
         q = QueryFrameShift()
         q.pos = int(_beg_i)
         q.ref = _beg_aa
-        q.alt = _alt if _alt else ''
+        q.alt = _alt
         q.stop_index = int(_stop_i)
     elif _is_del and not _is_ins:
         #print 'del'
@@ -147,10 +169,8 @@ def _parse_protein_mutation(s):
         q.end = int(_end_i) if _end_i else q.beg
         q.beg_aa = _beg_aa
         q.end_aa = _end_aa
-        if _d: q.delseq = '' if _d.isdigit() else _d.upper()
-    elif (_is_del and _is_ins and 
-          (_d == '1' or (_d and len(_d) == 1) or not _end_s)
-          and len(_i) == 1):
+        q.delseq = _d
+    elif (_is_del and _is_ins and (_d == '1' or (_d and len(_d) == 1) or not _end_s) and len(_i) == 1):
         #print 'snv'
         q = QuerySNV()
         q.pos = int(_beg_i)
@@ -161,10 +181,10 @@ def _parse_protein_mutation(s):
         q = QueryMNV()
         q.beg = int(_beg_i)
         q.end = int(_end_i) if _end_i else q.beg
-        q.beg_aa = _beg_aa.upper() if _beg_aa else ''
-        q.end_aa = _end_aa.upper() if _end_aa else ''
-        q.refseq = _d.upper() if _d else ''
-        q.altseq = _i.upper() if _i else ''
+        q.beg_aa = _beg_aa
+        q.end_aa = _end_aa
+        q.refseq = _d
+        q.altseq = _i
     elif _is_ins and not _is_del:
         # print 'ins'
         q = QueryINS()
@@ -172,30 +192,30 @@ def _parse_protein_mutation(s):
         q.beg_aa = _beg_aa
         q.end = int(_end_i)
         q.end_aa = _end_aa
-        q.insseq = _i.upper() if _i else ''
+        q.insseq = _i
     elif not _end_s and (not _beg_aa or len(_beg_aa) == 1) and _alt:
         # print 'snv'
         q = QuerySNV()
         q.pos = int(_beg_i)
         q.ref = _beg_aa
-        q.alt = _alt.upper()
+        q.alt = _alt
     elif _i:
         # print 'mnv'
         q = QueryMNV()
         q.beg = int(_beg_i)
         q.end = int(_end_i) if _end_i else q.beg
-        q.beg_aa = _beg_aa.upper() if _beg_aa else ''
-        q.end_aa = _end_aa.upper() if _end_aa else ''
-        q.refseq = _d.upper() if _d else ''
-        q.altseq = _i.upper() if _i else ''
+        q.beg_aa = _beg_aa
+        q.end_aa = _end_aa
+        q.refseq = _d
+        q.altseq = _i
     else:
         # print 'reg'
         q = QueryREG()
         q.beg = int(_beg_i)
         q.end = int(_end_i) if _end_i else q.beg
-        q.beg_aa = _beg_aa.upper() if _beg_aa else ''
-        q.end_aa = _end_aa.upper() if _end_aa else ''
-        q.refseq = _ref if _ref else ''
+        q.beg_aa = _beg_aa
+        q.end_aa = _end_aa
+        q.refseq = _ref
         if (not q.refseq) and q.beg == q.end:
             q.refseq = q.beg_aa
 
@@ -401,5 +421,7 @@ def parser_add_mutation(parser):
                         help='columns to be printed in output (1-based), e.g., 3,4,5-10')
     parser.add_argument('--skipheader', action='store_true',
                         help='skip header')
+    parser.add_argument('--oneline', action='store_true', help='output one line for each query')
+    parser.add_argument('--aa3', action='store_true', help='use 3 letter code for protein output')
     parser.add_argument('--haplotype', action='store_true', help='use haplotype mode for mnv')
 
