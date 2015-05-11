@@ -28,7 +28,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.6.20150508](https://bitbucket.org/wanding/transvar/get/v2.0.6.20150508.zip)
+current stable version: [v2.0.7.20150511](https://bitbucket.org/wanding/transvar/get/v2.0.7.20150511.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -322,7 +322,7 @@ outputs
 PIK3CA:E545K	ENST00000263967 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093GAG>AAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093GAG>AAA;missense
 ```
 
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
@@ -359,8 +359,7 @@ $ transvar panno -i 'A1CF:p.A309A' --ccds
 A1CF:p.A309A	CCDS7243.1 (protein_coding)	A1CF	-
    chr10:g.52576004T>G/c.927A>C/p.A309A	cds_in_exon_7
    reference_codon=GCA;candidate_codons=GCC,GCG,GCT;candidate_snv_variants=chr10
-   :g.52576004T>C,chr10:g.52576004T>A;dbsnp=rs201831949(chr10:52576004T>G);synon
-   ymous
+   :g.52576004T>C,chr10:g.52576004T>A;synonymous
 ```
 Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. Manually set path for dbSNP file must have the file tabix indexed.
 
@@ -379,8 +378,7 @@ outputs
 #!text
 PIK3CA:c.1633G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
-   dbsnp=rs104886003(chr3:178936091G>A);missense;reference_codon=GAG;alternative
-   _codon=AAG
+   missense;reference_codon=GAG;alternative_codon=AAG
 ```
 
 The SNV can be in the intronic region, e.g.,
@@ -882,8 +880,7 @@ outputs
 #!text
 chr3:178936091.G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
-   dbsnp=rs104886003(chr3:178936091G>A);missense;codon_pos=178936091-178936092-1
-   78936093;ref_codon_seq=GAG
+   missense;codon_pos=178936091-178936092-178936093;ref_codon_seq=GAG
 ```
 
 Another example:
@@ -1342,7 +1339,7 @@ $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 PIK3CA:p.Glu545Lys	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.Glu545Lys	cds_in_exon_9
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093GAG>AAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093GAG>AAA;missense
 ```
 
 + Can TransVar report results in one line for each query?

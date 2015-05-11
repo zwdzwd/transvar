@@ -6,7 +6,7 @@ from err import *
 def _parse_gdna_mutation(s):
 
     # m = re.match(r'(g\.)?(\d+)(_(\d+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
-    m = re.match(r'(g\.)?(\d+)(_(\d+))?(\.)?(del([atgcATGC\d]*)?)?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
+    m = re.match(r'(g\.)?(\d+)(_(\d+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
 
     if not m:
         err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
@@ -68,7 +68,7 @@ def _parse_gdna_mutation(s):
 def _parse_cdna_mutation(s):
 
     # m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
-    m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*)?)?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
+    m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
     if not m:
         err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
 
