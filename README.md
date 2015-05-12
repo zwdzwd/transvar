@@ -28,7 +28,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.7.20150511](https://bitbucket.org/wanding/transvar/get/v2.0.7.20150511.zip)
+current stable version: [v2.0.8.20150512](https://bitbucket.org/wanding/transvar/get/v2.0.8.20150512.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -322,7 +322,7 @@ outputs
 PIK3CA:E545K	ENST00000263967 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093GAG>AAA;missense
+   8936091_178936093GAG>AAA;dbsnp=rs104886003(chr3:178936091G>A);missense
 ```
 
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
@@ -359,7 +359,8 @@ $ transvar panno -i 'A1CF:p.A309A' --ccds
 A1CF:p.A309A	CCDS7243.1 (protein_coding)	A1CF	-
    chr10:g.52576004T>G/c.927A>C/p.A309A	cds_in_exon_7
    reference_codon=GCA;candidate_codons=GCC,GCG,GCT;candidate_snv_variants=chr10
-   :g.52576004T>C,chr10:g.52576004T>A;synonymous
+   :g.52576004T>C,chr10:g.52576004T>A;dbsnp=rs201831949(chr10:52576004T>G);synon
+   ymous
 ```
 Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. Manually set path for dbSNP file must have the file tabix indexed.
 
@@ -368,7 +369,7 @@ Note that in order to use dbSNP, one must download the dbSNP database through `t
 
 #### reverse annotation of single nucleotide variation (SNV)
 
-TransVar infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
+TransVar infers nucleotide mutation through ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
 $ transvar canno --ccds -i 'PIK3CA:c.1633G>A'
@@ -378,7 +379,8 @@ outputs
 #!text
 PIK3CA:c.1633G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
-   missense;reference_codon=GAG;alternative_codon=AAG
+   dbsnp=rs104886003(chr3:178936091G>A);missense;reference_codon=GAG;alternative
+   _codon=AAG
 ```
 
 The SNV can be in the intronic region, e.g.,
@@ -873,14 +875,15 @@ This is the forward annotation
 
 ```
 #!bash
-$ transvar ganno --ccds -i 'chr3:178936091.G>A'
+$ transvar ganno --ccds -i 'chr3:g.178936091G>A'
 ```
 outputs
 ```
 #!text
-chr3:178936091.G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
+chr3:g.178936091G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
-   missense;codon_pos=178936091-178936092-178936093;ref_codon_seq=GAG
+   dbsnp=rs104886003(chr3:178936091G>A);missense;codon_pos=178936091-178936092-1
+   78936093;ref_codon_seq=GAG
 ```
 
 Another example:
@@ -1241,9 +1244,6 @@ $ transvar ganno --refseq -i 'chr14:20568338_20569581' --refversion mm10
 results in
 ```
 #!text
-chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
-   chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
-   dbxref=GeneID:75602,MGI:MGI:1922852
 chr14:20568338_20569581	XM_006519705.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
    dbxref=GeneID:78787,MGI:MGI:1926037
@@ -1271,6 +1271,9 @@ chr14:20568338_20569581	XM_006519709.2 (protein_coding)	USP54	-
 chr14:20568338_20569581	XM_006519708.2 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
    dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
+   chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
+   dbxref=GeneID:75602,MGI:MGI:1922852
 ```
 
 or using Ensembl
@@ -1281,14 +1284,14 @@ $ transvar ganno --ensembl -i 'chr1:29560_29570'
 results in
 ```
 #!text
+chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
+   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
+   .
 chr1:29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.1_11/.	inside_[noncoding_exon_1]
    promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%)
 chr1:29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.237_247/.	inside_[noncoding_exon_1]
-   .
-chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
-   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
    .
 ```
 
@@ -1339,7 +1342,7 @@ $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 PIK3CA:p.Glu545Lys	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.Glu545Lys	cds_in_exon_9
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093GAG>AAA;missense
+   8936091_178936093GAG>AAA;dbsnp=rs104886003(chr3:178936091G>A);missense
 ```
 
 + Can TransVar report results in one line for each query?

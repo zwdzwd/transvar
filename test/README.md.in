@@ -28,7 +28,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.7.20150511](https://bitbucket.org/wanding/transvar/get/v2.0.7.20150511.zip)
+current stable version: [v2.0.8.20150512](https://bitbucket.org/wanding/transvar/get/v2.0.8.20150512.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -328,7 +328,7 @@ Note that in order to use dbSNP, one must download the dbSNP database through `t
 
 #### reverse annotation of single nucleotide variation (SNV)
 
-TransVar infers nucleotide mutation through ```PIK3CA:1633G>A``` or ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
+TransVar infers nucleotide mutation through ```PIK3CA:c.1633G>A```. Note that nucleotide identity follows the natural sequence, i.e., if transcript is interpreted on the reverse-complementary strand, the base at the site needs to be reverse-complemented too.
 ```
 #!bash
 $ transvar canno --ccds -i 'PIK3CA:c.1633G>A'
@@ -673,7 +673,7 @@ This is the forward annotation
 
 ```
 #!bash
-$ transvar ganno --ccds -i 'chr3:178936091.G>A'
+$ transvar ganno --ccds -i 'chr3:g.178936091G>A'
 ```
 outputs
 ```

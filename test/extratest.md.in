@@ -1,7 +1,6 @@
+$ transvar ganno --ccds -i 'chr10:g.27329002_27329002delinsGT'
 
-check dbsnp
-$ transvar ganno -i 'chr1:54721del' --ccds
-@
+check dbsnp $ transvar ganno -i 'chr1:54721del' --ccds @
 
 check dbsnp
 $ transvar ganno -i 'chr1:1066952_1066953AT>GC' --ccds
