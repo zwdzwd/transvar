@@ -1056,12 +1056,12 @@ chr2:g.234183372_234183383del	CCDS54438.1 (protein_coding)	ATG16L1	+
 An in-frame insertion of three nucleotides
 ```
 #!bash
-$ transvar ganno -i 'chr2:g.69741762insTGC' --ccds
+$ transvar ganno -i 'chr2:g.69741762_69741763insTGC' --ccds
 ```
 outputs
 ```
 #!text
-chr2:g.69741762insTGC	CCDS1893.2 (protein_coding)	AAK1	-
+chr2:g.69741762_69741763insTGC	CCDS1893.2 (protein_coding)	AAK1	-
    chr2:g.69741780_69741782dupCTG/c.1614_1616dupGCA/p.Q546dupQ	cds_in_exon_12
    left_align_gDNA=g.69741762_69741763insTGC;unalign_gDNA=g.69741762_69741763ins
    TGC;insertion_gDNA=CTG;left_align_cDNA=c.1596_1597insCAG;unalign_cDNA=c.1614_
@@ -1073,12 +1073,12 @@ Note the proper right-alignment of protein level insertion Q. The left-aligned i
 A frame-shift insertion of two nucleotides
 ```
 #!bash
-$ transvar ganno -i 'chr7:g.121753754insCA' --ccds
+$ transvar ganno -i 'chr7:g.121753754_121753755insCA' --ccds
 ```
 outputs
 ```
 #!text
-chr7:g.121753754insCA	CCDS5783.1 (protein_coding)	AASS	-
+chr7:g.121753754_121753755insCA	CCDS5783.1 (protein_coding)	AASS	-
    chr7:g.121753754_121753755insCA/c.1064_1065insGT/p.I355Mfs*10	cds_in_exon_9
    left_align_gDNA=g.121753753_121753754insAC;unalign_gDNA=g.121753754_121753755
    insCA;insertion_gDNA=CA;left_align_cDNA=c.1063_1064insTG;unalign_cDNA=c.1063_
@@ -1087,12 +1087,12 @@ chr7:g.121753754insCA	CCDS5783.1 (protein_coding)	AASS	-
 
 ```
 #!bash
-$ transvar ganno -i 'chr17:g.79093270insGGGCGT' --ccds
+$ transvar ganno -i 'chr17:g.79093270_79093271insGGGCGT' --ccds
 ```
 outputs
 ```
 #!text
-chr17:g.79093270insGGGCGT	CCDS45807.1 (protein_coding)	AATK	-
+chr17:g.79093270_79093271insGGGCGT	CCDS45807.1 (protein_coding)	AATK	-
    chr17:g.79093282_79093287dupTGGGCG/c.3988_3993dupACGCCC/p.T1330_P1331dupTP	cds_in_exon_13
    left_align_gDNA=g.79093270_79093271insGGGCGT;unalign_gDNA=g.79093270_79093271
    insGGGCGT;insertion_gDNA=TGGGCG;left_align_cDNA=c.3976_3977insCGCCCA;unalign_
@@ -1104,12 +1104,12 @@ Notice the difference in the inserted sequence when left-alignment and right-ali
 A frame-shift insertion of one nucleotides in a homopolymer
 ```
 #!bash
-$ transvar ganno -i 'chr7:g.117230474insA' --ccds
+$ transvar ganno -i 'chr7:g.117230474_117230475insA' --ccds
 ```
 outputs
 ```
 #!text
-chr7:g.117230474insA	CCDS5773.1 (protein_coding)	CFTR	+
+chr7:g.117230474_117230475insA	CCDS5773.1 (protein_coding)	CFTR	+
    chr7:g.117230479dupA/c.1752dupA/p.E585Rfs*4	cds_in_exon_13
    left_align_gDNA=g.117230474_117230475insA;unalign_gDNA=g.117230474_117230475i
    nsA;insertion_gDNA=A;left_align_cDNA=c.1747_1748insA;unalign_cDNA=c.1747_1748
@@ -1120,11 +1120,11 @@ Notice the right alignment of cDNA level insertion and the left alignment report
 A in-frame, in-phase insertion
 ```
 #!bash
-$ transvar ganno -i 'chr12:g.109702119insACC' --ccds
+$ transvar ganno -i 'chr12:g.109702119_109702120insACC' --ccds
 ```
 ```
 #!text
-chr12:g.109702119insACC	CCDS31898.1 (protein_coding)	ACACB	+
+chr12:g.109702119_109702120insACC	CCDS31898.1 (protein_coding)	ACACB	+
    chr12:g.109702119_109702120insACC/c.6870_6871insACC/p.Y2290_H2291insT	cds_in_exon_49
    left_align_gDNA=g.109702118_109702119insCAC;unalign_gDNA=g.109702119_10970212
    0insACC;insertion_gDNA=ACC;left_align_cDNA=c.6869_6870insCAC;unalign_cDNA=c.6
@@ -1284,14 +1284,14 @@ $ transvar ganno --ensembl -i 'chr1:g.29560_29570'
 results in
 ```
 #!text
-chr1:g.29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
-   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
-   .
 chr1:g.29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.1_11/.	inside_[noncoding_exon_1]
    promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%)
 chr1:g.29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.237_247/.	inside_[noncoding_exon_1]
+   .
+chr1:g.29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
+   chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
    .
 ```
 
@@ -1372,9 +1372,9 @@ A1CF:c.508_509delCCinsTT	CCDS7242.1 (protein_coding)	A1CF	-
 
 + Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
 
-Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
+Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119_109702120insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
 
-### Technical notes
++ When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
 
 TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
 

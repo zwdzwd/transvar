@@ -788,7 +788,7 @@ outputs
 An in-frame insertion of three nucleotides
 ```
 #!bash
-$ transvar ganno -i 'chr2:g.69741762insTGC' --ccds
+$ transvar ganno -i 'chr2:g.69741762_69741763insTGC' --ccds
 ```
 outputs
 ```
@@ -800,7 +800,7 @@ Note the proper right-alignment of protein level insertion Q. The left-aligned i
 A frame-shift insertion of two nucleotides
 ```
 #!bash
-$ transvar ganno -i 'chr7:g.121753754insCA' --ccds
+$ transvar ganno -i 'chr7:g.121753754_121753755insCA' --ccds
 ```
 outputs
 ```
@@ -810,7 +810,7 @@ outputs
 
 ```
 #!bash
-$ transvar ganno -i 'chr17:g.79093270insGGGCGT' --ccds
+$ transvar ganno -i 'chr17:g.79093270_79093271insGGGCGT' --ccds
 ```
 outputs
 ```
@@ -822,7 +822,7 @@ Notice the difference in the inserted sequence when left-alignment and right-ali
 A frame-shift insertion of one nucleotides in a homopolymer
 ```
 #!bash
-$ transvar ganno -i 'chr7:g.117230474insA' --ccds
+$ transvar ganno -i 'chr7:g.117230474_117230475insA' --ccds
 ```
 outputs
 ```
@@ -834,7 +834,7 @@ Notice the right alignment of cDNA level insertion and the left alignment report
 A in-frame, in-phase insertion
 ```
 #!bash
-$ transvar ganno -i 'chr12:g.109702119insACC' --ccds
+$ transvar ganno -i 'chr12:g.109702119_109702120insACC' --ccds
 ```
 ```
 #!text
@@ -970,9 +970,9 @@ $ transvar canno --ccds -i 'A1CF:c.508_509delCCinsTT'
 
 + Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
 
-Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
+Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119_109702120insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
 
-### Technical notes
++ When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
 
 TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
 
