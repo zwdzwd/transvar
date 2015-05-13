@@ -64,7 +64,7 @@ Here we show how one can use TransVar on human hg19 (GRCh37).
 transvar config --download_anno --refversion hg19
 # in case, if you don't have a reference
 transvar config --download_ref --refversion hg19
-# in case you do
+# in case you do have a reference to link
 transvar config -k reference -v [path_to_hg19.fa] --refversion hg19
 
 transvar panno -i 'PIK3CA:p.E545K' --ucsc --ccds
@@ -684,7 +684,7 @@ outputs
 Another example:
 ```
 #!bash
-$ transvar ganno -i "9:135782704C>G" --ccds
+$ transvar ganno -i "chr9:g.135782704C>G" --ccds
 ```
 outputs
 ```
@@ -741,7 +741,7 @@ outputs
 A frameshift deletion
 ```
 #!bash
-$ transvar ganno -i "chr2:234183368_234183380del" --ccds
+$ transvar ganno -i "chr2:g.234183368_234183380del" --ccds
 ```
 outputs
 ```
@@ -753,7 +753,7 @@ Note the difference between left-aligned identifier and the right aligned identi
 An in-frame deletion
 ```
 #!bash
-$ transvar ganno -i "chr2:234183368_234183379del" --ccds
+$ transvar ganno -i "chr2:g.234183368_234183379del" --ccds
 ```
 outputs
 ```
@@ -764,7 +764,7 @@ outputs
 Another example
 ```
 #!bash
-$ transvar ganno --ccds -i '12:53703425_53703427del'
+$ transvar ganno --ccds -i 'chr12:g.53703425_53703427del'
 ```
 outputs
 ```
@@ -776,7 +776,7 @@ Note the difference between left and right-aligned identifiers on both protein l
 An in-frame out-of-phase deletion
 ```
 #!bash
-$ transvar ganno -i "chr2:234183372_234183383del" --ccds
+$ transvar ganno -i "chr2:g.234183372_234183383del" --ccds
 ```
 outputs
 ```
@@ -788,7 +788,7 @@ outputs
 An in-frame insertion of three nucleotides
 ```
 #!bash
-$ transvar ganno -i '2:69741762insTGC' --ccds
+$ transvar ganno -i 'chr2:g.69741762insTGC' --ccds
 ```
 outputs
 ```
@@ -800,7 +800,7 @@ Note the proper right-alignment of protein level insertion Q. The left-aligned i
 A frame-shift insertion of two nucleotides
 ```
 #!bash
-$ transvar ganno -i '7:121753754insCA' --ccds
+$ transvar ganno -i 'chr7:g.121753754insCA' --ccds
 ```
 outputs
 ```
@@ -810,7 +810,7 @@ outputs
 
 ```
 #!bash
-$ transvar ganno -i '17:79093270insGGGCGT' --ccds
+$ transvar ganno -i 'chr17:g.79093270insGGGCGT' --ccds
 ```
 outputs
 ```
@@ -822,7 +822,7 @@ Notice the difference in the inserted sequence when left-alignment and right-ali
 A frame-shift insertion of one nucleotides in a homopolymer
 ```
 #!bash
-$ transvar ganno -i '7:117230474insA' --ccds
+$ transvar ganno -i 'chr7:g.117230474insA' --ccds
 ```
 outputs
 ```
@@ -834,7 +834,7 @@ Notice the right alignment of cDNA level insertion and the left alignment report
 A in-frame, in-phase insertion
 ```
 #!bash
-$ transvar ganno -i '12:109702119insACC' --ccds
+$ transvar ganno -i 'chr12:g.109702119insACC' --ccds
 ```
 ```
 #!text
@@ -869,7 +869,7 @@ One can define the promoter boundary through the `--prombeg` and `--promend` opt
 
 ```
 #!bash
-$ transvar ganno -i 'chr19:41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
+$ transvar ganno -i 'chr19:g.41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
 ```
 ```
 #!text
@@ -882,7 +882,7 @@ Given Ensembl, GENCODE or RefSeq database, one could annotate non-coding transcr
 E.g.,
 ```
 #!bash
-$ transvar ganno --gencode -i 'chr1:3985200_3985300' --refversion mm10
+$ transvar ganno --gencode -i 'chr1:g.3985200_3985300' --refversion mm10
 ```
 results in
 ```
@@ -892,7 +892,7 @@ results in
 or
 ```
 #!bash
-$ transvar ganno --refseq -i 'chr14:20568338_20569581' --refversion mm10
+$ transvar ganno --refseq -i 'chr14:g.20568338_20569581' --refversion mm10
 ```
 results in
 ```
@@ -903,7 +903,7 @@ results in
 or using Ensembl
 ```
 #!bash
-$ transvar ganno --ensembl -i 'chr1:29560_29570'
+$ transvar ganno --ensembl -i 'chr1:g.29560_29570'
 ```
 results in
 ```
@@ -942,6 +942,7 @@ Yes, TransVar automatically infer whether the input is a 3-letter code or 1-lett
 The output is default to 1-letter code. But can be switched to 3-letter code through the `--aa3` option.
 For example,
 ```
+#!bash
 $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 ```
 ```
@@ -956,6 +957,20 @@ Yes, with `--oneline` option. This separates the outputs from each transcript by
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
 
++ Does TransVar support alternative format for MNV such as ?
+
+Yes, but only in input. For example, `c.113delGinsTACTAGC`
+```
+#!bash
+$ transvar canno --ccds -i 'A1CF:c.508_509delCCinsTT'
+```
+```
+@
+```
+
++ Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
+
+Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
 
 ### Technical notes
 

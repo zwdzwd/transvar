@@ -64,7 +64,7 @@ Here we show how one can use TransVar on human hg19 (GRCh37).
 transvar config --download_anno --refversion hg19
 # in case, if you don't have a reference
 transvar config --download_ref --refversion hg19
-# in case you do
+# in case you do have a reference to link
 transvar config -k reference -v [path_to_hg19.fa] --refversion hg19
 
 transvar panno -i 'PIK3CA:p.E545K' --ucsc --ccds
@@ -889,15 +889,15 @@ chr3:g.178936091G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
 Another example:
 ```
 #!bash
-$ transvar ganno -i "9:135782704C>G" --ccds
+$ transvar ganno -i "chr9:g.135782704C>G" --ccds
 ```
 outputs
 ```
 #!text
-9:135782704C>G	CCDS6956.1 (protein_coding)	TSC1	-
+chr9:g.135782704C>G	CCDS6956.1 (protein_coding)	TSC1	-
    chr9:g.135782704C>G/c.1317G>C/p.L439L	cds_in_exon_11
    synonymous;codon_pos=135782704-135782705-135782706;ref_codon_seq=CTG
-9:135782704C>G	CCDS55350.1 (protein_coding)	TSC1	-
+chr9:g.135782704C>G	CCDS55350.1 (protein_coding)	TSC1	-
    chr9:g.135782704C>G/c.1164G>C/p.L388L	cds_in_exon_10
    synonymous;codon_pos=135782704-135782705-135782706;ref_codon_seq=CTG
 ```
@@ -964,20 +964,20 @@ outputs
 A frameshift deletion
 ```
 #!bash
-$ transvar ganno -i "chr2:234183368_234183380del" --ccds
+$ transvar ganno -i "chr2:g.234183368_234183380del" --ccds
 ```
 outputs
 ```
 #!text
-chr2:234183368_234183380del	CCDS2502.2 (protein_coding)	ATG16L1	+
+chr2:g.234183368_234183380del	CCDS2502.2 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.234183368_2341833
    80del13;left_align_cDNA=c.840_852del13;unalign_cDNA=c.841_853del13
-chr2:234183368_234183380del	CCDS2503.2 (protein_coding)	ATG16L1	+
+chr2:g.234183368_234183380del	CCDS2503.2 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183380del13/c.898_910del13/p.T300Lfs*5	inside_[cds_in_exon_9]
    left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.234183368_2341833
    80del13;left_align_cDNA=c.897_909del13;unalign_cDNA=c.898_910del13
-chr2:234183368_234183380del	CCDS54438.1 (protein_coding)	ATG16L1	+
+chr2:g.234183368_234183380del	CCDS54438.1 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183380del13/c.409_421del13/p.T137Lfs*5	inside_[cds_in_exon_5]
    left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.234183368_2341833
    80del13;left_align_cDNA=c.408_420del13;unalign_cDNA=c.409_421del13
@@ -987,22 +987,22 @@ Note the difference between left-aligned identifier and the right aligned identi
 An in-frame deletion
 ```
 #!bash
-$ transvar ganno -i "chr2:234183368_234183379del" --ccds
+$ transvar ganno -i "chr2:g.234183368_234183379del" --ccds
 ```
 outputs
 ```
 #!text
-chr2:234183368_234183379del	CCDS2502.2 (protein_coding)	ATG16L1	+
+chr2:g.234183368_234183379del	CCDS2502.2 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183379del12/c.841_852del12/p.T281_G284delTHPG	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183367_234183378del12;unaligned_gDNA=g.234183368_2341833
    79del12;left_align_cDNA=c.840_851del12;unalign_cDNA=c.841_852del12;left_align
    _protein=p.T281_G284delTHPG;unalign_protein=p.T281_G284delTHPG
-chr2:234183368_234183379del	CCDS2503.2 (protein_coding)	ATG16L1	+
+chr2:g.234183368_234183379del	CCDS2503.2 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183379del12/c.898_909del12/p.T300_G303delTHPG	inside_[cds_in_exon_9]
    left_align_gDNA=g.234183367_234183378del12;unaligned_gDNA=g.234183368_2341833
    79del12;left_align_cDNA=c.897_908del12;unalign_cDNA=c.898_909del12;left_align
    _protein=p.T300_G303delTHPG;unalign_protein=p.T300_G303delTHPG
-chr2:234183368_234183379del	CCDS54438.1 (protein_coding)	ATG16L1	+
+chr2:g.234183368_234183379del	CCDS54438.1 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183379del12/c.409_420del12/p.T137_G140delTHPG	inside_[cds_in_exon_5]
    left_align_gDNA=g.234183367_234183378del12;unaligned_gDNA=g.234183368_2341833
    79del12;left_align_cDNA=c.408_419del12;unalign_cDNA=c.409_420del12;left_align
@@ -1012,17 +1012,17 @@ chr2:234183368_234183379del	CCDS54438.1 (protein_coding)	ATG16L1	+
 Another example
 ```
 #!bash
-$ transvar ganno --ccds -i '12:53703425_53703427del'
+$ transvar ganno --ccds -i 'chr12:g.53703425_53703427del'
 ```
 outputs
 ```
 #!text
-12:53703425_53703427del	CCDS8856.1 (protein_coding)	AAAS	-
+chr12:g.53703425_53703427del	CCDS8856.1 (protein_coding)	AAAS	-
    chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.G257delG	inside_[cds_in_exon_8]
    left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA=g.53703425_53703427d
    elCCC;left_align_cDNA=c.766_768delGGG;unalign_cDNA=c.768_770delGGG;left_align
    _protein=p.G256delG;unalign_protein=p.G256delG
-12:53703425_53703427del	CCDS53797.1 (protein_coding)	AAAS	-
+chr12:g.53703425_53703427del	CCDS53797.1 (protein_coding)	AAAS	-
    chr12:g.53703427_53703429delCCC/c.670_672delGGG/p.G224delG	inside_[cds_in_exon_7]
    left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA=g.53703425_53703427d
    elCCC;left_align_cDNA=c.667_669delGGG;unalign_cDNA=c.669_671delGGG;left_align
@@ -1033,19 +1033,19 @@ Note the difference between left and right-aligned identifiers on both protein l
 An in-frame out-of-phase deletion
 ```
 #!bash
-$ transvar ganno -i "chr2:234183372_234183383del" --ccds
+$ transvar ganno -i "chr2:g.234183372_234183383del" --ccds
 ```
 outputs
 ```
-chr2:234183372_234183383del	CCDS2502.2 (protein_coding)	ATG16L1	+
+chr2:g.234183372_234183383del	CCDS2502.2 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.845_856del12/p.H282_G286delinsR	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
    83del12;left_align_cDNA=c.845_856del12;unalign_cDNA=c.845_856del12
-chr2:234183372_234183383del	CCDS2503.2 (protein_coding)	ATG16L1	+
+chr2:g.234183372_234183383del	CCDS2503.2 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.902_913del12/p.H301_G305delinsR	inside_[cds_in_exon_9]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
    83del12;left_align_cDNA=c.902_913del12;unalign_cDNA=c.902_913del12
-chr2:234183372_234183383del	CCDS54438.1 (protein_coding)	ATG16L1	+
+chr2:g.234183372_234183383del	CCDS54438.1 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.413_424del12/p.H138_G142delinsR	inside_[cds_in_exon_5]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
    83del12;left_align_cDNA=c.413_424del12;unalign_cDNA=c.413_424del12
@@ -1056,12 +1056,12 @@ chr2:234183372_234183383del	CCDS54438.1 (protein_coding)	ATG16L1	+
 An in-frame insertion of three nucleotides
 ```
 #!bash
-$ transvar ganno -i '2:69741762insTGC' --ccds
+$ transvar ganno -i 'chr2:g.69741762insTGC' --ccds
 ```
 outputs
 ```
 #!text
-2:69741762insTGC	CCDS1893.2 (protein_coding)	AAK1	-
+chr2:g.69741762insTGC	CCDS1893.2 (protein_coding)	AAK1	-
    chr2:g.69741780_69741782dupCTG/c.1614_1616dupGCA/p.Q546dupQ	cds_in_exon_12
    left_align_gDNA=g.69741762_69741763insTGC;unalign_gDNA=g.69741762_69741763ins
    TGC;insertion_gDNA=CTG;left_align_cDNA=c.1596_1597insCAG;unalign_cDNA=c.1614_
@@ -1073,12 +1073,12 @@ Note the proper right-alignment of protein level insertion Q. The left-aligned i
 A frame-shift insertion of two nucleotides
 ```
 #!bash
-$ transvar ganno -i '7:121753754insCA' --ccds
+$ transvar ganno -i 'chr7:g.121753754insCA' --ccds
 ```
 outputs
 ```
 #!text
-7:121753754insCA	CCDS5783.1 (protein_coding)	AASS	-
+chr7:g.121753754insCA	CCDS5783.1 (protein_coding)	AASS	-
    chr7:g.121753754_121753755insCA/c.1064_1065insGT/p.I355Mfs*10	cds_in_exon_9
    left_align_gDNA=g.121753753_121753754insAC;unalign_gDNA=g.121753754_121753755
    insCA;insertion_gDNA=CA;left_align_cDNA=c.1063_1064insTG;unalign_cDNA=c.1063_
@@ -1087,12 +1087,12 @@ outputs
 
 ```
 #!bash
-$ transvar ganno -i '17:79093270insGGGCGT' --ccds
+$ transvar ganno -i 'chr17:g.79093270insGGGCGT' --ccds
 ```
 outputs
 ```
 #!text
-17:79093270insGGGCGT	CCDS45807.1 (protein_coding)	AATK	-
+chr17:g.79093270insGGGCGT	CCDS45807.1 (protein_coding)	AATK	-
    chr17:g.79093282_79093287dupTGGGCG/c.3988_3993dupACGCCC/p.T1330_P1331dupTP	cds_in_exon_13
    left_align_gDNA=g.79093270_79093271insGGGCGT;unalign_gDNA=g.79093270_79093271
    insGGGCGT;insertion_gDNA=TGGGCG;left_align_cDNA=c.3976_3977insCGCCCA;unalign_
@@ -1104,12 +1104,12 @@ Notice the difference in the inserted sequence when left-alignment and right-ali
 A frame-shift insertion of one nucleotides in a homopolymer
 ```
 #!bash
-$ transvar ganno -i '7:117230474insA' --ccds
+$ transvar ganno -i 'chr7:g.117230474insA' --ccds
 ```
 outputs
 ```
 #!text
-7:117230474insA	CCDS5773.1 (protein_coding)	CFTR	+
+chr7:g.117230474insA	CCDS5773.1 (protein_coding)	CFTR	+
    chr7:g.117230479dupA/c.1752dupA/p.E585Rfs*4	cds_in_exon_13
    left_align_gDNA=g.117230474_117230475insA;unalign_gDNA=g.117230474_117230475i
    nsA;insertion_gDNA=A;left_align_cDNA=c.1747_1748insA;unalign_cDNA=c.1747_1748
@@ -1120,11 +1120,11 @@ Notice the right alignment of cDNA level insertion and the left alignment report
 A in-frame, in-phase insertion
 ```
 #!bash
-$ transvar ganno -i '12:109702119insACC' --ccds
+$ transvar ganno -i 'chr12:g.109702119insACC' --ccds
 ```
 ```
 #!text
-12:109702119insACC	CCDS31898.1 (protein_coding)	ACACB	+
+chr12:g.109702119insACC	CCDS31898.1 (protein_coding)	ACACB	+
    chr12:g.109702119_109702120insACC/c.6870_6871insACC/p.Y2290_H2291insT	cds_in_exon_49
    left_align_gDNA=g.109702118_109702119insCAC;unalign_gDNA=g.109702119_10970212
    0insACC;insertion_gDNA=ACC;left_align_cDNA=c.6869_6870insCAC;unalign_cDNA=c.6
@@ -1172,48 +1172,48 @@ One can define the promoter boundary through the `--prombeg` and `--promend` opt
 
 ```
 #!bash
-$ transvar ganno -i 'chr19:41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
+$ transvar ganno -i 'chr19:g.41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
 ```
 ```
 #!text
-chr19:41950335_41951908	ENSMUST00000167927 (nonsense_mediated_decay)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000167927 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.1071+3684_1071+5257/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included
-chr19:41950335_41951908	ENSMUST00000171561 (protein_coding)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000171561 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1915+499_2016-252/p.E639_E672	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included;start_codon=41950753-41950752-41950083;end_codon=419
    52407-41950851-41950850
-chr19:41950335_41951908	ENSMUST00000170209 (retained_intron)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000170209 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.2251+499_2352-252/.	from_[intron_between_exon_16_and_17]_to_[intron_between_exon_15_and_16]
    whole_exon_[16]_included
-chr19:41950335_41951908	ENSMUST00000163287 (protein_coding)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000163287 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1477+499_1578-252/p.E493_E526	from_[intron_between_exon_17_and_18]_to_[intron_between_exon_16_and_17]
    whole_exon_[17]_included;start_codon=41950753-41950752-41950083;end_codon=419
    52407-41950851-41950850
-chr19:41950335_41951908	ENSMUST00000163398 (nonsense_mediated_decay)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000163398 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
    whole_exon_[19]_included
-chr19:41950335_41951908	ENSMUST00000164776 (nonsense_mediated_decay)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000164776 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
    whole_exon_[19]_included
-chr19:41950335_41951908	ENSMUST00000026168 (protein_coding)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000026168 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1786+499_1887-252/p.E596_E629	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
    whole_exon_[19]_included;start_codon=41950753-41950752-41950083;end_codon=419
    52407-41950851-41950850
-chr19:41950335_41951908	ENSMUST00000166090 (nonsense_mediated_decay)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000166090 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.636+499_737-252/.	from_[intron_between_exon_7_and_8]_to_[intron_between_exon_6_and_7]
    whole_exon_[7]_included
-chr19:41950335_41951908	ENSMUST00000171755 (retained_intron)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000171755 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.1941+499_2042-252/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included
-chr19:41950335_41951908	ENSMUST00000167820 (protein_coding)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000167820 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.179-1057_279-252/p.E60_E93	from_[intron_between_exon_3_and_4]_to_[intron_between_exon_2_and_3]
    whole_exon_[3]_included;start_codon=41950753-41950752-41950083;end_codon=4195
    3669-41950851-41950850
-chr19:41950335_41951908	ENSMUST00000169775 (nonsense_mediated_decay)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000169775 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.522+11101_522+12674/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included
-chr19:41950335_41951908	ENSMUST00000166517 (retained_intron)	MMS19	-
+chr19:g.41950335_41951908	ENSMUST00000166517 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.1-564_594-252/.	from_[intron_between_exon_1_and_2]_to_[intergenic_between_MMS19(564_bp_upstream)_and_MMS19(1,189_bp_downstream)]
    promoter_region_of_[MMS19]_overlaping_1565_bp(99.43%);whole_exon_[1]_included
 ```
@@ -1224,73 +1224,73 @@ Given Ensembl, GENCODE or RefSeq database, one could annotate non-coding transcr
 E.g.,
 ```
 #!bash
-$ transvar ganno --gencode -i 'chr1:3985200_3985300' --refversion mm10
+$ transvar ganno --gencode -i 'chr1:g.3985200_3985300' --refversion mm10
 ```
 results in
 ```
 #!text
-chr1:3985200_3985300	ENSMUST00000194643.1 (lincRNA)	RP23-333I7.1	-
+chr1:g.3985200_3985300	ENSMUST00000194643.1 (lincRNA)	RP23-333I7.1	-
    chr1:g.3985200_3985300/c.121_221/.	inside_[noncoding_exon_2]
    .
-chr1:3985200_3985300	ENSMUST00000192427.1 (lincRNA)	RP23-333I7.1	-
+chr1:g.3985200_3985300	ENSMUST00000192427.1 (lincRNA)	RP23-333I7.1	-
    chr1:g.3985200_3985300/c.685_785/.	inside_[noncoding_exon_1]
    .
 ```
 or
 ```
 #!bash
-$ transvar ganno --refseq -i 'chr14:20568338_20569581' --refversion mm10
+$ transvar ganno --refseq -i 'chr14:g.20568338_20569581' --refversion mm10
 ```
 results in
 ```
 #!text
-chr14:20568338_20569581	XM_006519705.2 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_006519703.2 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245225.1 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	NM_030180.2 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245226.1 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245228.1 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.1357+667_1357+1910/.	inside_[intron_between_exon_6_and_7]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_011245227.1 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_006519709.2 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	XM_006519708.2 (protein_coding)	USP54	-
-   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
-chr14:20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
+chr14:g.20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
    chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
    dbxref=GeneID:75602,MGI:MGI:1922852
+chr14:g.20568338_20569581	XM_006519705.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_006519703.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_011245225.1 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	NM_030180.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_011245226.1 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_011245228.1 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.1357+667_1357+1910/.	inside_[intron_between_exon_6_and_7]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_011245227.1 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_006519709.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
+   dbxref=GeneID:78787,MGI:MGI:1926037
+chr14:g.20568338_20569581	XM_006519708.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
+   dbxref=GeneID:78787,MGI:MGI:1926037
 ```
 
 or using Ensembl
 ```
 #!bash
-$ transvar ganno --ensembl -i 'chr1:29560_29570'
+$ transvar ganno --ensembl -i 'chr1:g.29560_29570'
 ```
 results in
 ```
 #!text
-chr1:29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
+chr1:g.29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
    chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
    .
-chr1:29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
+chr1:g.29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.1_11/.	inside_[noncoding_exon_1]
    promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%)
-chr1:29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
+chr1:g.29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.237_247/.	inside_[noncoding_exon_1]
    .
 ```
@@ -1336,6 +1336,7 @@ Yes, TransVar automatically infer whether the input is a 3-letter code or 1-lett
 The output is default to 1-letter code. But can be switched to 3-letter code through the `--aa3` option.
 For example,
 ```
+#!bash
 $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 ```
 ```
@@ -1353,6 +1354,25 @@ Yes, with `--oneline` option. This separates the outputs from each transcript by
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
 
++ Does TransVar support alternative format for MNV such as ?
+
+Yes, but only in input. For example, `c.113delGinsTACTAGC`
+```
+#!bash
+$ transvar canno --ccds -i 'A1CF:c.508_509delCCinsTT'
+```
+```
+A1CF:c.508_509delCCinsTT	CCDS7241.1 (protein_coding)	A1CF	-
+   chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
+   codon_cDNA=508-509-510
+A1CF:c.508_509delCCinsTT	CCDS7242.1 (protein_coding)	A1CF	-
+   chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
+   codon_cDNA=508-509-510
+```
+
++ Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
+
+Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
 
 ### Technical notes
 
