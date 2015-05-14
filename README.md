@@ -28,7 +28,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.8.20150512](https://bitbucket.org/wanding/transvar/get/v2.0.8.20150512.zip)
+current stable version: [v2.0.9.20150514](https://bitbucket.org/wanding/transvar/get/v2.0.9.20150514.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -220,26 +220,27 @@ Output:
 ENST00000286744|15:84442328|c.243G>A	ENST00000286744 (protein_coding)	ADAMTSL3	+
    chr15:g.84442327G>A/c.242G>A/p.W81*	cds_in_exon_4
    reference_codon=TGG;candidate_codons=TAA,TAG,TGA;candidate_snv_variants=chr15
-   :g.84442328G>A;candidate_mnv_variants=chr15:g.84442327_84442328GG>AA;missense
+   :g.84442328G>A;candidate_mnv_variants=chr15:g.84442327_84442328delGGinsAA;mis
+   sense
 ENST00000286744|15:84442326|c.241T>C	ENST00000286744 (protein_coding)	ADAMTSL3	+
    chr15:g.84442326T>A/c.241T>A/p.W81R	cds_in_exon_4
    reference_codon=TGG;candidate_codons=AGG,AGA,CGA,CGC,CGG,CGT;candidate_snv_va
-   riants=chr15:g.84442326T>C;candidate_mnv_variants=chr15:g.84442326_84442328TG
-   G>AGA,chr15:g.84442326_84442328TGG>CGA,chr15:g.84442326_84442328TGG>CGC,chr15
-   :g.84442326_84442328TGG>CGT;missense
+   riants=chr15:g.84442326T>C;candidate_mnv_variants=chr15:g.84442326_84442328de
+   lTGGinsAGA,chr15:g.84442326_84442328delTGGinsCGA,chr15:g.84442326_84442328del
+   TGGinsCGC,chr15:g.84442326_84442328delTGGinsCGT;missense
 ENST00000369038|1:150530513|c.2270G>A	ENST00000369038 (protein_coding)	ADAMTSL4	+
    chr1:g.150530513G>A/c.2270G>A/p.G757D	cds_in_exon_12
    reference_codon=GGT;candidate_codons=GAC,GAT;candidate_mnv_variants=chr1:g.15
-   0530513_150530514GT>AC;missense
+   0530513_150530514delGTinsAC;missense
 ENST00000338316|5:7802364|c.2662G>A	ENST00000338316 (protein_coding)	ADCY2	+
    chr5:g.7802364G>A/c.2662G>A/p.V888I	cds_in_exon_21
    reference_codon=GTC;candidate_codons=ATC,ATA,ATT;candidate_mnv_variants=chr5:
-   g.7802364_7802366GTC>ATA,chr5:g.7802364_7802366GTC>ATT;missense
+   g.7802364_7802366delGTCinsATA,chr5:g.7802364_7802366delGTCinsATT;missense
 ENST00000338316|5:7802365|c.2663T>C	ENST00000338316 (protein_coding)	ADCY2	+
    chr5:g.7802365T>C/c.2663T>C/p.V888A	cds_in_exon_21
    reference_codon=GTC;candidate_codons=GCA,GCC,GCG,GCT;candidate_mnv_variants=c
-   hr5:g.7802365_7802366TC>CA,chr5:g.7802365_7802366TC>CG,chr5:g.7802365_7802366
-   TC>CT;missense
+   hr5:g.7802365_7802366delTCinsCA,chr5:g.7802365_7802366delTCinsCG,chr5:g.78023
+   65_7802366delTCinsCT;missense
 ```
 
 ---
@@ -322,7 +323,7 @@ outputs
 PIK3CA:E545K	ENST00000263967 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093GAG>AAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
 ```
 
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
@@ -336,7 +337,7 @@ ACSL4:p.R133R	CCDS14548.1 (protein_coding)	ACSL4	-
    chrX:g.108926078G>T/c.399C>A/p.R133R	cds_in_exon_2
    reference_codon=CGC;candidate_codons=AGG,AGA,CGA,CGG,CGT;candidate_snv_varian
    ts=chrX:g.108926078G>C,chrX:g.108926078G>A;candidate_mnv_variants=chrX:g.1089
-   26078_108926080GCG>CCT,chrX:g.108926078_108926080GCG>TCT;synonymous
+   26078_108926080delGCGinsCCT,chrX:g.108926078_108926080delGCGinsTCT;synonymous
 ```
 In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
@@ -1343,7 +1344,7 @@ $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 PIK3CA:p.Glu545Lys	CCDS43171.1 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.Glu545Lys	cds_in_exon_9
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093GAG>AAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
 ```
 
 + Can TransVar report results in one line for each query?
