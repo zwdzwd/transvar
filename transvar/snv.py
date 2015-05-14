@@ -148,12 +148,12 @@ def _annotate_snv_protein(args, q, t, db):
             tnuc_end = (codon.index-1)*3 + 1 + gdiff[-1]
             tnuc_ref = codon.seq[gdiff[0]:gdiff[-1]+1]
             tnuc_alt = gtgtcodonseq[gdiff[0]:gdiff[-1]+1]
-            r.tnuc_range = '%d_%d%s>%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
+            r.tnuc_range = '%d_%ddel%sins%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
             if codon.strand == '+':
-                r.gnuc_range = '%d_%d%s>%s' % (codon.locs[gdiff[0]], codon.locs[gdiff[-1]],
-                                               tnuc_ref, tnuc_alt)
+                r.gnuc_range = '%d_%ddel%sins%s' % (codon.locs[gdiff[0]], codon.locs[gdiff[-1]],
+                                                    tnuc_ref, tnuc_alt)
             else:
-                r.gnuc_range = '%d_%d%s>%s' % (codon.locs[2-gdiff[-1]],
+                r.gnuc_range = '%d_%ddel%sins%s' % (codon.locs[2-gdiff[-1]],
                                                codon.locs[2-gdiff[0]],
                                                reverse_complement(tnuc_ref), 
                                                reverse_complement(tnuc_alt))
@@ -181,18 +181,18 @@ def _annotate_snv_protein(args, q, t, db):
                 tnuc_end = (codon.index-1)*3 + 1 + diff[-1]
                 tnuc_ref = codon.seq[diff[0]:diff[-1]+1]
                 tnuc_alt = tgtcodonseq[diff[0]:diff[-1]+1]
-                tnuc_tok = 'c.%d_%d%s>%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
+                tnuc_tok = 'c.%d_%ddel%sins%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
                 if codon.strand == '+':
-                    gnuc_tok = '%s:g.%d_%d%s>%s' % (t.chrm, 
-                                                    codon.locs[diff[0]],
-                                                    codon.locs[diff[-1]],
-                                                    tnuc_ref, tnuc_alt)
+                    gnuc_tok = '%s:g.%d_%ddel%sins%s' % (t.chrm, 
+                                                         codon.locs[diff[0]],
+                                                         codon.locs[diff[-1]],
+                                                         tnuc_ref, tnuc_alt)
                 else:
-                    gnuc_tok = '%s:g.%d_%d%s>%s' % (t.chrm,
-                                                    codon.locs[2-diff[-1]],
-                                                    codon.locs[2-diff[0]],
-                                                    reverse_complement(tnuc_ref),
-                                                    reverse_complement(tnuc_alt))
+                    gnuc_tok = '%s:g.%d_%ddel%sins%s' % (t.chrm,
+                                                         codon.locs[2-diff[-1]],
+                                                         codon.locs[2-diff[0]],
+                                                         reverse_complement(tnuc_ref),
+                                                         reverse_complement(tnuc_alt))
                 cdd_mnv_muts.append(gnuc_tok)
 
         r.append_info('reference_codon=%s;candidate_codons=%s' % (codon.seq, ','.join(tgt_codon_seqs)))
