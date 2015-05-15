@@ -284,7 +284,7 @@ Mutation formats acceptable in TransVar are ```PIK3CA:p.E545K``` or without refe
 
 ```
 #!bash
-$ transvar panno -i PIK3CA:E545K --ensembl
+$ transvar panno -i PIK3CA:p.E545K --ensembl
 ```
 outputs
 ```

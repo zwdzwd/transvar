@@ -315,12 +315,12 @@ Mutation formats acceptable in TransVar are ```PIK3CA:p.E545K``` or without refe
 
 ```
 #!bash
-$ transvar panno -i PIK3CA:E545K --ensembl
+$ transvar panno -i PIK3CA:p.E545K --ensembl
 ```
 outputs
 ```
 #!text
-PIK3CA:E545K	ENST00000263967 (protein_coding)	PIK3CA	+
+PIK3CA:p.E545K	ENST00000263967 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
    8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
