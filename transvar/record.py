@@ -413,7 +413,7 @@ class Record():
         if isinstance(self.reg, RegAnno):
             if hasattr(self.reg, 'promoter'):
                 if self.reg.promoter:
-                    for t in promoter:
+                    for t in self.reg.promoter:
                         self.append_info('promoter_region_of_[%s]' % t.gene.name)
 
         if isinstance(self.reg, RegSpanAnno):
