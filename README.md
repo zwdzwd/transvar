@@ -28,7 +28,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.9.20150514](https://bitbucket.org/wanding/transvar/get/v2.0.9.20150514.zip)
+current stable version: [v2.0.10.20150601](https://bitbucket.org/wanding/transvar/get/v2.0.10.20150601.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
