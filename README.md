@@ -28,7 +28,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.0.10.20150601](https://bitbucket.org/wanding/transvar/get/v2.0.10.20150601.zip)
+current stable version: [v2.0.11.20150625](https://bitbucket.org/wanding/transvar/get/v2.0.11.20150625.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -778,6 +778,8 @@ $ transvar codonsearch --ccds -i CDKN2A:p.58
 ```
 ```
 #!text
+origin_id	alt_id	chrm	codon1
+   codon2	transcripts_choice
 CDKN2A:p.58	CDKN2A.p.73	chr9	21971184-21971185-21971186
    21971182-21971183-21971184	CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
 CDKN2A:p.58	CDKN2A.p.72	chr9	21971184-21971185-21971186
@@ -793,6 +795,8 @@ $ transvar codonsearch -i DHODH:G152R --refseq
 outputs
 ```
 #!text
+origin_id	alt_id	chrm	codon1
+   codon2	transcripts_choice
 DHODH:G152R	DHODH.p.G16	chr16	72050942-72050943-72050944
    72050942-72050943-72050944	NM_001361.4[RefSeq]/XM_005255828.1[RefSeq]
 DHODH:G152R	DHODH.p.G9	chr16	72050942-72050943-72050944
@@ -819,10 +823,14 @@ ERBB2.p755
 outputs
 ```
 #!text
+origin_id	alt_id	chrm	codon1
+   codon2	transcripts_choice
 CDKN2A:p.61	CDKN2A.p.76	chr9	21971175-21971176-21971177
    21971173-21971174-21971175	CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
 CDKN2A:p.61	CDKN2A.p.75	chr9	21971175-21971176-21971177
    21971176-21971177-21971178	CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+origin_id	alt_id	chrm	codon1
+   codon2	transcripts_choice
 CDKN2A:p.69	CDKN2A.p.54	chr9	21971194-21971195-21971196
    21971196-21971197-21971198	CCDS6511.2[CDDS]/CCDS6510.1[CDDS],CCDS6511.2[CDDS]/CCDS56565.1[CDDS]
 CDKN2A:p.69	CDKN2A.p.55	chr9	21971194-21971195-21971196
@@ -831,6 +839,8 @@ CDKN2A:p.69	CDKN2A.p.83	chr9	21971151-21971152-21971153
    21971152-21971153-21971154	CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
 CDKN2A:p.69	CDKN2A.p.84	chr9	21971151-21971152-21971153
    21971149-21971150-21971151	CCDS6510.1[CDDS]/CCDS6511.2[CDDS],CCDS56565.1[CDDS]/CCDS6511.2[CDDS]
+origin_id	alt_id	chrm	codon1
+   codon2	transcripts_choice
 ERBB2:p.755	ERBB2.p.785	chr17	37881024-37881025-37881026
    37881024-37881025-37881026	CCDS45667.1[CDDS]/CCDS32642.1[CDDS]
 ERBB2:p.755	ERBB2.p.725	chr17	37880219-37880220-37880221
@@ -849,6 +859,8 @@ $ transvar codonsearch --refseq -i MET:p.1010
 gives
 ```
 #!text
+origin_id	alt_id	chrm	codon1
+   codon2	transcripts_choice
 MET:p.1010	MET.p.562	chr7	116411989-116411990-116411991
    116411989-116411990-116411991	NM_001127500.1[RefSeq]/XM_005250354.1[RefSeq]
 MET:p.1010	MET.p.1029	chr7	116411989-116411990-116411991
