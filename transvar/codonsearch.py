@@ -39,6 +39,7 @@ outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
 
 def _main_core_(args, q, db):
 
+    print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
     k2transcripts = {}
     if isinstance(q, QueryREG):
         q.pos = q.beg

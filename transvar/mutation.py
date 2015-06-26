@@ -64,7 +64,6 @@ def _parse_gdna_mutation(s):
             q.insseq = _i.upper()
         else:
             err_raise(InvalidInputError, 'insertion without inserted sequence: %s.' % s)
-
     elif _is_ins and _is_del:
         q = QueryMNV()
         q.beg = int(_beg)
@@ -75,6 +74,8 @@ def _parse_gdna_mutation(s):
         q = QueryMNV()
         q.beg = int(_beg)
         q.end = int(_end) if _end else q.beg
+        if _ref and len(_ref) != q.end-q.beg+1:
+            q.end = q.beg + len(_ref) - 1
         q.refseq = _ref.upper() if _ref else ''
         q.altseq = _alt.upper() if _alt else ''
     elif _is_dup:
