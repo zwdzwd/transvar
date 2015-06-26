@@ -39,7 +39,6 @@ outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
 
 def _main_core_(args, q, db):
 
-    print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
     k2transcripts = {}
     if isinstance(q, QueryREG):
         q.pos = q.beg
@@ -79,6 +78,7 @@ def _main_core_(args, q, db):
 
 def main_list(args, db): #name2gene, thash):
 
+    print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
     for q, line in list_parse_mutation(args, 'p'):
 
         q.gene = db.get_gene(q.tok)
@@ -104,7 +104,8 @@ def main_one(args, db): #name2gene, thash):
         return
 
     q.op = args.i
-
+    
+    print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
     _main_core_(args, q, db)
 
 def main(args):
