@@ -50,14 +50,14 @@ sudo python setup.py install
 ##### Local install
 ```
 #!bash
-python setup.py install --prefix [localfolder]
+python setup.py install --prefix [folder]
 ```
-After install, there will be two subfolders in `[localfolder]/lib` (which would contain libraries) and `[localfolder]/bin` (which would contain transvar executable).
-When you run transvar, make sure `[localfolder]/lib/python2.7/site-packages` is in your PYTHONPATH.
+After install, there will be two subfolders in `[folder]/lib` (which would contain libraries) and `[folder]/bin` (which would contain transvar executable).
+When you run transvar, make sure `[folder]/lib/python2.7/site-packages` is in your PYTHONPATH. In some occasions, you need to `mkdir -p [folder]/lib/python2.7/site-packages` to make sure it exists before you could run `setup.py`.
 You can add it by putting
-`export PYTHONPATH=$PYTHONPATH:[localfolder]/lib/python-2.7/site-packages/` to your `.bashrc` (or `.profile` depending on your OS).
+`export PYTHONPATH=$PYTHONPATH:[folder]/lib/python-2.7/site-packages/` to your `.bashrc` (or `.profile` depending on your OS).
 
-The installed executable is `[localfolder]/bin/transvar`.
+The installed executable is `[folder]/bin/transvar`.
 
 #### quick start
 
@@ -73,7 +73,7 @@ transvar config -k reference -v [path_to_hg19.fa] --refversion hg19
 
 $ transvar panno -i 'PIK3CA:p.E545K' --ucsc --ccds
 ```
-outputs show two hits from the two databases.
+outputs show two hits from the two databases, i.e., UCSC and CCDS.
 ```
 #!text
 PIK3CA:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
@@ -157,11 +157,11 @@ The following table summarize the transcript annotations supported by TransVar a
  | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.gtf.gz`  |
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
 
-If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt").
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt.transvardb").
 To set the default annotation of a particular reference version,
 ```
 #!bash
-transvar config -k ccds -v CCDS.current.txt --refversion hg19
+transvar config -k ccds -v CCDS.current.txt.transvardb --refversion hg19
 ```
 The configuration file is located either at the "[install dir]/transvar.cfg" or "~/.transvar.cfg" if the installation directory is inaccessible.
 
@@ -192,13 +192,13 @@ The "refversion" key specify the default reference version ("hg19" in the above 
 To add a new version and specify the location of some transcript annotation
 ```
 #!bash
-transvar config -k ccds -v ccds.myhg.txt --refversion myhg
+transvar config -k ccds -v ccds.fly.txt --refversion drosophila_melanogaster
 ```
 Will create in transvar.cfg a section like
 ```
 #!text
-[myhg]
-ccds = ccds.myhg.txt
+[drosophila_melanogaster]
+ccds = ccds.fly.txt
 ```
 
 To switch to a version on the fly, one could use the "--refversion" option, e.g.,
@@ -230,6 +230,7 @@ refseq: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.refseq.gff.gz
 ccds: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ccds.txt
 ensembl: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ensembl.gtf.gz
 ```
+specifying `--refversion` displays the information under that reference version (without changing the default reference version setup).
 
 #### batch processing
 
@@ -1436,7 +1437,7 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
 
 ## Bug report and feature request
 
-Please direct any bugs to <zhouwanding@gmail.com>. Thank you for using TransVar.
+Please direct any bugs to <zhouwanding@gmail.com>.
 
 ## Reference
 
