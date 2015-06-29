@@ -1,4 +1,4 @@
-**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., ```chr3:g.178936091G>A```) and transcript-dependent annotation(s) (e.g., ```PIK3CA:p.E545K``` or ```PIK3CA:c.1633G>A```). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
+**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
 TransVar has the following features:
 
  + supports HGVS nomenclature
@@ -91,6 +91,7 @@ $ transvar panno -i 'NM_006218.2:p.E545K' --ucsc --ccds
 ```
 outputs
 ```
+#!text
 NM_006218.2:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
@@ -1082,6 +1083,7 @@ $ transvar ganno -i "chr2:g.234183372_234183383del" --ccds
 ```
 outputs
 ```
+#!text
 chr2:g.234183372_234183383del	CCDS2502 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.845_856del12/p.H282_G286delinsR	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
@@ -1342,7 +1344,7 @@ chr1:g.29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
 
 ### FAQ
 
-+ how can TransVar take VCF as input?
+#### how can TransVar take VCF as input?
 
 Yes. For example,
 ```
@@ -1352,7 +1354,7 @@ transvar ganno --vcf ALL.wgs.phase1_release_v3.20101123.snps_indel_sv.sites.vcf.
 transvar ganno --vcf demo.1kg.vcf --ccds
 ```
 
-+ Can TransVar automatically decompose a haplotype into multiple mutations?
+#### Can TransVar automatically decompose a haplotype into multiple mutations?
 
 Yes, TransVar performs local alignment to allow long haplotype to be decomposed into multiple mutations.
 
@@ -1375,7 +1377,7 @@ chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
    acceptor_splice_site_of_exon_1_at_chr20:645106
 ```
 
-+ Can TransVar use 3-letter code instead of 1-letter code for protein?
+#### Can TransVar use 3-letter code instead of 1-letter code for protein?
 
 Yes, TransVar automatically infer whether the input is a 3-letter code or 1-letter code.
 The output is default to 1-letter code. But can be switched to 3-letter code through the `--aa3` option.
@@ -1391,35 +1393,35 @@ PIK3CA:p.Glu545Lys	CCDS43171 (protein_coding)	PIK3CA	+
    8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
 ```
 
-+ Can TransVar report results in one line for each query?
+#### Can TransVar report results in one line for each query?
 
 Yes, with `--oneline` option. This separates the outputs from each transcript by '|||'.
 
-+ I got 'gene_not_recognized', what's wrong?
+#### I got 'gene_not_recognized', what's wrong?
 
 Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
 
-+ Does TransVar support alternative format for MNV such as ?
+#### Does TransVar support alternative format for MNV such as `c.508_509CC>TT`?
 
-Yes, but only in input. For example, `c.113delGinsTACTAGC`
+Yes, but only in input. For example, `c.508_509CC>TT`
 ```
 #!bash
-$ transvar canno --ccds -i 'A1CF:c.508_509delCCinsTT'
+$ transvar canno --ccds -i 'A1CF:c.508_509CC>TT'
 ```
 ```
-A1CF:c.508_509delCCinsTT	CCDS7241 (protein_coding)	A1CF	-
+A1CF:c.508_509CC>TT	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
    codon_cDNA=508-509-510
-A1CF:c.508_509delCCinsTT	CCDS7242 (protein_coding)	A1CF	-
+A1CF:c.508_509CC>TT	CCDS7242 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
    codon_cDNA=508-509-510
 ```
 
-+ Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
+#### Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
 
 Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119_109702120insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
 
-+ When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
+#### When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
 
 TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
 
