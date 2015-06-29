@@ -31,4 +31,5 @@ done
 
 for rv in hg19 hg18 hg38 mm10 mm9; do
   transvar config --download_anno --refversion $rv;
+  transvar config --download_ref --refversion $rv;
 done

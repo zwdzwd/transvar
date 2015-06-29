@@ -66,10 +66,11 @@ fns[('hg18', 'raw')] = [
     ('ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
 ]
 
-fns[('hg19', 'reference')] = [
-    ('reference', 'hg19.fa', 'https://dl.dropboxusercontent.com/u/6647241/hg19.fa?dl=1'),
-    ('reference_fai', 'hg19.fa.fai', 'https://dl.dropboxusercontent.com/u/6647241/hg19.fa.fai?dl=1'),
-]
+for rv in ['hg18', 'hg19', 'hg38', 'mm9', 'mm10']:
+    fns[(rv,'reference')] = [
+        ('reference', '%s.fa' % rv, 'https://dl.dropboxusercontent.com/u/6647241/%s.fa?dl=1' % rv),
+        (None, '%s.fa.fai' % rv, 'https://dl.dropboxusercontent.com/u/6647241/%s.fa.fai?dl=1' % rv),
+    ]
 
 fns[('hg38', 'raw')] = [
     ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p2_top_level.gff3.gz'),
