@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -116,18 +118,21 @@ def main_list(args, db, at, mutation_parser):
 
         if at == 'g':
             q.tok = normalize_chrm(q.tok)
+            _main_core_(args, q, db, at)
         else:
             q.tok = q.tok.upper()
-            q.gene = db.get_gene(q.tok)
-            if not q.gene:
+            genefound = False
+            for q.gene in db.get_gene(q.tok):
+                genefound = True
+                _main_core_(args, q, db, at)
+
+            if not genefound:
                 r = Record()
                 r.append_info('gene_not_recognized_(%s)' % q.tok)
                 err_warn('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
                 r.format(q.op)
                 continue
-            
         # try:
-        _main_core_(args, q, db, at)
         # except:
         # err_print('exception %s' % line)
         # raise Exception()
@@ -142,16 +147,19 @@ def main_one(args, db, at):
     if not q:
         return
 
+    q.op = args.i
     if at == 'g':
         q.tok = normalize_chrm(q.tok)
+        _main_core_(args, q, db, at)
     else:
         q.tok = q.tok.upper()
-        q.gene = db.get_gene(q.tok)
-        if not q.gene:
-            err_die('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
+        genefound = False
+        for q.gene in db.get_gene(q.tok):
+            _main_core_(args, q, db, at)
+            genefound = True
 
-    q.op = args.i
-    _main_core_(args, q, db, at)
+        if not genefound:
+            err_die('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
 
 def main(args, at):
 

@@ -126,7 +126,7 @@ class RegAnno():
                 else:
                     f = append_inf(f, 'noncoding_exon_%d' % self.exon)
             if with_name:
-                f = append_inf(f, self.t.gene.name)
+                f = append_inf(f, self.t.gene_name)
             return f
 
 
@@ -441,13 +441,13 @@ class Record():
             if hasattr(self.reg, 'promoter'):
                 if self.reg.promoter:
                     for t in self.reg.promoter:
-                        self.append_info('promoter_region_of_[%s]' % t.gene.name)
+                        self.append_info('promoter_region_of_[%s]' % t.gene_name)
 
         if isinstance(self.reg, RegSpanAnno):
             if hasattr(self.reg, 'promoter'):
                 if self.reg.promoter:
                     for t, overlap, frac in self.reg.promoter:
-                        self.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene.name, overlap, frac))
+                        self.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene_name, overlap, frac))
 
     def set_splice(self, action=''):
 
@@ -541,8 +541,10 @@ class Record():
     def formats(self):
 
         if hasattr(self.reg, 't'):
-            if self.reg.t.gene.dbxref:
-                self.append_info('dbxref=%s' % self.reg.t.gene.dbxref)
+            if self.reg.t.gene_dbxref:
+                self.append_info('dbxref=%s' % self.reg.t.gene_dbxref)
+            if self.reg.t.aliases:
+                self.append_info('aliases=%s' % ','.join(self.reg.t.aliases))
         
         return template.format(r=self, reg=self.reg.format(),
                                gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())

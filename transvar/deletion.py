@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -115,7 +117,7 @@ def annotate_deletion_cdna(args, q, tpts, db):
         r = Record()
         r.chrm = t.chrm
         r.tname = t.format()
-        r.gene = t.gene.name
+        r.gene = t.gene_name
         r.strand = t.strand
 
         try:
@@ -154,7 +156,7 @@ def annotate_deletion_protein(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             if q.end*3 > t.cdslen:
@@ -166,8 +168,8 @@ def annotate_deletion_protein(args, q, tpts, db):
             tnuc_beg = q.beg*3-2
             tnuc_end = q.end*3
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-            r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
-            r.gnuc_range = '%d_%d' % (gnuc_beg, gnuc_end)
+            r.tnuc_range = '%d_%ddel' % (tnuc_beg, tnuc_end)
+            r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
             r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
         except IncompatibleTranscriptError:
             continue
@@ -228,7 +230,7 @@ def annotate_deletion_gdna(args, q, db):
 
             t = reg.t
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
             
             # whole gene deletion
@@ -333,7 +335,7 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
                         t.seq[p2.pos:end_codon_end]
 
         if len(new_codon_seq) != 3:
-            err_print(t.gene.name+'\t'+t.transcript_type)
+            err_print(t.gene_name+'\t'+t.transcript_type)
             err_print(p1)
             err_print(p2)
             err_print(len(t.seq))

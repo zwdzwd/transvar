@@ -544,7 +544,12 @@ def parse_uniprot_mapping(fn):
     tid2uniprot = {}
     for line in opengz(fn):
         fields = line.strip().split('\t')
-        tid2uniprot[fields[2]] = fields[0]
+        if fields[2] != fields[0]:
+            # tid2uniprot[fields[2]] = fields[0]
+            if fields[0] in tid2uniprot:
+                tid2uniprot[fields[0]].append(fields[2])
+            else:
+                tid2uniprot[fields[0]] = [fields[2]]
 
     err_print('loaded %d transcript with UniProt mapping.' % len(tid2uniprot))
 
@@ -577,8 +582,8 @@ def parse_annotation(args):
     if args.ucsc:
         parse_ucsc_refgene(args.ucsc, name2gene)
 
-    if args.custom:
-        parse_ucsc_refgene_customized(args.custom, name2gene)
+    # if args.custom:
+    #     parse_ucsc_refgene_customized(args.custom, name2gene)
 
     if args.kg:
         parse_ucsc_kg_table(args.kg, args.alias, name2gene)
@@ -662,8 +667,8 @@ def parser_add_annotation(parser):
                         help='CCDS transcript annotation table (config key: ccds)')
     parser.add_argument('--aceview', nargs='?', default=None, const='_DEF_',
                         help='AceView GFF transcript annotation (config key: aceview)')
-    parser.add_argument('--custom', nargs='?', default=None, const='_DEF_',
-                        help='A customized transcript table with sequence (config key: custom)')
+    # parser.add_argument('--custom', nargs='?', default=None, const='_DEF_',
+    #                     help='A customized transcript table with sequence (config key: custom)')
     parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
                         help='use uniprot ID rather than gene id (config key: uniprot)')
     parser.add_argument('--sql', action='store_true', help='SQL mode')

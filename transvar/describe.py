@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -24,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
+from transcripts import *
 from record import *
 from copy import copy
 import locale
@@ -52,8 +54,19 @@ def get_transcripts(args, q, db):
     else:
         tpts = [t for t in db.get_transcripts(q.tok, q.beg, q.end)]
 
-    genes = list(set([t.gene for t in tpts]))
+    name2gene = {}
+    for t in tpts:
+        if t.gene_name in name2gene:
+            g = name2gene[t.gene_name]
+        else:
+            g = Gene(t.gene_name)
+            name2gene[t.gene_name] = g
+        g.link_t(t)
+        
+    genes = name2gene.values()
     if args.longest: # pick the longest transcript for each gene
+        # the alternative solution is to get the longest of all transcript of the gene,
+        # whether the transcript overlap the target region or not, which is improper.
         tpts = [sorted([_ for _ in g.tpts if _ in tpts], key=lambda t: t.tlen(), reverse=True)[0] for g in genes]
 
     return (tpts, genes)
@@ -131,9 +144,9 @@ def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=No
     site = IntergenicSite()
     if tu:
         site.e5 = tu
-        site.e5_name = tu.gene.name
+        site.e5_name = tu.gene_name
         site.e5_dist = beg-tu.end
-        site.e5_strand = tu.gene.strand()
+        site.e5_strand = tu.strand
     else:
         site.e5 = None
         site.e5_name = "5'-telomere"
@@ -141,9 +154,9 @@ def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=No
 
     if td:
         site.e3 = td
-        site.e3_name = td.gene.name
+        site.e3_name = td.gene_name
         site.e3_dist = td.beg-end
-        site.e3_strand = td.gene.strand()
+        site.e3_strand = td.strand
     else:
         site.e3 = None
         site.e3_name = "3'-telomere"

@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -78,35 +80,40 @@ def _main_core_(args, q, db):
 
 def main_list(args, db): #name2gene, thash):
 
-    print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
+    if not args.noheader:
+        print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
     for q, line in list_parse_mutation(args, 'p'):
 
-        q.gene = db.get_gene(q.tok)
-        if not q.gene:
+        genefound = False
+        for q.gene in db.get_gene(q.tok):
+            genefound = True
+            try:
+                _main_core_(args, q, db)
+            except UnImplementedError as e:
+                err_print(line)
+                raise e
+            except SequenceRetrievalError as e:
+                err_print(line)
+                raise e        
+        if not genefound:
             err_warn('gene %s is not recognized.' % q.tok)
-            continue
-        try:
-            _main_core_(args, q, db)
-        except UnImplementedError as e:
-            err_print(line)
-            raise e
-        except SequenceRetrievalError as e:
-            err_print(line)
-            raise e
+
 
 def main_one(args, db): #name2gene, thash):
 
+    if not args.noheader:
+        print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
     q = parse_tok_mutation_str(args.i, 'p')
     q.op = args.i
-    q.gene = db.get_gene(q.tok)
-    if not q.gene:
+    genefound = False
+    for q.gene in db.get_gene(q.tok):
+        genefound = True
+        q.op = args.i
+        _main_core_(args, q, db)
+        
+    if not genefound:
         err_die('gene %s is not recognized.' % q.tok)
         return
-
-    q.op = args.i
-    
-    print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
-    _main_core_(args, q, db)
 
 def main(args):
 

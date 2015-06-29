@@ -35,29 +35,32 @@ cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
 downloaddirs = [os.path.join(os.path.dirname(__file__), 'transvar.download'),
                 os.path.expanduser('~/.transvar.download')]
 
+dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
+
 fns = {}
 
-fns[('hg19', 'anno')] = [
+fns[('hg19', 'raw')] = [
     ('refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
     ('ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
     ('ensembl', 'hg19.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'),
     ('gencode', 'hg19.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz'),
     ('ucsc', 'hg19.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.ucsc.refgene.txt.gz?dl=1'),
-    ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
+    # ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
     ('aceview', 'hg19.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_37_Aug10.human.genes/AceView.ncbi_37.genes_gff.gff.gz'),
     ('known_gene', 'hg19.knowngene.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_knownGene_hg19.gz?dl=1'),
-    ('known_gene_alias', 'hg19.knowgene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
+    (None, 'hg19.knowngene_alias.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/UCSC_kgAlias.gz?dl=1'),
 ]
 
 fns[('hg19', 'dbsnp')] = [
-    ('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz'),
-    ('dbsnp_index', 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b141_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
+    ('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b144_GRCh37p13/VCF/00-All.vcf.gz'),
+    (None, 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b144_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
 ]
 
-fns[('hg18', 'anno')] = [
+fns[('hg18', 'raw')] = [
     ('refseq', 'hg18.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/GFF/ref_NCBI36_top_level.gff3.gz'),
     ('ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
-    ('aceview', 'hg18.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
+    # the AceView hg18 version is deprecated.
+    # ('aceview', 'hg18.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
     ('gencode', 'hg18.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_3c/gencode.v3c.annotation.NCBI36.gtf.gz'),
     ('ucsc', 'hg18.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg18.ucsc.refgene.txt.gz?dl=1'),
     ('ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
@@ -68,7 +71,7 @@ fns[('hg19', 'reference')] = [
     ('reference_fai', 'hg19.fa.fai', 'https://dl.dropboxusercontent.com/u/6647241/hg19.fa.fai?dl=1'),
 ]
 
-fns[('hg38', 'anno')] = [
+fns[('hg38', 'raw')] = [
     ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p2_top_level.gff3.gz'),
     # ('ccds', 'hg38.ccds.txt', ''),
     ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz'),
@@ -76,8 +79,8 @@ fns[('hg38', 'anno')] = [
     ('ucsc', 'hg38.ucsc.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg38.ucsc.refgene.txt.gz?dl=1'),
 ]
 
-fns[('mm9', 'anno')] = [
-    ('refseq', 'mm9.refseq.gff.gz',
+fns[('mm9', 'raw')] = [
+    ('ensembl', 'mm9.ensembl.gtf.gz',
      'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
     ('ccds', 'mm9.ccds.txt',
      'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
@@ -85,7 +88,7 @@ fns[('mm9', 'anno')] = [
      'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
 ]
 
-fns[('mm10', 'anno')] = [
+fns[('mm10', 'raw')] = [
     ('refseq', 'mm10.refseq.gff.gz',
      'ftp://ftp.ncbi.nlm.nih.gov/genomes/M_musculus/GFF/ref_GRCm38.p3_top_level.gff3.gz'),
     ('ccds', 'mm10.ccds.txt',
@@ -96,10 +99,36 @@ fns[('mm10', 'anno')] = [
      'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
 ]
 
+# build anno topics
+fns2 = []
+for (refv, topic), vs in fns.iteritems():
+    if topic == 'raw':
+        vs2 = []
+        for k, fn, url in vs:
+            if k is None:
+                continue
+            afn = fn+'.transvardb'
+            vs2.append((k, afn, dwroot+afn))
+            afn = fn+'.transvardb.gene_idx'
+            vs2.append((None, afn, dwroot+afn))
+            afn = fn+'.transvardb.trxn_idx'
+            vs2.append((None, afn, dwroot+afn))
+            afn = fn+'.transvardb.loc_idx'
+            vs2.append((None, afn, dwroot+afn))
+            afn = fn+'.transvardb.loc_idx.tbi'
+            vs2.append((None, afn, dwroot+afn))
+            if k.find('knowngene')>=0:
+                afn = fn+'.transvardb.alias_idx'
+                vs2.append((None, afn, dwroot+afn))
+
+        fns2.append(((refv, 'anno'), vs2))
+for k, v in fns2:
+    fns[k] = v
+
 # def download_hg19_reference(config):
 #     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
 #     _download_(config, 'hg38', fns)
-    
+
 # def download_hg38_reference(config):
 #     fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
 #     _download_(config, 'hg38', fns)
@@ -165,7 +194,9 @@ def _download_(config, section, fns):
         break
 
 def download_idmap(config):
-    fns = [('uniprot', 'uniprot.idmapping.txt.gz', 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1')]
+    # 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1'
+    fns = [('uniprot', 'uniprot.idmapping.txt.gz.idx',
+            'https://dl.dropboxusercontent.com/u/6647241/annotations/uniprot.idmapping.txt.gz.idx')]
     _download_(config, 'idmap', fns)
 
 def getrv(args, config):
@@ -217,6 +248,11 @@ def main(args):
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
+    if args.download_raw:
+        download_topic(args, config, 'raw')
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
+            
     if args.download_dbsnp:
         download_topic(args, config, 'dbsnp')
         if args.refversion != 'DEFAULT':
@@ -266,6 +302,7 @@ def add_parser_config(subparsers):
     parser.add_argument('--download_ref', action='store_true', help='download reference')
     parser.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
+    parser.add_argument('--download_raw', action='store_true', help='download annotation raw file')
     parser.set_defaults(func=main)
     
 def add_parser_current(subparsers):

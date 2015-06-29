@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -47,7 +49,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             t.check_exon_boundary(q.beg)
@@ -107,7 +109,7 @@ def annotate_mnv_protein(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             if q.end*3 > t.cdslen():
@@ -291,7 +293,7 @@ def annotate_mnv_gdna(args, q, db):
 
             t = reg.t
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             c1, p1 = t.gpos2codon(q.beg)
@@ -330,13 +332,13 @@ def annotate_mnv_gdna(args, q, db):
                 if reg.b1.t.name not in tnames:
                     tnames.append(reg.b1.t.name)
                     strands.append(reg.b1.t.strand)
-                    genes.append(reg.b1.t.gene.name)
+                    genes.append(reg.b1.t.gene_name)
                     
             if hasattr(reg.b2, 't'):
                 if reg.b2.t.name not in tnames:
                     tnames.append(reg.b2.t.name)
                     strands.append(reg.b2.t.strand)
-                    genes.append(reg.b2.t.gene.name)
+                    genes.append(reg.b2.t.gene_name)
 
             if tnames:
                 r.tname = ','.join(tnames)

@@ -26,7 +26,9 @@ SOFTWARE.
 """
 
 from transcripts import *
+from localdb import TransVarDB
 import parser
+from cPickle import load
 
 class AnnoDB():
     
@@ -46,39 +48,29 @@ class AnnoDB():
         self.session = None
         self.name2gene = None
         self.thash = None
-        # args.ffhs = {}
-        # if args.dbsnp:
-        #     import pysam
-        #     args.dbsnp_fh = pysam.Tabixfile(args.dbsnp)
-        # else:
-        #     args.dbsnp_fh = None
-        
-        if args.sql:
-            import sqlmodel
-            self.sqlmodel = sqlmodel
-            self.session = sqlmodel.sessionmaker(bind=sqlmodel.engine, autoflush=False)()
-            refversion_ids = self.session.query(sqlmodel.DRefVersion).filter_by(name=args.refversion).all()
-            if not refversion_ids:
-                raise Exception("No reference version named: %s" % args.refversion)
-            self.refversion_id = refversion_ids[0].id
-            self.source = []
-            if args.ensembl:
-                self.source.append('Ensembl')
-            if args.ccds:
-                self.source.append('CCDS')
-            if args.refseq:
-                self.source.append('RefSeq')
-            if args.gencode:
-                self.source.append('GENCODE')
-            if args.aceview:
-                self.source.append('AceView')
-            if args.ucsc:
-                self.source.append('UCSC')
-            if not self.source:
-                self.source.append('Ensembl')
-        else:
-            self.name2gene, self.thash = parser.parse_annotation(args)
 
+        self.dbs = []
+        if args.ensembl:
+            self.dbs.append(TransVarDB(args.ensembl, source='Ensembl'))
+        if args.gencode:
+            self.dbs.append(TransVarDB(args.gencode, source='GENCODE'))
+        if args.kg:
+            self.dbs.append(TransVarDB(args.kg, source='KnownGene'))
+        if args.ucsc:
+            self.dbs.append(TransVarDB(args.ucsc, source='UCSCRefGene'))
+        if args.refseq:
+            self.dbs.append(TransVarDB(args.refseq, source='RefSeq'))
+        if args.ccds:
+            self.dbs.append(TransVarDB(args.ccds, source='CCDS'))
+        if args.aceview:
+            self.dbs.append(TransVarDB(args.aceview, source='AceView'))
+        if args.kg:
+            self.dbs.append(TransVarDB(args.kg, source='KnownGene'))
+
+        if args.uniprot:
+            idmap = load(open(args.uniprot))
+            for db in self.dbs:
+                db.add_idmap(idmap)
         self.config = config
         self.args = args
         self.resources = {}
@@ -111,10 +103,12 @@ class AnnoDB():
                             dbsnps.append('%s(%s:%s%s>%s)' % (fields[2], chrm, fields[1], fields[3], alt))
                     else:
                         dbsnps.append('%s(%s:%s%s>%s)' % (fields[2], chrm, fields[1], fields[3], alt))
-            else:
+            else:               # indels and mnv
                 ret = self.resources['dbsnp'].query(normalize_chrm_dbsnp(chrm), int(beg)-1, int(end))
                 for fields in ret:
                     if int(fields[1]) != int(beg)-1:
+                        continue
+                    if len(fields[3]) == 1 and len(fields[4]) == 1: # SNP from dbSNP
                         continue
                     alts = [_[1:] for _ in fields[4].split(',')]
                     if ref is not None and ref != fields[3][1:]:
@@ -180,123 +174,37 @@ class AnnoDB():
 
     def get_gene(self, name):
 
-        if self.session:
-            gs = self.session.query(self.sqlmodel.DGene).filter_by(name = name).all()
-            if not gs: return None
-            g = gs[0]
-            gene = Gene(name)
-            for t in g.transcripts:
-                if t.source.name not in self.source:
-                    continue
-                if t.refversion_id != self.refversion_id:
-                    continue
-
-                tpt = Transcript()
-                tpt.chrm = t.chrm.name
-                tpt.transcript_type = t.transcript_type.name
-                tpt.strand = '-' if t.strand == 1 else '+'
-                tpt.name = t.name
-                tpt.beg = t.beg
-                tpt.end = t.end
-                tpt.cds_beg = t.cds_beg
-                tpt.cds_end = t.cds_end
-                tpt.source = t.source.name
-                for ex in t.exons:
-                    tpt.exons.append((ex.beg, ex.end))
-                tpt.gene = gene
-                tpt.exons.sort()
-                gene.tpts.append(tpt)
-
-            return gene
-        elif self.name2gene:
-            if name in self.name2gene:
-                return self.name2gene[name]
-            else:
-                return None
-        else:
-            return None
-            # raise Exception("No valid source of transcript definition")
-
-    def _sql_get_transcripts(self, chrm, beg, end=None, flanking=0):
-
-        if not end:
-            end = beg
-            
-        beg = int(beg)
-        end = int(end)
-        chrm = normalize_chrm(chrm)
-        dchrms = self.session.query(self.sqlmodel.DChromosome).filter_by(name=chrm).all()
-        if dchrms:
-            dchrm = dchrms[0]
-        else:
-            return []
-
-        dtranscripts = self.session.query(self.sqlmodel.DTranscript).filter(
-            self.sqlmodel.DTranscript.chrm_id == dchrm.id,
-            self.sqlmodel.DTranscript.beg - flanking <= end,
-            self.sqlmodel.DTranscript.end + flanking >= beg,
-        ).all()
-
-        # db_features = self.session.query(self.sqlmodel.Feature).filter(
-        #     self.sqlmodel.Feature.chrm_id == db_chrm.id,
-        #     self.sqlmodel.Feature.beg-flanking <= end,
-        #     self.sqlmodel.Feature.end+flanking >= beg,
-        # ).all()
-        # print db_features
-        tpts = []
-        name2gene = {}
-        for dtranscript in dtranscripts:
-
-            if dtranscript.source.name not in self.source:
-                continue
-
-            tpt = Transcript()
-            tpt.chrm = dtranscript.chrm.name
-            tpt.strand = '-' if dtranscript.strand == 1 else '+'
-            tpt.name = dtranscript.name
-            tpt.beg = dtranscript.beg
-            tpt.end = dtranscript.end
-            tpt.cds_beg = dtranscript.cds_beg
-            tpt.cds_end = dtranscript.cds_end
-            tpt.transcript_type = dtranscript.transcript_type.name
-            gene_name = dtranscript.gene.name
-            if gene_name in name2gene:
-                tpt.gene = name2gene[gene_name]
-            else:
-                tpt.gene = Gene(gene_name)
-                name2gene[gene_name] = tpt.gene
-            tpt.gene.tpts.append(tpt)
-            tpt.source = dtranscript.source.name
-            for ex in dtranscript.exons:
-                tpt.exons.append((ex.beg, ex.end))
-            tpt.exons.sort()
-            tpts.append(tpt)
-
-        return tpts
+        for db in self.dbs:
+            for g in db.get(name):
+                yield g
 
     def get_transcripts(self, chrm, beg, end=None, flanking=0):
-        if self.session:
-            return self._sql_get_transcripts(chrm, beg, end, flanking)
-        elif self.thash:
-            return [t for t in self.thash.get_transcripts(chrm, beg, end, flanking)]
-        else:
-            raise Exception("No valid source of transcript definition")
+
+        for db in self.dbs:
+            for t in db.get_by_loc(chrm, beg, end, flanking):
+                yield t
 
     def get_closest_transcripts_upstream(self, chrm, pos):
-        if self.session:
-            raise Exception("Not implemented.")
-        elif self.thash:
-            return self.thash.get_closest_transcripts_upstream(chrm, pos)
-        else:
-            raise Exception("No valid source of transcript definition")
+
+        max_end = -1
+        max_t = None
+        for db in self.dbs:
+            t = db.get_closest_upstream(chrm, pos)
+            if t is not None and t.end > max_end:
+                max_t = t
+
+        return max_t
 
     def get_closest_transcripts_downstream(self, chrm, pos):
-        if self.session:
-            raise Exception("Not implemented.")
-        elif self.thash:
-            return self.thash.get_closest_transcripts_downstream(chrm, pos)
-        else:
-            raise Exception("No valid source of transcript definition")
+
+        min_beg = 30000000000
+        min_t = None
+        for db in self.dbs:
+            t = db.get_closest_downstream(chrm, pos)
+            if t is not None and t.beg < min_beg:
+                min_t = t
+
+        return min_t
 
     def get_closest_transcripts(self, chrm, beg, end):
         """ closest transcripts upstream and downstream """

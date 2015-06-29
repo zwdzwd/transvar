@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -327,7 +329,7 @@ def replace_defaults(args, config):
             setattr(args, argname, get_config(config, argname, rv))
 
     argnames = ['ensembl', 'reference', 'refseq', 'ccds',
-                'gencode', 'ucsc', 'custom', 'kg', 'aceview']
+                'gencode', 'ucsc', 'kg', 'aceview']
     for argname in argnames:
         _set_arg_(argname, rv)
 

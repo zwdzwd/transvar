@@ -39,7 +39,7 @@ def _annotate_region_cdna(args, q, t, db):
     r = Record()
     r.chrm = t.chrm
     r.tname = t.format()
-    r.gene = t.gene.name
+    r.gene = t.gene_name
     r.strand = t.strand
 
     t.check_exon_boundary(q.beg)
@@ -134,7 +134,7 @@ def annotate_region_protein(args, q, tpts, db):
             r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
             r.taa_range = '%s%d_%s%d' % (aaf(taa_natrefseq[0], args), q.beg, aaf(taa_natrefseq[-1], args), q.end) if q.beg != q.end else '%d%s' % (q.beg, aaf(taa_natrefseq[0], args))
             r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             r.reg = RegCDSAnno(t)
@@ -193,7 +193,7 @@ def annotate_region_gdna(args, q, db):
 
                 r.append_info("is_gene_body")
                 r.tname = reg.t.format()
-                r.gene = reg.t.gene.name
+                r.gene = reg.t.gene_name
                 r.strand = reg.t.strand
 
                 if p.tpos == 0 and reg.t.transcript_type == 'protein_coding':
@@ -231,7 +231,7 @@ def annotate_region_gdna(args, q, db):
                     r.tname = ','+reg.b2.t.format()
 
             if hasattr(reg, 't'):
-                r.gene = reg.t.gene.name if reg.t.gene.name else '.'
+                r.gene = reg.t.gene_name if reg.t.gene_name else '.'
                 r.strand = reg.t.strand
                 c1, p1 = reg.t.gpos2codon(q.beg)
                 c2, p2 = reg.t.gpos2codon(q.end)

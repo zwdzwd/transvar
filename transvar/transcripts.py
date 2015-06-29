@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -238,11 +240,15 @@ class Transcript():
         """ chrm, strand, start, end, seq (optional), cds_beg, cds_end """
 
         self.transcript_type = transcript_type
+        self.gene_name = ''
         self.gene   = None
         self.seq    = None
         self.name   = '.'
         self.exons  = []
         self.cds    = []
+        self.aliases = []
+        self.version = 255
+        self.source = ''
 
     # Note that this is ambiguous based on whether there is seq which is coding
     # def __len__(self):
@@ -339,10 +345,7 @@ class Transcript():
         return
 
     def __repr__(self):
-        if self.gene:
-            return "<Transcript %s %s: %s(%s):%d-%d>" % (self.name, self.gene.name, self.chrm, self.strand, self.beg, self.end)
-        else:
-            return "<Empty Transcript>"
+        return "<Transcript %s %s: %s(%s):%d-%d>" % (self.name, self.gene_name, self.chrm, self.strand, self.beg, self.end)
 
     def is_standard(self):
         return self == self.gene.std_tpt
@@ -1329,9 +1332,19 @@ class Gene():
         self.tpts    = []
         self.std_tpt = None
         self.pseudo  = False
+        self.aliases = []
 
     def __repr__(self):
         return "<Gene: %s>" % self.name
+
+    def link_t(self, t):
+        if t in self.tpts:
+            return
+
+        t.gene = self
+        self.tpts.append(t)
+        if not self.dbxref:
+            self.dbxref = t.gene_dbxref
 
     def longest_coding_tpt(self):
 

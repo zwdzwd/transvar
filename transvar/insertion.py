@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -132,7 +134,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
             if t.strand == '+':
                 gnuc_beg = t.tnuc2gnuc(q.pos)
@@ -213,7 +215,7 @@ def annotate_insertion_protein(args, q, tpts, db):
             r = codon_mutation_ins(args, q, t, db)
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
         except IncompatibleTranscriptError:
             continue
@@ -249,7 +251,7 @@ def annotate_insertion_gdna(args, q, db):
             t = reg.t
 
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
@@ -290,7 +292,7 @@ def annotate_duplication_cdna(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             if q.beg.pos > t.cdslen() or q.end.pos > t.cdslen():

@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -57,7 +59,7 @@ def _annotate_frameshift(args, q, t):
     r = Record()
     r.chrm = t.chrm
     r.tname = t.format()
-    r.gene = t.gene.name
+    r.gene = t.gene_name
     r.strand = t.strand
     r.pos = '-'.join(map(str, codon.locs))
     tnuc_beg = (codon.index-1)*3+1

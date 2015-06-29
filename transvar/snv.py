@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -50,7 +52,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             r = Record()
             r.chrm = t.chrm
             r.tname = t.format()
-            r.gene = t.gene.name
+            r.gene = t.gene_name
             r.strand = t.strand
 
             r.gnuc_pos = t.tnuc2gnuc(q.pos)
@@ -263,7 +265,7 @@ def annotate_snv_protein(args, q, tpts, db):
             err_print(str(e))
             continue
         
-        r.gene = t.gene.name
+        r.gene = t.gene_name
         r.strand = t.strand
         set_taa_snv(r, q.pos, q.ref, q.alt, args)
         r.reg = RegCDSAnno(t, c)
@@ -312,7 +314,7 @@ def annotate_snv_gdna(args, q, db):
             c,p = reg.t.gpos2codon(q.pos)
 
             r.tname = reg.t.format()
-            r.gene = reg.t.gene.name
+            r.gene = reg.t.gene_name
             r.strand = reg.t.strand
             r.tnuc_pos = p
 
