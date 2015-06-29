@@ -1,7 +1,9 @@
 """
 The MIT License
 
-Copyright (c) 2015 by The University of Texas MD Anderson Cancer Center (kchen3@mdanderson.org)
+Copyright (c) 2015
+The University of Texas MD Anderson Cancer Center
+Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -68,8 +70,8 @@ fns[('hg18', 'raw')] = [
 
 for rv in ['hg18', 'hg19', 'hg38', 'mm9', 'mm10']:
     fns[(rv,'reference')] = [
-        ('reference', '%s.fa' % rv, 'https://dl.dropboxusercontent.com/u/6647241/%s.fa?dl=1' % rv),
-        (None, '%s.fa.fai' % rv, 'https://dl.dropboxusercontent.com/u/6647241/%s.fa.fai?dl=1' % rv),
+        ('reference', '%s.fa' % rv, '%s/%s.fa' % (dwroot, rv)),
+        (None, '%s.fa.fai' % rv, '%s/%s.fa.fai' % (dwroot, rv)),
     ]
 
 fns[('hg38', 'raw')] = [
