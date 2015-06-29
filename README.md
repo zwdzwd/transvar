@@ -2,6 +2,7 @@
 TransVar has the following features:
 
  + supports HGVS nomenclature
+ + supports input from gene name, transcript ID, UniProt ID and other aliases.
  + supports both left-alignment and right-alignment convention in reporting indels and duplications.
  + supports annotation of a region based on a transcript-dependent characterization
  + supports mutations at both coding region and intronic/UTR regions
@@ -10,8 +11,8 @@ TransVar has the following features:
  + supports long haplotype decomposition
  + supports single nucleotide variation (SNV), insertions and deletions (indels) and block substitutions
  + supports transcript annotation from commonly-used databases such as Ensembl, NCBI RefSeq and GENCODE etc
- + supports UniProt protein id as transcript id
  + supports GRCh36, 37, 38 (human),  GRCm38 (mouse), NCBIM37 (mouse)
+ + supports >60 other genomes available from Ensembl
  + functionality of forward annotation.
 
 --------
@@ -28,9 +29,12 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.0.20150629](https://bitbucket.org/wanding/transvar/get/v2.1.0.20150629.zip)
+current stable version: [v2.1.1.20150629](https://bitbucket.org/wanding/transvar/get/v2.1.1.20150629.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
+
+for also stable 2.0.x version:
+[v2.0.12.20150626](https://bitbucket.org/wanding/transvar/get/v2.0.12.20150626.zip)
 
 for older 1.x version:
 [v1.40](https://bitbucket.org/wanding/transvar/get/v1.40.zip)
@@ -67,8 +71,30 @@ transvar config --download_ref --refversion hg19
 # in case you do have a reference to link
 transvar config -k reference -v [path_to_hg19.fa] --refversion hg19
 
-transvar panno -i 'PIK3CA:p.E545K' --ucsc --ccds
-# Enjoy using TransVar.
+$ transvar panno -i 'PIK3CA:p.E545K' --ucsc --ccds
+```
+outputs show two hits from the two databases.
+```
+#!text
+PIK3CA:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
+   chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
+   reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+PIK3CA:p.E545K	CCDS43171 (protein_coding)	PIK3CA	+
+   chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
+   reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+```
+One could provide input based on transcript ID, e.g `NM_006218.1:p.E545K` and TransVar would automatically restrict to the provided transcript.
+```
+$ transvar panno -i 'NM_006218.2:p.E545K' --ucsc --ccds
+```
+outputs
+```
+NM_006218.2:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
+   chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
+   reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
 ```
 
 #### install/specify reference genome assembly
@@ -105,6 +131,15 @@ These will also create default mappings under the corresponding reference versio
 [hg19]
 ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
 ```
+
+One also has the option of downloading from Ensembl collection.
+```
+#!bash
+transvar config --download_ensembl --refversion mus_musculus
+```
+Without specifying the refversion, user will be prompted a collection of options to choose from.
+Note that this feature requires that `samtools` and `tabix` be installed in PATH.
+
 ### Usage
 
 #### specify transcript annotation
@@ -120,9 +155,8 @@ The following table summarize the transcript annotations supported by TransVar a
  | AceView | AceView GFF | `--aceview` | `--aceview AceView.ncbi37.gff.gz`  |
  | GENCODE | GENCODE GTF | `--gencode` | `--gencode gencode.v19.gtf.gz`  |
  | knownGene | knownGene table | `-kg` | `--kg kg.gz --alias kgAlias.gz` |
- | custom | custom table | `--custom` | `--custom hg19.map` |
 
-If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt"). With the `custom` table, one may use TransVar without specifying the reference assembly.
+If one download transcripts through "transvar config", TransVar would use the downloaded definition automatically (by setting the default configuration file). For example, "--ccds" would look for the downloaded CCDS definition. One can specify non-default annotation by appending a path to the option ("--ccds CCDS.current.txt").
 To set the default annotation of a particular reference version,
 ```
 #!bash

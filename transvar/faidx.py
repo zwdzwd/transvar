@@ -2,7 +2,7 @@
 http://www.allenyu.info/item/24-quickly-fetch-sequence-from-samtools-faidx-indexed-fasta-sequences.html """
 import sys
 from err import *
-
+from utils import *
 
 class RefGenome:
 
@@ -34,6 +34,7 @@ class RefGenome:
             line=line.strip()
             cols=line.split('\t')
             chrom = cols[0]
+            chrom = normalize_chrm(chrom)
             slen,offset,blen,bytelen=[int(i) for i in cols[1:]]
             self.faidx[chrom]=(slen,offset,blen,bytelen)
      

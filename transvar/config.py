@@ -181,7 +181,7 @@ def _download_(config, section, fns):
                 os.makedirs(pdir)
             except:
                 continue
-            
+
         for k, fn, url in fns:
             try:
                 fnn = os.path.join(pdir, fn)
@@ -189,9 +189,10 @@ def _download_(config, section, fns):
                 if k:
                     config_set(config, section, k, fnn)
             except:
-                err_warn('file not available: %s' % url)
+                err_warn('file not available: %s or target directory not found' % url)
 
         break
+    return pdir
 
 def download_idmap(config):
     # 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1'
@@ -219,6 +220,54 @@ def download_topic(args, config, topic):
     else:
         err_die('no pre-built %s for %s, please build manually' % (topic, rv))
 
+
+def download_anno_topic_ensembl(args, config):
+
+    from ftplib import FTP
+    rv = getrv(args, config)
+    args.ensembl_release = 80
+    eshost = 'ftp.ensembl.org'
+    ftp = FTP(eshost)
+    ftp.login()
+
+    esroot = 'pub/release-%d/' % args.ensembl_release
+    if args.refversion == 'DEFAULT':
+        err_print("")
+        species = [os.path.basename(o) for o in ftp.nlst("%s/gtf/" % esroot)]
+        for i, sp in enumerate(species):
+            err_print('[%d] %s' % (i,sp))
+        choice = raw_input("Please choose your target taxon [%d homo_sapiens]: " % species.index("homo_sapiens"))
+        choice = int(choice)
+        if int(choice) <= 0 or int(choice) >= len(species):
+            err_die("Invalid choice.")
+        rv = species[choice]
+    
+    esfasta = '%s/fasta/%s/dna/' % (esroot, rv.lower())
+    genomes = [fn for fn in ftp.nlst(esfasta) if fn.endswith('dna.toplevel.fa.gz')]
+    assert(len(genomes) == 1)
+    genome = genomes[0]
+    genoname = os.path.basename(genome)
+    genodir = _download_(config, rv, [(None, genoname, 'ftp://'+eshost+'/'+genome)])
+
+    esgtf = '%s/gtf/%s' % (esroot, rv.lower())
+    gtfs = [fn for fn in ftp.nlst(esgtf) if fn.endswith('gtf.gz')]
+    assert(len(gtfs)==1)
+    gtf = gtfs[0]
+    gtfname = os.path.basename(gtf)
+    gtfdir = _download_(config, rv, [(None, gtfname, 'ftp://'+eshost+'/'+gtf)])
+    
+    import subprocess
+    err_print("Unzipping genome")
+    subprocess.check_call(['gunzip', genodir+'/'+genoname])
+
+    err_print("Faidx indexing")
+    subprocess.check_call(['samtools', 'faidx', genodir+'/'+genoname[:-3]])
+    config_set(config, rv, 'reference', genodir+'/'+genoname[:-3])
+    
+    err_print("Indexing GTF")
+    subprocess.check_call(['transvar', 'index', '--ensembl', gtfdir+'/'+gtfname])
+    config_set(config, rv, 'ensembl', gtfdir+'/'+gtfname+'.transvardb')
+
 def read_config():
     config = ConfigParser.RawConfigParser()
     config.read(cfg_fns)
@@ -245,6 +294,11 @@ def main(args):
 
     if args.download_anno:
         download_topic(args, config, 'anno')
+        if args.refversion != 'DEFAULT':
+            config.set('DEFAULT', 'refversion', args.refversion)
+
+    if args.download_ensembl:
+        download_anno_topic_ensembl(args, config)
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
@@ -299,6 +353,7 @@ def add_parser_config(subparsers):
     parser.add_argument('-v', default=None, help='value')
     parser.add_argument('--refversion', default='DEFAULT', help='reference version')
     parser.add_argument('--download_anno', action='store_true', help='download annotations')
+    parser.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
     parser.add_argument('--download_ref', action='store_true', help='download reference')
     parser.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
