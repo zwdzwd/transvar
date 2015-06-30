@@ -32,6 +32,7 @@ import sys
 import subprocess
 from setuptools import setup, Extension
 from setuptools.command.install import install
+from setuptools.command.develop import develop
 from distutils.command.build import build
 
 BASEPATH=os.path.dirname(os.path.abspath(__file__))
@@ -71,7 +72,17 @@ class TransVarInstall(install):
                      os.path.join(self.install_lib, 'transvar'))
         shutil.copy2('external/samtools/htslib-1.2.1/bgzip',
                      os.path.join(self.install_lib, 'transvar'))
-            
+
+class TransVarDevelop(develop):
+
+    def run(self):
+
+        develop.run(self)
+        import shutil
+        shutil.copy2('external/samtools/samtools', 'transvar/')
+        shutil.copy2('external/samtools/htslib-1.2.1/tabix', 'transvar/')
+        shutil.copy2('external/samtools/htslib-1.2.1/bgzip', 'transvar/')
+
 def main():
     if float(sys.version[:3])<2.6 or float(sys.version[:3])>=2.8:
         sys.stderr.write("CRITICAL: Python version must be 2.6 or 2.7!\n")
@@ -123,6 +134,7 @@ def main():
         cmdclass = {
             'build': TransVarBuild,
             'install': TransVarInstall,
+            'develop': TransVarDevelop,
         }
         # long_description = """ """
         # install_requires=['numpy>=1.6']
