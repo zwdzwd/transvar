@@ -53,6 +53,12 @@ class TransVarBuild(build):
 
         self.execute(compile, [], 'Compile samtools')
 
+        def compile_htslib():
+            subprocess.check_call(['./configure'], cwd='external/samtools/htslib-1.2.1')
+            subprocess.check_call(['make'], cwd='external/samtools/htslib-1.2.1')
+
+        self.execute(compile_htslib, [], 'Compile htslib')
+
 class TransVarInstall(install):
 
     def run(self):
