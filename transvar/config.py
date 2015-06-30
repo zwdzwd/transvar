@@ -31,6 +31,20 @@ import ConfigParser
 import os, sys
 from err import *
 
+
+def gunzip(fn):
+
+    if not fn.endswith('.gz'):
+        err_die('Target file %s not ends with .gz' % fn)
+
+    import gzip
+    f_out = open(fn[:-3], 'w')
+    f_in = gzip.open(fn)
+    f_out.writelines(f_in)
+    f_in.close()
+    f_out.close()
+
+    
 cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
            os.path.expanduser('~/.transvar.cfg')]
 
@@ -261,14 +275,17 @@ def download_anno_topic_ensembl(args, config):
     
     import subprocess
     err_print("Unzipping genome")
-    subprocess.check_call(['gunzip', genodir+'/'+genoname])
+    gunzip(genodir+'/'+genoname)
 
     err_print("Faidx indexing")
-    subprocess.check_call(['samtools', 'faidx', genodir+'/'+genoname[:-3]])
+    subprocess.check_call(['%s/samtools' % os.path.abspath(__file__),
+                           'faidx', genodir+'/'+genoname[:-3]])
     config_set(config, rv, 'reference', genodir+'/'+genoname[:-3])
     
     err_print("Indexing GTF")
-    subprocess.check_call(['transvar', 'index', '--ensembl', gtfdir+'/'+gtfname])
+    import localdb
+    db = localdb.EnsemblDB()
+    db.index([gtfdir+'/'+gtfname])
     config_set(config, rv, 'ensembl', gtfdir+'/'+gtfname+'.transvardb')
 
 def read_config():

@@ -27,28 +27,63 @@
 #
 # Contact: Wanding Zhou <zhouwanding@gmail.com>
 
+import os
 import sys
+import subprocess
 from setuptools import setup, Extension
+from setuptools.command.install import install
+from distutils.command.build import build
 
+BASEPATH=os.path.dirname(os.path.abspath(__file__))
+
+class TransVarBuild(build):
+
+    def run(self):
+
+        # run original build code
+        build.run(self)
+
+        # build samtools
+        build_path = os.path.abspath(self.build_temp)
+        
+        cmd = ['make', '-C', 'external/samtools']
+
+        def compile():
+            subprocess.check_call(cmd)
+
+        self.execute(compile, [], 'Compile samtools')
+
+class TransVarInstall(install):
+
+    def run(self):
+
+        install.run(self)
+        import shutil
+        shutil.copy2('external/samtools/samtools',
+                     os.path.join(self.install_lib, 'transvar'))
+        shutil.copy2('external/samtools/htslib-1.2.1/tabix',
+                     os.path.join(self.install_lib, 'transvar'))
+            
 def main():
     if float(sys.version[:3])<2.6 or float(sys.version[:3])>=2.8:
         sys.stderr.write("CRITICAL: Python version must be 2.6 or 2.7!\n")
         sys.exit(1)
         
     ext_modules = [
-        Extension("tabix",
+        Extension("transvar.tabix",
                   sources = [
-                      "pytabix/bgzf.c", "pytabix/bgzip.c", "pytabix/index.c",
-                      "pytabix/knetfile.c", "pytabix/kstring.c", "pytabix/tabixmodule.c"
+                      "external/pytabix/bgzf.c", "external/pytabix/bgzip.c",
+                      "external/pytabix/index.c", "external/pytabix/knetfile.c",
+                      "external/pytabix/kstring.c", "external/pytabix/tabixmodule.c"
                   ],
-                  include_dirs=["pytabix"],
+                  include_dirs=["external/pytabix"],
                   libraries=["z"],
                   define_macros=[("_FILE_OFFSET_BITS", 64), ("_USE_KNETFILE", 1)],
                   extra_compile_args=["-w"],
               ),
-        Extension("_sswlib",
-                  sources = ['ssw/ssw.c', 'ssw/encode.c'],
-                  include_dirs = ['ssw'],
+        Extension("transvar._sswlib",
+                  sources = ['external/ssw/ssw.c', 'external/ssw/encode.c'],
+                  include_dirs = ['external/ssw'],
                   extra_compile_args = ['-W', '-Wall', '-O2', '-finline-functions', '-fPIC', '-shared', '-Wl,-soname,sswlib'],
               ),
     ]
@@ -64,8 +99,7 @@ def main():
         license = "MIT",
         keywords = ["bioinformatics", "genomics"],
         scripts = ['bin/transvar'],
-        packages = ['transvar', 'ssw'],
-        package_data = {'transvar': ['external/*']},
+        packages = ['transvar', 'transvar.ssw'],
         ext_modules = ext_modules,
         classifiers = [
             "Programming Language :: Python",
@@ -78,6 +112,10 @@ def main():
             "Programming Language :: C",
             "Topic :: Scientific/Engineering :: Bioinformatics"
         ],
+        cmdclass = {
+            'build': TransVarBuild,
+            'install': TransVarInstall,
+        }
         # long_description = """ """
         # install_requires=['numpy>=1.6']
     )
