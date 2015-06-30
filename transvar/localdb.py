@@ -35,6 +35,9 @@ from transcripts import *
 from cPickle import load, dump
 import faidx
 
+tabix_path = '%s/tabix' % os.path.abspath(os.path.dirname(__file__))
+bgzip_path = '%s/bgzip' % os.path.abspath(os.path.dirname(__file__))
+
 p_trxn_version=re.compile(r'(.*)\.(\d+)$')
 class TransVarDB():
 
@@ -296,10 +299,10 @@ class TransVarDB():
                 t.strand, t.cds_beg, t.cds_end, t.exons, ';'.join(t.aliases), t.gene.dbxref)
 
         with open(idxfn,'w') as fh:
-            p = subprocess.Popen('bgzip', stdout=fh, stdin=subprocess.PIPE)
+            p = subprocess.Popen(bgzip_path, stdout=fh, stdin=subprocess.PIPE)
             p.communicate(input=s)
 
-        subprocess.check_call(['tabix', '-p', 'bed', idxfn])
+        subprocess.check_call([tabix_path, '-p', 'bed', idxfn])
 
 def set_cds_boundary(name2gene):
 

@@ -63,6 +63,8 @@ class TransVarInstall(install):
                      os.path.join(self.install_lib, 'transvar'))
         shutil.copy2('external/samtools/htslib-1.2.1/tabix',
                      os.path.join(self.install_lib, 'transvar'))
+        shutil.copy2('external/samtools/htslib-1.2.1/bgzip',
+                     os.path.join(self.install_lib, 'transvar'))
             
 def main():
     if float(sys.version[:3])<2.6 or float(sys.version[:3])>=2.8:
@@ -81,7 +83,7 @@ def main():
                   define_macros=[("_FILE_OFFSET_BITS", 64), ("_USE_KNETFILE", 1)],
                   extra_compile_args=["-w"],
               ),
-        Extension("transvar._sswlib",
+        Extension("transvar.ssw._sswlib",
                   sources = ['external/ssw/ssw.c', 'external/ssw/encode.c'],
                   include_dirs = ['external/ssw'],
                   extra_compile_args = ['-W', '-Wall', '-O2', '-finline-functions', '-fPIC', '-shared', '-Wl,-soname,sswlib'],

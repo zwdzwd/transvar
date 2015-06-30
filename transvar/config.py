@@ -31,6 +31,7 @@ import ConfigParser
 import os, sys
 from err import *
 
+samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
 
 def gunzip(fn):
 
@@ -43,6 +44,7 @@ def gunzip(fn):
     f_out.writelines(f_in)
     f_in.close()
     f_out.close()
+    os.remove(fn)
 
     
 cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
@@ -278,7 +280,7 @@ def download_anno_topic_ensembl(args, config):
     gunzip(genodir+'/'+genoname)
 
     err_print("Faidx indexing")
-    subprocess.check_call(['%s/samtools' % os.path.abspath(__file__),
+    subprocess.check_call([samtools_path,
                            'faidx', genodir+'/'+genoname[:-3]])
     config_set(config, rv, 'reference', genodir+'/'+genoname[:-3])
     
@@ -287,6 +289,8 @@ def download_anno_topic_ensembl(args, config):
     db = localdb.EnsemblDB()
     db.index([gtfdir+'/'+gtfname])
     config_set(config, rv, 'ensembl', gtfdir+'/'+gtfname+'.transvardb')
+
+    config.set('DEFAULT', 'refversion', rv)
 
 def read_config():
     config = ConfigParser.RawConfigParser()
