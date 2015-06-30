@@ -378,7 +378,8 @@ def add_parser_config(subparsers):
     parser = subparsers.add_parser('config', help=__doc__)
     parser.add_argument('-k', default=None, help='key')
     parser.add_argument('-v', default=None, help='value')
-    parser.add_argument('--refversion', default='DEFAULT', help='reference version')
+    parser.add_argument('--refversion', default='DEFAULT',
+                        help='reference version, options: hg18, hg19, hg38, mm9, mm10, see transvar config --download_ensembl for others.')
     parser.add_argument('--download_anno', action='store_true', help='download annotations')
     parser.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
     parser.add_argument('--download_ref', action='store_true', help='download reference')
