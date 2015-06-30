@@ -2,8 +2,8 @@
 
 # The MIT License
 # 
-# Copyright (c) 2011 Seoul National University
 # Copyright (c) 2014, 2015 The University of Texas MD Anderson Cancer Center
+# Wanding Zhou, Tenghui Chen and Ken Chen
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -25,7 +25,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Contact: Wanding Zhou <zhouwanding@gmail.com>
+# Contact: Ken Chen <kchen3@mdanderson.org>
 
 import os
 import sys
