@@ -65,6 +65,7 @@ def main():
         keywords = ["bioinformatics", "genomics"],
         scripts = ['bin/transvar'],
         packages = ['transvar', 'ssw'],
+        package_data = {'transvar': ['external/*']},
         ext_modules = ext_modules,
         classifiers = [
             "Programming Language :: Python",
@@ -75,7 +76,7 @@ def main():
             "Operating System :: OS Independent",
             'Operating System :: POSIX',
             "Programming Language :: C",
-            "Topic :: Scientific/Engineering :: Bio-Informatics"
+            "Topic :: Scientific/Engineering :: Bioinformatics"
         ],
         # long_description = """ """
         # install_requires=['numpy>=1.6']
