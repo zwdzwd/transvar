@@ -238,7 +238,7 @@ class TransVarDB():
                     g = Gene(t.gene_name)
                     name2gene[g.name] = g
                 g.link_t(t)
-                    
+                
             for g in name2gene.itervalues():
                 yield g
 
@@ -892,6 +892,10 @@ def main_index(args):
     if args.uniprot:
         tid2uniprot = parser.parse_uniprot_mapping(args.uniprot)
         dump(tid2uniprot, open(args.uniprot+'.idx','w'), 2)
+
+    if args.reference:
+        import config
+        config.samtools_faidx(args.reference)
 
 def add_parser_index(subparsers):
 

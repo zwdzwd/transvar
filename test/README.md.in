@@ -29,7 +29,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.1.20150629](https://bitbucket.org/wanding/transvar/get/v2.1.1.20150629.zip)
+current stable version: [v2.1.2.20150630](https://bitbucket.org/wanding/transvar/get/v2.1.2.20150630.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -91,10 +91,15 @@ outputs
 #### install/specify reference genome assembly
 
 For some genome assembly we provide download via `transvar config --download_ref --refversion hg19`. This will download the faidx indexed reference.
-For other genome assemblies,one could download the reference and index the reference using `samtools faidx`.
-Once downloaded and indexed, the reference can be used through the "--reference" option followed by the fasta filename.
+For other genome assemblies,one could download the genome and index it by, e.g.,
+```
+#!bash
+transvar index --reference hg19.fa
+```
+Under the hood, TransVar uses the `samtools faidx`. So one could use any existing faidx indices without a glitch.
+Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome.
 
-To set the default location of reference, say, to ./hg19.fa,
+To set the default location of genome file for a reference version, say, to ./hg19.fa,
 ```
 #!bash
 transvar config -k reference -v ./hg19.fa --refversion hg19
@@ -129,11 +134,17 @@ One also has the option of downloading from Ensembl collection.
 transvar config --download_ensembl --refversion mus_musculus
 ```
 Without specifying the refversion, user will be prompted a collection of options to choose from.
-Note that this feature requires that `samtools` and `tabix` be installed in PATH.
 
 ### Usage
 
 #### specify transcript annotation
+
+To index transcript annotation,
+```
+#!bash
+transvar index --ensembl GRCh37.75.gtf.gz
+```
+creates `GRCh37.75.gtf.gz.transvardb` together with indices files `GRCh37.75.gtf.gz.transvardb.loc_idx`, `GRCh37.75.gtf.gz.transvardb.gene_idx`, `GRCh37.75.gtf.gz.transvardb.trxn_idx` etc.
 
 The following table summarize the transcript annotations supported by TransVar as well as the option(s) to use each database in the annotation. TransVar can take any one or any combination(s) of these transcript annotations as long as these annotations are based on the same version of reference assembly.
 

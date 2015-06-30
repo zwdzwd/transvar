@@ -28,10 +28,16 @@ SOFTWARE.
 """
 
 import ConfigParser
+import subprocess
 import os, sys
 from err import *
 
 samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
+
+def samtools_faidx(fn):
+    
+    err_print("Faidx indexing")
+    subprocess.check_call([samtools_path, 'faidx', fn])
 
 def gunzip(fn):
 
@@ -275,15 +281,12 @@ def download_anno_topic_ensembl(args, config):
     gtfname = os.path.basename(gtf)
     gtfdir = _download_(config, rv, [(None, gtfname, 'ftp://'+eshost+'/'+gtf)])
     
-    import subprocess
     err_print("Unzipping genome")
     gunzip(genodir+'/'+genoname)
 
-    err_print("Faidx indexing")
-    subprocess.check_call([samtools_path,
-                           'faidx', genodir+'/'+genoname[:-3]])
+    samtools_faidx(genodir+'/'+genoname[:-3])
     config_set(config, rv, 'reference', genodir+'/'+genoname[:-3])
-    
+
     err_print("Indexing GTF")
     import localdb
     db = localdb.EnsemblDB()

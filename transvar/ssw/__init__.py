@@ -1,5 +1,5 @@
 import ctypes, os
-_DIRNAME=os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+_DIRNAME=os.path.abspath(os.path.dirname(__file__))
 ssw=ctypes.CDLL(os.path.join(_DIRNAME, '_sswlib.so'))
 
 class SSWAlign(ctypes.Structure):

@@ -861,8 +861,8 @@ void free_aln(SSWAlign *aln) {
 SSWAlign *aln(char *qseq, char *tseq) {
   int8_t *qseq2 = cstr_encode_nt256int8(qseq);
   int8_t *tseq2 = cstr_encode_nt256int8(tseq);
-  int qlen = strlen(qseq);
-  int tlen = strlen(tseq);
+  int qlen = (int) strlen(qseq);
+  int tlen = (int) strlen(tseq);
   s_align *a	= _ssw_align(qseq2, qlen, tseq2, tlen);
   SSWAlign *ssa = malloc(sizeof(SSWAlign));
   ssa->score	= a->score1;
@@ -892,8 +892,8 @@ s_align* _ssw_align_gap(int8_t *query_seq, int query_len, int8_t *ref_seq, int r
 SSWAlign *aln_gap(char *qseq, char *tseq) {
   int8_t *qseq2 = cstr_encode_nt256int8(qseq);
   int8_t *tseq2 = cstr_encode_nt256int8(tseq);
-  int qlen = strlen(qseq);
-  int tlen = strlen(tseq);
+  int qlen = (int) strlen(qseq);
+  int tlen = (int) strlen(tseq);
   s_align *a	= _ssw_align_gap(qseq2, qlen, tseq2, tlen);
   SSWAlign *ssa = malloc(sizeof(SSWAlign));
   ssa->score	= a->score1;
