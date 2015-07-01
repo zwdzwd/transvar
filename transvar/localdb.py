@@ -34,6 +34,7 @@ from utils import *
 from transcripts import *
 from cPickle import load, dump
 import faidx
+import tabix
 
 tabix_path = '%s/tabix' % os.path.abspath(os.path.dirname(__file__))
 bgzip_path = '%s/bgzip' % os.path.abspath(os.path.dirname(__file__))
@@ -110,7 +111,23 @@ class TransVarDB():
         t.gene_dbxref = fields[12]
         t.source = self.source
         return t
-        
+
+    def parse_all(self, name2gene, name2trnx):
+
+        self.dbfh.seek(0)
+        for line in self.dbfh:
+            fields = line.strip('\n').split('\t')
+            t = parse_trnx_loc(fields)
+            if t.gene_name in name2gene:
+                g = name2gene[t.gene_name]
+            else:
+                g = Gene(t.gene_name)
+                name2gene[t.gene_name] = g
+            g.link_t(t)
+            if t.name not in name2trnx:
+                name2trnx[t.name] = []
+            name2trnx[t.name].append(t)
+            
     def get_by_gene(self, name):
 
         if name in self.gene_idx:
@@ -147,14 +164,11 @@ class TransVarDB():
 
     def iloc_query(self, chrm, beg, end):
 
-        beg = max(0, beg)
-        end = min(end, faidx.refgenome.chrm2len(chrm))
-        return self.loc_idx.query(chrm, beg, end)
+        return tabix_query(self.loc_idx, chrm, beg, end)
 
     def get_by_loc(self, chrm, beg, end=None, flanking=0):
 
         """ get transcript if between begin and end """
-        import tabix
         if self.loc_idx is None:
             idx_fn = self.dbfn+'.loc_idx'
             if not os.path.exists(idx_fn):

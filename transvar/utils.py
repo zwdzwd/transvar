@@ -406,3 +406,13 @@ def double_trim(seq1, seq2):
 
     return (seq1, seq2, head_trim, tail_trim)
 
+def tabix_query(index, chrm, beg, end):
+
+    beg = max(0, beg)
+    # the following is necessary when the end is magnitudes greater
+    # than the chromosome length
+    # end = min(end, faidx.refgenome.chrm2len(normalize_chrm(chrm)))
+    try:
+        return index.query(chrm, beg, end)
+    except tabix.TabixError: # when the chromosome is unavailable
+        return []

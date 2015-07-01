@@ -29,7 +29,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.2.20150630](https://bitbucket.org/wanding/transvar/get/v2.1.2.20150630.zip)
+current stable version: [v2.1.3.20150630](https://bitbucket.org/wanding/transvar/get/v2.1.3.20150630.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -1432,7 +1432,6 @@ TransVar follows in full the HGVS nomenclature while annotating protein level mu
  + imprecise annotation
  + forward annotation of binding sites
  + forward annotation of structural variation breakpoints
- + begin codon and end codon in deletion
  + distinguish non-transcribable element and suppress promoter setting (like "retained intron")
 
 ## Bug report and feature request
@@ -1444,6 +1443,6 @@ Please direct any bugs to <zhouwanding@gmail.com>.
 submitted
 
 ## About
-This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at UT MD Anderson Cancer Center.
+This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at The University of Texas, MD Anderson Cancer Center.
 
 

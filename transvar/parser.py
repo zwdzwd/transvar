@@ -607,7 +607,6 @@ def parse_annotation(args):
     thash = THash()
     genes = set(name2gene.values())
     for g in genes:
-        invalid_tpts = []
         for t in g.tpts:
             t.exons.sort()
             if not (hasattr(t, 'cds_beg') and hasattr(t, 'cds_end')):
@@ -673,6 +672,7 @@ def parser_add_annotation(parser):
     #                     help='A customized transcript table with sequence (config key: custom)')
     parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
                         help='use uniprot ID rather than gene id (config key: uniprot)')
+    parser.add_argument('--mem', action='store_true', help='for processing large input, preload indices')
     parser.add_argument('--sql', action='store_true', help='SQL mode')
     parser.add_argument('--prombeg', type=int, default=1000, help='promoter starts from n1 bases upstream of transcription start site (default: n1=1000)')
     parser.add_argument('--promend', type=int, default=0, help='promoter ends extends to n2 bases downstream of transcription start site (default: n2=0)')

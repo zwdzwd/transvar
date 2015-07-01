@@ -48,7 +48,8 @@ class AnnoDB():
         
         faidx.init_refgenome(args.reference if args.reference else None)
         self.session = None
-        self.name2gene = None
+        self.name2gene = {}
+        self.name2trnx = {}
         self.thash = None
 
         self.dbs = []
@@ -78,6 +79,17 @@ class AnnoDB():
         self.resources = {}
         self.init_resource()
 
+        # The following in-memory processing is unfinished
+        if args.mem:
+            for db in self.dbs:
+                db.parse_all(self.name2gene, self.name2trnx)
+
+            self.thash = THash()
+            genes = set(name2gene.values())
+            for g in genes:
+                for t in g.tpts:
+                    self.thash.insert(t)
+
     def init_resource(self):
 
         for rname in ['dbsnp']:
@@ -91,7 +103,8 @@ class AnnoDB():
         dbsnps = []
         if 'dbsnp' in self.resources:
             if beg == end and (alt is None or len(alt)==1): # SNV
-                ret = self.resources['dbsnp'].query(normalize_chrm_dbsnp(chrm), int(beg), int(end))
+                ret = tabix_query(
+                    self.resources['dbsnp'], normalize_chrm_dbsnp(chrm), int(beg), int(end))
                 for fields in ret:
                     if int(fields[1]) != int(beg):
                         continue
@@ -106,7 +119,8 @@ class AnnoDB():
                     else:
                         dbsnps.append('%s(%s:%s%s>%s)' % (fields[2], chrm, fields[1], fields[3], alt))
             else:               # indels and mnv
-                ret = self.resources['dbsnp'].query(normalize_chrm_dbsnp(chrm), int(beg)-1, int(end))
+                ret = tabix_query(
+                    self.resources['dbsnp'], normalize_chrm_dbsnp(chrm), int(beg)-1, int(end))
                 for fields in ret:
                     if int(fields[1]) != int(beg)-1:
                         continue
