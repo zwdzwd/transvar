@@ -257,12 +257,14 @@ def download_anno_topic_ensembl(args, config):
 
     esroot = 'pub/release-%d/' % args.ensembl_release
     if args.refversion == 'DEFAULT':
-        err_print("")
         species = [os.path.basename(o) for o in ftp.nlst("%s/gtf/" % esroot)]
         for i, sp in enumerate(species):
             err_print('[%d] %s' % (i,sp))
-        choice = raw_input("Please choose your target taxon [%d homo_sapiens]: " % species.index("homo_sapiens"))
+        choice = raw_input("Please choose your target taxon [%d]: " % species.index("homo_sapiens"))
+        if not choice:
+            choice = species.index('homo_sapiens')
         choice = int(choice)
+        err_print("Preparing genomes and annotations for [%d] %s." % (choice, species[choice]))
         if int(choice) <= 0 or int(choice) >= len(species):
             err_die("Invalid choice.")
         rv = species[choice]
