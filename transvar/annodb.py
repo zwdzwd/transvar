@@ -80,6 +80,9 @@ class AnnoDB():
         self.init_resource()
 
         # The following in-memory processing is unfinished
+        # One needs to handle integratively transcript ID
+        # input and gene ID input. NOT necessary.
+        # The speed-up may not worth the effort.
         if args.mem:
             for db in self.dbs:
                 db.parse_all(self.name2gene, self.name2trnx)
