@@ -30,6 +30,7 @@ SOFTWARE.
 import sys
 import faidx
 from err import *
+import tabix
 
 MAXCHRMLEN=300000000
 def normalize_chrm(chrm):
