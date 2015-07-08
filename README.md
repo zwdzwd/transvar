@@ -29,7 +29,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.4.20150701](https://bitbucket.org/wanding/transvar/get/v2.1.4.20150701.zip)
+current stable version: [v2.1.5.20150708](https://bitbucket.org/wanding/transvar/get/v2.1.5.20150708.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -100,7 +100,7 @@ NM_006218.2:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
 
 #### install/specify reference genome assembly
 
-For some genome assembly we provide download via `transvar config --download_ref --refversion [reference name]`. See `transvar config -h` for all choices of `[reference name]`).
+For some genome assembly (currently hg18, hg19, hg38, mm9 and mm10) we provide download via `transvar config --download_ref --refversion [reference name]`. See `transvar config -h` for all choices of `[reference name]`).
 For other genome assemblies,one could download the genome and index it manually by, `transvar index --reference [fasta]`. Under the hood, TransVar uses the `samtools faidx`. So one could use any existing faidx indices without a glitch.
 Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome.
 
