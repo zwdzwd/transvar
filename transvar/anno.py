@@ -111,6 +111,16 @@ def _main_core_(args, q, db, at):
         else:
             raise Exception('mutation type inference error for %s' % q.op)
 
+def _main_(args, q, db, at):
+
+    try:
+        return _main_core_(args,q,db,at)
+    except WrongReferenceError as e:
+        err_warn('Incompatible reference: %s' % e.wrongref)
+        r = Record()
+        r.append_info("incompatible_reference(%s)" % e.wrongref)
+        r.format(q.op)
+    return
     
 def main_list(args, db, at, mutation_parser):
 
@@ -118,13 +128,13 @@ def main_list(args, db, at, mutation_parser):
 
         if at == 'g':
             q.tok = normalize_chrm(q.tok)
-            _main_core_(args, q, db, at)
+            _main_(args, q, db, at)
         else:
             q.tok = q.tok.upper()
             genefound = False
             for q.gene in db.get_gene(q.tok):
                 genefound = True
-                _main_core_(args, q, db, at)
+                _main_(args, q, db, at)
 
             if not genefound:
                 r = Record()
@@ -132,6 +142,7 @@ def main_list(args, db, at, mutation_parser):
                 err_warn('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
                 r.format(q.op)
                 continue
+            
         # try:
         # except:
         # err_print('exception %s' % line)
@@ -150,12 +161,12 @@ def main_one(args, db, at):
     q.op = args.i
     if at == 'g':
         q.tok = normalize_chrm(q.tok)
-        _main_core_(args, q, db, at)
+        _main_(args, q, db, at)
     else:
         q.tok = q.tok.upper()
         genefound = False
         for q.gene in db.get_gene(q.tok):
-            _main_core_(args, q, db, at)
+            _main_(args, q, db, at)
             genefound = True
 
         if not genefound:

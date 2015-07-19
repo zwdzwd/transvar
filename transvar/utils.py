@@ -138,7 +138,12 @@ def aafx(x, args):              # end codon
         return '*'
         
 def reflen(chrm):
-    return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
+    try:
+        return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
+    except KeyError:
+        e = WrongReferenceError()
+        e.wrongref = chrm
+        raise e
 
 def printseq(seq):
 
