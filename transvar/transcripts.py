@@ -1405,3 +1405,4 @@ class Region():
         self.name = name
         self.beg = beg
         self.end = end
+        self.unlocalized = False

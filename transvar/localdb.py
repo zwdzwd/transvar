@@ -549,10 +549,18 @@ class RefSeqDB(TransVarDB):
             if fields[2] == 'region':
                 if 'chromosome' in info:
                     reg = Region(info['chromosome'], int(fields[3]), int(fields[4]))
+
+                if 'map' in info and info['map']=='unlocalized':
+                    reg.unlocalized = True
+
                 # else:
                 # reg = None
             elif (reg and fields[2] == 'gene' and
                   ('pseudo' not in info or info['pseudo'] != 'true')):
+
+                if reg.unlocalized:
+                    continue
+
                 gene_name = info['Name'].upper()
                 if gene_name in self.name2gene:
                     g = self.name2gene[gene_name]
@@ -570,6 +578,9 @@ class RefSeqDB(TransVarDB):
 
             elif (fields[2] in ['mRNA', 'ncRNA', 'rRNA', 'tRNA']
                   and 'Parent' in info and info['Parent'] in id2ent):
+
+                if reg.unlocalized:
+                    continue
 
                 if fields[2] == 'mRNA':
                     fields[2] = 'protein_coding'
@@ -592,6 +603,10 @@ class RefSeqDB(TransVarDB):
                 cnt += 1
 
             elif fields[2] == 'exon' and info['Parent'] in id2ent:
+
+                if reg.unlocalized:
+                    continue
+
                 t = id2ent[info['Parent']]
                 if (isinstance(t, Gene)):
                     g = t
@@ -607,7 +622,12 @@ class RefSeqDB(TransVarDB):
                         cnt += 1
                     t = g.gene_t
                 t.exons.append((int(fields[3]), int(fields[4])))
+                
             elif fields[2] == 'CDS' and info['Parent'] in id2ent:
+
+                if reg.unlocalized:
+                    continue
+
                 t = id2ent[info['Parent']]
                 if (isinstance(t, Gene)):
                     g = t
@@ -907,7 +927,7 @@ def main_index(args):
         tid2uniprot = parser.parse_uniprot_mapping(args.uniprot)
         dump(tid2uniprot, open(args.uniprot+'.idx','w'), 2)
 
-    if args.reference:
+    if args.reference and args.reference != "_DEF_":
         import config
         config.samtools_faidx(args.reference)
 

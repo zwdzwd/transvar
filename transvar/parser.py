@@ -121,10 +121,16 @@ def parse_refseq_gff(gff_fn, name2gene):
         if fields[2] == 'region':
             if 'chromosome' in info:
                 reg = Region(info['chromosome'], int(fields[3]), int(fields[4]))
+            if 'map' in info and info['map']=='unlocalized':
+                reg.unlocalized = False
             # else:
             # reg = None
         elif (reg and fields[2] == 'gene' and
               ('pseudo' not in info or info['pseudo'] != 'true')):
+
+            if reg.unlocalized:
+                continue
+
             gene_name = info['Name'].upper()
             if gene_name in name2gene:
                 g = name2gene[gene_name]
@@ -143,6 +149,9 @@ def parse_refseq_gff(gff_fn, name2gene):
         elif (fields[2] in ['mRNA', 'ncRNA', 'rRNA', 'tRNA']
               and 'Parent' in info and info['Parent'] in id2ent):
 
+            if reg.unlocalized:
+                continue
+            
             if fields[2] == 'mRNA':
                 fields[2] = 'protein_coding'
             if fields[2] == 'ncRNA' and 'ncrna_class' in info:
@@ -160,6 +169,10 @@ def parse_refseq_gff(gff_fn, name2gene):
             cnt += 1
             
         elif fields[2] == 'exon' and info['Parent'] in id2ent:
+
+            if reg.unlocalized:
+                continue
+
             t = id2ent[info['Parent']]
             if (isinstance(t, Gene)):
                 g = t
@@ -176,6 +189,10 @@ def parse_refseq_gff(gff_fn, name2gene):
                 t = g.gene_t
             t.exons.append((int(fields[3]), int(fields[4])))
         elif fields[2] == 'CDS' and info['Parent'] in id2ent:
+
+            if reg.unlocalized:
+                continue
+
             t = id2ent[info['Parent']]
             if (isinstance(t, Gene)):
                 g = t
