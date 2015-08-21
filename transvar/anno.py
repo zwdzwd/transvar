@@ -78,7 +78,7 @@ def _main_core_(args, q, db, at):
             tpts = [q.gene.longest_coding_tpt()]
         else:
             tpts = q.gene.coding_tpts()
-        
+
         if isinstance(q, QueryGENE):
             return annotate_gene(args, q, tpts, db)
         elif isinstance(q, QuerySNV):

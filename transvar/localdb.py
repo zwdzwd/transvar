@@ -415,6 +415,9 @@ class EnsemblDB(TransVarDB):
                     id2ent[tid] = Transcript(transcript_type=transcript_type)
                 t = id2ent[tid]
                 t.cds.append((int(fields[3]), int(fields[4])))
+                if 'protein_id' in info:
+                    if info['protein_id'] not in t.aliases:
+                        t.aliases.append(info['protein_id'])
 
         if not new_version:
             self.parse_raw0(gtf_fn)
@@ -643,6 +646,9 @@ class RefSeqDB(TransVarDB):
                         cnt += 1
                     t = g.gene_t
                 t.cds.append((int(fields[3]), int(fields[4])))
+                if 'protein_id' in info:
+                    if info['protein_id'] not in t.aliases:
+                        t.aliases.append(info['protein_id'])
 
         err_print("loaded %d transcripts from RefSeq GFF3 file." % cnt)
 

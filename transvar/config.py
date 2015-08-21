@@ -127,7 +127,7 @@ fns[('mm10', 'raw')] = [
 # build anno topics
 fns2 = []
 for (refv, topic), vs in fns.iteritems():
-    if topic == 'raw':
+    if topic == 'raw':          # convert all the raw files
         vs2 = []
         for k, fn, url in vs:
             if k is None:
@@ -147,6 +147,7 @@ for (refv, topic), vs in fns.iteritems():
                 vs2.append((None, afn, dwroot+afn))
 
         fns2.append(((refv, 'anno'), vs2))
+        
 for k, v in fns2:
     fns[k] = v
 

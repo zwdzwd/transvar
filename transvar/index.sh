@@ -1,4 +1,10 @@
 
+# Note for indexing
+for rv in hg19 hg18 hg38 mm10 mm9; do
+  transvar config --download_raw --refversion $rv;
+done
+
+cd transvar.download
 for f in *;do
   if [[ $f != *transvardb* ]]; then
     echo $f;

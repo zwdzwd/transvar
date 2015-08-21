@@ -91,9 +91,9 @@ def annotate_frameshift(args, q, tpts, db):
         r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.pos, q.pos+q.stop_index)
-        r.format(q.op)
         found = True
         format_one(r, rs, q, args)
+
     format_all(rs, q, args)
 
     if not found:
