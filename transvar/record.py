@@ -547,6 +547,8 @@ class Record():
                 self.append_info('dbxref=%s' % self.reg.t.gene_dbxref)
             if self.reg.t.aliases:
                 self.append_info('aliases=%s' % ','.join(self.reg.t.aliases))
+            if self.reg.t.source:
+                self.append_info('source=%s' % self.reg.t.source)
         
         return template.format(r=self, reg=self.reg.format(),
                                gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())

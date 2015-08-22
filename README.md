@@ -29,7 +29,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.6.20150821](https://bitbucket.org/wanding/transvar/get/v2.1.6.20150821.zip)
+current stable version: [v2.1.7.20150821](https://bitbucket.org/wanding/transvar/get/v2.1.7.20150821.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -79,11 +79,13 @@ outputs show two hits from the two databases, i.e., UCSC and CCDS.
 PIK3CA:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense;s
+   ource=UCSCRefGene
 PIK3CA:p.E545K	CCDS43171 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense;s
+   ource=CCDS
 ```
 One could provide input based on transcript ID, e.g `NM_006218.1:p.E545K` and TransVar would automatically restrict to the provided transcript.
 ```
@@ -95,7 +97,8 @@ outputs
 NM_006218.2:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense;s
+   ource=UCSCRefGene
 ```
 
 #### install/specify reference genome assembly
@@ -257,28 +260,28 @@ ENST00000286744|15:84442328|c.243G>A	ENST00000286744 (protein_coding)	ADAMTSL3	+
    chr15:g.84442327G>A/c.242G>A/p.W81*	cds_in_exon_4
    reference_codon=TGG;candidate_codons=TAA,TAG,TGA;candidate_snv_variants=chr15
    :g.84442328G>A;candidate_mnv_variants=chr15:g.84442327_84442328delGGinsAA;mis
-   sense;aliases=ENSP00000286744
+   sense;aliases=ENSP00000286744;source=Ensembl
 ENST00000286744|15:84442326|c.241T>C	ENST00000286744 (protein_coding)	ADAMTSL3	+
    chr15:g.84442326T>A/c.241T>A/p.W81R	cds_in_exon_4
    reference_codon=TGG;candidate_codons=AGG,AGA,CGA,CGC,CGG,CGT;candidate_snv_va
    riants=chr15:g.84442326T>C;candidate_mnv_variants=chr15:g.84442326_84442328de
    lTGGinsAGA,chr15:g.84442326_84442328delTGGinsCGA,chr15:g.84442326_84442328del
    TGGinsCGC,chr15:g.84442326_84442328delTGGinsCGT;missense;aliases=ENSP00000286
-   744
+   744;source=Ensembl
 ENST00000369038|1:150530513|c.2270G>A	ENST00000369038 (protein_coding)	ADAMTSL4	+
    chr1:g.150530513G>A/c.2270G>A/p.G757D	cds_in_exon_12
    reference_codon=GGT;candidate_codons=GAC,GAT;candidate_mnv_variants=chr1:g.15
-   0530513_150530514delGTinsAC;missense;aliases=ENSP00000358034
+   0530513_150530514delGTinsAC;missense;aliases=ENSP00000358034;source=Ensembl
 ENST00000338316|5:7802364|c.2662G>A	ENST00000338316 (protein_coding)	ADCY2	+
    chr5:g.7802364G>A/c.2662G>A/p.V888I	cds_in_exon_21
    reference_codon=GTC;candidate_codons=ATC,ATA,ATT;candidate_mnv_variants=chr5:
    g.7802364_7802366delGTCinsATA,chr5:g.7802364_7802366delGTCinsATT;missense;ali
-   ases=ENSP00000342952
+   ases=ENSP00000342952;source=Ensembl
 ENST00000338316|5:7802365|c.2663T>C	ENST00000338316 (protein_coding)	ADCY2	+
    chr5:g.7802365T>C/c.2663T>C/p.V888A	cds_in_exon_21
    reference_codon=GTC;candidate_codons=GCA,GCC,GCG,GCT;candidate_mnv_variants=c
    hr5:g.7802365_7802366delTCinsCA,chr5:g.7802365_7802366delTCinsCG,chr5:g.78023
-   65_7802366delTCinsCT;missense;aliases=ENSP00000342952
+   65_7802366delTCinsCT;missense;aliases=ENSP00000342952;source=Ensembl
 ```
 
 ---
@@ -302,7 +305,7 @@ $ transvar panno --ccds -i 'Q5VUM1:47' --uniprot
 #!text
 Q5VUM1:47	CCDS4972 (protein_coding)	C6ORF57	+
    chr6:g.71289191_71289193/c.139_141/p.47S	cds_in_exon_2
-   protein_sequence=S;cDNA_sequence=TCC;gDNA_sequence=TCC
+   protein_sequence=S;cDNA_sequence=TCC;gDNA_sequence=TCC;source=CCDS
 ```
 TransVar use a keyword extension `ref` in `Q5VUM1:p.47refS` to differentiate from the synonymous mutation `Q5VUM1:p.47S`. The former notation specifies that the reference protein sequence is `S` while the later specifies the target protein sequence is `S`.
 
@@ -319,7 +322,8 @@ $ transvar panno -i 'P28222:p.146_148refDRY' --uniprot --ccds
 #!text
 P28222:p.146_148refDRY	CCDS4986 (protein_coding)	HTR1B	-
    chr6:g.78172677_78172685/c.436_444/p.D146_Y148	cds_in_exon_1
-   protein_sequence=DRY;cDNA_sequence=GACCGCTAC;gDNA_sequence=GTAGCGGTC
+   protein_sequence=DRY;cDNA_sequence=GACCGCTAC;gDNA_sequence=GTAGCGGTC;source=C
+   CDS
 ```
 One can also use wildcard `x` (lowercase) in the motif.
 ```
@@ -330,7 +334,8 @@ $ transvar panno -i 'HTR1B:p.365_369refNPxxY' --ccds
 #!text
 HTR1B:p.365_369refNPxxY	CCDS4986 (protein_coding)	HTR1B	-
    chr6:g.78172014_78172028/c.1093_1107/p.N365_Y369	cds_in_exon_1
-   protein_sequence=NPIIY;cDNA_sequence=AAC..TAT;gDNA_sequence=ATA..GTT
+   protein_sequence=NPIIY;cDNA_sequence=AAC..TAT;gDNA_sequence=ATA..GTT;source=C
+   CDS
 ```
 ---
 #### reverse annotation of protein range
@@ -344,7 +349,8 @@ outputs
 #!text
 ABCB11:p.200_400	CCDS46444 (protein_coding)	ABCB11	-
    chr2:g.169833195_169851872/c.598_1200/p.T200_K400	cds_in_exons_[6,7,8,9,10,11]
-   protein_sequence=TRF..DRK;cDNA_sequence=ACA..AAA;gDNA_sequence=TTT..TGT
+   protein_sequence=TRF..DRK;cDNA_sequence=ACA..AAA;gDNA_sequence=TTT..TGT;sourc
+   e=CCDS
 ```
 
 ---
@@ -362,7 +368,7 @@ PIK3CA:p.E545K	ENST00000263967 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
    8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense;a
-   liases=ENSP00000263967
+   liases=ENSP00000263967;source=Ensembl
 ```
 
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
@@ -377,6 +383,7 @@ ACSL4:p.R133R	CCDS14548 (protein_coding)	ACSL4	-
    reference_codon=CGC;candidate_codons=AGG,AGA,CGA,CGG,CGT;candidate_snv_varian
    ts=chrX:g.108926078G>C,chrX:g.108926078G>A;candidate_mnv_variants=chrX:g.1089
    26078_108926080delGCGinsCCT,chrX:g.108926078_108926080delGCGinsTCT;synonymous
+   ;source=CCDS
 ```
 In those cases, TransVar prioritizes all the candidate base changes by minimizing the edit distance between the reference codon sequence and the target codon sequence. One of the optimal base changes is arbitrarily chosen as the default and all the candidates are included in the appended `CddMuts` entry.
 
@@ -400,7 +407,7 @@ A1CF:p.A309A	CCDS7243 (protein_coding)	A1CF	-
    chr10:g.52576004T>G/c.927A>C/p.A309A	cds_in_exon_7
    reference_codon=GCA;candidate_codons=GCC,GCG,GCT;candidate_snv_variants=chr10
    :g.52576004T>C,chr10:g.52576004T>A;dbsnp=rs201831949(chr10:52576004T>G);synon
-   ymous
+   ymous;source=CCDS
 ```
 Note that in order to use dbSNP, one must download the dbSNP database through `transvar config --download_dbsnp`, or by configure the `dbsnp` slot in the configure file via `transvar config -k dbsnp -v [path to dbSNP VCF]`. Manually set path for dbSNP file must have the file tabix indexed.
 
@@ -420,7 +427,7 @@ outputs
 PIK3CA:c.1633G>A	CCDS43171 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
    dbsnp=rs104886003(chr3:178936091G>A);missense;reference_codon=GAG;alternative
-   _codon=AAG
+   _codon=AAG;source=CCDS
 ```
 
 The SNV can be in the intronic region, e.g.,
@@ -433,7 +440,7 @@ outputs
 #!text
 ABCB11:c.1198-8C>A	CCDS46444 (protein_coding)	ABCB11	-
    chr2:g.169833205G>T/c.1198-8C>A/.	intron_between_exon_10_and_11
-   .
+   source=CCDS
 ```
 ---
 
@@ -448,7 +455,7 @@ outputs
 #!text
 ABCB11:c.1198-8_1202	CCDS46444 (protein_coding)	ABCB11	-
    chr2:g.169833193_169833205GGTTTCTGGAGTG/c.1198-8_1202CACTCCAGAAACC/p.400_401KP	from_[cds_in_exon_11]_to_[intron_between_exon_10_and_11]
-   acceptor_splice_site_on_exon_11_at_chr2:169833198_included
+   acceptor_splice_site_on_exon_11_at_chr2:169833198_included;source=CCDS
 ```
 
 ---
@@ -468,19 +475,19 @@ ACIN1:c.1932_1933insATTCAC	CCDS9587 (protein_coding)	ACIN1	-
    left_align_gDNA=g.23548785_23548786insGTGAAT;unalign_gDNA=g.23548785_23548786
    insGTGAAT;insertion_gDNA=GTGAAT;left_align_cDNA=c.1932_1933insATTCAC;unalign_
    cDNA=c.1932_1933insATTCAC;insertion_cDNA=ATTCAC;left_align_protein=p.R644_S64
-   5insIH;unalign_protein=p.R644_S645insIH;phase=0
+   5insIH;unalign_protein=p.R644_S645insIH;phase=0;source=CCDS
 ACIN1:c.1932_1933insATTCAC	CCDS53889 (protein_coding)	ACIN1	-
    chr14:g.23548157_23548158insGTGAAT/c.1932_1933insATTCAC/p.P644_V645insIH	inside_[cds_in_exon_6]
    left_align_gDNA=g.23548157_23548158insGTGAAT;unalign_gDNA=g.23548157_23548158
    insGTGAAT;insertion_gDNA=GTGAAT;left_align_cDNA=c.1932_1933insATTCAC;unalign_
    cDNA=c.1932_1933insATTCAC;insertion_cDNA=ATTCAC;left_align_protein=p.P644_V64
-   5insIH;unalign_protein=p.P644_V645insIH;phase=0
+   5insIH;unalign_protein=p.P644_V645insIH;phase=0;source=CCDS
 ACIN1:c.1932_1933insATTCAC	CCDS55905 (protein_coding)	ACIN1	-
    chr14:g.23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH	inside_[cds_in_exon_6]
    left_align_gDNA=g.23548785_23548786insGTGAAT;unalign_gDNA=g.23548785_23548786
    insGTGAAT;insertion_gDNA=GTGAAT;left_align_cDNA=c.1932_1933insATTCAC;unalign_
    cDNA=c.1932_1933insATTCAC;insertion_cDNA=ATTCAC;left_align_protein=p.R644_S64
-   5insIH;unalign_protein=p.R644_S645insIH;phase=0
+   5insIH;unalign_protein=p.R644_S645insIH;phase=0;source=CCDS
 ```
 `Phase = 0,1,2` indicates whether the insertion happen after the 3rd, 1st or 2nd base of a codon, respectively. An insertion *in phase* refers to one with `Phase=0`.
 
@@ -496,19 +503,19 @@ ACIN1:c.1930_1931insATTCAC	CCDS9587 (protein_coding)	ACIN1	-
    left_align_gDNA=g.23548787_23548788insGTGAAT;unalign_gDNA=g.23548787_23548788
    insGTGAAT;insertion_gDNA=TGTGAA;left_align_cDNA=c.1925_1926insTTCACA;unalign_
    cDNA=c.1930_1931insATTCAC;insertion_cDNA=ATTCAC;left_align_protein=p.R642_S64
-   3insSH;unalign_protein=p.S643_R644insHS;phase=1
+   3insSH;unalign_protein=p.S643_R644insHS;phase=1;source=CCDS
 ACIN1:c.1930_1931insATTCAC	CCDS53889 (protein_coding)	ACIN1	-
    chr14:g.23548162_23548163insAATGTG/c.1930_1931insATTCAC/p.P643_P644insHS	inside_[cds_in_exon_6]
    left_align_gDNA=g.23548159_23548160insGTGAAT;unalign_gDNA=g.23548159_23548160
    insGTGAAT;insertion_gDNA=AATGTG;left_align_cDNA=c.1927_1928insCACATT;unalign_
    cDNA=c.1930_1931insATTCAC;insertion_cDNA=ATTCAC;left_align_protein=p.P643_P64
-   4insHS;unalign_protein=p.P643_P644insHS;phase=1
+   4insHS;unalign_protein=p.P643_P644insHS;phase=1;source=CCDS
 ACIN1:c.1930_1931insATTCAC	CCDS55905 (protein_coding)	ACIN1	-
    chr14:g.23548792_23548793insTGTGAA/c.1930_1931insATTCAC/p.S643_R644insHS	inside_[cds_in_exon_6]
    left_align_gDNA=g.23548787_23548788insGTGAAT;unalign_gDNA=g.23548787_23548788
    insGTGAAT;insertion_gDNA=TGTGAA;left_align_cDNA=c.1925_1926insTTCACA;unalign_
    cDNA=c.1930_1931insATTCAC;insertion_cDNA=ATTCAC;left_align_protein=p.R642_S64
-   3insSH;unalign_protein=p.S643_R644insHS;phase=1
+   3insSH;unalign_protein=p.S643_R644insHS;phase=1;source=CCDS
 ```
 Reverse annotation can result in different identifiers after left/right alignments, e.g., 
 ```
@@ -522,7 +529,7 @@ AATK:c.3976_3977insCGCCCA	CCDS45807 (protein_coding)	AATK	-
    left_align_gDNA=g.79093270_79093271insGGGCGT;unalign_gDNA=g.79093282_79093287
    dupTGGGCG;insertion_gDNA=TGGGCG;left_align_cDNA=c.3976_3977insCGCCCA;unalign_
    cDNA=c.3976_3977insCGCCCA;insertion_cDNA=ACGCCC;left_align_protein=p.A1326_P1
-   327insPT;unalign_protein=p.A1326_P1327insPT;phase=1
+   327insPT;unalign_protein=p.A1326_P1327insPT;phase=1;source=CCDS
 ```
 Note how insertion switch to duplication when 5'flanking is identical. This conforms to HGVS recommendation to replace insertion notation with duplication when possible.
 
@@ -538,12 +545,12 @@ AAAS:c.1225_1226insG	CCDS8856 (protein_coding)	AAAS	-
    chr12:g.53702093dupC/c.1225dupG/p.E409Gfs*17	inside_[cds_in_exon_13]
    left_align_gDNA=g.53702089_53702090insC;unalign_gDNA=g.53702089_53702090insC;
    insertion_gDNA=C;left_align_cDNA=c.1221_1222insG;unalign_cDNA=c.1225dupG;inse
-   rtion_cDNA=G
+   rtion_cDNA=G;source=CCDS
 AAAS:c.1225_1226insG	CCDS53797 (protein_coding)	AAAS	-
    chr12:g.53701842_53701843insC/c.1225_1226insG/p.L409Rfs*54	inside_[cds_in_exon_13]
    left_align_gDNA=g.53701842_53701843insC;unalign_gDNA=g.53701842_53701843insC;
    insertion_gDNA=C;left_align_cDNA=c.1225_1226insG;unalign_cDNA=c.1225_1226insG
-   ;insertion_cDNA=G
+   ;insertion_cDNA=G;source=CCDS
 ```
 
 Example: to annotate an **intronic insertion**,
@@ -558,7 +565,7 @@ ADAM33:c.991-3_991-2insC	CCDS13058 (protein_coding)	ADAM33	-
    chr20:g.3654151dupG/c.991-3dupC/.	inside_[intron_between_exon_10_and_11]
    left_align_gDNA=g.3654145_3654146insG;unalign_gDNA=g.3654145_3654146insG;inse
    rtion_gDNA=G;left_align_cDNA=c.991-9_991-8insC;unalign_cDNA=c.991-3dupC;inser
-   tion_cDNA=C
+   tion_cDNA=C;source=CCDS
 ```
 In the case of intronic insertions, amino acid identifier is not applicable, represented in a `.`. But cDNA and gDNA identifier are right-aligned according to their natural order, respecting HGVS nomenclature.
 
@@ -574,7 +581,7 @@ ADAM33:c.991_992insC	CCDS13058 (protein_coding)	ADAM33	-
    chr20:g.3654142_3654143insG/c.991_992insC/.	inside_[cds_in_exon_11]
    left_align_gDNA=g.3654142_3654143insG;unalign_gDNA=g.3654142_3654143insG;inse
    rtion_gDNA=G;left_align_cDNA=c.991_992insC;unalign_cDNA=c.991_992insC;inserti
-   on_cDNA=C;acceptor_splice_site_on_exon_11_at_chr20:3654144
+   on_cDNA=C;acceptor_splice_site_on_exon_11_at_chr20:3654144;source=CCDS
 ```
 
 ---
@@ -594,7 +601,7 @@ A4GNT:c.694_696delTTG	CCDS3097 (protein_coding)	A4GNT	-
    left_align_gDNA=g.137843433_137843435delCAA;unaligned_gDNA=g.137843433_137843
    435delCAA;left_align_cDNA=c.692_694delTGT;unalign_cDNA=c.694_696delTTG;left_a
    lign_protein=p.L232delL;unalign_protein=p.L232delL;deletion_gDNA=ACA;deletion
-   _cDNA=TTG
+   _cDNA=TTG;source=CCDS
 ```
 
 Example: to annotate a **in-frame, out-of-phase deletion**,
@@ -608,7 +615,7 @@ ABHD15:c.431_433delGTG	CCDS32602 (protein_coding)	ABHD15	-
    chr17:g.27893552_27893554delCAC/c.431_433delGTG/p.C144_V145delinsF	inside_[cds_in_exon_1]
    left_align_gDNA=g.27893552_27893554delCAC;unaligned_gDNA=g.27893552_27893554d
    elCAC;left_align_cDNA=c.431_433delGTG;unalign_cDNA=c.431_433delGTG;deletion_g
-   DNA=CAC;deletion_cDNA=GTG
+   DNA=CAC;deletion_cDNA=GTG;source=CCDS
 ```
 
 Example: to annotate a **frame-shift deletion**,
@@ -621,7 +628,7 @@ $ transvar canno --ccds -i 'AADACL3:c.374delG'
 AADACL3:c.374delG	CCDS41252 (protein_coding)	AADACL3	+
    chr1:g.12785494delG/c.374delG/p.C125Ffs*17	cds_in_exon_3
    left_align_gDNA=g.12785494delG;unaligned_gDNA=g.12785494delG;left_align_cDNA=
-   c.374delG;unalign_cDNA=c.374delG;deletion_gDNA=G;deletion_cDNA=G
+   c.374delG;unalign_cDNA=c.374delG;deletion_gDNA=G;deletion_cDNA=G;source=CCDS
 ```
 
 Example: to annotate a **deletion that span from intronic to coding region**, protein prediction is suppressed due to loss of splice site.
@@ -636,7 +643,7 @@ ABCB11:c.1198-8_1199delcactccagAA	CCDS46444 (protein_coding)	ABCB11	-
    left_align_gDNA=g.169833196_169833205delTTCTGGAGTG;unaligned_gDNA=g.169833196
    _169833205delTTCTGGAGTG;left_align_cDNA=c.1198-8_1199delCACTCCAGAA;unalign_cD
    NA=c.1198-8_1199delCACTCCAGAA;acceptor_splice_site_on_exon_11_at_chr2:1698331
-   98_lost;deletion_gDNA=TTCTGGAGTG;deletion_cDNA=CACTCCAGAA
+   98_lost;deletion_gDNA=TTCTGGAGTG;deletion_cDNA=CACTCCAGAA;source=CCDS
 ```
 
 ---
@@ -652,13 +659,13 @@ $ transvar canno --ccds -i 'A1CF:c.508_509delinsTT'
 #!text
 A1CF:c.508_509delinsTT	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 A1CF:c.508_509delinsTT	CCDS7242 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 A1CF:c.508_509delinsTT	CCDS7243 (protein_coding)	A1CF	-
    chr10:g.52595953_52595954delinsAA/c.508_509delinsTT/p.G170F	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 ```
 
 Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion, where protein alternative alignment should be reported.
@@ -671,7 +678,7 @@ $ transvar canno --ccds -i 'CSRNP1:c.1212_1224delinsGGAGGAGGAA'
 CSRNP1:c.1212_1224delinsGGAGGAGGAA	CCDS2682 (protein_coding)	CSRNP1	-
    chr3:g.39185092_39185104delinsTTCCTCCTCC/c.1212_1224delinsGGAGGAGGAA/p.E411delE	inside_[cds_in_exon_4]
    begin_codon_cDNA=1210-1211-1212;end_codon_cDNA=1222-1223-1224;left_align_prot
-   ein=p.E405delE;unalign_protein=p.E408delE
+   ein=p.E405delE;unalign_protein=p.E408delE;source=CCDS
 ```
 
 Likewise, block substitution could occur to **intronic region**,
@@ -683,7 +690,7 @@ $ transvar canno --ccds -i 'A1CF:c.1460+2_1460+3delinsCC'
 #!text
 A1CF:c.1460+2_1460+3delinsCC	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52570797_52570798delinsGG/c.1460+2_1460+3delinsCC/.	inside_[intron_between_exon_9_and_10]
-   .
+   source=CCDS
 ```
 
 When block substitution occurs **across splice site**, TransVar put a tag in the info fields and does not predict amino acid change.
@@ -695,7 +702,7 @@ $ transvar canno --ccds -i 'A1CF:c.1459_1460+3delinsCC'
 #!text
 A1CF:c.1459_1460+3delinsCC	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52570797_52570801delinsGG/c.1459_1460+3delinsCC/.	from_[intron_between_exon_9_and_10]_to_[cds_in_exon_9]
-   donor_splice_site_on_exon_9_at_chr10:52570799
+   donor_splice_site_on_exon_9_at_chr10:52570799;source=CCDS
 ```
 
 ---
@@ -717,7 +724,7 @@ CHD7:c.1669_1674dup	CCDS47865 (protein_coding)	CHD7	+
    left_align_gDNA=g.61693561_61693562insTCCCCG;unalign_gDNA=g.61693562_61693567
    dupTCCCCG;insertion_gDNA=CCCGTC;left_align_cDNA=c.1668_1669insTCCCCG;unalign_
    cDNA=c.1669_1674dupTCCCCG;insertion_cDNA=CCCGTC;left_align_protein=p.H556_S55
-   7insSP;unalign_protein=p.S557_P558dupSP;phase=0
+   7insSP;unalign_protein=p.S557_P558dupSP;phase=0;source=CCDS
 ```
 
 Example: a duplication on the nucleotide level may lead to frame-shift or block substitution on the amino acid level,
@@ -731,7 +738,7 @@ CHD7:c.1668_1669dup	CCDS47865 (protein_coding)	CHD7	+
    chr8:g.61693561_61693562dupTT/c.1668_1669dup/p.S557Ffs*8	inside_[cds_in_exon_2]
    left_align_gDNA=g.61693560_61693561insTT;unalign_gDNA=g.61693561_61693562dupT
    T;insertion_gDNA=TT;left_align_cDNA=c.1667_1668insTT;unalign_cDNA=c.1668_1669
-   dupTT;insertion_cDNA=TT
+   dupTT;insertion_cDNA=TT;source=CCDS
 ```
 
 Example: to annotate a duplication in intronic region,
@@ -745,7 +752,7 @@ CHD7:c.1666-5_1666-3dup	CCDS47865 (protein_coding)	CHD7	+
    chr8:g.61693554_61693556dupCTC/c.1666-5_1666-3dup/.	inside_[intron_between_exon_1_and_2]
    left_align_gDNA=g.61693553_61693554insCTC;unalign_gDNA=g.61693554_61693556dup
    CTC;insertion_gDNA=CTC;left_align_cDNA=c.1666-6_1666-5insCTC;unalign_cDNA=c.1
-   666-5_1666-3dupCTC;insertion_cDNA=CTC
+   666-5_1666-3dupCTC;insertion_cDNA=CTC;source=CCDS
 ```
 
 ---
@@ -761,7 +768,7 @@ $ transvar panno --ccds -i 'AATK:p.P1331_A1332insTP'
 AATK:p.P1331_A1332insTP	CCDS45807 (protein_coding)	AATK	-
    chr17:g.(79093267ins6)/c.(3997_3991ins6)/p.T1330_P1331dupTP	cds_in_exon_13
    left_align_protein=p.A1326_P1327insPT;unalign_protein=p.T1330_P1331dupTP;inse
-   rtion_cDNA=ACACCT;insertion_gDNA=AGGTGT;imprecise
+   rtion_cDNA=ACACCT;insertion_gDNA=AGGTGT;imprecise;source=CCDS
 ```
 
 #### reverse annotation of amino acid deletion
@@ -774,7 +781,7 @@ $ transvar panno --ccds -i 'AADACL4:p.W263_I267delWRDAI'
 AADACL4:p.W263_I267delWRDAI	CCDS30590 (protein_coding)	AADACL4	+
    chr1:g.12726309_12726323del/c.787_801del/p.W263_I267delWRDAI	inside_[cds_in_exon_4]
    left_align_protein=p.W263_I267delWRDAI;unalign_protein=p.W263_I267delWRDAI;im
-   precise
+   precise;source=CCDS
 ```
 
 #### reverse annotation of amino acid block substitution
@@ -786,7 +793,7 @@ $ transvar panno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
 #!text
 ABCC3:p.Y556_V557delinsRRR	CCDS32681 (protein_coding)	ABCC3	+
    chr17:g.48745254_48745259delinsAGGAGGAGG/c.1666_1671delinsAGGAGGAGG/p.Y556_V557delinsRRR	cds_in_exon_13
-   imprecise
+   imprecise;source=CCDS
 ```
 
 #### reverse annotation of amino acid frame-shift
@@ -800,7 +807,7 @@ $ transvar panno --ccds -i 'A1BG:p.G132fs*2'
 A1BG:p.G132fs*2	CCDS12976 (protein_coding)	A1BG	-
    chr19:g.58863868delC/c.395delG/p.G132fs*2	cds_in_exon_4
    left_align_cDNA=c.394delG;left_align_gDNA=g.58863867delC;candidates=g.5886387
-   3delG/c.393delC/g.58863869delG/c.389delC
+   3delG/c.393delC/g.58863869delG/c.389delC;source=CCDS
 ```
 
 TransVar can also take protein identifiers such as  as input. For example,
@@ -814,7 +821,7 @@ NP_006266.2:p.G240Afs*50	NM_006275 (protein_coding)	SRSF6	+
    chr20:g.42089385delA/c.717delA/p.G240Afs*50	cds_in_exon_6
    left_align_cDNA=c.714delA;left_align_gDNA=g.42089382delA;candidates=g.4208938
    7delG/c.719delG/g.42089386delG/c.718delG;dbxref=GeneID:6431,HGNC:10788,HPRD:0
-   9054,MIM:601944;aliases=NP_006266
+   9054,MIM:601944;aliases=NP_006266;source=RefSeq
 ```
 
 ---
@@ -943,7 +950,7 @@ outputs
 chr3:g.178936091G>A	CCDS43171 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_9
    dbsnp=rs104886003(chr3:178936091G>A);missense;codon_pos=178936091-178936092-1
-   78936093;ref_codon_seq=GAG
+   78936093;ref_codon_seq=GAG;source=CCDS
 ```
 
 Another example:
@@ -957,11 +964,11 @@ outputs
 chr9:g.135782704C>G	CCDS6956 (protein_coding)	TSC1	-
    chr9:g.135782704C>G/c.1317G>C/p.L439L	cds_in_exon_11
    dbsnp=rs770692313(chr9:135782704C>G);synonymous;codon_pos=135782704-135782705
-   -135782706;ref_codon_seq=CTG
+   -135782706;ref_codon_seq=CTG;source=CCDS
 chr9:g.135782704C>G	CCDS55350 (protein_coding)	TSC1	-
    chr9:g.135782704C>G/c.1164G>C/p.L388L	cds_in_exon_10
    dbsnp=rs770692313(chr9:135782704C>G);synonymous;codon_pos=135782704-135782705
-   -135782706;ref_codon_seq=CTG
+   -135782706;ref_codon_seq=CTG;source=CCDS
 ```
 
 
@@ -978,7 +985,7 @@ outputs
 chr3:g.178936091_178936192	CCDS43171 (protein_coding)	PIK3CA	+
    chr3:g.178936091_178936192/c.1633_1664+70/p.E545_R555	from_[cds_in_exon_9]_to_[intron_between_exon_9_and_10]
    donor_splice_site_on_exon_9_at_chr3:178936123_included;start_codon=178936091-
-   178936092-178936093;end_codon=178936121-178936122-178936984
+   178936092-178936093;end_codon=178936121-178936122-178936984;source=CCDS
 ```
 	
 Results indicates the beginning position is at coding region while ending position is at intronic region (c.1633_1664+70).
@@ -1034,15 +1041,18 @@ outputs
 chr2:g.234183368_234183380del	CCDS2502 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183380del13/c.841_853del13/p.T281Lfs*5	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.234183368_2341833
-   80del13;left_align_cDNA=c.840_852del13;unalign_cDNA=c.841_853del13
+   80del13;left_align_cDNA=c.840_852del13;unalign_cDNA=c.841_853del13;source=CCD
+   S
 chr2:g.234183368_234183380del	CCDS2503 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183380del13/c.898_910del13/p.T300Lfs*5	inside_[cds_in_exon_9]
    left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.234183368_2341833
-   80del13;left_align_cDNA=c.897_909del13;unalign_cDNA=c.898_910del13
+   80del13;left_align_cDNA=c.897_909del13;unalign_cDNA=c.898_910del13;source=CCD
+   S
 chr2:g.234183368_234183380del	CCDS54438 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183380del13/c.409_421del13/p.T137Lfs*5	inside_[cds_in_exon_5]
    left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.234183368_2341833
-   80del13;left_align_cDNA=c.408_420del13;unalign_cDNA=c.409_421del13
+   80del13;left_align_cDNA=c.408_420del13;unalign_cDNA=c.409_421del13;source=CCD
+   S
 ```
 Note the difference between left-aligned identifier and the right aligned identifier.
 
@@ -1058,17 +1068,17 @@ chr2:g.234183368_234183379del	CCDS2502 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183379del12/c.841_852del12/p.T281_G284delTHPG	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183367_234183378del12;unaligned_gDNA=g.234183368_2341833
    79del12;left_align_cDNA=c.840_851del12;unalign_cDNA=c.841_852del12;left_align
-   _protein=p.T281_G284delTHPG;unalign_protein=p.T281_G284delTHPG
+   _protein=p.T281_G284delTHPG;unalign_protein=p.T281_G284delTHPG;source=CCDS
 chr2:g.234183368_234183379del	CCDS2503 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183379del12/c.898_909del12/p.T300_G303delTHPG	inside_[cds_in_exon_9]
    left_align_gDNA=g.234183367_234183378del12;unaligned_gDNA=g.234183368_2341833
    79del12;left_align_cDNA=c.897_908del12;unalign_cDNA=c.898_909del12;left_align
-   _protein=p.T300_G303delTHPG;unalign_protein=p.T300_G303delTHPG
+   _protein=p.T300_G303delTHPG;unalign_protein=p.T300_G303delTHPG;source=CCDS
 chr2:g.234183368_234183379del	CCDS54438 (protein_coding)	ATG16L1	+
    chr2:g.234183368_234183379del12/c.409_420del12/p.T137_G140delTHPG	inside_[cds_in_exon_5]
    left_align_gDNA=g.234183367_234183378del12;unaligned_gDNA=g.234183368_2341833
    79del12;left_align_cDNA=c.408_419del12;unalign_cDNA=c.409_420del12;left_align
-   _protein=p.T137_G140delTHPG;unalign_protein=p.T137_G140delTHPG
+   _protein=p.T137_G140delTHPG;unalign_protein=p.T137_G140delTHPG;source=CCDS
 ```
 
 Another example
@@ -1083,12 +1093,12 @@ chr12:g.53703425_53703427del	CCDS8856 (protein_coding)	AAAS	-
    chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.G257delG	inside_[cds_in_exon_8]
    left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA=g.53703425_53703427d
    elCCC;left_align_cDNA=c.766_768delGGG;unalign_cDNA=c.768_770delGGG;left_align
-   _protein=p.G256delG;unalign_protein=p.G256delG
+   _protein=p.G256delG;unalign_protein=p.G256delG;source=CCDS
 chr12:g.53703425_53703427del	CCDS53797 (protein_coding)	AAAS	-
    chr12:g.53703427_53703429delCCC/c.670_672delGGG/p.G224delG	inside_[cds_in_exon_7]
    left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA=g.53703425_53703427d
    elCCC;left_align_cDNA=c.667_669delGGG;unalign_cDNA=c.669_671delGGG;left_align
-   _protein=p.G223delG;unalign_protein=p.G223delG
+   _protein=p.G223delG;unalign_protein=p.G223delG;source=CCDS
 ```
 Note the difference between left and right-aligned identifiers on both protein level and cDNA level.
 
@@ -1103,15 +1113,18 @@ outputs
 chr2:g.234183372_234183383del	CCDS2502 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.845_856del12/p.H282_G286delinsR	inside_[cds_in_exon_8]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
-   83del12;left_align_cDNA=c.845_856del12;unalign_cDNA=c.845_856del12
+   83del12;left_align_cDNA=c.845_856del12;unalign_cDNA=c.845_856del12;source=CCD
+   S
 chr2:g.234183372_234183383del	CCDS2503 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.902_913del12/p.H301_G305delinsR	inside_[cds_in_exon_9]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
-   83del12;left_align_cDNA=c.902_913del12;unalign_cDNA=c.902_913del12
+   83del12;left_align_cDNA=c.902_913del12;unalign_cDNA=c.902_913del12;source=CCD
+   S
 chr2:g.234183372_234183383del	CCDS54438 (protein_coding)	ATG16L1	+
    chr2:g.234183372_234183383del12/c.413_424del12/p.H138_G142delinsR	inside_[cds_in_exon_5]
    left_align_gDNA=g.234183372_234183383del12;unaligned_gDNA=g.234183372_2341833
-   83del12;left_align_cDNA=c.413_424del12;unalign_cDNA=c.413_424del12
+   83del12;left_align_cDNA=c.413_424del12;unalign_cDNA=c.413_424del12;source=CCD
+   S
 ```
 
 #### annotate an insertion from genomic location
@@ -1129,7 +1142,7 @@ chr2:g.69741762_69741763insTGC	CCDS1893 (protein_coding)	AAK1	-
    left_align_gDNA=g.69741762_69741763insTGC;unalign_gDNA=g.69741762_69741763ins
    TGC;insertion_gDNA=CTG;left_align_cDNA=c.1596_1597insCAG;unalign_cDNA=c.1614_
    1616dupGCA;insertion_cDNA=GCA;left_align_protein=p.Y532_Q533insQ;unalign_prot
-   ein=p.Q539dupQ;phase=2
+   ein=p.Q539dupQ;phase=2;source=CCDS
 ```
 Note the proper right-alignment of protein level insertion Q. The left-aligned identifier is also given in the `LEFTALN` field.
 
@@ -1145,7 +1158,7 @@ chr7:g.121753754_121753755insCA	CCDS5783 (protein_coding)	AASS	-
    chr7:g.121753754_121753755insCA/c.1064_1065insGT/p.I355Mfs*10	cds_in_exon_9
    left_align_gDNA=g.121753753_121753754insAC;unalign_gDNA=g.121753754_121753755
    insCA;insertion_gDNA=CA;left_align_cDNA=c.1063_1064insTG;unalign_cDNA=c.1063_
-   1064insTG;insertion_cDNA=GT
+   1064insTG;insertion_cDNA=GT;source=CCDS
 ```
 
 ```
@@ -1160,7 +1173,7 @@ chr17:g.79093270_79093271insGGGCGT	CCDS45807 (protein_coding)	AATK	-
    left_align_gDNA=g.79093270_79093271insGGGCGT;unalign_gDNA=g.79093270_79093271
    insGGGCGT;insertion_gDNA=TGGGCG;left_align_cDNA=c.3976_3977insCGCCCA;unalign_
    cDNA=c.3988_3993dupACGCCC;insertion_cDNA=ACGCCC;left_align_protein=p.A1326_P1
-   327insPT;unalign_protein=p.T1330_P1331dupTP;phase=0
+   327insPT;unalign_protein=p.T1330_P1331dupTP;phase=0;source=CCDS
 ```
 Notice the difference in the inserted sequence when left-alignment and right-alignment conventions are followed.
 
@@ -1176,7 +1189,7 @@ chr7:g.117230474_117230475insA	CCDS5773 (protein_coding)	CFTR	+
    chr7:g.117230479dupA/c.1752dupA/p.E585Rfs*4	cds_in_exon_13
    left_align_gDNA=g.117230474_117230475insA;unalign_gDNA=g.117230474_117230475i
    nsA;insertion_gDNA=A;left_align_cDNA=c.1747_1748insA;unalign_cDNA=c.1747_1748
-   insA;insertion_cDNA=A
+   insA;insertion_cDNA=A;source=CCDS
 ```
 Notice the right alignment of cDNA level insertion and the left alignment reported as additional information.
 
@@ -1192,7 +1205,7 @@ chr12:g.109702119_109702120insACC	CCDS31898 (protein_coding)	ACACB	+
    left_align_gDNA=g.109702118_109702119insCAC;unalign_gDNA=g.109702119_10970212
    0insACC;insertion_gDNA=ACC;left_align_cDNA=c.6869_6870insCAC;unalign_cDNA=c.6
    870_6871insACC;insertion_cDNA=ACC;left_align_protein=p.Y2290_H2291insT;unalig
-   n_protein=p.Y2290_H2291insT;phase=0
+   n_protein=p.Y2290_H2291insT;phase=0;source=CCDS
 ```
 
 #### annotate block substitution from genomic locations
@@ -1208,7 +1221,7 @@ chr10:g.27329002_27329002delinsAT	CCDS41499 (protein_coding)	ANKRD26	-
    chr10:g.27329009dupT/c.2266dupA/p.M756Nfs*6	cds_in_exon_21
    left_align_gDNA=g.27329002_27329003insT;unalign_gDNA=g.27329002_27329003insT;
    insertion_gDNA=T;left_align_cDNA=c.2259_2260insA;unalign_cDNA=c.2266dupA;inse
-   rtion_cDNA=A
+   rtion_cDNA=A;source=CCDS
 ```
 
 A block-substitution that is in-frame,
@@ -1220,13 +1233,13 @@ $ transvar ganno -i 'chr10:g.52595929_52595930delinsAA' --ccds
 #!text
 chr10:g.52595929_52595930delinsAA	CCDS7243 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.532_533delinsTT/p.P178L	inside_[cds_in_exon_4]
-   codon_cDNA=532-533-534
+   codon_cDNA=532-533-534;source=CCDS
 chr10:g.52595929_52595930delinsAA	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 chr10:g.52595929_52595930delinsAA	CCDS7242 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 ```
 
 #### annotate promoter region
@@ -1241,44 +1254,45 @@ $ transvar ganno -i 'chr19:g.41950335_41951908' --ensembl --prombeg 2000 --prome
 #!text
 chr19:g.41950335_41951908	ENSMUST00000167927 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.1071+3684_1071+5257/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-   whole_exon_[20]_included;aliases=ENSMUSP00000132483
+   whole_exon_[20]_included;aliases=ENSMUSP00000132483;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000171561 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1915+499_2016-252/p.E639_E672	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included;start_codon=41950753-41950752-41950083;end_codon=419
-   52407-41950851-41950850;aliases=ENSMUSP00000130900
+   52407-41950851-41950850;aliases=ENSMUSP00000130900;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000170209 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.2251+499_2352-252/.	from_[intron_between_exon_16_and_17]_to_[intron_between_exon_15_and_16]
-   whole_exon_[16]_included
+   whole_exon_[16]_included;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000163287 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1477+499_1578-252/p.E493_E526	from_[intron_between_exon_17_and_18]_to_[intron_between_exon_16_and_17]
    whole_exon_[17]_included;start_codon=41950753-41950752-41950083;end_codon=419
-   52407-41950851-41950850;aliases=ENSMUSP00000128653
+   52407-41950851-41950850;aliases=ENSMUSP00000128653;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000163398 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-   whole_exon_[19]_included;aliases=ENSMUSP00000126864
+   whole_exon_[19]_included;aliases=ENSMUSP00000126864;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000164776 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-   whole_exon_[19]_included;aliases=ENSMUSP00000129478
+   whole_exon_[19]_included;aliases=ENSMUSP00000129478;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000026168 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1786+499_1887-252/p.E596_E629	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
    whole_exon_[19]_included;start_codon=41950753-41950752-41950083;end_codon=419
-   52407-41950851-41950850;aliases=ENSMUSP00000026168
+   52407-41950851-41950850;aliases=ENSMUSP00000026168;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000166090 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.636+499_737-252/.	from_[intron_between_exon_7_and_8]_to_[intron_between_exon_6_and_7]
-   whole_exon_[7]_included;aliases=ENSMUSP00000131219
+   whole_exon_[7]_included;aliases=ENSMUSP00000131219;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000171755 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.1941+499_2042-252/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-   whole_exon_[20]_included
+   whole_exon_[20]_included;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000167820 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.179-1057_279-252/p.E60_E93	from_[intron_between_exon_3_and_4]_to_[intron_between_exon_2_and_3]
    whole_exon_[3]_included;start_codon=41950753-41950752-41950083;end_codon=4195
-   3669-41950851-41950850;aliases=ENSMUSP00000130399
+   3669-41950851-41950850;aliases=ENSMUSP00000130399;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000169775 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.522+11101_522+12674/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-   whole_exon_[20]_included;aliases=ENSMUSP00000128234
+   whole_exon_[20]_included;aliases=ENSMUSP00000128234;source=Ensembl
 chr19:g.41950335_41951908	ENSMUST00000166517 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.1-564_594-252/.	from_[intron_between_exon_1_and_2]_to_[intergenic_between_MMS19(564_bp_upstream)_and_MMS19(1,189_bp_downstream)]
    promoter_region_of_[MMS19]_overlaping_1565_bp(99.43%);whole_exon_[1]_included
+   ;source=Ensembl
 ```
 The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
 
@@ -1294,10 +1308,10 @@ results in
 #!text
 chr1:g.3985200_3985300	ENSMUST00000194643 (lincRNA)	RP23-333I7.1	-
    chr1:g.3985200_3985300/c.121_221/.	inside_[noncoding_exon_2]
-   .
+   source=GENCODE
 chr1:g.3985200_3985300	ENSMUST00000192427 (lincRNA)	RP23-333I7.1	-
    chr1:g.3985200_3985300/c.685_785/.	inside_[noncoding_exon_1]
-   .
+   source=GENCODE
 ```
 or
 ```
@@ -1309,34 +1323,34 @@ results in
 #!text
 chr14:g.20568338_20569581	NR_033571 (lncRNA)	1810062O18RIK	+
    chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
-   dbxref=GeneID:75602,MGI:MGI:1922852
+   dbxref=GeneID:75602,MGI:MGI:1922852;source=RefSeq
 chr14:g.20568338_20569581	XM_011245228 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.1357+667_1357+1910/.	inside_[intron_between_exon_6_and_7]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243530
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243530;source=RefSeq
 chr14:g.20568338_20569581	XM_011245226 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243528
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243528;source=RefSeq
 chr14:g.20568338_20569581	NM_030180 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=NP_084456
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=NP_084456;source=RefSeq
 chr14:g.20568338_20569581	XM_011245225 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243527
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243527;source=RefSeq
 chr14:g.20568338_20569581	XM_006519705 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519768
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519768;source=RefSeq
 chr14:g.20568338_20569581	XM_006519703 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519766
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519766;source=RefSeq
 chr14:g.20568338_20569581	XM_011245227 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243529
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243529;source=RefSeq
 chr14:g.20568338_20569581	XM_006519709 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519772
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519772;source=RefSeq
 chr14:g.20568338_20569581	XM_006519708 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519771
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519771;source=RefSeq
 ```
 
 or using Ensembl
@@ -1349,13 +1363,13 @@ results in
 #!text
 chr1:g.29560_29570	ENST00000488147 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.1_11/.	inside_[noncoding_exon_1]
-   promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%)
+   promoter_region_of_[WASH7P]_overlaping_1_bp(9.09%);source=Ensembl
 chr1:g.29560_29570	ENST00000538476 (unprocessed_pseudogene)	WASH7P	-
    chr1:g.29560_29570/c.237_247/.	inside_[noncoding_exon_1]
-   .
+   source=Ensembl
 chr1:g.29560_29570	ENST00000473358 (lincRNA)	MIR1302-10	+
    chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
-   .
+   source=Ensembl
 ```
 
 ### FAQ
@@ -1382,15 +1396,15 @@ leads to 2 snv and one insertion
 ```
 chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
    chr20:g.645098G>T/c.141C>A/p.A47A	cds_in_exon_2
-   synonymous;codon_pos=645098-645099-645100;ref_codon_seq=GCC
+   synonymous;codon_pos=645098-645099-645100;ref_codon_seq=GCC;source=CCDS
 chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
    chr20:g.645101_645102insA/c.137_138insT/p.A47Rfs*350	cds_in_exon_2
    left_align_gDNA=g.645101_645102insA;unalign_gDNA=g.645101_645102insA;insertio
    n_gDNA=A;left_align_cDNA=c.137_138insT;unalign_cDNA=c.137_138insT;insertion_c
-   DNA=T
+   DNA=T;source=CCDS
 chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
    chr20:g.645107T>A/c.134-2A>T/.	intron_between_exon_1_and_2
-   acceptor_splice_site_of_exon_1_at_chr20:645106
+   acceptor_splice_site_of_exon_1_at_chr20:645106;source=CCDS
 ```
 
 #### Can TransVar use 3-letter code instead of 1-letter code for protein?
@@ -1406,7 +1420,8 @@ $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 PIK3CA:p.Glu545Lys	CCDS43171 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.Glu545Lys	cds_in_exon_9
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense;s
+   ource=CCDS
 ```
 
 #### Can TransVar report results in one line for each query?
@@ -1427,10 +1442,10 @@ $ transvar canno --ccds -i 'A1CF:c.508_509CC>TT'
 ```
 A1CF:c.508_509CC>TT	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 A1CF:c.508_509CC>TT	CCDS7242 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
-   codon_cDNA=508-509-510
+   codon_cDNA=508-509-510;source=CCDS
 ```
 
 #### Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
