@@ -152,7 +152,12 @@ class TransVarDB():
                 yield g
 
         if nohit and lvl>0:
-            for g in self.get_by_alias(name):
+            _name = name
+            m = p_trxn_version.match(name)
+            if m:
+                _name = m.group(1)
+                
+            for g in self.get_by_alias(_name):
                 nohit = False
                 yield g
 
@@ -480,6 +485,9 @@ class EnsemblDB(TransVarDB):
                     t.source = 'Ensembl'
                     cnt += 1
                 t.cds.append((int(fields[3]), int(fields[4])))
+                if 'protein_id' in info:
+                    if info['protein_id'] not in t.aliases:
+                        t.aliases.append(info['protein_id'])
 
         for t in tid2transcript.values():
             t.exons.sort()
@@ -647,8 +655,13 @@ class RefSeqDB(TransVarDB):
                     t = g.gene_t
                 t.cds.append((int(fields[3]), int(fields[4])))
                 if 'protein_id' in info:
-                    if info['protein_id'] not in t.aliases:
-                        t.aliases.append(info['protein_id'])
+                    protein_id = info['protein_id']
+                    m = p_trxn_version.match(protein_id)
+                    if m:
+                        protein_id = m.group(1)
+                        protein_version = int(m.group(2)) # TODO: don't discard this info
+                    if protein_id not in t.aliases:
+                        t.aliases.append(protein_id)
 
         err_print("loaded %d transcripts from RefSeq GFF3 file." % cnt)
 
@@ -738,7 +751,7 @@ class GENCODEDB(TransVarDB):
             #     break
             if line.startswith('#'): continue
             fields = line.strip('\n').split('\t')
-            info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+            info = dict(re.findall(r'\s*([^";]*) "([^"]*)";', fields[8]))
             if fields[2] == 'gene':
                 gene_name = info['gene_name'].upper()
                 gid = info['gene_id']
@@ -777,6 +790,9 @@ class GENCODEDB(TransVarDB):
                 t.source = 'GENCODE'
                 id2ent[t.name] = t
                 cnt += 1
+                if 'protein_id' in info:
+                    if info['protein_id'] not in t.aliases:
+                        t.aliases.append(info['protein_id'])
             elif fields[2] == 'exon':
                 tid = info['transcript_id']
                 if tid not in id2ent:
@@ -790,6 +806,9 @@ class GENCODEDB(TransVarDB):
                 if tid not in id2ent: id2ent[tid] = Transcript()
                 t = id2ent[tid]
                 t.cds.append((int(fields[3]), int(fields[4])))
+                if 'protein_id' in info:
+                    if info['protein_id'] not in t.aliases:
+                        t.aliases.append(info['protein_id'])
 
         err_print("loaded %d transcripts from GENCODE GTF file." % cnt)
 
@@ -799,9 +818,7 @@ class UCSCRefGeneDB(TransVarDB):
         TransVarDB.__init__(self, dbfn)
 
     def parse_raw(self, map_file):
-
         """ start 1-based, end 1-based """
-
         cnt = 0
         for line in opengz(map_file):
             if line.startswith('#'): continue

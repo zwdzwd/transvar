@@ -1,8 +1,8 @@
-**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
+**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`, or NP_006266.2:p.G240Afs*50). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
 TransVar has the following features:
 
  + supports HGVS nomenclature
- + supports input from gene name, transcript ID, UniProt ID and other aliases.
+ + supports input from gene name, transcript ID, protein ID, UniProt ID and other aliases.
  + supports both left-alignment and right-alignment convention in reporting indels and duplications.
  + supports annotation of a region based on a transcript-dependent characterization
  + supports mutations at both coding region and intronic/UTR regions
@@ -29,7 +29,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.5.20150708](https://bitbucket.org/wanding/transvar/get/v2.1.5.20150708.zip)
+current stable version: [v2.1.6.20150821](https://bitbucket.org/wanding/transvar/get/v2.1.6.20150821.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -623,6 +623,16 @@ $ transvar panno --ccds -i 'ABCC3:p.Y556_V557delinsRRR'
 ```
 #!bash
 $ transvar panno --ccds -i 'A1BG:p.G132fs*2'
+```
+```
+#!text
+@
+```
+
+TransVar can also take protein identifiers such as  as input. For example,
+```
+#!bash
+$ transvar panno --refseq -i 'NP_006266.2:p.G240Afs*50'
 ```
 ```
 #!text

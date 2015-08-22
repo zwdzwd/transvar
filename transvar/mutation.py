@@ -170,13 +170,13 @@ def read_aa(aaseq):
 
 def _parse_protein_mutation(s):
 
-    m = re.match(r'(p\.)?([A-Za-z*?]*)(\d+)(_([A-Za-z*?]*)(\d+))?(del([^i][A-Za-z*?\d]*)?)?(ins([A-Za-z*?]+))?>?([A-Za-z*?]+)?(fs[\*Xx](\d+))?(ref([A-Za-zx*]*))?$', s)
+    m = re.match(r'(p\.)?([A-Za-z*?]*)(\d+)(_([A-Za-z*?]*)(\d+))?(del([^i][A-Za-z*?\d]*)?)?(ins([A-Za-z*?]+))?>?([A-Za-z*?]+)?(fs(Ter|[\*Xx])(\d+))?(ref([A-Za-zx*]*))?$', s)
 
     if not m:
         err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
 
     (_, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
-     _is_del, _d, _is_ins, _i, _alt, _is_fs, _stop_i, _has_ref, _ref) = m.groups()
+     _is_del, _d, _is_ins, _i, _alt, _is_fs, _haster, _stop_i, _has_ref, _ref) = m.groups()
 
     _beg_aa = read_aa(_beg_aa)
     _end_aa = read_aa(_end_aa)
@@ -206,6 +206,7 @@ def _parse_protein_mutation(s):
         q.pos = int(_beg_i)
         q.ref = _beg_aa
         q.alt = _alt
+
     elif _is_del and _is_ins:
         #print 'mnv'
         q = QueryMNV()

@@ -1,8 +1,8 @@
-**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
+**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`, or NP_006266.2:p.G240Afs*50). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
 TransVar has the following features:
 
  + supports HGVS nomenclature
- + supports input from gene name, transcript ID, UniProt ID and other aliases.
+ + supports input from gene name, transcript ID, protein ID, UniProt ID and other aliases.
  + supports both left-alignment and right-alignment convention in reporting indels and duplications.
  + supports annotation of a region based on a transcript-dependent characterization
  + supports mutations at both coding region and intronic/UTR regions
@@ -29,7 +29,7 @@ requires just Python 2.7.
 
 #### download the program
 
-current stable version: [v2.1.5.20150708](https://bitbucket.org/wanding/transvar/get/v2.1.5.20150708.zip)
+current stable version: [v2.1.6.20150821](https://bitbucket.org/wanding/transvar/get/v2.1.6.20150821.zip)
 
 For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -257,26 +257,28 @@ ENST00000286744|15:84442328|c.243G>A	ENST00000286744 (protein_coding)	ADAMTSL3	+
    chr15:g.84442327G>A/c.242G>A/p.W81*	cds_in_exon_4
    reference_codon=TGG;candidate_codons=TAA,TAG,TGA;candidate_snv_variants=chr15
    :g.84442328G>A;candidate_mnv_variants=chr15:g.84442327_84442328delGGinsAA;mis
-   sense
+   sense;aliases=ENSP00000286744
 ENST00000286744|15:84442326|c.241T>C	ENST00000286744 (protein_coding)	ADAMTSL3	+
    chr15:g.84442326T>A/c.241T>A/p.W81R	cds_in_exon_4
    reference_codon=TGG;candidate_codons=AGG,AGA,CGA,CGC,CGG,CGT;candidate_snv_va
    riants=chr15:g.84442326T>C;candidate_mnv_variants=chr15:g.84442326_84442328de
    lTGGinsAGA,chr15:g.84442326_84442328delTGGinsCGA,chr15:g.84442326_84442328del
-   TGGinsCGC,chr15:g.84442326_84442328delTGGinsCGT;missense
+   TGGinsCGC,chr15:g.84442326_84442328delTGGinsCGT;missense;aliases=ENSP00000286
+   744
 ENST00000369038|1:150530513|c.2270G>A	ENST00000369038 (protein_coding)	ADAMTSL4	+
    chr1:g.150530513G>A/c.2270G>A/p.G757D	cds_in_exon_12
    reference_codon=GGT;candidate_codons=GAC,GAT;candidate_mnv_variants=chr1:g.15
-   0530513_150530514delGTinsAC;missense
+   0530513_150530514delGTinsAC;missense;aliases=ENSP00000358034
 ENST00000338316|5:7802364|c.2662G>A	ENST00000338316 (protein_coding)	ADCY2	+
    chr5:g.7802364G>A/c.2662G>A/p.V888I	cds_in_exon_21
    reference_codon=GTC;candidate_codons=ATC,ATA,ATT;candidate_mnv_variants=chr5:
-   g.7802364_7802366delGTCinsATA,chr5:g.7802364_7802366delGTCinsATT;missense
+   g.7802364_7802366delGTCinsATA,chr5:g.7802364_7802366delGTCinsATT;missense;ali
+   ases=ENSP00000342952
 ENST00000338316|5:7802365|c.2663T>C	ENST00000338316 (protein_coding)	ADCY2	+
    chr5:g.7802365T>C/c.2663T>C/p.V888A	cds_in_exon_21
    reference_codon=GTC;candidate_codons=GCA,GCC,GCG,GCT;candidate_mnv_variants=c
    hr5:g.7802365_7802366delTCinsCA,chr5:g.7802365_7802366delTCinsCG,chr5:g.78023
-   65_7802366delTCinsCT;missense
+   65_7802366delTCinsCT;missense;aliases=ENSP00000342952
 ```
 
 ---
@@ -359,7 +361,8 @@ outputs
 PIK3CA:p.E545K	ENST00000263967 (protein_coding)	PIK3CA	+
    chr3:g.178936091G>A/c.1633G>A/p.E545K	cds_in_exon_10
    reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_variants=chr3:g.17
-   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense
+   8936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G>A);missense;a
+   liases=ENSP00000263967
 ```
 
 One may encounter **ambiguous cases** where the multiple substitutions exist in explaining the amino acid change. For example,
@@ -795,11 +798,23 @@ $ transvar panno --ccds -i 'A1BG:p.G132fs*2'
 ```
 #!text
 A1BG:p.G132fs*2	CCDS12976 (protein_coding)	A1BG	-
-   chr19:g.58863860-58863868/c.394-402/p.G132fs*2	cds_in_exon_4
-   imprecise
-A1BG:p.G132fs*2	CCDS12976 (protein_coding)	A1BG	-
-   chr19:g.58863860-58863868/c.394-402/p.G132fs*2	cds_in_exon_4
-   imprecise
+   chr19:g.58863868delC/c.395delG/p.G132fs*2	cds_in_exon_4
+   left_align_cDNA=c.394delG;left_align_gDNA=g.58863867delC;candidates=g.5886387
+   3delG/c.393delC/g.58863869delG/c.389delC
+```
+
+TransVar can also take protein identifiers such as  as input. For example,
+```
+#!bash
+$ transvar panno --refseq -i 'NP_006266.2:p.G240Afs*50'
+```
+```
+#!text
+NP_006266.2:p.G240Afs*50	NM_006275 (protein_coding)	SRSF6	+
+   chr20:g.42089385delA/c.717delA/p.G240Afs*50	cds_in_exon_6
+   left_align_cDNA=c.714delA;left_align_gDNA=g.42089382delA;candidates=g.4208938
+   7delG/c.719delG/g.42089386delG/c.718delG;dbxref=GeneID:6431,HGNC:10788,HPRD:0
+   9054,MIM:601944;aliases=NP_006266
 ```
 
 ---
@@ -1206,10 +1221,10 @@ $ transvar ganno -i 'chr10:g.52595929_52595930delinsAA' --ccds
 chr10:g.52595929_52595930delinsAA	CCDS7243 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.532_533delinsTT/p.P178L	inside_[cds_in_exon_4]
    codon_cDNA=532-533-534
-chr10:g.52595929_52595930delinsAA	CCDS7242 (protein_coding)	A1CF	-
+chr10:g.52595929_52595930delinsAA	CCDS7241 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
    codon_cDNA=508-509-510
-chr10:g.52595929_52595930delinsAA	CCDS7241 (protein_coding)	A1CF	-
+chr10:g.52595929_52595930delinsAA	CCDS7242 (protein_coding)	A1CF	-
    chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
    codon_cDNA=508-509-510
 ```
@@ -1226,41 +1241,41 @@ $ transvar ganno -i 'chr19:g.41950335_41951908' --ensembl --prombeg 2000 --prome
 #!text
 chr19:g.41950335_41951908	ENSMUST00000167927 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.1071+3684_1071+5257/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-   whole_exon_[20]_included
+   whole_exon_[20]_included;aliases=ENSMUSP00000132483
 chr19:g.41950335_41951908	ENSMUST00000171561 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1915+499_2016-252/p.E639_E672	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included;start_codon=41950753-41950752-41950083;end_codon=419
-   52407-41950851-41950850
+   52407-41950851-41950850;aliases=ENSMUSP00000130900
 chr19:g.41950335_41951908	ENSMUST00000170209 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.2251+499_2352-252/.	from_[intron_between_exon_16_and_17]_to_[intron_between_exon_15_and_16]
    whole_exon_[16]_included
 chr19:g.41950335_41951908	ENSMUST00000163287 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1477+499_1578-252/p.E493_E526	from_[intron_between_exon_17_and_18]_to_[intron_between_exon_16_and_17]
    whole_exon_[17]_included;start_codon=41950753-41950752-41950083;end_codon=419
-   52407-41950851-41950850
+   52407-41950851-41950850;aliases=ENSMUSP00000128653
 chr19:g.41950335_41951908	ENSMUST00000163398 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-   whole_exon_[19]_included
+   whole_exon_[19]_included;aliases=ENSMUSP00000126864
 chr19:g.41950335_41951908	ENSMUST00000164776 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-   whole_exon_[19]_included
+   whole_exon_[19]_included;aliases=ENSMUSP00000129478
 chr19:g.41950335_41951908	ENSMUST00000026168 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.1786+499_1887-252/p.E596_E629	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
    whole_exon_[19]_included;start_codon=41950753-41950752-41950083;end_codon=419
-   52407-41950851-41950850
+   52407-41950851-41950850;aliases=ENSMUSP00000026168
 chr19:g.41950335_41951908	ENSMUST00000166090 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.636+499_737-252/.	from_[intron_between_exon_7_and_8]_to_[intron_between_exon_6_and_7]
-   whole_exon_[7]_included
+   whole_exon_[7]_included;aliases=ENSMUSP00000131219
 chr19:g.41950335_41951908	ENSMUST00000171755 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.1941+499_2042-252/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
    whole_exon_[20]_included
 chr19:g.41950335_41951908	ENSMUST00000167820 (protein_coding)	MMS19	-
    chr19:g.41950335_41951908/c.179-1057_279-252/p.E60_E93	from_[intron_between_exon_3_and_4]_to_[intron_between_exon_2_and_3]
    whole_exon_[3]_included;start_codon=41950753-41950752-41950083;end_codon=4195
-   3669-41950851-41950850
+   3669-41950851-41950850;aliases=ENSMUSP00000130399
 chr19:g.41950335_41951908	ENSMUST00000169775 (nonsense_mediated_decay)	MMS19	-
    chr19:g.41950335_41951908/c.522+11101_522+12674/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-   whole_exon_[20]_included
+   whole_exon_[20]_included;aliases=ENSMUSP00000128234
 chr19:g.41950335_41951908	ENSMUST00000166517 (retained_intron)	MMS19	-
    chr19:g.41950335_41951908/c.1-564_594-252/.	from_[intron_between_exon_1_and_2]_to_[intergenic_between_MMS19(564_bp_upstream)_and_MMS19(1,189_bp_downstream)]
    promoter_region_of_[MMS19]_overlaping_1565_bp(99.43%);whole_exon_[1]_included
@@ -1297,31 +1312,31 @@ chr14:g.20568338_20569581	NR_033571 (lncRNA)	1810062O18RIK	+
    dbxref=GeneID:75602,MGI:MGI:1922852
 chr14:g.20568338_20569581	XM_011245228 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.1357+667_1357+1910/.	inside_[intron_between_exon_6_and_7]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243530
 chr14:g.20568338_20569581	XM_011245226 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243528
 chr14:g.20568338_20569581	NM_030180 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=NP_084456
 chr14:g.20568338_20569581	XM_011245225 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243527
 chr14:g.20568338_20569581	XM_006519705 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519768
 chr14:g.20568338_20569581	XM_006519703 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519766
 chr14:g.20568338_20569581	XM_011245227 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243529
 chr14:g.20568338_20569581	XM_006519709 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519772
 chr14:g.20568338_20569581	XM_006519708 (protein_coding)	USP54	-
    chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-   dbxref=GeneID:78787,MGI:MGI:1926037
+   dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519771
 ```
 
 or using Ensembl

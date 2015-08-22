@@ -224,7 +224,14 @@ def tnuc_region_in_intron(np, beg, end):
         return True
     if end.pos+1 == beg.pos and beg.tpos<0 and end.tpos>0:
         return True
+
     return False
+
+def psort(a,b):
+    if a>b:
+        return b,a
+    else:
+        return a,b
 
 def tnuc_range2gnuc_range_(np, tbeg, tend):
 

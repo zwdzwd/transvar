@@ -142,12 +142,12 @@ for (refv, topic), vs in fns.iteritems():
             vs2.append((None, afn, dwroot+afn))
             afn = fn+'.transvardb.loc_idx.tbi'
             vs2.append((None, afn, dwroot+afn))
-            if k.find('knowngene')>=0:
-                afn = fn+'.transvardb.alias_idx'
-                vs2.append((None, afn, dwroot+afn))
+            # if (k.find('knowngene')>=0 or k.find('refseq')>=0 or k.find('gencode')>=0 or k.find('ensembl')>=0):
+            afn = fn+'.transvardb.alias_idx'
+            vs2.append((None, afn, dwroot+afn))
 
         fns2.append(((refv, 'anno'), vs2))
-        
+
 for k, v in fns2:
     fns[k] = v
 
@@ -215,7 +215,8 @@ def _download_(config, section, fns):
                 if k:
                     config_set(config, section, k, fnn)
             except:
-                err_warn('file not available: %s or target directory not found' % url)
+                if not fn.endswith('_idx'): # sometimes some _idx will be missing
+                    err_warn('file not available: %s or target directory not found' % url)
 
         break
     return pdir
