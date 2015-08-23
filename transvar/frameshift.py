@@ -32,6 +32,8 @@ from utils import *
 from record import *
 from err import *
 
+import itertools
+
 def fuzzy_match_deletion(t, codon, q):
 
     matches = {}                # map right-aligned gDNA identifier to detailed information
@@ -87,6 +89,33 @@ def fuzzy_match_deletion(t, codon, q):
                         
     return matches
 
+def fuzzy_match_insertion(t, codon, q):
+
+    alphabets = 'ACGT'
+    matches = {}
+    for ds in [1,2]:            # insertion length
+        i = codon.index*3
+        for j in xrange(i, max(0, i-10), -1):
+            jb = j/3*3
+            old_seq = t.seq[jb:]
+            for _insseq in itertools.product(alphabets, repeat=ds):
+                insseq = ''.join(_insseq)
+                new_seq = t.seq[jb:j]+insseq+t.seq[j:]
+                ret = t.extend_taa_seq(j/3+1, old_seq, new_seq)
+                if ret:
+                    _taa_pos, _taa_ref, _taa_alt, _termlen = ret
+                    if (q.ref == _taa_ref and ((not q.alt) or q.alt == _taa_alt)
+                        and q.stop_index == int(_termlen) and q.pos == _taa_pos):
+                        t.ensure_position_array()
+                        gnuc_insseq = insseq if t.strand == '+' else reverse_complement(insseq)
+                        gnuc_ins = gnuc_set_ins_core(t.chrm, t.np[j], gnuc_insseq)
+                        tnuc_ins = tnuc_set_ins_core(gnuc_ins, t)
+                        matches[gnuc_ins.right_align()] = (
+                            gnuc_ins.left_align(),
+                            tnuc_ins.right_align(),
+                            tnuc_ins.left_align())
+                        
+    return matches
     
 def _annotate_frameshift(args, q, t):
 
@@ -124,6 +153,8 @@ def _annotate_frameshift(args, q, t):
     # print t.seq
 
     matches = fuzzy_match_deletion(t, codon, q)
+    if not matches:
+        matches = fuzzy_match_insertion(t, codon, q)
     if matches:
         gmatches = sorted(matches.keys())
         r.gnuc_range = gmatches[0]

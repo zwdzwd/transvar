@@ -1,4 +1,4 @@
-**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`, or NP_006266.2:p.G240Afs*50). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (from protein level to cDNA level).
+**TransVar** is a versatile annotator for 3-way conversion and annotation among genomic characterization(s) of mutations (e.g., `chr3:g.178936091G>A`) and transcript-dependent annotation(s) (e.g., `PIK3CA:p.E545K` or `PIK3CA:c.1633G>A`, or `NM_006218.2:p.E545K`, or NP_006266.2:p.G240Afs*50). It is particularly designed with the functionality of resolving ambiguous mutation annotations arising from differential transcript usage. TransVar keeps awareness of the underlying unknown transcript structure (exon boundary, reference amino acid/base) while performing reverse annotation (via fuzzy matching from protein level to cDNA level).
 TransVar has the following features:
 
  + supports HGVS nomenclature
@@ -25,13 +25,13 @@ TransVar has the following features:
 
 #### dependency
 
-requires just Python 2.7. 
+requires just Python 2.7 and a reasonably modern C compiler such as gcc.
 
 #### download the program
 
-current stable version: [v2.1.7.20150821](https://bitbucket.org/wanding/transvar/get/v2.1.7.20150821.zip)
+current stable version: [v2.1.8.20150823](https://bitbucket.org/wanding/transvar/get/v2.1.8.20150823.zip)
 
-For previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
+For all previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
 for also stable 2.0.x version:
 [v2.0.12.20150626](https://bitbucket.org/wanding/transvar/get/v2.0.12.20150626.zip)
@@ -52,7 +52,7 @@ sudo python setup.py install
 #!bash
 python setup.py install --prefix [folder]
 ```
-After install, there will be two subfolders in `[folder]/lib` (which would contain libraries) and `[folder]/bin` (which would contain transvar executable).
+The installation will create two subfolders of `[folder]`: `[folder]/lib` (which would contain libraries) and `[folder]/bin` (which would contain transvar executable).
 When you run transvar, make sure `[folder]/lib/python2.7/site-packages` is in your PYTHONPATH. In some occasions, you need to `mkdir -p [folder]/lib/python2.7/site-packages` to make sure it exists before you could run `setup.py`.
 You can add it by putting
 `export PYTHONPATH=$PYTHONPATH:[folder]/lib/python-2.7/site-packages/` to your `.bashrc` (or `.profile` depending on your OS).
@@ -638,6 +638,17 @@ $ transvar panno --refseq -i 'NP_006266.2:p.G240Afs*50'
 #!text
 @
 ```
+The output gives the exact details of the mutation on the DNA levels, properly right-aligned. The `candidates` fields also include other equally-likely mutation identifiers. `candidates` have the format `[right-align-gDNA]/[right-align-cDNA]/[left-align-gDNA]/[left-align-cDNA]` for each hit and `,` separation between hits. 
+
+Similar applies when the underlying mutation is an insertion. TransVar can infer insertion sequence of under 3 base pairs long. For example,
+```
+#!bash
+$ transvar panno -i 'AASS:p.I355Mfs*10' --ccds
+```
+```
+#!text
+@
+```
 
 ---
 
@@ -747,7 +758,6 @@ Results indicates the beginning position is at coding region while ending positi
 For intergenic sites, TransVar also reports the identity and distance to the gene upstream and downstream. For example, `chr6:116991832` is simply annotated as intergenic in the original annotation. TransVar reveals that it is 1,875 bp downstream to ZUFSP and 10,518 bp upstream to KPNA5 showing a vicinity to the gene ZUFSP. There is no limit in the reported distance. If a site is at the end of the chromosome, TransVar is able to report the distance to the telomere.
 
 #### annotate a long genomic region
-[back to top](#top)
 ```
 #!bash
 $ transvar ganno -i '9:g.133750356_137990357' --ccds
@@ -772,7 +782,6 @@ outputs
 ```
 
 #### annotate a deletion from genomic location
-[back to top](#top)
 
 A frameshift deletion
 ```

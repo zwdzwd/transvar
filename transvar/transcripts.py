@@ -1178,8 +1178,7 @@ class NucInsertion():
         else:
             return '%s_%sins%s' % (self.beg_l, self.end_l, self.insseq_l)
 
-
-def gnuc_set_ins(chrm, beg, insseq, r):
+def gnuc_set_ins_core(chrm, beg, insseq):
 
     i = NucInsertion()
     i.chrm = chrm
@@ -1213,7 +1212,12 @@ def gnuc_set_ins(chrm, beg, insseq, r):
     i.flank3_beg_l = i.end_l
     i.flank3_end_l = i.end_l+n-1
     i.flank3_l = faidx.getseq(chrm, i.flank3_beg_l, i.flank3_end_l)
+    
+    return i
 
+def gnuc_set_ins(chrm, beg, insseq, r):
+
+    i = gnuc_set_ins_core(chrm, beg, insseq)
     r.gnuc_range = i.right_align()
     r.append_info('left_align_gDNA=g.%s' % i.left_align())
     r.append_info('unalign_gDNA=g.%s' % i.unalign())
@@ -1221,7 +1225,7 @@ def gnuc_set_ins(chrm, beg, insseq, r):
 
     return i
 
-def tnuc_set_ins(gi, t, r, beg=None, end=None, insseq=None):
+def tnuc_set_ins_core(gi, t, beg=None, end=None, insseq=None):
 
     i = NucInsertion()
     i.chrm = gi.chrm
@@ -1310,10 +1314,16 @@ def tnuc_set_ins(gi, t, r, beg=None, end=None, insseq=None):
         _, i.flank3_beg_r = t.gpos2codon(gi.flank5_end_l)
         _, i.flank3_end_r = t.gpos2codon(gi.flank5_beg_l)
 
+    return i
+
+def tnuc_set_ins(gi, t, r, beg=None, end=None, insseq=None):
+
+    i = tnuc_set_ins_core(gi, t, beg, end, insseq)
     r.tnuc_range = i.right_align()
     r.append_info('left_align_cDNA=c.%s' % i.left_align())
     r.append_info('unalign_cDNA=c.%s' % i.unalign())
     r.append_info('insertion_cDNA='+i.insseq_r)
+
     return i
 
 def _old_tnuc_set_ins(r, t, p, tnuc_insseq):
