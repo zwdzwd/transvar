@@ -110,7 +110,7 @@ def main():
 
     setup(
         name = "TransVar",
-        version = "2.x",
+        version = "2.1.9",
         description = "Transcript-based Variant annotator",
         url = "https://bitbucket.org/wanding/transvar",
         author = "Wanding Zhou",
