@@ -185,11 +185,30 @@ def download_url(url, file_name):
         # status = r"downloaded %s (%1.1f MB) %10d [%3.2f%%]\033\[K" % (file_name, file_size, file_size_dl, file_size_dl * 100. / raw_file_size)
         # status = status + chr(8)*(len(status)+1)
         progress = float(file_size_dl)/raw_file_size
-        print '\r[%-20s] %1.0f%% %s (%1.1f MB)' % ('#'*int(progress*20), progress*100, file_name, file_size),
+        import sys
+        if sys.platform != 'darwin':
+            print '\r[%-20s] %1.0f%% %s (%1.1f MB)' % ('#'*int(progress*20), progress*100, file_name, file_size),
 
-    print
+    if sys.platform == 'darwin':
+        print '[downloaded] %s (%1.1f MB)' % (file_name, file_size)
+    else:
+        print
         
     f.close()
+
+def download_requests(url, file_name):
+
+    """ sometimes, urllib2 doesn't work, try requests """
+    import requests
+    r = requests.get(url, stream=True)
+    if r.status_code != 404:
+        with open(file_name,'wb') as fd:
+            n = 0
+            for chunk in r.iter_content(1e9):
+                n += len(chunk)
+                fd.write(chunk)
+
+        print '[downloaded] %s (%1.1f MB)' % (file_name, n/1000000.)
 
 def config_set(config, section, option, value):
 
@@ -209,14 +228,26 @@ def _download_(config, section, fns):
                 continue
 
         for k, fn, url in fns:
+            fnn = os.path.join(pdir, fn)
+            
+            success = True
             try:
-                fnn = os.path.join(pdir, fn)
                 download_url(url, fnn)
                 if k:
                     config_set(config, section, k, fnn)
             except:
                 if not fn.endswith('_idx'): # sometimes some _idx will be missing
-                    err_warn('file not available: %s or target directory not found' % url)
+                    success = False
+
+            if success:
+                continue
+            
+            try:
+                download_requests(url, fnn)
+                if k:
+                    config_set(config, section, k, fnn)
+            except:
+                err_warn('file not available: %s or target directory not found' % url)
 
         break
     return pdir
