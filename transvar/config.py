@@ -30,6 +30,7 @@ SOFTWARE.
 import ConfigParser
 import subprocess
 import os, sys
+import urllib2
 from err import *
 
 samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
@@ -161,10 +162,10 @@ for k, v in fns2:
 
 def download_url(url, file_name):
 
-    import urllib2
+    import ssl
     # file_name = url.split('/')[-1]
     # try:
-    u = urllib2.urlopen(url)
+    u = urllib2.urlopen(url, context=ssl._create_unverified_context())
     # except urllib2.URLError:
     # return
     f = open(file_name, 'wb')
@@ -175,6 +176,10 @@ def download_url(url, file_name):
 
     file_size_dl = 0
     block_sz = 8192*2
+    if sys.platform == 'darwin':
+        sys.stdout.write('[download] %s ...' % (file_name, ))
+        sys.stdout.flush()
+        
     while True:
         buffer = u.read(block_sz)
         if not buffer:
@@ -185,12 +190,11 @@ def download_url(url, file_name):
         # status = r"downloaded %s (%1.1f MB) %10d [%3.2f%%]\033\[K" % (file_name, file_size, file_size_dl, file_size_dl * 100. / raw_file_size)
         # status = status + chr(8)*(len(status)+1)
         progress = float(file_size_dl)/raw_file_size
-        import sys
         if sys.platform != 'darwin':
             print '\r[%-20s] %1.0f%% %s (%1.1f MB)' % ('#'*int(progress*20), progress*100, file_name, file_size),
 
     if sys.platform == 'darwin':
-        print '[downloaded] %s (%1.1f MB)' % (file_name, file_size)
+        print 'Done (%1.1f MB).' % (n/1000000., )
     else:
         print
         
@@ -245,7 +249,7 @@ def _download_(config, section, fns):
             if success:
                 continue
 
-            try:
+            try:                # TODO not quite necessary, remove this
                 download_requests(url, fnn)
                 if k:
                     config_set(config, section, k, fnn)
