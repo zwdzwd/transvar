@@ -202,13 +202,16 @@ def download_requests(url, file_name):
     import requests
     r = requests.get(url, stream=True)
     if r.status_code != 404:
+        sys.stdout.write('[download] %s ...' % (file_name, ))
+        sys.stdout.flush()
         with open(file_name,'wb') as fd:
             n = 0
-            for chunk in r.iter_content(1e9):
+            
+            for chunk in r.iter_content(1000000000):
                 n += len(chunk)
                 fd.write(chunk)
 
-        print '[downloaded] %s (%1.1f MB)' % (file_name, n/1000000.)
+        print 'Done (%1.1f MB).' % (n/1000000., )
 
 def config_set(config, section, option, value):
 
@@ -241,7 +244,7 @@ def _download_(config, section, fns):
 
             if success:
                 continue
-            
+
             try:
                 download_requests(url, fnn)
                 if k:
