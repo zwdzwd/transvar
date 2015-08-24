@@ -207,7 +207,7 @@ def download_requests(url, file_name):
         with open(file_name,'wb') as fd:
             n = 0
             
-            for chunk in r.iter_content(1000000000):
+            for chunk in r.iter_content(10000000):
                 n += len(chunk)
                 fd.write(chunk)
 
