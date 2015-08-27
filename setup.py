@@ -30,10 +30,17 @@
 import os
 import sys
 import subprocess
-from setuptools import setup, Extension
-from setuptools.command.install import install
-from setuptools.command.develop import develop
-from distutils.command.build import build
+try:
+    from setuptools import setup, Extension
+    from setuptools.command.install import install
+    from setuptools.command.develop import develop
+    from distutils.command.build import build
+    havesetuptools = True
+except ImportError:
+    from distutils.core import setup, Extension
+    from distutils.command.install import install
+    from distutils.command.build import build
+    havesetuptools = False
 
 BASEPATH=os.path.dirname(os.path.abspath(__file__))
 
@@ -73,15 +80,23 @@ class TransVarInstall(install):
         shutil.copy2('external/samtools/htslib-1.2.1/bgzip',
                      os.path.join(self.install_lib, 'transvar'))
 
-class TransVarDevelop(develop):
+cmdclass = {
+    'build': TransVarBuild,
+    'install': TransVarInstall,
+}
 
-    def run(self):
+if havesetuptools:
+    class TransVarDevelop(develop):
 
-        develop.run(self)
-        import shutil
-        shutil.copy2('external/samtools/samtools', 'transvar/')
-        shutil.copy2('external/samtools/htslib-1.2.1/tabix', 'transvar/')
-        shutil.copy2('external/samtools/htslib-1.2.1/bgzip', 'transvar/')
+        def run(self):
+
+            develop.run(self)
+            import shutil
+            shutil.copy2('external/samtools/samtools', 'transvar/')
+            shutil.copy2('external/samtools/htslib-1.2.1/tabix', 'transvar/')
+            shutil.copy2('external/samtools/htslib-1.2.1/bgzip', 'transvar/')
+
+    cmdclass['develop'] = TransVarDevelop
 
 def main():
     if float(sys.version[:3])<2.6 or float(sys.version[:3])>=2.8:
@@ -131,11 +146,7 @@ def main():
             "Programming Language :: C",
             "Topic :: Scientific/Engineering :: Bioinformatics"
         ],
-        cmdclass = {
-            'build': TransVarBuild,
-            'install': TransVarInstall,
-            'develop': TransVarDevelop,
-        }
+        cmdclass = cmdclass,
         # long_description = """ """
         # install_requires=['numpy>=1.6']
     )

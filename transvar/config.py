@@ -165,7 +165,11 @@ def download_url(url, file_name):
     import ssl
     # file_name = url.split('/')[-1]
     # try:
-    u = urllib2.urlopen(url, context=ssl._create_unverified_context())
+    if hasattr(ssl, '_create_unverified_context'):
+        u = urllib2.urlopen(url, context=ssl._create_unverified_context())
+    else:
+        u = urllib2.urlopen(url)
+
     # except urllib2.URLError:
     # return
     f = open(file_name, 'wb')
@@ -176,9 +180,8 @@ def download_url(url, file_name):
 
     file_size_dl = 0
     block_sz = 8192*2
-    if sys.platform == 'darwin':
-        sys.stdout.write('[download] %s ...' % (file_name, ))
-        sys.stdout.flush()
+    sys.stdout.write('[downloading] %s ...' % (file_name, ))
+    sys.stdout.flush()
         
     while True:
         buffer = u.read(block_sz)
@@ -190,14 +193,8 @@ def download_url(url, file_name):
         # status = r"downloaded %s (%1.1f MB) %10d [%3.2f%%]\033\[K" % (file_name, file_size, file_size_dl, file_size_dl * 100. / raw_file_size)
         # status = status + chr(8)*(len(status)+1)
         progress = float(file_size_dl)/raw_file_size
-        if sys.platform != 'darwin':
-            print '\r[%-20s] %1.0f%% %s (%1.1f MB)' % ('#'*int(progress*20), progress*100, file_name, file_size),
 
-    if sys.platform == 'darwin':
-        print 'Done (%1.1f MB).' % (n/1000000., )
-    else:
-        print
-        
+    print 'Done (%1.1f MB).' % (file_size_dl/1000000., )
     f.close()
 
 def download_requests(url, file_name):
@@ -206,7 +203,7 @@ def download_requests(url, file_name):
     import requests
     r = requests.get(url, stream=True)
     if r.status_code != 404:
-        sys.stdout.write('[download] %s ...' % (file_name, ))
+        sys.stdout.write('[bakdownloading] %s ...' % (file_name, ))
         sys.stdout.flush()
         with open(file_name,'wb') as fd:
             n = 0
@@ -243,13 +240,13 @@ def _download_(config, section, fns):
                 if k:
                     config_set(config, section, k, fnn)
             except:
-                if not fn.endswith('_idx'): # sometimes some _idx will be missing
+                if not fn.endswith('alias_idx'): # sometimes some alias_idx will be missing
                     success = False
 
             if success:
                 continue
 
-            try:                # TODO not quite necessary, remove this
+            try:                # not quite necessary in most cases, but in some situations, urllib won't work
                 download_requests(url, fnn)
                 if k:
                     config_set(config, section, k, fnn)
