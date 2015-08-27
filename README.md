@@ -27,11 +27,9 @@ TransVar has the following features:
 
 requires just Python 2.7 and a reasonably modern C compiler such as gcc.
 
-If you are really unlucky, you may also need zlib1g-dev for `zlib.h` and libpython2.7-dev for `Python.h` and libncurses5-dev for `curses.h`.
-
 #### download the program
 
-current stable version: [v2.1.13.20150823](https://bitbucket.org/wanding/transvar/get/v2.1.13.20150823.zip)
+current stable version: [v2.1.14.20150827](https://bitbucket.org/wanding/transvar/get/v2.1.14.20150827.zip)
 
 For all previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
