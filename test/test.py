@@ -45,8 +45,12 @@ def wrap(line):
 
 fh = open(sys.argv[2], 'w') # open('README.md.temp', 'w')
 
+import transvar
+
 result = ''
 for line in open(sys.argv[1]):
+
+    line = line.replace('@VERSION', transvar.__version__)
 
     if line.startswith('$'):    # exexcute sentinel
 

@@ -29,7 +29,7 @@ requires just Python 2.7 and a reasonably modern C compiler such as gcc.
 
 #### download the program
 
-current stable version: [v2.1.14.20150827](https://bitbucket.org/wanding/transvar/get/v2.1.14.20150827.zip)
+current stable version: [v2.1.15.20150827](https://bitbucket.org/wanding/transvar/get/v2.1.15.20150827.zip)
 
 For all previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 

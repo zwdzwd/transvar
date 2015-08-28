@@ -98,6 +98,8 @@ if havesetuptools:
 
     cmdclass['develop'] = TransVarDevelop
 
+exec(open('transvar/version.py').read())
+
 def main():
     if float(sys.version[:3])<2.6 or float(sys.version[:3])>=2.8:
         sys.stderr.write("CRITICAL: Python version must be 2.6 or 2.7!\n")
@@ -125,7 +127,7 @@ def main():
 
     setup(
         name = "TransVar",
-        version = "2.1.9",
+        version = __version__,
         description = "Transcript-based Variant annotator",
         url = "https://bitbucket.org/wanding/transvar",
         author = "Wanding Zhou",
