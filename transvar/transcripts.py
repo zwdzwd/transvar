@@ -121,7 +121,7 @@ class Codon():
         self.locs   = (-1,-1,-1)
         self.strand = "NA"
         self.seq    = '' # natural sequence, not the actural sequence, can be directly mapped to amino acids
-        self.index  = -1
+        self.index  = -1 # 1-based
 
     def tloc(self, i):
         if self.strand == '+':

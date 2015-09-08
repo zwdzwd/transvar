@@ -335,6 +335,12 @@ def annotate_snv_gdna(args, q, db):
                     r.taa_ref = aaf(standard_codon_table[c.seq], args)
                     r.taa_pos = c.index
 
+                    if args.aacontext>0 and r.taa_ref:
+                        aa1 = aaf(reg.t.taa_range2aa_seq(
+                            c.index-args.aacontext if c.index>=args.aacontext else 0, c.index-1), args)
+                        aa2 = aaf(reg.t.taa_range2aa_seq(c.index+1, c.index+args.aacontext), args)
+                        r.append_info('aacontext=%s[%s]%s' % (aa1, r.taa_ref, aa2))
+
                     if q.alt:
                         if c.strand == '+':
                             alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)

@@ -207,6 +207,11 @@ def annotate_region_gdna(args, q, db):
                     if c.seq in standard_codon_table:
                         r.taa_ref = aaf(standard_codon_table[c.seq], args)
                     r.taa_pos = c.index
+                    if args.aacontext>0 and r.taa_ref:
+                        aa1 = aaf(reg.t.taa_range2aa_seq(
+                            c.index-args.aacontext if c.index>=args.aacontext else 0, c.index-1), args)
+                        aa2 = aaf(reg.t.taa_range2aa_seq(c.index+1, c.index+args.aacontext), args)
+                        r.append_info('aacontext=%s[%s]%s' % (aa1, r.taa_ref, aa2))
 
                 r.gnuc_pos = q.pos
                 r.pos = q.pos
@@ -214,7 +219,7 @@ def annotate_region_gdna(args, q, db):
                 r.tnuc_pos = p
                 r.tnuc_ref = r.gnuc_ref if c.strand == '+' else complement(r.gnuc_ref)
                 r.append_info('codon_pos=%s' % ('-'.join(map(str, c.locs)),))
-                
+
             else:
                 raise Exception() # shouldn't reach here
 

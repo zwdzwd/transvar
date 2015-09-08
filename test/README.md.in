@@ -995,6 +995,18 @@ $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 @
 ```
 
+#### How can I let TransVar output sequence context?
+
+The option `--aacontext 5` output +/- 5bp protein sequence context.
+```
+#!bash
+$ transvar ganno -i 'chr17:7577124' --ccds --aacontext 5
+```
+```
+@
+```
+shows the protein sequence context in the aacontext tag.
+
 #### Can TransVar report results in one line for each query?
 
 Yes, with `--oneline` option. This separates the outputs from each transcript by '|||'.
@@ -1021,6 +1033,7 @@ Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:1097021
 #### When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
 
 TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+
 
 ## Future work
 
