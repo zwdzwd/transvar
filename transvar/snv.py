@@ -300,6 +300,10 @@ def annotate_snv_gdna(args, q, db):
     rs = []
     for reg in describe(args, q, db):
 
+        # skip if transcript ID does not match
+        if q.tpt and hasattr(reg, 't') and reg.t.name != q.tpt:
+            continue
+        
         r = Record()
         r.reg = reg
         r.chrm = q.tok

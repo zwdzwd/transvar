@@ -171,6 +171,10 @@ def annotate_region_gdna(args, q, db):
 
         r.set_promoter()
 
+        # skip if transcript ID does not match
+        if q.tpt and hasattr(reg, 't') and reg.t.name != q.tpt:
+            continue
+
         if isinstance(reg, RegAnno):
 
             if hasattr(reg, 'intergenic'):
@@ -191,6 +195,7 @@ def annotate_region_gdna(args, q, db):
                 #     r.info = 'gene_type=%s;' % ','.join(list(iis))
                 
             elif hasattr(reg, 't'):
+
                 c, p = reg.t.gpos2codon(q.pos)
 
                 r.append_info("is_gene_body")
