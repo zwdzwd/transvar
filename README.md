@@ -29,7 +29,7 @@ requires just Python 2.7 and a reasonably modern C compiler such as gcc.
 
 #### download the program
 
-current stable version: [v2.1.15.20150827](https://bitbucket.org/wanding/transvar/get/v2.1.15.20150827.zip)
+current stable version: [v2.1.17.20150916](https://bitbucket.org/wanding/transvar/get/v2.1.17.20150916.zip)
 
 For all previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -1439,6 +1439,29 @@ PIK3CA:p.Glu545Lys	CCDS43171 (protein_coding)	PIK3CA	+
    ource=CCDS
 ```
 
+#### How can I let TransVar output sequence context?
+
+The option `--aacontext 5` output +/- 5bp protein sequence context.
+```
+#!bash
+$ transvar ganno -i 'chr17:7577124' --ccds --aacontext 5
+```
+```
+chr17:7577124	CCDS11118 (protein_coding)	TP53	-
+   chr17:g.7577124C>/c.814G>/p.V272	cds_in_exon_7
+   is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
+   =CCDS
+chr17:7577124	CCDS45605 (protein_coding)	TP53	-
+   chr17:g.7577124C>/c.814G>/p.V272	cds_in_exon_7
+   is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
+   =CCDS
+chr17:7577124	CCDS45606 (protein_coding)	TP53	-
+   chr17:g.7577124C>/c.814G>/p.V272	cds_in_exon_7
+   is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
+   =CCDS
+```
+shows the protein sequence context in the aacontext tag.
+
 #### Can TransVar report results in one line for each query?
 
 Yes, with `--oneline` option. This separates the outputs from each transcript by '|||'.
@@ -1470,6 +1493,7 @@ Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:1097021
 #### When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
 
 TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+
 
 ## Future work
 
