@@ -353,7 +353,7 @@ def annotate_snv_gdna(args, q, db):
                         elif r.taa_alt:
                             r.append_info('synonymous')
                 else:
-                    r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, len(reg.t)/3))
+                    r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
 
                 r.append_info('codon_pos=%s' % (c.locformat(),))
                 r.append_info('ref_codon_seq=%s' % c.seq)
