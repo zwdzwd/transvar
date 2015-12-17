@@ -238,7 +238,10 @@ def tnuc_range2gnuc_range_(np, tbeg, tend):
     """ convert transcript range to genomic range
     tbeg and tend are 1-based
     """
-    return min(np[tbeg-1], np[tend-1]), max(np[tbeg-1], np[tend-1])
+    try:
+        return min(np[tbeg-1], np[tend-1]), max(np[tbeg-1], np[tend-1])
+    except IndexError:
+        raise IncompatibleTranscriptError('tnuc range not found in transcript')
 
 class Transcript():
 
@@ -377,6 +380,9 @@ class Transcript():
         tbeg and tend are 1-based
         """
         np = self.position_array()
+        # print self.
+        # print len(np)
+        # print tbeg, tend
         return tnuc_range2gnuc_range_(np, tbeg, tend)
 
     def taa2aa(self, taa):

@@ -29,7 +29,7 @@ requires just Python 2.7 and a reasonably modern C compiler such as gcc.
 
 #### download the program
 
-current stable version: [v2.1.17.20150916](https://bitbucket.org/wanding/transvar/get/v2.1.17.20150916.zip)
+current stable version: [v2.1.18.20151216](https://bitbucket.org/wanding/transvar/get/v2.1.18.20151216.zip)
 
 For all previous versions, see [TAGS](https://bitbucket.org/wanding/transvar/overview#tags).
 
@@ -1509,7 +1509,7 @@ Please direct any bugs to <zhouwanding@gmail.com>.
 
 ## Reference
 
-submitted
+[Zhou et al. Nature Methods 12, 1002-1003 (2015)](http://www.nature.com/nmeth/journal/v12/n11/full/nmeth.3622.html)
 
 ## About
 This work is a collaboration between Wanding Zhou, Tenghui Chen, Zechen Chong and Professor Ken Chen at The University of Texas, MD Anderson Cancer Center.
