@@ -90,6 +90,10 @@ if havesetuptools:
 
         def run(self):
 
+            subprocess.check_call(['make', '-C', 'external/samtools'])
+            subprocess.check_call(['./configure'], cwd='external/samtools/htslib-1.2.1')
+            subprocess.check_call(['make'], cwd='external/samtools/htslib-1.2.1')
+            
             develop.run(self)
             import shutil
             shutil.copy2('external/samtools/samtools', 'transvar/')
