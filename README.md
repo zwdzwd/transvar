@@ -19,8 +19,12 @@ TransVar has the following features:
 
 [TOC]
 
+##### Table of Contents
+[Download and Install](#install)
+
 --------
 
+<a name="install"/>
 ### Download and install
 
 #### dependency
