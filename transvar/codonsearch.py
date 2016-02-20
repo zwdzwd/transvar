@@ -128,7 +128,7 @@ def main(args):
 
 def add_parser_codonsearch(subparsers, config):
 
-    parser = subparsers.add_parser('codonsearch', help=__doc__)
+    parser = subparsers.add_parser('codonsearch', help="search equivalent codon representations")
     parser_add_mutation(parser)
     parser_add_annotation(parser)
     parser.set_defaults(func=main)

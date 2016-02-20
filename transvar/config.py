@@ -415,7 +415,7 @@ def main_current(args):
 
 def add_parser_config(subparsers):
 
-    parser = subparsers.add_parser('config', help=__doc__)
+    parser = subparsers.add_parser('config', help="show configurations")
     parser.add_argument('-k', default=None, help='key')
     parser.add_argument('-v', default=None, help='value')
     parser.add_argument('--refversion', default='DEFAULT',
