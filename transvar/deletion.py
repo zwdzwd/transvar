@@ -320,6 +320,7 @@ def taa_set_del(r, t, taa_beg, taa_end, args):
 def del_coding_inframe(args, c1, c2, p1, p2, t, r):
 
     if p1.pos % 3 == 1:       # in phase
+        r.append_info("CSQN=InFrameDeletion")
         taa_set_del(r, t, c1.index, c2.index, args)
     else:                       # out-of-phase
 
@@ -353,11 +354,14 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
         # if taa_delseq[-1] == '*':
         if taa_alt == taa_delseq[-1]:
             # G100_S200delinsS becomes a pure deletion G100_D199del
+            r.append_info("CSQN=InFrameDeletion")
             taa_set_del(r, t, c1.index, c2.index-1, args)
         elif taa_alt == taa_delseq[0]:
             # S100_G200delinsS becomes a pure deletion D101_G200del
+            r.append_info("CSQN=InFrameDeletion")
             taa_set_del(r, t, c1.index+1, c2.index, args)
         else:
+            r.append_info("CSQN=Missense")
             r.taa_range = '%s%d_%s%ddelins%s' % (
                 aaf(taa_delseq[0], args), c1.index,
                 aaf(taa_delseq[-1], args), c2.index, taa_alt)
@@ -375,6 +379,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
         r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+        r.append_info("CSQN=Frameshift")
     else:
         r.taa_range = '(=)'
-
+        r.append_info("CSQN=Synonymous")

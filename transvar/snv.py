@@ -349,9 +349,9 @@ def annotate_snv_gdna(args, q, db):
 
                         r.taa_alt = aaf(codon2aa(alt_seq), args)
                         if r.taa_alt != r.taa_ref:
-                            r.append_info('missense')
+                            r.append_info('CSQN=Missense')
                         elif r.taa_alt:
-                            r.append_info('synonymous')
+                            r.append_info('CSQN=Synonymous')
                 else:
                     r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
 

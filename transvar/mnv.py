@@ -379,6 +379,7 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         old_taa_seq = translate_seq(old_seq)
         new_taa_seq = translate_seq(new_seq)
         if old_taa_seq == new_taa_seq:
+            r.append_info("CSQN=Synonymous")
             r.taa_range = '(=)'
             return
 
@@ -388,13 +389,16 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         if not old_taa_seq1:
             _beg_index = beg_codon_index + head_trim - 1
             _end_index = beg_codon_index + head_trim
+            r.append_info("CSQN=InFrameInsertion")
             taa_set_ins(r, t, _beg_index, new_taa_seq1, args)
             return
 
         if not new_taa_seq1:
+            r.append_info("CSQN=InFrameDeletion")
             taa_set_del(r, t, beg_codon_index+head_trim, end_codon_index-tail_trim, args)
             return
 
+        r.append_info("CSQN=Missense")
         if len(old_taa_seq1) == 1:
             if len(new_taa_seq1) == 1:
                 r.taa_range = '%s%d%s' % (
@@ -419,8 +423,10 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         ret = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
         if ret:
             taa_pos, taa_ref, taa_alt, termlen = ret
+            r.append_info("CSQN=Frameshift")
             r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
         else:
+            r.append_info("CSQN=Synonymous")
             r.taa_range = '(=)'
 
 def nuc_set_mnv(beg, end, refseq, altseq):

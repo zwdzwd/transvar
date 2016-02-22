@@ -69,6 +69,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(insseq)/3):
                 if codon2aa(insseq[i*3:i*3+3]) == '*':
+                    r.append_info("CSQN=NonsenseInsertion")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     stop_codon_seen = True
                     break
@@ -80,6 +81,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                 c2 = t.cpos2codon((tnuc_pos+3)/3)
                 if not c1 or not c2:
                     raise IncompatibleTranscriptError()
+                r.append_info("CSQN=InFrameInsertion")
                 taa_set_ins(r, t, c1.index, taa_insseq, args)
                 r.append_info('phase=0')
         else:
@@ -97,6 +99,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(new_seq)/3):
                 if codon2aa(new_seq[i*3:i*3+3]) == '*':
+                    r.append_info("CSQN=NonsenseInsertion")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     return
                 taa_insseq += codon2aa(new_seq[i*3:i*3+3])
@@ -105,18 +108,22 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_ref = codon2aa(codon.seq)
             if taa_ref == taa_insseq[0]:
                 # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
+                r.append_info("CSQN=InFrameInsertion")
                 taa_ref_after = codon2aa(t.seq[codon.index*3:codon.index*3+3])
                 taa_set_ins(r, t, codon.index, taa_insseq[1:], args)
             elif taa_ref == taa_insseq[-1]:
                 # SdelinsHS becomes a pure insertion [codon_before]_[current_codon]insH
+                r.append_info("CSQN=InFrameInsertion")
                 taa_ref_before = codon2aa(t.seq[codon.index*3-6:codon.index*3-3])
                 taa_set_ins(r, t, codon.index-1, taa_insseq[:-1], args)
             else:
+                r.append_info("CSQN=Missense")
                 r.taa_range = '%s%ddelins%s' % (aaf(taa_ref, args), codon.index, aaf(taa_insseq, args))
             # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
             r.append_info('phase=%d' % (tnuc_pos - codon_beg + 1,))
 
     else:                       # frameshift
+        r.append_info("CSQN=Frameshift")
         tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
 
 
