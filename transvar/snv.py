@@ -88,9 +88,12 @@ def annotate_snv_cdna(args, q, tpts, db):
                     mut_seq[(q.cpos()-1) % 3] = q.alt
                     r.taa_alt = aaf(codon2aa(''.join(mut_seq)), args)
                     if r.taa_ref != r.taa_alt:
-                        r.append_info('missense')
+                        if r.taa_alt == '*':
+                            r.append_info('CSQN=Nonsense')
+                        else:
+                            r.append_info('CSQN=Missense')
                     elif r.taa_alt:
-                        r.append_info('synonymous')
+                        r.append_info('CSQN=Synonymous')
                     r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
                 
             else:  # coordinates are with respect to the exon boundary
@@ -349,7 +352,10 @@ def annotate_snv_gdna(args, q, db):
 
                         r.taa_alt = aaf(codon2aa(alt_seq), args)
                         if r.taa_alt != r.taa_ref:
-                            r.append_info('CSQN=Missense')
+                            if r.taa_alt == '*':
+                                r.append_info('CSQN=Nonsense')
+                            else:
+                                r.append_info('CSQN=Missense')
                         elif r.taa_alt:
                             r.append_info('CSQN=Synonymous')
                 else:
@@ -373,6 +379,9 @@ def set_taa_snv(r, pos, ref, alt, args):
     r.taa_ref = aaf(ref, args)
     r.taa_alt = aaf(alt, args)
     if r.taa_ref != r.taa_alt:
-        r.append_info('missense')
+        if r.taa_alt == '*':
+            r.append_info('CSQN=Nonsense')
+        else:
+            r.append_info('CSQN=Missense')
     elif r.taa_ref:
-        r.append_info('synonymous')
+        r.append_info('CSQN=Synonymous')
