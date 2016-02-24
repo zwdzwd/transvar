@@ -43,47 +43,93 @@ def wrap(line):
         yield ' '*3+line[:k]
         line = line[k:]
 
-fh = open(sys.argv[2], 'w') # open('README.md.temp', 'w')
+indir = sys.argv[1]
+outdir = sys.argv[2]
+
+if not os.path.exists(outdir):
+    os.mkdir(outdir)
+# outdir = open(sys.argv[2], 'w') # open('README.md.temp', 'w')
 
 import transvar
 
-result = ''
-for line in open(sys.argv[1]):
+for ifn in os.listdir(indir):
+    if not ifn.endswith(".md"):
+        continue
 
-    line = line.replace('@VERSION', transvar.__version__)
+    ifh = open(os.path.join(indir, ifn))
 
-    if line.startswith('$'):    # exexcute sentinel
+    ofn = os.path.join(outdir, ifn)
+    ofh = open(ofn, "w")
 
-        fh.write(line)
-        line = line[2:].strip()
-        ar = re.split(r'[\'"]', line.strip())
+    result = ''
+    tofill = False
+    infill = False
+    for line in ifh:
 
-        B = []
-        for i, e in enumerate(ar):
-            if i % 2 == 0:
-                if len(e.strip())>0:
-                    B.extend(e.strip().split())
+        line = line.replace('@VERSION', transvar.__version__)
+
+        if line.startswith('$'):    # exexcute sentinel
+
+            ofh.write(line)
+            line = line[2:].strip()
+            ar = re.split(r'[\'"]', line.strip())
+
+            B = []
+            for i, e in enumerate(ar):
+                if i % 2 == 0:
+                    if len(e.strip())>0:
+                        B.extend(e.strip().split())
+                else:
+                    B.append(e.strip())
+
+            p = Popen(B, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            result, err = p.communicate()
+            result = result.strip()
+
+            print
+            print '======'+line+'======'
+            print result
+            print '\n'.join([rr for rr in result.split('\n') if not (len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'))])
+            tofill = True
+            infill = False
+            oldfill = ''
+
+        elif line.startswith('```text') and tofill:
+            infill = True
+            tofill = False
+            ofh.write(line)
+
+        elif line.startswith('```') and infill:
+
+            newfill = ''
+            for rr in result.split('\n'):
+
+                if len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'):
+                    continue
+
+                for r in wrap(rr):
+                    newfill += r+'\n'
+
+            if newfill != oldfill:
+                print '\n+++ NEW +++'
+                print newfill
+                print '\n+++ OLD +++'
+                print oldfill
+                raw_input("Difference ...")
             else:
-                B.append(e.strip())
+                print "\nSame!\n"
 
-        p = Popen(B, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        result, err = p.communicate()
-        result = result.strip()
+            ofh.write(newfill)
+            ofh.write('```\n')
 
-        print
-        print '======'+line+'======'
-        print '\n'.join([rr for rr in result.split('\n') if not (len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'))])
+            infill = False
 
-    elif line.startswith('@'):
+        elif infill:
+            oldfill += line
 
-        for rr in result.split('\n'):
+        else:
 
-            if len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'):
-                continue
+            ofh.write(line)
 
-            for r in wrap(rr):
-                fh.write(r+'\n')
-
-    else:
-
-        fh.write(line)
+    ifh.close()
+    ofh.close()

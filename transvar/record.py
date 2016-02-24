@@ -282,6 +282,8 @@ class Query(object):
         self.is_codon = True
         self.gn_name = None
         self.tpt = ''
+        self.msg = ''
+        self.tok = None         # by default, is a failed query
 
     def set_pos(self, pos_str):
 

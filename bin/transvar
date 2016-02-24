@@ -16,7 +16,7 @@ from transvar.localdb import add_parser_index
 if __name__ == '__main__':
 
     import sys
-    if sys.argv[1] in ['-version', '--version']:
+    if len([a for a in sys.argv if a in ['-version', '--version']]) > 0:
         import transvar
         sys.stderr.write("TransVar Version %s\n" % transvar.__version__)
         sys.exit(1)
