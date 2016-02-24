@@ -357,6 +357,12 @@ def annotate_snv_gdna(args, q, db):
 
                 r.append_info('codon_pos=%s' % (c.locformat(),))
                 r.append_info('ref_codon_seq=%s' % c.seq)
+            elif reg.intronic:
+                r.append_info('CSQN=Intronic')
+            elif reg.UTR is not None:
+                r.append_info('CSQN=%s-UTR' % reg.UTR)
+        elif hasattr(reg, 'intergenic'):
+            r.append_info('CSDN=Intergenic')
                 
         format_one(r, rs, q, args)
     format_all(rs, q, args)

@@ -111,10 +111,10 @@ for ifn in os.listdir(indir):
                     newfill += r+'\n'
 
             if newfill != oldfill:
-                print '\n+++ NEW +++'
-                print newfill
                 print '\n+++ OLD +++'
                 print oldfill
+                print '\n+++ NEW +++'
+                print newfill
                 raw_input("Difference ...")
             else:
                 print "\nSame!\n"

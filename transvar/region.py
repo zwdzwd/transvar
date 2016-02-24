@@ -102,7 +102,6 @@ def annotate_region_cdna(args, q, tpts, db):
 
     return
 
-
 def annotate_region_protein(args, q, tpts, db):
 
     found = False
@@ -156,9 +155,7 @@ def annotate_region_protein(args, q, tpts, db):
         format_one(r, rs, q, args)
     format_all(rs, q, args)
 
-
     return
-
 
 def annotate_region_gdna(args, q, db):
     

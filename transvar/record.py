@@ -463,14 +463,16 @@ class Record():
             if hasattr(self.reg, 'splice_donors'):
                 for exind, chrm, spos in self.reg.splice_donors:
                     expt = True
+                    self.append_info('CSQN=SpliceDonor')
                     self.append_info(
-                        'donor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
+                        'C2=donor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
 
             if hasattr(self.reg, 'splice_acceptors'):
                 for exind, chrm, spos in self.reg.splice_acceptors:
                     expt = True
+                    self.append_info('CSQN=SpliceAcceptor')
                     self.append_info(
-                        'acceptor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
+                        'C2=acceptor_splice_site_on_exon_%d_at_%s:%d%s' % (exind, chrm, spos, action))
 
             if hasattr(self.reg, 'splice_both') and self.reg.splice_both:
                 expt = True
