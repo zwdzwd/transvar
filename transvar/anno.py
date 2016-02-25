@@ -106,6 +106,10 @@ def _main_core_(args, q, db, at):
             return annotate_insertion_gdna(args, q, db)
         elif isinstance(q, QueryMNV):
             return annotate_mnv_gdna(args, q, db)
+        elif isinstance(q, QueryDUP):
+            q.pos = q.end
+            q.insseq = q.dupseq
+            return annotate_insertion_gdna(args, q, db)
         elif isinstance(q, QueryREG):
             return annotate_region_gdna(args, q, db)
         else:

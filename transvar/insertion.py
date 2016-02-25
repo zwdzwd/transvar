@@ -243,6 +243,7 @@ def annotate_insertion_protein(args, q, tpts, db):
 
 def annotate_insertion_gdna(args, q, db):
 
+    """ annotate_duplication_gdna is also realized by this """
     rs = []
     for reg in describe(args, q, db):
 
@@ -350,7 +351,6 @@ def annotate_duplication_cdna(args, q, tpts, db):
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
-
 
 def taa_ins_id(t, index, taa_insseq, args):
 
