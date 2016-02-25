@@ -611,7 +611,7 @@ class Transcript():
         rg = RegSpanAnno()
         rg.b1 = self.describe(gnuc_beg, args)
         rg.b2 = self.describe(gnuc_end, args)
-        rg.transcript_regs = self.overlap_region(gnuc_beg, gnuc_end)
+        # rg.transcript_regs = self.overlap_region(gnuc_beg, gnuc_end)
 
         return rg
 
@@ -1035,7 +1035,7 @@ class Transcript():
         return taa_pos, taa_ref, taa_alt, str(termlen)
 
 
-def tnuc_del_id(pbeg, pend, tnuc_delseq=None):
+def tnuc_del_id(pbeg, pend, args, tnuc_delseq=None):
 
     if pbeg == pend:
         tnuc_posstr = str(pbeg)
@@ -1045,14 +1045,14 @@ def tnuc_del_id(pbeg, pend, tnuc_delseq=None):
     if tnuc_delseq is None and tnuc_delseq:
         tnuc_delrep = ''
     else:
-        if len(tnuc_delseq) > delrep_len:
+        if len(tnuc_delseq) > args.seqmax and args.seqmax >= 0:
             tnuc_delrep = str(len(tnuc_delseq))
         else:
             tnuc_delrep = tnuc_delseq
 
     return '%sdel%s' % (tnuc_posstr, tnuc_delrep)
 
-def gnuc_del_id(chrm, beg, end, gnuc_delseq=None):
+def gnuc_del_id(chrm, beg, end, args, gnuc_delseq=None):
 
     if beg == end:
         gnuc_posstr = str(beg)
@@ -1063,7 +1063,7 @@ def gnuc_del_id(chrm, beg, end, gnuc_delseq=None):
         gnuc_delseq = faidx.getseq(chrm, beg, end)
 
     del_len = end - beg + 1
-    if del_len > delrep_len:
+    if del_len > args.seqmax and args.seqmax >= 0:
         gnuc_delrep = str(del_len)
     else:
         gnuc_delrep = gnuc_delseq

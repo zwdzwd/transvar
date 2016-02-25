@@ -164,7 +164,6 @@ def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=No
 
     return site
 
-
 def describe_genic_site(args, chrm, gpos, t, db):
 
     reg = RegAnno()
@@ -274,18 +273,22 @@ def describe_genic_range(args, chrm, beg, end, t, db, genes):
     reg.splice_donors = []
     reg.splice_acceptors = []
     reg.splice_both = []
+
+    # the enlarged window for detecting effect to splice sites.
+    beg1 = beg-1
+    end1 = end+1
     for i, exon in enumerate(t.exons):
         if exon[0] >= beg and exon[1] <= end:
             if t.strand == '+':
                 reg.splice_both.append(i+1)
             else:
                 reg.splice_both.append(n-i)
-        elif exon[0] >= beg and exon[0] <= end and i != 0:
+        elif exon[0] >= beg1 and exon[0] <= end1 and i != 0:
             if t.strand == '+':
                 reg.splice_acceptors.append((i+1, t.chrm, exon[0]-1))
             else:
                 reg.splice_donors.append((n-i, t.chrm, exon[0]-1))
-        elif exon[1] >= beg and exon[1] <= end and i != n-1:
+        elif exon[1] >= beg1 and exon[1] <= end1 and i != n-1:
             if t.strand == '+':
                 reg.splice_donors.append((i+1, t.chrm, exon[1]+1))
             else:
@@ -302,7 +305,6 @@ def describe_genic_range(args, chrm, beg, end, t, db, genes):
                 reg.cover_exon = True
         if reg.cover_exon and beg <= t.cds_end and end >= t.cds_beg:
             reg.cover_cds = True
-                
 
     return reg
 

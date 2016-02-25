@@ -344,7 +344,9 @@ def _list_parse_mutation(args, fields, indices, muttype):
         if args.t > 0: q.tpt = fields[args.t-1].strip()
 
     else:
-        err_raise(InvalidInputError, "invalid line: %s" % line)
+        q.Query()
+        q.msg = "InvalidInputLine"
+        err_warn("Invalid line: %s" % line.strip('\n'))
 
     return q
 
@@ -396,8 +398,8 @@ def vcf_parse_mutation(args, at='g'):
                 q.altseq = alt.upper()
             else:
                 q = Query()
-                q.msg = "InvalidVCFLine%s" % line
-                err_warn("Invalid VCF Line: %s" % line)
+                q.msg = "InvalidVCFLine"
+                err_warn("Invalid VCF line: %s" % line.strip('\n'))
 
             q.op = line.strip()
 
@@ -454,6 +456,7 @@ def parser_add_mutation(parser):
                         help='columns to be printed in output (1-based), e.g., 3,4,5-10')
     parser.add_argument('--skipheader', action='store_true',
                         help='skip header')
+    parser.add_argument('--seqmax', type=int, default=10, help='maximum reference sequence to output (10), use -1 for infinity')
     parser.add_argument('--oneline', action='store_true', help='output one line for each query')
     parser.add_argument('--aa3', action='store_true', help='use 3 letter code for protein output')
     parser.add_argument('--aacontext', type=int, default=0, help='output amino acid context')

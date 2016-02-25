@@ -69,7 +69,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(insseq)/3):
                 if codon2aa(insseq[i*3:i*3+3]) == '*':
-                    r.append_info("CSQN=NonsenseInsertion")
+                    r.csqn.append("NonsenseInsertion")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     stop_codon_seen = True
                     break
@@ -81,7 +81,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                 c2 = t.cpos2codon((tnuc_pos+3)/3)
                 if not c1 or not c2:
                     raise IncompatibleTranscriptError()
-                r.append_info("CSQN=InFrameInsertion")
+                r.csqn.append("InFrameInsertion")
                 taa_set_ins(r, t, c1.index, taa_insseq, args)
                 r.append_info('phase=0')
         else:
@@ -99,7 +99,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(new_seq)/3):
                 if codon2aa(new_seq[i*3:i*3+3]) == '*':
-                    r.append_info("CSQN=NonsenseInsertion")
+                    r.csqn.append("NonsenseInsertion")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     return
                 taa_insseq += codon2aa(new_seq[i*3:i*3+3])
@@ -108,24 +108,23 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_ref = codon2aa(codon.seq)
             if taa_ref == taa_insseq[0]:
                 # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
-                r.append_info("CSQN=InFrameInsertion")
+                r.csqn.append("InFrameInsertion")
                 taa_ref_after = codon2aa(t.seq[codon.index*3:codon.index*3+3])
                 taa_set_ins(r, t, codon.index, taa_insseq[1:], args)
             elif taa_ref == taa_insseq[-1]:
                 # SdelinsHS becomes a pure insertion [codon_before]_[current_codon]insH
-                r.append_info("CSQN=InFrameInsertion")
+                r.csqn.append("InFrameInsertion")
                 taa_ref_before = codon2aa(t.seq[codon.index*3-6:codon.index*3-3])
                 taa_set_ins(r, t, codon.index-1, taa_insseq[:-1], args)
             else:
-                r.append_info("CSQN=Missense")
+                r.csqn.append("Missense")
                 r.taa_range = '%s%ddelins%s' % (aaf(taa_ref, args), codon.index, aaf(taa_insseq, args))
             # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
             r.append_info('phase=%d' % (tnuc_pos - codon_beg + 1,))
 
     else:                       # frameshift
-        r.append_info("CSQN=Frameshift")
+        r.csqn.append("Frameshift")
         tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
-
 
 def annotate_insertion_cdna(args, q, tpts, db):
 
@@ -160,9 +159,11 @@ def annotate_insertion_cdna(args, q, tpts, db):
             gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg, gnuc_insseq, r)
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
-            expt = r.set_splice()
-            if (not expt) and r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
-                tnuc_coding_ins(args, tnuc_ins, t, r, db)
+            if not r.set_splice("affected", "Insertion"):
+                if r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
+                    tnuc_coding_ins(args, tnuc_ins, t, r, db)
+                else:
+                    r.csqn.append(r.reg.csqn()+"Insertion")
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -267,12 +268,12 @@ def annotate_insertion_gdna(args, q, db):
 
             # infer protein level mutation if in cds
             # this skips insertion that occur to sites next to donor or acceptor splicing site.
-            expt = r.set_splice()
-            if (not expt) and reg.cds and t.transcript_type=='protein_coding':
-                try:
-                    tnuc_coding_ins(args, tnuc_ins, t, r, db)
-                except IncompatibleTranscriptError:
-                    pass
+            if not r.set_splice():
+                if reg.cds and t.transcript_type=='protein_coding':
+                    try:
+                        tnuc_coding_ins(args, tnuc_ins, t, r, db)
+                    except IncompatibleTranscriptError:
+                        pass
 
                 # c1 = t.cpos2codon((tnuc_ins.beg.pos+2)/3)
                 # p1 = tnuc_ins.beg
@@ -280,6 +281,8 @@ def annotate_insertion_gdna(args, q, db):
                 #     ins_gene_coding_inframe(t, r, c1, p1, tnuc_ins.insseq)
                 # else:
                 #     ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
+        else:
+            r.csqn.append(r.reg.csqn()+"Insertion")
 
         format_one(r, rs, q, args)
     format_all(rs, q, args)
@@ -325,9 +328,11 @@ def annotate_duplication_cdna(args, q, tpts, db):
             r.pos = gnuc_ins.beg_r
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
             r.reg = describe_genic(args, t.chrm, gnuc_ins.beg_r, gnuc_ins.end_r, t, db)
-            expt = r.set_splice()
-            if r.reg.entirely_in_cds() and not expt and t.transcript_type=='protein_coding':
-                tnuc_coding_ins(args, tnuc_ins, t, r, db)
+            if not r.set_splice():
+                if r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
+                    tnuc_coding_ins(args, tnuc_ins, t, r, db)
+                else:
+                    r.csqn.append(r.reg.csqn()+"Insertion")
 
         except IncompatibleTranscriptError:
             continue

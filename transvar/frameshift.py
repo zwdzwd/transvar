@@ -34,7 +34,7 @@ from err import *
 
 import itertools
 
-def fuzzy_match_deletion(t, codon, q):
+def fuzzy_match_deletion(t, codon, q, args):
 
     matches = {}                # map right-aligned gDNA identifier to detailed information
     for ds in [1,2]:            # probe deletion of length 1,2
@@ -60,7 +60,7 @@ def fuzzy_match_deletion(t, codon, q):
                         gnuc_delseq = reverse_complement(t.seq[j:j+ds])
                     gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(t.chrm, gnuc_beg, gnuc_end)
                     gnuc_delseq_r = faidx.getseq(t.chrm, gnuc_beg_r, gnuc_end_r)
-                    gnuc_id_r = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r, gnuc_delseq=gnuc_delseq_r)
+                    gnuc_id_r = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r, args, gnuc_delseq=gnuc_delseq_r)
                     if gnuc_id_r not in matches:
                         # compute gDNA id left aligned
                         gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(t.chrm, gnuc_beg, gnuc_end)
@@ -83,9 +83,9 @@ def fuzzy_match_deletion(t, codon, q):
 
                         # cDNA representation
                         matches[gnuc_id_r] = (
-                            gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l, gnuc_delseq_l),
-                            tnuc_del_id(p1r, p2r, tnuc_delseq_r),
-                            tnuc_del_id(p1l, p2l, tnuc_delseq_l))
+                            gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l, args, gnuc_delseq_l),
+                            tnuc_del_id(p1r, p2r, args, tnuc_delseq_r),
+                            tnuc_del_id(p1l, p2l, args, tnuc_delseq_l))
                         
     return matches
 
@@ -152,7 +152,7 @@ def _annotate_frameshift(args, q, t):
     # print codon.index
     # print t.seq
 
-    matches = fuzzy_match_deletion(t, codon, q)
+    matches = fuzzy_match_deletion(t, codon, q, args)
     if not matches:
         matches = fuzzy_match_insertion(t, codon, q)
     if matches:

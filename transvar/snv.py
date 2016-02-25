@@ -89,11 +89,11 @@ def annotate_snv_cdna(args, q, tpts, db):
                     r.taa_alt = aaf(codon2aa(''.join(mut_seq)), args)
                     if r.taa_ref != r.taa_alt:
                         if r.taa_alt == '*':
-                            r.append_info('CSQN=Nonsense')
+                            r.csqn.append('Nonsense')
                         else:
-                            r.append_info('CSQN=Missense')
+                            r.csqn.append('Missense')
                     elif r.taa_alt:
-                        r.append_info('CSQN=Synonymous')
+                        r.csqn.append('Synonymous')
                     r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
                 
             else:  # coordinates are with respect to the exon boundary
@@ -353,22 +353,22 @@ def annotate_snv_gdna(args, q, db):
                         r.taa_alt = aaf(codon2aa(alt_seq), args)
                         if r.taa_alt != r.taa_ref:
                             if r.taa_alt == '*':
-                                r.append_info('CSQN=Nonsense')
+                                r.csqn.append('Nonsense')
                             else:
-                                r.append_info('CSQN=Missense')
+                                r.csqn.append('Missense')
                         elif r.taa_alt:
-                            r.append_info('CSQN=Synonymous')
+                            r.csqn.append('Synonymous')
                 else:
                     r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
 
                 r.append_info('codon_pos=%s' % (c.locformat(),))
                 r.append_info('ref_codon_seq=%s' % c.seq)
             elif reg.intronic:
-                r.append_info('CSQN=Intronic')
+                r.csqn.append('Intronic')
             elif reg.UTR is not None:
-                r.append_info('CSQN=%s-UTR' % reg.UTR)
+                r.csqn.append('%s-UTR' % reg.UTR)
         elif hasattr(reg, 'intergenic'):
-            r.append_info('CSDN=Intergenic')
+            r.csqn.append('Intergenic')
                 
         format_one(r, rs, q, args)
     format_all(rs, q, args)
@@ -380,8 +380,8 @@ def set_taa_snv(r, pos, ref, alt, args):
     r.taa_alt = aaf(alt, args)
     if r.taa_ref != r.taa_alt:
         if r.taa_alt == '*':
-            r.append_info('CSQN=Nonsense')
+            r.csqn.append('Nonsense')
         else:
-            r.append_info('CSQN=Missense')
+            r.csqn.append('Missense')
     elif r.taa_ref:
-        r.append_info('CSQN=Synonymous')
+        r.csqn.append('Synonymous')

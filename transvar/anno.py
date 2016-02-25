@@ -126,6 +126,12 @@ def main_list(args, db, at, mutation_parser):
 
     for q, line in mutation_parser:
 
+        if q.tok is None:           # parsing error
+            r = Record()
+            r.append_info(q.msg)
+            r.format(q.op)
+            continue
+
         if at == 'g':
             q.tok = normalize_chrm(q.tok)
             _main_(args, q, db, at)

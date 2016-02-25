@@ -43,6 +43,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
 
     _gnuc_beg = t.tnuc2gnuc(q.beg)
     _gnuc_end = t.tnuc2gnuc(q.end)
+
     gnuc_beg = min(_gnuc_beg, _gnuc_end)
     gnuc_end = max(_gnuc_beg, _gnuc_end)
 
@@ -54,14 +55,14 @@ def _annotate_deletion_cdna(args, q, r, t, db):
     # right-align
     gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(t.chrm, gnuc_beg, gnuc_end)
     gnuc_delseq_r = faidx.getseq(t.chrm, gnuc_beg_r, gnuc_end_r)
-    r.gnuc_range = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r)
+    r.gnuc_range = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r, args)
     r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
 
     # left-align
     gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(t.chrm, gnuc_beg, gnuc_end)
     gnuc_delseq_l = faidx.getseq(t.chrm, gnuc_beg_l, gnuc_end_l)
-    r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l))
-    r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(t.chrm, gnuc_beg, gnuc_end))
+    r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l, args))
+    r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(t.chrm, gnuc_beg, gnuc_end, args))
 
     if t.strand == '+':
         c1l, p1l = t.gpos2codon(gnuc_beg_l)
@@ -80,10 +81,10 @@ def _annotate_deletion_cdna(args, q, r, t, db):
 
     # cDNA representation
     # right align
-    r.tnuc_range = tnuc_del_id(p1r, p2r, tnuc_delseq_r)
+    r.tnuc_range = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
     # left align
-    r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(p1l, p2l, tnuc_delseq_l))
-    r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(q.beg, q.end, tnuc_delseq))
+    r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(p1l, p2l, args, tnuc_delseq_l))
+    r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(q.beg, q.end, args, tnuc_delseq))
 
     # tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1
     # tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1
@@ -94,7 +95,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
 
     # if deletion affects coding region
     if t.transcript_type == 'protein_coding' and not same_intron(q.beg, q.end):
-        expt = r.set_splice('lost')
+        expt = r.set_splice('lost', csqn_action="Deletion")
         if not expt:
             c1, p1 = t.intronic_lean(q.beg, 'c_greater')
             c2, p2 = t.intronic_lean(q.end, 'c_smaller')
@@ -103,6 +104,8 @@ def _annotate_deletion_cdna(args, q, r, t, db):
                 del_coding_inframe(args, c1, c2, p1, p2, t, r)
             else:
                 del_coding_frameshift(args, c1, c2, p1, p2, t, r)
+    else:
+        r.csqn.append(r.reg.csqn()+"Deletion")
 
     r.append_info('deletion_gDNA=%s;deletion_cDNA=%s' % (gnuc_delseq_r, tnuc_delseq_r))
 
@@ -137,7 +140,7 @@ def annotate_deletion_cdna(args, q, tpts, db):
 
     if not found:
         r = Record()
-        tnuc_del_id(q.beg, q.end, q.delseq)
+        tnuc_del_id(q.beg, q.end, args, q.delseq)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
@@ -220,10 +223,10 @@ def annotate_deletion_gdna(args, q, db):
         if warning is not None:
             r.append_info(warning)
 
-        r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r)
+        r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r, args)
         r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
-        r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l))
-        r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end))
+        r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l, args))
+        r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end, args))
 
         db.query_dbsnp_range(r, q.beg, q.end, '')
         if hasattr(reg, 't'):
@@ -270,21 +273,22 @@ def annotate_deletion_gdna(args, q, db):
 
             # cDNA representation
             # right align
-            r.tnuc_range = tnuc_del_id(p1r, p2r, tnuc_delseq_r)
+            r.tnuc_range = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
             # left align
-            r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(p1l, p2l, tnuc_delseq_l))
-            r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(p1.pos, p2.pos, tnuc_delseq))
+            r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(p1l, p2l, args, tnuc_delseq_l))
+            r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(p1.pos, p2.pos, args, tnuc_delseq))
 
             if t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
-                
-                expt = r.set_splice('lost')
-
+                expt = r.set_splice('lost', csqn_action="Deletion")
                 if not expt:
-
                     if (q.end - q.beg + 1) % 3 == 0:
                         del_coding_inframe(args, c1, c2, p1, p2, t, r)
                     else:
                         del_coding_frameshift(args, c1, c2, p1, p2, t, r)
+            else:
+                r.csqn.append(reg.csqn()+"Deletion")
+        else:
+            r.csqn.append(reg.csqn()+"Deletion")
 
         format_one(r, rs, q, args)
     format_all(rs, q, args)
@@ -298,7 +302,7 @@ def taa_del_id(t, taa_beg, taa_end, args):
         s = '%s%ddel%s' % (aaf(t.cpos2aa(taa_beg), args), taa_beg, aaf(t.taa2aa(taa_beg), args))
     else:
         taa_del_len = taa_end - taa_beg + 1
-        if taa_del_len > delrep_len:
+        if taa_del_len > args.seqmax and args.seqmax >= 0:
             taa_delrep = str(taa_del_len)
         else:
             taa_delrep = aaf(t.taa_range2aa_seq(taa_beg, taa_end), args)
@@ -320,7 +324,7 @@ def taa_set_del(r, t, taa_beg, taa_end, args):
 def del_coding_inframe(args, c1, c2, p1, p2, t, r):
 
     if p1.pos % 3 == 1:       # in phase
-        r.append_info("CSQN=InFrameDeletion")
+        r.csqn.append('InFrameDeletion')
         taa_set_del(r, t, c1.index, c2.index, args)
     else:                       # out-of-phase
 
@@ -354,14 +358,14 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
         # if taa_delseq[-1] == '*':
         if taa_alt == taa_delseq[-1]:
             # G100_S200delinsS becomes a pure deletion G100_D199del
-            r.append_info("CSQN=InFrameDeletion")
+            r.csqn.append("InFrameDeletion")
             taa_set_del(r, t, c1.index, c2.index-1, args)
         elif taa_alt == taa_delseq[0]:
             # S100_G200delinsS becomes a pure deletion D101_G200del
-            r.append_info("CSQN=InFrameDeletion")
+            r.csqn.append('InFrameDeletion')
             taa_set_del(r, t, c1.index+1, c2.index, args)
         else:
-            r.append_info("CSQN=Missense")
+            r.csqn.append('Missense')
             r.taa_range = '%s%d_%s%ddelins%s' % (
                 aaf(taa_delseq[0], args), c1.index,
                 aaf(taa_delseq[-1], args), c2.index, taa_alt)
@@ -379,7 +383,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
         r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
-        r.append_info("CSQN=Frameshift")
+        r.csqn.append("Frameshift")
     else:
         r.taa_range = '(=)'
-        r.append_info("CSQN=Synonymous")
+        r.csqn.append("Synonymous")
