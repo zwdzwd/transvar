@@ -95,8 +95,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
 
     # if deletion affects coding region
     if t.transcript_type == 'protein_coding' and not same_intron(q.beg, q.end):
-        expt = r.set_splice('lost', csqn_action="Deletion")
-        if not expt:
+        if not r.set_splice('lost', csqn_action="Deletion"):
             c1, p1 = t.intronic_lean(q.beg, 'c_greater')
             c2, p2 = t.intronic_lean(q.end, 'c_smaller')
 
@@ -105,7 +104,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
             else:
                 del_coding_frameshift(args, c1, c2, p1, p2, t, r)
     else:
-        r.csqn.append(r.reg.csqn()+"Deletion")
+        r.set_csqn_byreg("Deletion")
 
     r.append_info('deletion_gDNA=%s;deletion_cDNA=%s' % (gnuc_delseq_r, tnuc_delseq_r))
 
@@ -117,7 +116,7 @@ def annotate_deletion_cdna(args, q, tpts, db):
         if q.tpt and t.name != q.tpt:
             raise IncompatibleTranscriptError("Transcript name unmatched")
 
-        r = Record()
+        r = Record(is_var=True)
         r.chrm = t.chrm
         r.tname = t.format()
         r.gene = t.gene_name
@@ -139,7 +138,7 @@ def annotate_deletion_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         tnuc_del_id(q.beg, q.end, args, q.delseq)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
@@ -156,7 +155,7 @@ def annotate_deletion_protein(args, q, tpts, db):
                 raise IncompatibleTranscriptError("Transcript name unmatched")
             t.ensure_seq()
 
-            r = Record()
+            r = Record(is_var=True)
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
@@ -174,6 +173,7 @@ def annotate_deletion_protein(args, q, tpts, db):
             r.tnuc_range = '%d_%ddel' % (tnuc_beg, tnuc_end)
             r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
             r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
+            r.csqn.append("InFrameDeletion")
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -190,7 +190,7 @@ def annotate_deletion_protein(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.taa_range = taa_del_id(t, q.beg, q.end, args)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
@@ -217,7 +217,7 @@ def annotate_deletion_gdna(args, q, db):
     rs = []
     for reg in describe(args, q, db):
 
-        r = Record()
+        r = Record(is_var=True)
         r.reg = reg
         r.chrm = q.tok
         if warning is not None:
@@ -279,16 +279,15 @@ def annotate_deletion_gdna(args, q, db):
             r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(p1.pos, p2.pos, args, tnuc_delseq))
 
             if t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
-                expt = r.set_splice('lost', csqn_action="Deletion")
-                if not expt:
+                if not r.set_splice('lost', csqn_action="Deletion"):
                     if (q.end - q.beg + 1) % 3 == 0:
                         del_coding_inframe(args, c1, c2, p1, p2, t, r)
                     else:
                         del_coding_frameshift(args, c1, c2, p1, p2, t, r)
             else:
-                r.csqn.append(reg.csqn()+"Deletion")
+                r.set_csqn_byreg("Deletion")
         else:
-            r.csqn.append(reg.csqn()+"Deletion")
+            r.set_csqn_byreg("Deletion")
 
         format_one(r, rs, q, args)
     format_all(rs, q, args)

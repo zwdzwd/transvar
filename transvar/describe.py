@@ -29,8 +29,6 @@ SOFTWARE.
 from transcripts import *
 from record import *
 from copy import copy
-import locale
-locale.setlocale(locale.LC_ALL, '')
 
 def site_set_promoter(args, reg, dist2tss, t):
 
@@ -86,49 +84,6 @@ def are_all_transcripts_overlap(tpts):
     else:
         return False
 
-def format_group(d):
-
-    return locale.format('%d', d, grouping=True)
-
-class IntergenicSite():
-
-    def __init__(self):
-
-        self.e5_name = None
-        self.e5_dist = None
-        self.e5_strand = None
-        
-        self.e3_name = None
-        self.e3_dist = None
-        self.e3_strand = None
-
-
-    def e5_stream(self):
-        if self.e5_strand is None:
-            return None
-        elif self.e5_strand == '+':
-            return 'downstream'
-        else:
-            return 'upstream'
-
-    def e3_stream(self):
-        if self.e3_strand is None:
-            return None
-        elif self.e3_strand == '-':
-            return 'downstream'
-        else:
-            return 'upstream'
-        
-    def format(self):
-
-        return "intergenic_between_%s(%s)_and_%s(%s)" % (
-            self.e5_name,
-            '%s_bp' % format_group(self.e5_dist) if self.e5_strand is None
-            else '%s_bp_%s' % (format_group(self.e5_dist), self.e5_stream()),
-            self.e3_name,
-            '%s_bp' % format_group(self.e3_dist) if self.e3_strand is None
-            else '%s_bp_%s' % (format_group(self.e3_dist), self.e3_stream()))
-
 def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=None, td=None):
 
     if pos is not None:
@@ -141,7 +96,7 @@ def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=No
     if td is None:
         td = _td
         
-    site = IntergenicSite()
+    site = RegIntergenicAnno()
     if tu:
         site.e5 = tu
         site.e5_name = tu.gene_name
@@ -216,17 +171,28 @@ def describe_genic_site(args, chrm, gpos, t, db):
                         reg.tss = t.end
 
             if gpos == exon[1]:
+                reg.splice = SpliceSite()
+                reg.splice.chrm = t.chrm
+                reg.splice.pos = exon[1]+1
+                reg.splice.exonno = exind
                 if t.strand == '+':
-                    reg.splice = 'next_to_donor'
+                    reg.splice.stype = "Donor"
+                    reg.splice.nextto = True
                 else:
-                    reg.splice = 'next_to_acceptor'
-                reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, exon[1]+1)
+                    reg.splice.stype = "Acceptor"
+                    reg.splice.nextto = True
             if gpos == exon[0]:
+                reg.splice = SpliceSite()
+                reg.splice.chrm = t.chrm
+                reg.splice.pos = exon[0]-1
+                reg.splice.exonno = exind
                 if t.strand == '+':
-                    reg.splice = 'next_to_acceptor'
+                    reg.splice.stype  = "Acceptor"
+                    reg.splice.nextto = True
                 else:
-                    reg.splice = 'next_to_donor'
-                reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, exon[0]-1)
+                    reg.splice.stype  = "Donor"
+                    reg.splice.nextto = True
+
             reg.exon = exind
             return reg
         if i > 0:
@@ -239,18 +205,25 @@ def describe_genic_site(args, chrm, gpos, t, db):
                 else:
                     reg.intron_exon1 = exind
                     reg.intron_exon2 = exind+1
+
                 if gpos in [pexon[1]+1, pexon[1]+2]:
+                    reg.splice = SpliceSite()
+                    reg.splice.chrm = t.chrm
+                    reg.splice.pos = pexon[1]+1
+                    reg.splice.exonno = exind
                     if t.strand == '+':
-                        reg.splice = 'donor'
+                        reg.splice.stype = "Donor"
                     else:
-                        reg.splice = 'acceptor'
-                    reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, pexon[1]+1)
+                        reg.splice.stype = "Acceptor"
                 if gpos in [exon[0]-2, exon[0]-1]:
+                    reg.splice = SpliceSite()
+                    reg.splice.chrm = t.chrm
+                    reg.splice.pos = exon[0]-1
+                    reg.splice.exonno = exind
                     if t.strand == '-':
-                        reg.splice = 'donor'
+                        reg.splice.stype = 'Donor'
                     else:
-                        reg.splice = 'acceptor'
-                    reg.splice += '_splice_site_of_exon_%d_at_%s:%d' % (exind, t.chrm, exon[0]-1)
+                        reg.splice.stype = 'Acceptor'
 
                 return reg
 
@@ -356,7 +329,7 @@ def describe(args, q, db):
                     yield reg
 
     else:        # purely intergenic
-            
+        
         if hasattr(q, 'pos') or q.beg == q.end: # point
 
             if not hasattr(q,'pos'):
@@ -377,6 +350,7 @@ def describe(args, q, db):
         else:                   # range
             reg = RegSpanAnno()
             reg.intergenic = describe_intergenic_site(args, db, q.tok, beg=q.beg, end=q.end)
+            reg.intergenic.spanning = []
 
             itg = reg.intergenic
             if itg.e5 is not None and itg.e5_strand == '-':

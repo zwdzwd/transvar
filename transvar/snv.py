@@ -49,7 +49,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             if not codon:
                 raise IncompatibleTranscriptError()
 
-            r = Record()
+            r = Record(is_var=True)
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
@@ -97,6 +97,7 @@ def annotate_snv_cdna(args, q, tpts, db):
                     r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
                 
             else:  # coordinates are with respect to the exon boundary
+                r.csqn.append(r.reg.csqn()+"SNV")
                 t.check_exon_boundary(q.pos)
 
         except IncompatibleTranscriptError:
@@ -108,7 +109,7 @@ def annotate_snv_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.tnuc_pos = q.pos
         r.tnuc_ref = q.ref
         r.tnuc_alt = q.alt
@@ -143,7 +144,7 @@ def _annotate_snv_protein(args, q, t, db):
     if q.ref and codon.seq not in aa2codon(q.ref):
         raise IncompatibleTranscriptError('reference amino acid unmatched')
 
-    r = Record()
+    r = Record(is_var=True)
     r.chrm = t.chrm
     r.tname = t.format()
 
@@ -277,7 +278,7 @@ def annotate_snv_protein(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         set_taa_snv(r, q.pos, q.ref, q.alt, args)
         r.info = 'no_valid_transcript_found'
         r.format(q.op)
@@ -289,7 +290,7 @@ def annotate_snv_gdna(args, q, db):
     gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
     if q.ref and gnuc_ref != q.ref:
         
-        r = Record()
+        r = Record(is_var=True)
         r.chrm = q.tok
         r.pos = q.pos
         r.info = "invalid_reference_base_%s_(expect_%s)" % (q.ref, gnuc_ref)
@@ -307,7 +308,7 @@ def annotate_snv_gdna(args, q, db):
         if q.tpt and hasattr(reg, 't') and reg.t.name != q.tpt:
             continue
         
-        r = Record()
+        r = Record(is_var=True)
         r.reg = reg
         r.chrm = q.tok
         r.gnuc_pos = q.pos
@@ -315,7 +316,7 @@ def annotate_snv_gdna(args, q, db):
         r.gnuc_ref = gnuc_ref
         r.gnuc_alt = q.alt if q.alt else ''
         db.query_dbsnp(r, q.pos, q.ref, q.alt if q.alt else None)
-        
+
         if hasattr(reg, 't'):
 
             c,p = reg.t.gpos2codon(q.pos)
@@ -332,44 +333,42 @@ def annotate_snv_gdna(args, q, db):
                 r.tnuc_ref = complement(r.gnuc_ref)
                 r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
 
-            expt = r.set_splice()
-            if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
-                if c.seq in standard_codon_table:
-                    r.taa_ref = aaf(standard_codon_table[c.seq], args)
-                    r.taa_pos = c.index
+            if not r.set_splice("mutated", "SNV"):
+                if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
+                    if c.seq in standard_codon_table:
+                        r.taa_ref = aaf(standard_codon_table[c.seq], args)
+                        r.taa_pos = c.index
 
-                    if args.aacontext>0 and r.taa_ref:
-                        aa1 = aaf(reg.t.taa_range2aa_seq(
-                            c.index-args.aacontext if c.index>=args.aacontext else 0, c.index-1), args)
-                        aa2 = aaf(reg.t.taa_range2aa_seq(c.index+1, c.index+args.aacontext), args)
-                        r.append_info('aacontext=%s[%s]%s' % (aa1, r.taa_ref, aa2))
+                        if args.aacontext>0 and r.taa_ref:
+                            aa1 = aaf(reg.t.taa_range2aa_seq(
+                                c.index-args.aacontext if c.index>=args.aacontext else 0, c.index-1), args)
+                            aa2 = aaf(reg.t.taa_range2aa_seq(c.index+1, c.index+args.aacontext), args)
+                            r.append_info('aacontext=%s[%s]%s' % (aa1, r.taa_ref, aa2))
 
-                    if q.alt:
-                        if c.strand == '+':
-                            alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
-                        else:
-                            alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
-
-                        r.taa_alt = aaf(codon2aa(alt_seq), args)
-                        if r.taa_alt != r.taa_ref:
-                            if r.taa_alt == '*':
-                                r.csqn.append('Nonsense')
+                        if q.alt:
+                            if c.strand == '+':
+                                alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
                             else:
-                                r.csqn.append('Missense')
-                        elif r.taa_alt:
-                            r.csqn.append('Synonymous')
-                else:
-                    r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
+                                alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
 
-                r.append_info('codon_pos=%s' % (c.locformat(),))
-                r.append_info('ref_codon_seq=%s' % c.seq)
-            elif reg.intronic:
-                r.csqn.append('Intronic')
-            elif reg.UTR is not None:
-                r.csqn.append('%s-UTR' % reg.UTR)
-        elif hasattr(reg, 'intergenic'):
-            r.csqn.append('Intergenic')
-                
+                            r.taa_alt = aaf(codon2aa(alt_seq), args)
+                            if r.taa_alt != r.taa_ref:
+                                if r.taa_alt == '*':
+                                    r.csqn.append('Nonsense')
+                                else:
+                                    r.csqn.append('Missense')
+                            elif r.taa_alt:
+                                r.csqn.append('Synonymous')
+                    else:
+                        r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
+
+                    r.append_info('codon_pos=%s' % (c.locformat(),))
+                    r.append_info('ref_codon_seq=%s' % c.seq)
+                else:
+                    r.csqn.append(r.reg.csqn()+"SNV")
+        else:
+            r.csqn.append(r.reg.csqn()+"SNV")
+
         format_one(r, rs, q, args)
     format_all(rs, q, args)
 

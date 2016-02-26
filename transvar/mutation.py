@@ -352,7 +352,13 @@ def _list_parse_mutation(args, fields, indices, muttype):
 
 def vcf_parse_mutation(args, at='g'):
 
+    nrec = 0
     for line in opengz(args.vcf):
+
+        if nrec % 1000 == 0:
+            sys.stderr.write("\rProcessed %d records\033[K" % nrec)
+        nrec += 1
+
         if line.startswith('##'):
             sys.stdout.write(line)
             continue

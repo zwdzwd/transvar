@@ -46,7 +46,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
                 raise IncompatibleTranscriptError("Transcript name unmatched")
             t.ensure_seq()
 
-            r = Record()
+            r = Record(is_var=True)
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
@@ -71,13 +71,15 @@ def annotate_mnv_cdna(args, q, tpts, db):
             r.tnuc_range = nuc_set_mnv(q.beg, q.end, tnuc_refseq, q.altseq)
 
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
-            expt = r.set_splice()
-            if t.transcript_type == 'protein_coding' and (not expt) and r.reg.entirely_in_cds():
-                try:
-                    tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r, args)
-                except IncompatibleTranscriptError as inst:
-                    _beg, _end, _seqlen = inst
-                    r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+            if (not r.set_splice('lost', 'Substitution')):
+                if t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
+                    try:
+                        tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r, args)
+                    except IncompatibleTranscriptError as inst:
+                        _beg, _end, _seqlen = inst
+                        r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+                else:
+                    r.csqn.append(r.reg.csqn()+"BlockSubstitution")
 
         except IncompatibleTranscriptError:
             continue
@@ -90,7 +92,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
@@ -106,7 +108,7 @@ def annotate_mnv_protein(args, q, tpts, db):
                 raise IncompatibleTranscriptError("Transcript name unmatched")
             t.ensure_seq()
 
-            r = Record()
+            r = Record(is_var=True)
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
@@ -138,6 +140,7 @@ def annotate_mnv_protein(args, q, tpts, db):
             r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
             r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
             r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
+            r.csqn.append("Missense")
             if len(cdd_altseq) <= 2:
                 r.append_info('candidate_alternative_sequence=%s' % ('+'.join(cdd_altseq), ))
 
@@ -156,7 +159,7 @@ def annotate_mnv_protein(args, q, tpts, db):
     format_all(rs, q, args)
     
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.taa_range = '%s%s_%s%sdelins%s' % (
             aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
@@ -235,7 +238,7 @@ def annotate_mnv_gdna(args, q, db):
     gnuc_refseq = faidx.refgenome.fetch_sequence(q.tok, q.beg, q.end)
     if q.refseq and gnuc_refseq != q.refseq:
         
-        r = Record()
+        r = Record(is_var=True)
         r.chrm = q.tok
         r.pos = '%d-%d' % (q.beg, q.end)
         r.info = "invalid_reference_seq_%s_(expect_%s)" % (q.refseq, gnuc_refseq)
@@ -282,7 +285,7 @@ def annotate_mnv_gdna(args, q, db):
     rs = []
     for reg in describe(args, q, db):
 
-        r = Record()
+        r = Record(is_var=True)
         r.reg = reg
         r.chrm = q.tok
         r.pos = '%d-%d' % (q.beg, q.end)
@@ -310,21 +313,24 @@ def annotate_mnv_gdna(args, q, db):
                 tnuc_altseq = reverse_complement(gnuc_altseq)
             r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
 
-            expt = r.set_splice()
-            if r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
-                try:
-                    _, tnuc_beg_adj = t.intronic_lean(tnuc_beg, 'c_greater')
-                    _, tnuc_end_adj = t.intronic_lean(tnuc_end, 'c_smaller')
-                    tnuc_mnv_coding(t, tnuc_beg_adj.pos, tnuc_end_adj.pos, tnuc_altseq, r, args)
-                except IncompatibleTranscriptError as inst:
-                    if len(inst) == 3:
-                        _beg, _end, _seqlen = inst
-                        r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
-                    else:
-                        raise inst
+            if not r.set_splice('lost', 'Substitution'):
+                if r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
+                    try:
+                        _, tnuc_beg_adj = t.intronic_lean(tnuc_beg, 'c_greater')
+                        _, tnuc_end_adj = t.intronic_lean(tnuc_end, 'c_smaller')
+                        tnuc_mnv_coding(t, tnuc_beg_adj.pos, tnuc_end_adj.pos, tnuc_altseq, r, args)
+                    except IncompatibleTranscriptError as inst:
+                        if len(inst) == 3:
+                            _beg, _end, _seqlen = inst
+                            r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+                        else:
+                            raise inst
+                else:
+                    r.csqn.append(r.reg.csqn()+"BlockSubstitution")
 
         elif isinstance(reg, RegSpanAnno):
 
+            r.csqn.append(reg.csqn()+"BlockSubstitution")
             tnames = []
             strands = []
             genes = []

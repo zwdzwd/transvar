@@ -141,7 +141,7 @@ def _annotate_frameshift(args, q, t):
     if q.ref and codon.seq not in aa2codon(q.ref):
         raise IncompatibleTranscriptError('reference amino acid unmatched')
 
-    r = Record()
+    r = Record(is_var=True)
     r.chrm = t.chrm
     r.tname = t.format()
     r.gene = t.gene_name
@@ -199,13 +199,14 @@ def annotate_frameshift(args, q, tpts, db):
         r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.pos, q.pos+q.stop_index)
+        r.csqn.append("Frameshift")
         found = True
         format_one(r, rs, q, args)
 
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)

@@ -59,7 +59,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
 
     insseq = tnuc_ins.insseq
     tnuc_pos = tnuc_ins.beg.pos
-    
+
     if len(insseq) % 3 == 0:
         if tnuc_pos % 3 == 0:
             # in frame
@@ -137,7 +137,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
                 raise IncompatibleTranscriptError("Transcript name unmatched")
             t.ensure_seq()
 
-            r = Record()
+            r = Record(is_var=True)
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
@@ -163,7 +163,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
                 if r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
                     tnuc_coding_ins(args, tnuc_ins, t, r, db)
                 else:
-                    r.csqn.append(r.reg.csqn()+"Insertion")
+                    r.set_csqn_byreg("Insertion")
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
@@ -176,7 +176,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
@@ -189,7 +189,7 @@ def codon_mutation_ins(args, q, t, db):
         raise IncompatibleTranscriptError("Transcript name unmatched")
     t.ensure_seq()
 
-    r = Record()
+    r = Record(is_var=True)
     taa_set_ins(r, t, q.beg, q.insseq, args)
     r.reg = RegCDSAnno(t)
     r.reg.from_cindex(q.beg)
@@ -209,6 +209,7 @@ def codon_mutation_ins(args, q, t, db):
     tnuc_insseq = aaseq2nuc(q.insseq)
     r.append_info('insertion_cDNA='+tnuc_insseq)
     r.append_info('insertion_gDNA=%s' % (tnuc_insseq if t.strand == '+' else reverse_complement(tnuc_insseq)))
+    r.csqn.append('InFrameInsertion')
     r.append_info('imprecise')
     r.pos = gnuc_beg-1
 
@@ -236,18 +237,18 @@ def annotate_insertion_protein(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.taa_range = '%s%s_%s%sins%s' % (aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.insseq, args))
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
 def annotate_insertion_gdna(args, q, db):
 
-    """ annotate_duplication_gdna is also realized by this """
+    """ annotate_duplication_gdna is also delegated by this """
     rs = []
     for reg in describe(args, q, db):
 
-        r = Record()
+        r = Record(is_var=True)
         r.reg = reg
         r.chrm = q.tok
         r.pos = q.pos
@@ -269,12 +270,15 @@ def annotate_insertion_gdna(args, q, db):
 
             # infer protein level mutation if in cds
             # this skips insertion that occur to sites next to donor or acceptor splicing site.
-            if not r.set_splice():
+
+            if not r.set_splice("affected", "Insertion"):
                 if reg.cds and t.transcript_type=='protein_coding':
                     try:
                         tnuc_coding_ins(args, tnuc_ins, t, r, db)
                     except IncompatibleTranscriptError:
-                        pass
+                        r.append_info("Exception=IncompatibleTranscript")
+                else:
+                    r.set_csqn_byreg("Insertion")
 
                 # c1 = t.cpos2codon((tnuc_ins.beg.pos+2)/3)
                 # p1 = tnuc_ins.beg
@@ -283,7 +287,7 @@ def annotate_insertion_gdna(args, q, db):
                 # else:
                 #     ins_gene_coding_frameshift(t, r, c1, p1, tnuc_ins.insseq)
         else:
-            r.csqn.append(r.reg.csqn()+"Insertion")
+            r.set_csqn_byreg("Insertion")
 
         format_one(r, rs, q, args)
     format_all(rs, q, args)
@@ -300,7 +304,7 @@ def annotate_duplication_cdna(args, q, tpts, db):
                 raise IncompatibleTranscriptError("Transcript name unmatched")
             t.ensure_seq()
 
-            r = Record()
+            r = Record(is_var=True)
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
@@ -329,11 +333,11 @@ def annotate_duplication_cdna(args, q, tpts, db):
             r.pos = gnuc_ins.beg_r
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
             r.reg = describe_genic(args, t.chrm, gnuc_ins.beg_r, gnuc_ins.end_r, t, db)
-            if not r.set_splice():
+            if not r.set_splice("affected", "Insertion"):
                 if r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
                     tnuc_coding_ins(args, tnuc_ins, t, r, db)
                 else:
-                    r.csqn.append(r.reg.csqn()+"Insertion")
+                    r.set_csqn_byreg("Insertion")
 
         except IncompatibleTranscriptError:
             continue
@@ -347,7 +351,7 @@ def annotate_duplication_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record()
+        r = Record(is_var=True)
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
