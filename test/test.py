@@ -46,19 +46,30 @@ def wrap(line):
 indir = sys.argv[1]
 outdir = sys.argv[2]
 
-if not os.path.exists(outdir):
-    os.mkdir(outdir)
+if os.path.isdir(indir):
+    ifns = os.listdir(indir)
+    fromdir = True
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
+else:
+    ifns = [indir]
+    fromdir = False
+
 # outdir = open(sys.argv[2], 'w') # open('README.md.temp', 'w')
 
 import transvar
 
-for ifn in os.listdir(indir):
+for ifn in ifns:
     if not ifn.endswith(".md"):
         continue
 
-    ifh = open(os.path.join(indir, ifn))
-
-    ofn = os.path.join(outdir, ifn)
+    if fromdir:
+        ifh = open(os.path.join(indir, ifn))
+        ofn = os.path.join(outdir, ifn)
+    else:
+        ifh = open(ifn)
+        ofn = outdir
+        
     ofh = open(ofn, "w")
 
     result = ''

@@ -356,8 +356,8 @@ class SpliceSite():
     def format(self):
         s = ''
         if self.nextto:
-            s += 'next_to_'
-        s += '%s_splice_site_of_exon_%d_at_%s:%d' % (self.stype, self.exonno, self.chrm, self.pos)
+            s += 'NextTo'
+        s += 'Splice%sOfExon%d_At_%s:%d' % (self.stype, self.exonno, self.chrm, self.pos)
         return s
 
 def parse_pos(posstr):
@@ -604,10 +604,10 @@ class Record():
                 self.append_info('cds_end_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
         else:                   # single site
             if hasattr(self.reg, 'splice'):
-                if not self.reg.splice.nextto:
+                if not self.reg.splice.nextto: # hit splice site, not just next to it
                     expt = True
-                self.csqn.append("Splice"+self.reg.splice.stype+csqn_action)
-                self.append_info(self.reg.splice.format())
+                    self.csqn.append("Splice"+self.reg.splice.stype+csqn_action)
+                self.append_info('C2='+self.reg.splice.format())
             if hasattr(self.reg, 'cds_beg'):
                 expt = True
                 self.append_info('cds_start_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_beg))

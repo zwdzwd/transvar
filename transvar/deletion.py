@@ -364,7 +364,7 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
             r.csqn.append('InFrameDeletion')
             taa_set_del(r, t, c1.index+1, c2.index, args)
         else:
-            r.csqn.append('Missense')
+            r.csqn.append('MultiAAMissense')
             r.taa_range = '%s%d_%s%ddelins%s' % (
                 aaf(taa_delseq[0], args), c1.index,
                 aaf(taa_delseq[-1], args), c2.index, taa_alt)

@@ -117,7 +117,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                 taa_ref_before = codon2aa(t.seq[codon.index*3-6:codon.index*3-3])
                 taa_set_ins(r, t, codon.index-1, taa_insseq[:-1], args)
             else:
-                r.csqn.append("Missense")
+                r.csqn.append("MultiAAMissense")
                 r.taa_range = '%s%ddelins%s' % (aaf(taa_ref, args), codon.index, aaf(taa_insseq, args))
             # 0, 1,2 indicating insertion happen after 3rd, 1st or 2nd base of the codon
             r.append_info('phase=%d' % (tnuc_pos - codon_beg + 1,))
