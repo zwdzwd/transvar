@@ -140,7 +140,7 @@ def annotate_mnv_protein(args, q, tpts, db):
             r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
             r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
             r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
-            r.csqn.append("Missense")
+            r.csqn.append("MultiAAMissense")
             if len(cdd_altseq) <= 2:
                 r.append_info('candidate_alternative_sequence=%s' % ('+'.join(cdd_altseq), ))
 
@@ -404,17 +404,19 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
             taa_set_del(r, t, beg_codon_index+head_trim, end_codon_index-tail_trim, args)
             return
 
-        r.csqn.append("Missense")
         if len(old_taa_seq1) == 1:
             if len(new_taa_seq1) == 1:
+                r.csqn.append("Missense")
                 r.taa_range = '%s%d%s' % (
                     aaf(old_taa_seq1[0], args), beg_codon_index + head_trim, aaf(new_taa_seq1, args))
                 return
             else:
+                r.csqn.append("MultiAAMissense")
                 r.taa_range = '%s%ddelins%s' % (
                     aaf(old_taa_seq1[0], args), beg_codon_index + head_trim, aaf(new_taa_seq1, args))
                 return
 
+        r.csqn.append("MultiAAMissense")
         r.taa_range = '%s%d_%s%ddelins%s' % (
             aaf(old_taa_seq1[0], args), beg_codon_index + head_trim,
             aaf(old_taa_seq1[-1], args), end_codon_index - tail_trim, aaf(new_taa_seq1, args))

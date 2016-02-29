@@ -120,10 +120,13 @@ def _main_(args, q, db, at):
     try:
         return _main_core_(args,q,db,at)
     except WrongReferenceError as e:
-        err_warn('Incompatible reference: %s' % e.wrongref)
+        err_warn('Incompatible reference: %s' % e.msg)
         r = Record()
-        r.append_info("incompatible_reference(%s)" % e.wrongref)
+        r.append_info("Incompatible_reference_%s" % e.wrongref)
         r.format(q.op)
+        if args.suspend:
+            raise e
+
     return
     
 def main_list(args, db, at, mutation_parser):
@@ -201,20 +204,27 @@ def main(args, at):
     if args.i:
         main_one(args, db, at)
 
+def parser_add_general(parser):
+
+    parser.add_argument('--suspend', action='store_true', help='suspend execution upon error, append to the info field')
+
 def add_parser_anno(subparsers, config):
 
     parser = subparsers.add_parser('ganno', help='annotate gDNA element')
     parser_add_annotation(parser)
     parser_add_mutation(parser)
+    parser_add_general(parser)
     parser.set_defaults(func=partial(main, at='g'))
 
     parser = subparsers.add_parser("canno", help='annotate cDNA elements')
     parser_add_annotation(parser)
     parser_add_mutation(parser)
+    parser_add_general(parser)
     parser.set_defaults(func=partial(main, at='c'))
 
     parser = subparsers.add_parser("panno", help='annotate protein element')
     parser_add_annotation(parser)
     parser_add_mutation(parser)
+    parser_add_general(parser)
     parser.set_defaults(func=partial(main, at='p'))
 

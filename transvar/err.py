@@ -48,7 +48,6 @@ class ReferenceUnavailableError(Exception):
 class UnknownChromosomeError(Exception):
     pass
 
-
 class SequenceRetrievalError(Exception):
     pass
 
