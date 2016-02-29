@@ -96,6 +96,9 @@ class RegAnno():
         self.intron_exon1 = None
         self.intron_exon2 = None
 
+        self.cds_beg = None     # if site hits CDS start
+        self.cds_end = None     # if site hits CDS end
+
     def genic(self):
 
         if hasattr(self, "intergenic"):
@@ -608,12 +611,14 @@ class Record():
                     expt = True
                 self.csqn.append("Splice"+self.reg.splice.stype+csqn_action)
                 self.append_info(self.reg.splice.format())
-            if hasattr(self.reg, 'cds_beg'):
+            if reg.cds_beg is not None:
                 expt = True
-                self.append_info('cds_start_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_beg))
-            if hasattr(self.reg, 'cds_end'):
+                self.csqn.append("CdsStart"+csqn_action)
+                self.append_info('C2=cds_start_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_beg))
+            if reg.cds_end is not None:
                 expt = True
-                self.append_info('cds_end_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_end))
+                self.csqn.append("CdsStop"+csqn_action)
+                self.append_info('C2=cds_end_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_end))
             if hasattr(self.reg, 'tss'):
                 expt = True
                 self.append_info('transcription_start_at_%s:%d' % (self.reg.t.chrm, self.reg.tss))

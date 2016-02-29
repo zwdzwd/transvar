@@ -69,7 +69,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(insseq)/3):
                 if codon2aa(insseq[i*3:i*3+3]) == '*':
-                    r.csqn.append("NonsenseInsertion")
+                    r.csqn.append("Nonsense")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     stop_codon_seen = True
                     break
@@ -99,7 +99,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(new_seq)/3):
                 if codon2aa(new_seq[i*3:i*3+3]) == '*':
-                    r.csqn.append("NonsenseInsertion")
+                    r.csqn.append("Nonsense")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     return
                 taa_insseq += codon2aa(new_seq[i*3:i*3+3])
