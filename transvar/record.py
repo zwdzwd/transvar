@@ -609,13 +609,13 @@ class Record():
             if hasattr(self.reg, 'splice'):
                 if not self.reg.splice.nextto: # hit splice site, not just next to it
                     expt = True
-                self.csqn.append("Splice"+self.reg.splice.stype+csqn_action)
+                    self.csqn.append("Splice"+self.reg.splice.stype+csqn_action)
                 self.append_info('C2='+self.reg.splice.format())
-            if reg.cds_beg is not None:
+            if self.reg.cds_beg is not None:
                 expt = True
                 self.csqn.append("CdsStart"+csqn_action)
                 self.append_info('C2=cds_start_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_beg))
-            if reg.cds_end is not None:
+            if self.reg.cds_end is not None:
                 expt = True
                 self.csqn.append("CdsStop"+csqn_action)
                 self.append_info('C2=cds_end_at_%s:%d' % (self.reg.t.chrm, self.reg.cds_end))
