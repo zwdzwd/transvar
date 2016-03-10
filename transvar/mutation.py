@@ -170,13 +170,28 @@ def read_aa(aaseq):
 
 def _parse_protein_mutation(s):
 
-    m = re.match(r'(p\.)?([A-Za-z*?]*)(\d+)(_([A-Za-z*?]*)(\d+))?(del([^i][A-Za-z*?\d]*)?)?(ins([A-Za-z*?]+))?>?([A-Za-z*?]+)?(fs(Ter|[\*Xx])(\d+))?(ref([A-Za-zx*]*))?$', s)
+    success = False
+    # test fs without alternative allele
+    m = re.match(r'(p\.)?([A-Za-z*?]*)(\d+)([A-Za-z*?]+)?fs((Ter|[\*Xx])(\d+))?$', s)
+    if m:
+        _, _beg_aa, _beg_i, _alt, _hasterlen, _tersymbol, _stop_i, = m.groups()
+        _is_fs = True
+        _end_s, _end_aa, _end_i = (None, None, None)
+        _is_del, _d, _is_ins, _i = (None, None, None, None)
+        _has_ref, _ref = (None, None)
+        success = True
 
-    if not m:
+    if not success:
+        m = re.match(r'(p\.)?([A-Za-z*?]*)(\d+)(_([A-Za-z*?]*)(\d+))?(del([^i][A-Za-z*?\d]*)?)?(ins([A-Za-z*?]+))?>?([A-Za-z*?]+)?(fs((Ter|[\*Xx])(\d+))?)?(ref([A-Za-zx*]*))?$', s)
+
+        if m:
+            (_, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
+             _is_del, _d, _is_ins, _i, _alt, _is_fs, _hasterlen,
+             _tersymbol, _stop_i, _has_ref, _ref) = m.groups()
+            success = True
+
+    if not success:
         err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
-
-    (_, _beg_aa, _beg_i, _end_s, _end_aa, _end_i, 
-     _is_del, _d, _is_ins, _i, _alt, _is_fs, _haster, _stop_i, _has_ref, _ref) = m.groups()
 
     _beg_aa = read_aa(_beg_aa)
     _end_aa = read_aa(_end_aa)
@@ -191,7 +206,7 @@ def _parse_protein_mutation(s):
         q.pos = int(_beg_i)
         q.ref = _beg_aa
         q.alt = _alt
-        q.stop_index = int(_stop_i)
+        q.stop_index = int(_stop_i) if _hasterlen else -1
     elif _is_del and not _is_ins:
         #print 'del'
         q = QueryDEL()

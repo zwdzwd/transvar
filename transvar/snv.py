@@ -151,9 +151,13 @@ def _annotate_snv_protein(args, q, t, db):
     # if alternative amino acid is given
     # filter the target mutation set to those give
     # the alternative aa
-    
+
+    r.taa_alt = q.alt
     if q.alt:
+        # here we assume a variant when an alternative aa is given,
+        # even it might be the same as the reference
         tgt_codon_seqs = [x for x in aa2codon(q.alt) if x != codon.seq]
+        # tgt_codon_seqs = aa2codon(q.alt)
         diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
         diffinds = sorted(range(len(diffs)), key=lambda i: len(diffs[i]))
 
@@ -161,6 +165,7 @@ def _annotate_snv_protein(args, q, t, db):
         gi = diffinds[0]        # guessed diff index
         gdiff = diffs[gi]       # guessed diff
         gtgtcodonseq = tgt_codon_seqs[gi]
+        r.taa_alt = codon2aa(gtgtcodonseq)
         if len(gdiff) == 1:
             nrefbase = codon.seq[gdiff[0]]
             naltbase = gtgtcodonseq[gdiff[0]]
@@ -271,7 +276,8 @@ def annotate_snv_protein(args, q, tpts, db):
 
         r.gene = t.gene_name
         r.strand = t.strand
-        set_taa_snv(r, q.pos, q.ref, q.alt, args)
+        # alternative should be based on actual alternative aa determined
+        set_taa_snv(r, q.pos, q.ref, r.taa_alt, args)
         r.reg = RegCDSAnno(t, c)
         found = True
         format_one(r, rs, q, args)

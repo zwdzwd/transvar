@@ -202,10 +202,10 @@ def annotate_frameshift(args, q, tpts, db):
         except UnknownChromosomeError:
             continue
 
-        r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
+        r.taa_range = format_fs(q, args)
         r.csqn.append("Frameshift")
         r.reg = RegCDSAnno(t)
-        r.reg.from_taa_range(q.pos, q.pos+q.stop_index)
+        r.reg.from_taa_range(q.pos, q.pos+(q.stop_index if q.stop_index>=0 else 0))
         found = True
         format_one(r, rs, q, args)
 
@@ -213,7 +213,14 @@ def annotate_frameshift(args, q, tpts, db):
 
     if not found:
         r = Record(is_var=True)
-        r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
+        r.taa_range = format_fs(q, args)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
         r.format(q.op)
 
+
+def format_fs(q, args):
+    
+    if q.stop_index >= 0:
+        return '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
+    else:
+        return '%s%d%sfs' % (aaf(q.ref, args), q.pos, aaf(q.alt, args))
