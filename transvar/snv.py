@@ -380,7 +380,9 @@ def set_taa_snv(r, pos, ref, alt, args):
     if r.taa_ref != r.taa_alt:
         if r.taa_alt == '*':
             r.csqn.append('Nonsense')
-        else:
+        elif r.taa_alt:
             r.csqn.append('Missense')
+        else:
+            r.csqn.append('Unclassified')
     elif r.taa_ref:
         r.csqn.append('Synonymous')
