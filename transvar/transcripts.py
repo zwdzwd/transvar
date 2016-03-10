@@ -94,7 +94,10 @@ reverse_codon_table = {
     'W': ['TGG'],
     'V': ['GTA', 'GTC', 'GTG', 'GTT'],
     'Y': ['TAT', 'TAC'],
-    '*': ['TAA', 'TAG', 'TGA']
+    '*': ['TAA', 'TAG', 'TGA'],
+    # ambiguous aa
+    'Z': ['CAA', 'CAG', 'GAG', 'GAA'], # Q or E
+    'B': ['AAC', 'AAT', 'GAC', 'GAT'], # N or D
 }
 
 

@@ -31,6 +31,7 @@ from transcripts import *
 from utils import *
 from record import *
 from err import *
+from snv import annotate_snv_protein
 
 import itertools
 
@@ -172,20 +173,24 @@ def _annotate_frameshift(args, q, t):
     else:
         tnuc_beg = (codon.index-1)*3+1
         tnuc_end = (q.pos+q.stop_index)*3 # may be out of bound
-        r.tnuc_range = '%d-%d' % (tnuc_beg, tnuc_end)
+        r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
         if tnuc_end >= t.cdslen():
             t.ensure_position_array()
             gnuc_beg = t.tnuc2gnuc(tnuc_beg)
             gnuc_end = t.cds_end + tnuc_end - t.cdslen()
         else:
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-        r.gnuc_range = '%d-%d' % (gnuc_beg, gnuc_end)
+        r.gnuc_range = '%d_%d' % (gnuc_beg, gnuc_end)
         r.append_info('imprecise')
 
     return r
 
 
 def annotate_frameshift(args, q, tpts, db):
+
+    if q.alt == '*':
+        annotate_snv_protein(args, q, tpts, db)
+        return
 
     found = False
     rs = []
@@ -196,10 +201,11 @@ def annotate_frameshift(args, q, tpts, db):
             continue
         except UnknownChromosomeError:
             continue
+
         r.taa_range = '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
+        r.csqn.append("Frameshift")
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.pos, q.pos+q.stop_index)
-        r.csqn.append("Frameshift")
         found = True
         format_one(r, rs, q, args)
 

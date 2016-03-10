@@ -80,6 +80,9 @@ aa_3to1_table = {
     "Sec": "U",
     "Pyl": "O",
     "X": "*",
+    # ambiguous aa
+    "Glx": "Z",                 # Q or E
+    "Asx": "B",                 # N or D
 }
 
 aa_1to3_table = {
@@ -106,6 +109,9 @@ aa_1to3_table = {
     "U": "Sec",
     "O": "Pyl",
     "*": "X",
+    # ambiguous aa
+    "Z": "Glx",                 # Q or E
+    "B": "Asx",                 # N or D
 }
 
 def aa_3to1(aaseq):

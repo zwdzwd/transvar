@@ -268,7 +268,7 @@ def annotate_snv_protein(args, q, tpts, db):
         except UnknownChromosomeError as e:
             err_print(str(e))
             continue
-        
+
         r.gene = t.gene_name
         r.strand = t.strand
         set_taa_snv(r, q.pos, q.ref, q.alt, args)
