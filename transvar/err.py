@@ -45,9 +45,6 @@ class UndeterminedStopCodon(Exception):
 class ReferenceUnavailableError(Exception):
     pass
 
-class UnknownChromosomeError(Exception):
-    pass
-
 class SequenceRetrievalError(Exception):
     pass
 

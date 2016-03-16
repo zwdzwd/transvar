@@ -85,8 +85,6 @@ def annotate_mnv_cdna(args, q, tpts, db):
             continue
         except SequenceRetrievalError:
             continue
-        except UnknownChromosomeError:
-            continue
         found = True
         format_one(r, rs, q, args)
     format_all(rs, q, args)
@@ -146,7 +144,7 @@ def annotate_mnv_protein(args, q, tpts, db):
 
         except IncompatibleTranscriptError:
             continue
-        except UnknownChromosomeError:
+        except SequenceRetrievalError:
             continue
         r.taa_range = '%s%s_%s%sdelins%s' % (
             aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
@@ -432,7 +430,7 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         if ret:
             taa_pos, taa_ref, taa_alt, termlen = ret
             r.csqn.append("Frameshift")
-            r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+            r.taa_range = '%s%d%sfs*%d' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
         else:
             r.csqn.append("Synonymous")
             r.taa_range = '(=)'

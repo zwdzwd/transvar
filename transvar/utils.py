@@ -152,9 +152,9 @@ def reflen(chrm):
         e.wrongref = chrm
         raise e
 
-def printseq(seq):
+def printseq(seq, args):
 
-    if len(seq) > 10:
+    if len(seq) > args.seqmax:
         return '%s..%s' % (seq[:3], seq[-3:])
     else:
         return seq

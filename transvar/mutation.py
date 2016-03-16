@@ -478,6 +478,7 @@ def parser_add_mutation(parser):
     parser.add_argument('--skipheader', action='store_true',
                         help='skip header')
     parser.add_argument('--seqmax', type=int, default=10, help='maximum reference sequence to output (10), use -1 for infinity')
+    parser.add_argument('--max-candidates', type=int, dest='nc', default=10, help='maximum candidate output for fuzzy search') 
     parser.add_argument('--oneline', action='store_true', help='output one line for each query')
     parser.add_argument('--aa3', action='store_true', help='use 3 letter code for protein output')
     parser.add_argument('--aacontext', type=int, default=0, help='output amino acid context')

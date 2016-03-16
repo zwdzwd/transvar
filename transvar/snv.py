@@ -102,7 +102,7 @@ def annotate_snv_cdna(args, q, tpts, db):
 
         except IncompatibleTranscriptError:
             continue
-        except UnknownChromosomeError:
+        except SequenceRetrievalError:
             continue
         found = True
         format_one(r, rs, q, args)
@@ -255,8 +255,6 @@ def __core_annotate_codon_snv(args, q, db):
             continue
         except SequenceRetrievalError:
             continue
-        except UnknownChromosomeError:
-            continue
         yield t, c
 
 def annotate_snv_protein(args, q, tpts, db):
@@ -269,9 +267,7 @@ def annotate_snv_protein(args, q, tpts, db):
         except IncompatibleTranscriptError as e:
             continue
         except SequenceRetrievalError as e:
-            continue
-        except UnknownChromosomeError as e:
-            err_print(str(e))
+            err_warn(e)
             continue
 
         r.gene = t.gene_name
@@ -292,18 +288,24 @@ def annotate_snv_protein(args, q, tpts, db):
 
 def annotate_snv_gdna(args, q, db):
 
+    r = Record(is_var=True)
+    r.chrm = q.tok
+    r.pos = q.pos
+
     # check reference base
-    gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
+    try:
+        gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
+    except SequenceRetrievalError as e:
+        r.info = 'SequenceRetrievalError'
+        r.format(q.op)
+        err_warn(e)
+        return
+
     if q.ref and gnuc_ref != q.ref:
-        
-        r = Record(is_var=True)
-        r.chrm = q.tok
-        r.pos = q.pos
         r.info = "invalid_reference_base_%s_(expect_%s)" % (q.ref, gnuc_ref)
         r.format(q.op)
         err_print("invalid reference base %s (expect %s), maybe wrong reference?" % (q.ref, gnuc_ref))
         return
-    
     else:
         q.ref = gnuc_ref
 

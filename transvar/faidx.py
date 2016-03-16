@@ -55,21 +55,22 @@ class RefGenome:
                 chrom = 'chr'+chrom
             else:
                 # sys.stderr.write('Chromosome %s not found in reference\n' % chrom)
-                raise UnknownChromosomeError('chromosome %s not found in reference' % chrom)
+                raise SequenceRetrievalError('chromosome %s not found in reference' % chrom)
 
         slen,offset,blen,bytelen=self.faidx[chrom]
         start = start-1 #To 0-base
         # Sanity check of start and end position
         if start<0:
-            raise IndexError('Sequence window out of bound--Chr: %s\tStart:%d\tEnd:%s' % (chrom,start+1,end))
-        elif start>=end:
-            raise ValueError('Start position %d is larger than end position %d' % (start+1,end))
+            raise SequenceRetrievalError('Sequence window out of bound--Chr: %s\tStart:%d\tEnd:%s' % (chrom,start+1,end))
         elif end>slen and start-(end-slen)>=0: #end is out of bound, adjust the window towards start
             end=slen
             start=start-(end-slen)
         elif end>slen:
-            raise IndexError('Sequence window out of bound--Chr: %s\tStart:%d\tEnd:%s' % (chrom,start+1,end))
-         
+            raise SequenceRetrievalError('Sequence window out of bound--Chr: %s\tStart:%d\tEnd:%s' % (chrom,start+1,end))
+
+        if start>=end:
+            raise SequenceRetrievalError('Start position %d is larger than end position %d' % (start+1,end))
+
         self.fasta_handle.seek(offset+start/blen*bytelen+start%blen)
 
         while len(seq)<end-start:

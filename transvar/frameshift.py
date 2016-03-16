@@ -34,6 +34,7 @@ from err import *
 from snv import annotate_snv_protein
 
 import itertools
+alphabets = 'ACGT'
 
 def fuzzy_match_deletion(t, codon, q, args):
 
@@ -51,7 +52,7 @@ def fuzzy_match_deletion(t, codon, q, args):
                 # print q.pos, q.ref, q.alt, q.stop_index, j, _taa_pos, _taa_ref, _taa_alt, _termlen
                 # print q.pos, q.ref, q.alt, type(q.stop_index), j, type(_taa_pos), type(_taa_ref), type(_taa_alt), type(_termlen)
                 if (q.ref == _taa_ref and ((not q.alt) or q.alt == _taa_alt)
-                    and q.stop_index == int(_termlen) and q.pos == _taa_pos):
+                    and q.stop_index == _termlen and q.pos == _taa_pos):
                     t.ensure_position_array()
                     if t.strand == '+':
                         gnuc_beg, gnuc_end = t.np[j], t.np[j+ds-1]
@@ -90,34 +91,119 @@ def fuzzy_match_deletion(t, codon, q, args):
                         
     return matches
 
+class FuzzyInsMatch():
+
+    def __init__(self):
+        self.insseq = ''
+        self.termlen = -1
+        self.tnuc_pos = -1
+
+    def __repr__(self):
+        return '<FMatch: %dfs*%dins%s>' % (self.tnuc_pos, self.termlen, self.insseq)
+
+def fuzzy_match_insertion_aa_change(t, j, ins_len, q):
+    """
+    given insertion length and insertion location
+    find all the insertion sequence that match taa_alt
+    try to match the insertion length just for early stop
+
+    j is the tnuc location of insertion
+    ins_len is the nucleotide length of insertion
+    """
+    jb = j/3*3
+    old_seq = t.seq[jb:]
+    match_seq = []
+    termlen_match = False
+    for _insseq in itertools.product(alphabets, repeat=ins_len):
+        insseq = ''.join(_insseq)
+        new_seq = t.seq[jb:j]+insseq+t.seq[j:]
+        ret = t.extend_taa_seq(j/3+1, old_seq, new_seq)
+        if ret:
+            _taa_pos, _taa_ref, _taa_alt, _termlen = ret
+            if (((not q.alt) or _taa_alt == q.alt) and q.ref == _taa_ref
+                and q.pos == _taa_pos and _termlen <= q.stop_index):
+                m = FuzzyInsMatch()
+                m.insseq = insseq
+                m.termlen = _termlen
+                match_seq.append(m)
+                if _termlen == q.stop_index:
+                    termlen_match = True
+
+    # early stop when termlen also matches
+    if termlen_match:
+        match_seq = [m for m in match_seq if m.termlen == q.stop_index]
+    return match_seq
+
+def fuzzy_match_insertion_scan_loc(t, codon_index, ins_len, q):
+
+    """ given insertion length, scan different insertion location """
+    i = codon_index*3
+    matched_seqs = []
+    # prime 10 insertion location before the channged aa
+    for j in xrange(i, max(0,i-10), -1):
+        matched_seq = fuzzy_match_insertion_aa_change(t, j, ins_len, q)
+        if matched_seq:
+            for m in matched_seq:
+                m.tnuc_pos = j
+            matched_seqs.extend(matched_seq)
+
+    return matched_seqs
+
+def fuzzy_match_insertion_update_match(matches, t, insseq, j):
+
+    t.ensure_position_array()
+    gnuc_insseq = insseq if t.strand == '+' else reverse_complement(insseq)
+    # note that t.np is 0-based
+    gnuc_ins = gnuc_set_ins_core(t.chrm, t.np[j-1] if t.strand == '+' else t.np[j], gnuc_insseq)
+    tnuc_ins = tnuc_set_ins_core(gnuc_ins, t)
+    matches[gnuc_ins.right_align()] = (
+        gnuc_ins.left_align(),
+        tnuc_ins.right_align(),
+        tnuc_ins.left_align())
+
 def fuzzy_match_insertion(t, codon, q):
 
-    alphabets = 'ACGT'
     matches = {}
-    for ds in [1,2]:            # insertion length
-        i = codon.index*3
-        for j in xrange(i, max(0, i-10), -1):
-            jb = j/3*3
-            old_seq = t.seq[jb:]
-            for _insseq in itertools.product(alphabets, repeat=ds):
-                insseq = ''.join(_insseq)
-                new_seq = t.seq[jb:j]+insseq+t.seq[j:]
-                ret = t.extend_taa_seq(j/3+1, old_seq, new_seq)
-                if ret:
-                    _taa_pos, _taa_ref, _taa_alt, _termlen = ret
-                    if (q.ref == _taa_ref and ((not q.alt) or q.alt == _taa_alt)
-                        and q.stop_index == int(_termlen) and q.pos == _taa_pos):
-                        t.ensure_position_array()
-                        gnuc_insseq = insseq if t.strand == '+' else reverse_complement(insseq)
-                        gnuc_ins = gnuc_set_ins_core(t.chrm, t.np[j], gnuc_insseq)
-                        tnuc_ins = tnuc_set_ins_core(gnuc_ins, t)
-                        matches[gnuc_ins.right_align()] = (
-                            gnuc_ins.left_align(),
-                            tnuc_ins.right_align(),
-                            tnuc_ins.left_align())
-                        
+
+    # prime the first changed aa, this involves
+    # at most 5 base non-free insertion (those do not
+    #  interfere with reference bases to form new codons)
+    mseqs = []
+    for ds in xrange(1,6):
+        if len(mseqs) > 3000:
+            break
+        exact_match_found = False
+        mseq = fuzzy_match_insertion_scan_loc(t, codon.index, ds, q)
+        if mseq and [m for m in mseq if m.termlen == q.stop_index]:
+            for m in mseq:
+                if m.termlen == q.stop_index:
+                    fuzzy_match_insertion_update_match(matches, t, m.insseq, m.tnuc_pos)
+                    exact_match_found = True
+        mseqs.extend(mseq)
+        if exact_match_found:
+            break
+
+    # early stop
+    if matches:
+        return matches
+
+    # cannot match first aa change
+    # TODO: enlarge the search span for locations instead of giving up
+    if not mseqs:
+        return {}
+
+    max_termlen = max(m.termlen for m in mseqs)
+    # determine additional insertion leading to the stop codon
+    for i, m in enumerate(mseqs):
+        if m.termlen == max_termlen:
+            freefill_len = q.stop_index - max_termlen
+            k = 3-m.tnuc_pos%3
+            filled_insseq = m.insseq[:k]+'N'*(freefill_len*3)+m.insseq[k:]
+            # print i
+            fuzzy_match_insertion_update_match(matches, t, filled_insseq, m.tnuc_pos)
+
     return matches
-    
+
 def _annotate_frameshift(args, q, t):
 
     if q.alt and q.alt not in reverse_codon_table:
@@ -165,18 +251,20 @@ def _annotate_frameshift(args, q, t):
         r.append_info('left_align_gDNA=g.%s' % gnuc_id_l)
         if len(matches) > 1:
             cands = []
-            for k in xrange(1,len(gmatches)):
+            for k in xrange(1,min(args.nc,len(gmatches))):
                 gnuc_id_r = gmatches[k]
                 gnuc_id_l, tnuc_id_r, tnuc_id_l = matches[gnuc_id_r]
                 cands.append('g.%s/c.%s/g.%s/c.%s' % (gnuc_id_r, tnuc_id_r, gnuc_id_l, tnuc_id_l))
             r.append_info('candidates=%s' % ','.join(cands))
+            if len(matches) > args.nc:
+                r.append_info('%d_CandidatesOmitted' % (len(matches)-args.nc))
     else:
         tnuc_beg = (codon.index-1)*3+1
         tnuc_end = (q.pos+q.stop_index)*3 # may be out of bound
         r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
         if tnuc_end >= t.cdslen():
             t.ensure_position_array()
-            gnuc_beg = t.tnuc2gnuc(tnuc_beg)
+            gnuc_beg = t._tnuc2gnuc(tnuc_beg)
             gnuc_end = t.cds_end + tnuc_end - t.cdslen()
         else:
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
@@ -199,7 +287,7 @@ def annotate_frameshift(args, q, tpts, db):
             r = _annotate_frameshift(args, q, t)
         except IncompatibleTranscriptError:
             continue
-        except UnknownChromosomeError:
+        except SequenceRetrievalError:
             continue
 
         r.taa_range = format_fs(q, args)

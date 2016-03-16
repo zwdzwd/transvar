@@ -49,8 +49,13 @@ def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
     ret = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+        if taa_alt == '*':
+            r.csqn.append('Nonsense')
+        else:
+            r.csqn.append("Frameshift")
+        r.taa_range = '%s%d%sfs*%d' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
     else:
+        r.csqn.append('Synonymous')
         r.taa_range = '(=)'
 
 def tnuc_coding_ins(args, tnuc_ins, t, r, db):
@@ -69,7 +74,6 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(insseq)/3):
                 if codon2aa(insseq[i*3:i*3+3]) == '*':
-                    r.csqn.append("Nonsense")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     stop_codon_seen = True
                     break
@@ -99,7 +103,6 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             taa_insseq = ''
             for i in xrange(len(new_seq)/3):
                 if codon2aa(new_seq[i*3:i*3+3]) == '*':
-                    r.csqn.append("Nonsense")
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     return
                 taa_insseq += codon2aa(new_seq[i*3:i*3+3])
@@ -123,7 +126,6 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             r.append_info('phase=%d' % (tnuc_pos - codon_beg + 1,))
 
     else:                       # frameshift
-        r.csqn.append("Frameshift")
         tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
 
 def annotate_insertion_cdna(args, q, tpts, db):
@@ -167,8 +169,6 @@ def annotate_insertion_cdna(args, q, tpts, db):
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
-            continue
-        except UnknownChromosomeError:
             continue
 
         found = True
@@ -229,8 +229,6 @@ def annotate_insertion_protein(args, q, tpts, db):
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
-            continue
-        except UnknownChromosomeError:
             continue
         found = True
         format_one(r, rs, q, args)
@@ -342,8 +340,6 @@ def annotate_duplication_cdna(args, q, tpts, db):
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
-            continue
-        except UnknownChromosomeError:
             continue
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
         found = True

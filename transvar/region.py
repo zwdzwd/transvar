@@ -89,7 +89,7 @@ def annotate_region_cdna(args, q, tpts, db):
             r = _annotate_region_cdna(args, q, t, db)
         except IncompatibleTranscriptError:
             continue
-        except UnknownChromosomeError:
+        except SequenceRetrievalError:
             continue
         found = True
         format_one(r, rs, q, args)
@@ -140,11 +140,12 @@ def annotate_region_protein(args, q, tpts, db):
 
             r.reg = RegCDSAnno(t)
             r.reg.from_taa_range(q.beg, q.end)
-            r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (printseq(taa_natrefseq), printseq(r.natrefseq), printseq(r.refrefseq)))
+            r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (
+                printseq(taa_natrefseq, args), printseq(r.natrefseq, args), printseq(r.refrefseq, args)))
         except IncompatibleTranscriptError:
             continue
-        # except UnknownChromosomeError:
-            # continue
+        except SequenceRetrievalError:
+            continue
         found = True
         r.format(q.op)
 

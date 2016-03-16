@@ -129,8 +129,6 @@ def annotate_deletion_cdna(args, q, tpts, db):
             continue
         except SequenceRetrievalError:
             continue
-        except UnknownChromosomeError:
-            continue
 
         found = True
         format_one(r, rs, q, args)
@@ -177,8 +175,6 @@ def annotate_deletion_protein(args, q, tpts, db):
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
-            continue
-        except UnknownChromosomeError:
             continue
 
         taa_set_del(r, t, q.beg, q.end, args)
@@ -384,7 +380,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
     ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
     if ret:
         taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%s' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+        r.taa_range = '%s%d%sfs*%d' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
         r.csqn.append("Frameshift")
     else:
         r.taa_range = '(=)'

@@ -998,7 +998,7 @@ class Transcript():
     def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
 
         taa_pos = None
-        termlen = None
+        termlen = -1            # use -1 to detect abnormal computes
         seq_end = self.cds_end
         i = 0
         while True:
@@ -1035,7 +1035,7 @@ class Transcript():
             print 'newseq', new_seq
         taa_pos += taa_pos_base
 
-        return taa_pos, taa_ref, taa_alt, str(termlen)
+        return taa_pos, taa_ref, taa_alt, termlen
 
 
 def tnuc_del_id(pbeg, pend, args, tnuc_delseq=None):
