@@ -193,14 +193,15 @@ def fuzzy_match_insertion(t, codon, q):
         return {}
 
     max_termlen = max(m.termlen for m in mseqs)
+    freefill_len = q.stop_index - max_termlen
     # determine additional insertion leading to the stop codon
-    for i, m in enumerate(mseqs):
-        if m.termlen == max_termlen:
-            freefill_len = q.stop_index - max_termlen
-            k = 3-m.tnuc_pos%3
-            filled_insseq = m.insseq[:k]+'N'*(freefill_len*3)+m.insseq[k:]
-            # print i
-            fuzzy_match_insertion_update_match(matches, t, filled_insseq, m.tnuc_pos)
+    if freefill_len < 10:
+        for i, m in enumerate(mseqs):
+            if m.termlen == max_termlen:
+                k = 3-m.tnuc_pos%3
+                filled_insseq = m.insseq[:k]+'N'*(freefill_len*3)+m.insseq[k:]
+                # print i
+                fuzzy_match_insertion_update_match(matches, t, filled_insseq, m.tnuc_pos)
 
     return matches
 
@@ -261,14 +262,14 @@ def _annotate_frameshift(args, q, t):
     else:
         tnuc_beg = (codon.index-1)*3+1
         tnuc_end = (q.pos+q.stop_index)*3 # may be out of bound
-        r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
+        r.tnuc_range = '(%d_%d)' % (tnuc_beg, tnuc_end)
         if tnuc_end >= t.cdslen():
             t.ensure_position_array()
             gnuc_beg = t._tnuc2gnuc(tnuc_beg)
             gnuc_end = t.cds_end + tnuc_end - t.cdslen()
         else:
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-        r.gnuc_range = '%d_%d' % (gnuc_beg, gnuc_end)
+        r.gnuc_range = '(%d_%d)' % (gnuc_beg, gnuc_end)
         r.append_info('imprecise')
 
     return r
