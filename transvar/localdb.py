@@ -169,17 +169,20 @@ class TransVarDB():
 
     def iloc_query(self, chrm, beg, end):
 
+        self.ensure_loc_idx()
         return tabix_query(self.loc_idx, chrm, beg, end)
 
-    def get_by_loc(self, chrm, beg, end=None, flanking=0):
-
-        """ get transcript if between begin and end """
+    def ensure_loc_idx(self):
         if self.loc_idx is None:
             idx_fn = self.dbfn+'.loc_idx'
             if not os.path.exists(idx_fn):
                 err_die("Missing location index. Consider rerunning the transvar index command")
             self.loc_idx = tabix.open(idx_fn)
-        
+
+    def get_by_loc(self, chrm, beg, end=None, flanking=0):
+
+        """ get transcript if between begin and end """
+        self.ensure_loc_idx()
         if not end: end = beg
         chrm = normalize_chrm(chrm)
         for fields in self.iloc_query(chrm,beg-flanking,end+flanking):
