@@ -34,6 +34,81 @@ from copy import copy
 from describe import *
 
 # TODO: refactor left-right align
+class GNucDeletion():
+
+    def __init__(self, chrm, gnuc_beg, gnuc_end):
+        self.chrm = chrm
+
+        # unaligned
+        self.gnuc_beg = gnuc_beg
+        self.gnuc_end = gnuc_end
+        self.gnuc_delseq = faidx.getseq(chrm, gnuc_beg, gnuc_end)
+
+        # right-aligned
+        self.gnuc_beg_r, self.gnuc_end_r = gnuc_roll_right_del(chrm, gnuc_beg, gnuc_end)
+        self.gnuc_delseq_r = faidx.getseq(chrm, self.gnuc_beg_r, self.gnuc_end_r) # TODO: this retrieval can be saved
+
+        # left-aligned
+        self.gnuc_beg_l, self.gnuc_end_l = gnuc_roll_left_del(chrm, gnuc_beg, gnuc_end)
+        self.gnuc_delseq_l = faidx.getseq(chrm, self.gnuc_beg_l, self.gnuc_end_l)
+
+        self.tnuc = False
+
+    def compute_tnuc(self, t, p1=None, p2=None):
+
+        self.tnuc = True
+        if t.strand == '+':
+            self.tnuc_delseq = self.gnuc_delseq
+            if p1 is None:
+                self.c1, self.p1 = t.gpos2codon(self.gnuc_beg)
+            else:
+                self.p1 = p1
+
+            if p2 is None:
+                self.c2, self.p2 = t.gpos2codon(self.gnuc_end)
+            else:
+                self.p2 = p2
+
+            c1l, self.p1l = t.gpos2codon(self.gnuc_beg_l)
+            c2l, self.p2l = t.gpos2codon(self.gnuc_end_l)
+            self.tnuc_delseq_l = self.gnuc_delseq_l
+            c1r, self.p1r = t.gpos2codon(self.gnuc_beg_r)
+            c2r, self.p2r = t.gpos2codon(self.gnuc_end_r)
+            self.tnuc_delseq_r = self.gnuc_delseq_r
+        else:
+            self.tnuc_delseq = reverse_complement(self.gnuc_delseq)
+            if p1 is None:
+                self.c1, self.p1 = t.gpos2codon(self.gnuc_end)
+            else:
+                self.p1 = p1
+
+            if p2 is None:
+                self.c2, self.p2 = t.gpos2codon(self.gnuc_beg)
+            else:
+                self.p2 = p2
+
+            c1l, self.p1l = t.gpos2codon(self.gnuc_end_r)
+            c2l, self.p2l = t.gpos2codon(self.gnuc_beg_r)
+            self.tnuc_delseq_l = reverse_complement(self.gnuc_delseq_r)
+            c1r, self.p1r = t.gpos2codon(self.gnuc_end_l)
+            c2r, self.p2r = t.gpos2codon(self.gnuc_beg_l)
+            self.tnuc_delseq_r = reverse_complement(self.gnuc_delseq_l)
+
+    def set_record(self, r, args):
+        r.pos = '%d-%d' % (self.gnuc_beg_r, self.gnuc_end_r)
+
+        r.gnuc_range = gnuc_del_id(self.chrm, self.gnuc_beg_r, self.gnuc_end_r, args)
+        r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(
+            self.chrm, self.gnuc_beg_l, self.gnuc_end_l, args))
+        r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(
+            self.chrm, self.gnuc_beg, self.gnuc_end, args))
+
+        if self.tnuc:
+            r.tnuc_range = tnuc_del_id(self.p1r, self.p2r, args, self.tnuc_delseq_r)
+            r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(
+                self.p1l, self.p2l, args, self.tnuc_delseq_l))
+            r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(
+                self.p1, self.p2, args, self.tnuc_delseq))
 
 def _annotate_deletion_cdna(args, q, r, t, db):
 
@@ -47,49 +122,14 @@ def _annotate_deletion_cdna(args, q, r, t, db):
     gnuc_beg = min(_gnuc_beg, _gnuc_end)
     gnuc_end = max(_gnuc_beg, _gnuc_end)
 
-    gnuc_delseq = faidx.getseq(t.chrm, gnuc_beg, gnuc_end)
-    tnuc_delseq = gnuc_delseq if t.strand == '+' else reverse_complement(gnuc_delseq)
-    if q.delseq and tnuc_delseq != q.delseq:
+    # set_deletion_id(args, t.chrm, gnuc_beg, gnuc_end, t, tnuc_delseq0=q.delseq)
+    gnd = GNucDeletion(t.chrm, gnuc_beg, gnuc_end)
+    gnd.compute_tnuc(t, p1=q.beg, p2=q.end)
+
+    if q.delseq and q.delseq != gnd.tnuc_delseq:
         raise IncompatibleTranscriptError()
 
-    # right-align
-    gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(t.chrm, gnuc_beg, gnuc_end)
-    gnuc_delseq_r = faidx.getseq(t.chrm, gnuc_beg_r, gnuc_end_r)
-    r.gnuc_range = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r, args)
-    r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
-
-    # left-align
-    gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(t.chrm, gnuc_beg, gnuc_end)
-    gnuc_delseq_l = faidx.getseq(t.chrm, gnuc_beg_l, gnuc_end_l)
-    r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l, args))
-    r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(t.chrm, gnuc_beg, gnuc_end, args))
-
-    if t.strand == '+':
-        c1l, p1l = t.gpos2codon(gnuc_beg_l)
-        c2l, p2l = t.gpos2codon(gnuc_end_l)
-        tnuc_delseq_l = gnuc_delseq_l
-        c1r, p1r = t.gpos2codon(gnuc_beg_r)
-        c2r, p2r = t.gpos2codon(gnuc_end_r)
-        tnuc_delseq_r = gnuc_delseq_r
-    else:
-        c1l, p1l = t.gpos2codon(gnuc_end_r)
-        c2l, p2l = t.gpos2codon(gnuc_beg_r)
-        tnuc_delseq_l = reverse_complement(gnuc_delseq_r)
-        c1r, p1r = t.gpos2codon(gnuc_end_l)
-        c2r, p2r = t.gpos2codon(gnuc_beg_l)
-        tnuc_delseq_r = reverse_complement(gnuc_delseq_l)
-
-    # cDNA representation
-    # right align
-    r.tnuc_range = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
-    # left align
-    r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(p1l, p2l, args, tnuc_delseq_l))
-    r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(q.beg, q.end, args, tnuc_delseq))
-
-    # tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1
-    # tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1
-    # gnuc_coding_beg = tnuc2gnuc(np, tnuc_coding_beg)
-    # gnuc_coding_end = tnuc2gnuc(np, tnuc_coding_end)
+    gnd.set_record(r, args)
 
     r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
 
@@ -105,8 +145,6 @@ def _annotate_deletion_cdna(args, q, r, t, db):
                 del_coding_frameshift(args, c1, c2, p1, p2, t, r)
     else:
         r.set_csqn_byreg("Deletion")
-
-    r.append_info('deletion_gDNA=%s;deletion_cDNA=%s' % (gnuc_delseq_r, tnuc_delseq_r))
 
 def annotate_deletion_cdna(args, q, tpts, db):
 
@@ -168,9 +206,13 @@ def annotate_deletion_protein(args, q, tpts, db):
             tnuc_beg = q.beg*3-2
             tnuc_end = q.end*3
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-            r.tnuc_range = '%d_%ddel' % (tnuc_beg, tnuc_end)
-            r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
-            r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
+            gnd = GNucDeletion(t.chrm, gnuc_beg, gnuc_end)
+            gnd.compute_tnuc(t)
+            gnd.set_record(r, args)
+
+            # r.tnuc_range = '%d_%ddel' % (tnuc_beg, tnuc_end)
+            # r.gnuc_range = '%d_%ddel' % (gnuc_beg, gnuc_end)
+            # r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
             r.csqn.append("InFrameDeletion")
         except IncompatibleTranscriptError:
             continue
@@ -196,19 +238,12 @@ def annotate_deletion_gdna(args, q, db):
 
     normalize_reg(q)
 
-    gnuc_delseq = faidx.getseq(q.tok, q.beg, q.end)
+    gnd = GNucDeletion(q.tok, q.beg, q.end)
+
     warning = None
-    if q.delseq and q.delseq != gnuc_delseq:
+    if q.delseq and q.delseq != gnd.gnuc_delseq:
         warning = "invalid_deletion_seq_%s_(expect_%s)" % (gnuc_delseq, q.delseq)
         err_warn("%s invalid deletion sequence %s (expect %s), maybe wrong reference?" % (q.op, gnuc_delseq, q.delseq))
-
-    # right-align
-    gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(q.tok, q.beg, q.end)
-    gnuc_delseq_r = faidx.getseq(q.tok, gnuc_beg_r, gnuc_end_r)
-
-    # left-align
-    gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(q.tok, q.beg, q.end)
-    gnuc_delseq_l = faidx.getseq(q.tok, gnuc_beg_l, gnuc_end_l)
 
     rs = []
     for reg in describe(args, q, db):
@@ -219,15 +254,16 @@ def annotate_deletion_gdna(args, q, db):
         if warning is not None:
             r.append_info(warning)
 
-        r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r, args)
-        r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
-        r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l, args))
-        r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end, args))
+        # r.gnuc_range = gnuc_del_id(q.tok, gnuc_beg_r, gnuc_end_r, args)
+        # r.pos = '%d-%d' % (gnuc_beg_r, gnuc_end_r)
+        # r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(q.tok, gnuc_beg_l, gnuc_end_l, args))
+        # r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(q.tok, q.beg, q.end, args))
 
         db.query_dbsnp_range(r, q.beg, q.end, '')
         if hasattr(reg, 't'):
 
             t = reg.t
+            gnd.compute_tnuc(t)
             r.tname = t.format()
             r.gene = t.gene_name
             r.strand = t.strand
@@ -246,48 +282,21 @@ def annotate_deletion_gdna(args, q, db):
             if q.beg <= t.cds_end and q.end >= t.cds_end - 2:
                 r.append_info('stop_loss')
 
-            if t.strand == '+':
-                c1, p1 = t.gpos2codon(q.beg)
-                c2, p2 = t.gpos2codon(q.end)
-                tnuc_delseq = gnuc_delseq
-                c1l, p1l = t.gpos2codon(gnuc_beg_l)
-                c2l, p2l = t.gpos2codon(gnuc_end_l)
-                tnuc_delseq_l = gnuc_delseq_l
-                c1r, p1r = t.gpos2codon(gnuc_beg_r)
-                c2r, p2r = t.gpos2codon(gnuc_end_r)
-                tnuc_delseq_r = gnuc_delseq_r
-            else:
-                c1, p1 = t.gpos2codon(q.end)
-                c2, p2 = t.gpos2codon(q.beg)
-                tnuc_delseq = reverse_complement(gnuc_delseq)
-                c1l, p1l = t.gpos2codon(gnuc_end_r)
-                c2l, p2l = t.gpos2codon(gnuc_beg_r)
-                tnuc_delseq_l = reverse_complement(gnuc_delseq_r)
-                c1r, p1r = t.gpos2codon(gnuc_end_l)
-                c2r, p2r = t.gpos2codon(gnuc_beg_l)
-                tnuc_delseq_r = reverse_complement(gnuc_delseq_l)
-
-            # cDNA representation
-            # right align
-            r.tnuc_range = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
-            # left align
-            r.append_info('left_align_cDNA=c.%s' % tnuc_del_id(p1l, p2l, args, tnuc_delseq_l))
-            r.append_info('unalign_cDNA=c.%s' % tnuc_del_id(p1.pos, p2.pos, args, tnuc_delseq))
-
-            if t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
+            gnd.set_record(r, args)
+            if t.transcript_type == 'protein_coding' and not same_intron(gnd.p1, gnd.p2):
                 if not r.set_splice('lost', csqn_action="Deletion"):
                     if (q.end - q.beg + 1) % 3 == 0:
-                        del_coding_inframe(args, c1, c2, p1, p2, t, r)
+                        del_coding_inframe(args, gnd.c1, gnd.c2, gnd.p1, gnd.p2, t, r)
                     else:
-                        del_coding_frameshift(args, c1, c2, p1, p2, t, r)
+                        del_coding_frameshift(args, gnd.c1, gnd.c2, gnd.p1, gnd.p2, t, r)
             else:
                 r.set_csqn_byreg("Deletion")
         else:
+            gnd.set_record(r, args)
             r.set_csqn_byreg("Deletion")
 
         format_one(r, rs, q, args)
     format_all(rs, q, args)
-
 
 ### add taa feature in deletion ###
 

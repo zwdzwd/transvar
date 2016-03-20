@@ -31,6 +31,7 @@ import sys, re
 import faidx
 from record import *
 from collections import deque
+import operator
 
 def complement(base):
 
@@ -101,10 +102,14 @@ reverse_codon_table = {
 }
 
 
-def aaseq2nuc(aaseq):
+def aaseq2nuc1(aaseq):
 
     # only choose first codon
     return ''.join([reverse_codon_table[aa][0] for aa in aaseq if aa in reverse_codon_table])
+
+def aaseq_redundancy(aaseq):
+
+    return reduce(operator.mul, map(lambda x: len(reverse_codon_table[x]), aaseq))
 
 def aa2codon(aa):
     if aa not in reverse_codon_table:
@@ -1230,7 +1235,7 @@ def gnuc_set_ins(chrm, beg, insseq, r):
     r.gnuc_range = i.right_align()
     r.append_info('left_align_gDNA=g.%s' % i.left_align())
     r.append_info('unalign_gDNA=g.%s' % i.unalign())
-    r.append_info('insertion_gDNA='+i.insseq_r)
+    # r.append_info('insertion_gDNA='+i.insseq_r)
 
     return i
 
@@ -1331,7 +1336,7 @@ def tnuc_set_ins(gi, t, r, beg=None, end=None, insseq=None):
     r.tnuc_range = i.right_align()
     r.append_info('left_align_cDNA=c.%s' % i.left_align())
     r.append_info('unalign_cDNA=c.%s' % i.unalign())
-    r.append_info('insertion_cDNA='+i.insseq_r)
+    # r.append_info('insertion_cDNA='+i.insseq_r)
 
     return i
 

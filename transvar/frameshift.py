@@ -152,6 +152,15 @@ def fuzzy_match_insertion_scan_loc(t, codon_index, ins_len, q):
 def fuzzy_match_insertion_update_match(matches, t, insseq, j):
 
     t.ensure_position_array()
+
+    # if this is the first match and there is ambiguous base 'N'
+    # instantiate this by a normal base 'C' (since there 'C' is
+    # not involved in the stop codon and still keeping the 'N' in
+    # the candidate
+    # make sure that there is at least 1 output with no 'N'
+    if len(matches) == 0 and 'N' in insseq:
+        fuzzy_match_insertion_update_match(matches, t, insseq.replace('N','C'), j)
+
     gnuc_insseq = insseq if t.strand == '+' else reverse_complement(insseq)
     # note that t.np is 0-based
     gnuc_ins = gnuc_set_ins_core(t.chrm, t.np[j-1] if t.strand == '+' else t.np[j], gnuc_insseq)
@@ -245,14 +254,24 @@ def _annotate_frameshift(args, q, t):
         matches = fuzzy_match_insertion(t, codon, q)
     if matches:
         gmatches = sorted(matches.keys())
-        r.gnuc_range = gmatches[0]
+        chosen = None
+
+        # get a match without 'N'
+        for i, gnuc_range in enumerate(gmatches):
+            if 'N' not in gnuc_range:
+                r.gnuc_range = gnuc_range
+                chosen = i
+                break
+
         gnuc_id_l, tnuc_id_r, tnuc_id_l = matches[r.gnuc_range]
         r.tnuc_range = tnuc_id_r
         r.append_info('left_align_cDNA=c.%s' % tnuc_id_l)
         r.append_info('left_align_gDNA=g.%s' % gnuc_id_l)
         if len(matches) > 1:
             cands = []
-            for k in xrange(1,min(args.nc,len(gmatches))):
+            for k in xrange(0,min(args.nc,len(gmatches))):
+                if k == chosen:
+                    continue
                 gnuc_id_r = gmatches[k]
                 gnuc_id_l, tnuc_id_r, tnuc_id_l = matches[gnuc_id_r]
                 cands.append('g.%s/c.%s/g.%s/c.%s' % (gnuc_id_r, tnuc_id_r, gnuc_id_l, tnuc_id_l))

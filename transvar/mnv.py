@@ -141,6 +141,8 @@ def annotate_mnv_protein(args, q, tpts, db):
             r.csqn.append("MultiAAMissense")
             if len(cdd_altseq) <= 2:
                 r.append_info('candidate_alternative_sequence=%s' % ('+'.join(cdd_altseq), ))
+            else:
+                r.append_info('%d_CandidatesOmitted' % (aaseq_redundancy(q.altseq)))
 
         except IncompatibleTranscriptError:
             continue
@@ -150,7 +152,6 @@ def annotate_mnv_protein(args, q, tpts, db):
             aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.beg, q.end)
-        r.append_info('imprecise')
 
         found = True
         format_one(r, rs, q, args)

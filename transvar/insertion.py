@@ -203,15 +203,20 @@ def codon_mutation_ins(args, q, t, db):
     if hasattr(q, 'end_aa') and q.end_aa and q.end_aa != t.taa2aa(q.end):
         raise IncompatibleTranscriptError('Unmatched reference amino acid')
     gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.gnuc_range = '(%dins%d)' % (gnuc_beg-1, len(q.insseq)*3)
-    c, p1 = t.gpos2codon(gnuc_beg-1)
-    r.tnuc_range = '(%s_%sins%d)' % (p1, tnuc_beg, len(q.insseq)*3)
-    tnuc_insseq = aaseq2nuc(q.insseq)
-    r.append_info('insertion_cDNA='+tnuc_insseq)
-    r.append_info('insertion_gDNA=%s' % (tnuc_insseq if t.strand == '+' else reverse_complement(tnuc_insseq)))
+    _tnuc_insseq = aaseq2nuc1(q.insseq)
+    _gnuc_insseq = reverse_complement(_tnuc_insseq) if t.strand == '-' else _tnuc_insseq
+
+    gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg+2, _gnuc_insseq, r)
+    tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
+
+    # r.gnuc_range = '%dins%s' % (gnuc_beg-1, tnuc_insseq)
+    # c, p1 = t.gpos2codon(gnuc_beg-1)
+    # r.tnuc_range = '(%s_%sins%d)' % (p1, tnuc_beg, len(q.insseq)*3)
+    # tnuc_insseq = aaseq2nuc(q.insseq)
+    # r.append_info('insertion_cDNA='+tnuc_insseq)
+    # r.append_info('insertion_gDNA=%s' % (tnuc_insseq if t.strand == '+' else reverse_complement(tnuc_insseq)))
     r.csqn.append('InFrameInsertion')
-    r.append_info('imprecise')
-    r.pos = gnuc_beg-1
+    r.append_info('%d_CandidatesOmitted' % (aaseq_redundancy(q.insseq)))
 
     return r
 
