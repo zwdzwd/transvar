@@ -229,9 +229,7 @@ def annotate_deletion_protein(args, q, tpts, db):
 
     if not found:
         r = Record(is_var=True)
-        r.taa_range = taa_del_id(t, q.beg, q.end, args)
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-
         r.format(q.op)
 
 def annotate_deletion_gdna(args, q, db):
