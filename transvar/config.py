@@ -55,7 +55,7 @@ def gunzip(fn):
 
     
 cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
-           os.path.expanduser('~/.transvar.cfg')]
+           os.path.expanduser(os.getenv('TRANSVAR_CFG', '~/.transvar.cfg'))]
 
 downloaddirs = [os.path.join(os.path.dirname(__file__), 'transvar.download'),
                 os.path.expanduser('~/.transvar.download')]
