@@ -1,6 +1,9 @@
 """ faidx python code adapted from Allen Yu 
 http://www.allenyu.info/item/24-quickly-fetch-sequence-from-samtools-faidx-indexed-fasta-sequences.html """
 import sys
+
+import mmap
+
 from err import *
 from utils import *
 
@@ -10,8 +13,10 @@ class RefGenome:
         self.faidx = {}
          
         self.fasta_file=fasta_file
+
         try:
-            self.fasta_handle=open(fasta_file)
+            self.fasta_fd = open(fasta_file)
+            self.fasta_handle = mmap.mmap(self.fasta_fd.fileno(), 0, access=mmap.ACCESS_READ)
         except IOError:
             print "Reference sequence doesn't exist"
  
@@ -83,6 +88,10 @@ class RefGenome:
         
     def __exit__(self, type, value, traceback):
         self.fasta_handle.close()
+
+        if self.use_mmap:
+            self.fasta_fd.close()
+
         self.faidx_handle.close()
 
     def chrm2len(self, chrm):
