@@ -1,7 +1,6 @@
 """ faidx python code adapted from Allen Yu 
 http://www.allenyu.info/item/24-quickly-fetch-sequence-from-samtools-faidx-indexed-fasta-sequences.html """
 import sys
-
 import mmap
 
 from err import *
@@ -88,10 +87,7 @@ class RefGenome:
         
     def __exit__(self, type, value, traceback):
         self.fasta_handle.close()
-
-        if self.use_mmap:
-            self.fasta_fd.close()
-
+        self.fasta_fd.close()
         self.faidx_handle.close()
 
     def chrm2len(self, chrm):
