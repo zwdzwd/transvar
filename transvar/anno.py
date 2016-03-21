@@ -133,7 +133,6 @@ def main_list(args, db, at, mutation_parser):
 
     for q, line in mutation_parser:
 
-        print line
         if q.tok is None:           # parsing error
             r = Record()
             r.append_info(q.msg)
