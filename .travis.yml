@@ -1,0 +1,13 @@
+language:
+  - python
+  - c
+
+python:
+  - 2.6
+  - 2.7
+
+script:
+  - python setup.py build
+
+install:
+  - sudo python setup.py install
