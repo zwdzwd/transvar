@@ -15,7 +15,4 @@ transvar canno -l data/cosmic/cosmic_canno_deletion -g 1 -m 3 --ccds | tee testo
 
 transvar canno -l data/cosmic/cosmic_canno_insertion -g 1 -m 3 --ccds | tee testout/canno_cosmic_insertion
 
-
-
-
-
+transvar panno -l data/tamborero_data/transvar_revprotein_input.txt_ens --ensembl --seqmax -1 | tee testout/panno_tamborero
