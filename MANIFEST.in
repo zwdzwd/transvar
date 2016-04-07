@@ -1,2 +1,1 @@
-recursive-include external *.c *.h
-recursive-include external Makefile
+recursive-include external *.c *.h Makefile *.mk configure
