@@ -935,6 +935,8 @@ class Transcript():
             left_base = self.seq[p-1]
             right_most = _tnuc_insseq_[-1]
             # print p, left_base, right_most
+            if left_base == 'N' or right_most == 'N':
+                break
             if left_base != right_most:
                 break
             _tnuc_insseq_.pop()
@@ -954,6 +956,8 @@ class Transcript():
             right_base = self.seq[p]
             left_most = _tnuc_insseq_[0]
             # print p, left_most, right_base
+            if right_base == 'N' or left_most == 'N':
+                break
             if right_base != left_most:
                 break
             _tnuc_insseq_.popleft()
@@ -972,6 +976,8 @@ class Transcript():
                 break
             left_base = self.seq[beg-2]
             right_most = self.seq[end-1]
+            if left_base == 'N' or right_most == 'N':
+                break
             if left_base != right_most:
                 break
             beg -= 1
@@ -988,6 +994,8 @@ class Transcript():
                 break
             right_base = self.seq[end]
             left_most = self.seq[beg-1]
+            if right_base == 'N' or left_most == 'N':
+                break
             if right_base != left_most:
                 break
             beg += 1
@@ -1088,6 +1096,8 @@ def gnuc_roll_left_del(chrm, beg, end):
             break
         left_base = sb.get_base(chrm, beg-1)
         rightmost = sb.get_base(chrm, end)
+        if left_base == 'N' or rightmost == 'N':
+            break
         if left_base != rightmost:
             break
         beg -= 1
@@ -1108,6 +1118,8 @@ def gnuc_roll_right_del(chrm, beg, end):
 
         right_base = sb.get_base(chrm, end+1)
         leftmost = sb.get_base(chrm, beg)
+        if right_base == 'N' or leftmost == 'N':
+            break
         if right_base != leftmost:
             break
         beg += 1
@@ -1126,6 +1138,8 @@ def gnuc_roll_left_ins(chrm, pos, gnuc_insseq):
             break
         left_base = sb.get_base(chrm, pos)
         rightmost = _gnuc_insseq_[-1]
+        if left_base == 'N' or rightmost == 'N':
+            break
         if left_base != rightmost:
             break
         _gnuc_insseq_.pop()
@@ -1146,6 +1160,8 @@ def gnuc_roll_right_ins(chrm, pos, gnuc_insseq):
             break
         right_base = sb.get_base(chrm, pos+1)
         leftmost = _gnuc_insseq_[0]
+        if right_base == 'N' or leftmost == 'N':
+            break
         if right_base != leftmost:
             break
         _gnuc_insseq_.popleft()
