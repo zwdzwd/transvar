@@ -60,7 +60,7 @@ def err_die(msg):
 
 def err_warn(msg):
     fn = inspect.stack()[1][3]
-    sys.stderr.write('[%s] warning: %s\n' % (fn, msg))
+    sys.stderr.write('\r[%s] warning: %s\n' % (fn, msg))
 
 def err_raise(cls, msg):
     fn = inspect.stack()[1][3]

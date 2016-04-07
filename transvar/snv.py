@@ -37,6 +37,7 @@ def annotate_snv_cdna(args, q, tpts, db):
 
     found = False
     rs = []
+    gene_name = ""
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
@@ -53,6 +54,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.chrm = t.chrm
             r.tname = t.format()
             r.gene = t.gene_name
+            gene_name = t.gene_name
             r.strand = t.strand
 
             r.gnuc_pos = t.tnuc2gnuc(q.pos)
@@ -109,7 +111,7 @@ def annotate_snv_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q, args)
+        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q, args)
 
     return
 

@@ -426,6 +426,8 @@ def vcf_parse_mutation(args, at='g'):
 
             yield q, line
 
+    sys.stderr.write("\nProcessed %d records\033[K\n" % nrec)
+
 def list_parse_mutation(args, muttype):
 
     indices = parse_indices(args.o)
