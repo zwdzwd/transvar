@@ -82,7 +82,8 @@ BUILT_TEST_PROGRAMS = \
 	test/test-vcf-api \
 	test/test-vcf-sweep
 
-all: lib-static lib-shared $(BUILT_PROGRAMS) $(BUILT_TEST_PROGRAMS)
+all: $(BUILT_PROGRAMS)
+# $(BUILT_TEST_PROGRAMS) lib-static lib-shared
 
 HTSPREFIX =
 include htslib_vars.mk
