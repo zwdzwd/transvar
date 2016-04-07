@@ -23,13 +23,17 @@ transvar ganno --vcf data/tamborero_data/docm_variants_mar_2016.vcf --ensembl | 
 colordiff testout/ganno_tamborero.vcf
 
 
-## register
+## register testpypi
 
 python setup.py register -r https://testpypi.python.org/pypi
 
 python setup.py sdist upload -r https://testpypi.python.org/pypi
 
 pip install -i https://testpypi.python.org/pypi transvar
+
+## pypi
+
+python setup.py register -r https://pypi.python.org/pypi
 
 python setup.py sdist upload -r https://pypi.python.org/pypi
 
