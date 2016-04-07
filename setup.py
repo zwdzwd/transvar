@@ -151,7 +151,7 @@ def main():
             "Operating System :: OS Independent",
             'Operating System :: POSIX',
             "Programming Language :: C",
-            "Topic :: Scientific/Engineering :: Bioinformatics"
+            "Topic :: Bioinformatics"
         ],
         cmdclass = cmdclass,
         # long_description = """ """
