@@ -151,9 +151,10 @@ def main():
             "Operating System :: OS Independent",
             'Operating System :: POSIX',
             "Programming Language :: C",
-            "Topic :: Bioinformatics"
+            "Topic :: Scientific/Engineering :: Bio-Informatics",
         ],
         cmdclass = cmdclass,
+        platforms = "Linux, OSX",
         # long_description = """ """
         # install_requires=['numpy>=1.6']
     )

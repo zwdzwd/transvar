@@ -21,3 +21,10 @@ colordiff testout/panno_tamborero golden/panno_tamborero
 
 transvar ganno --vcf data/tamborero_data/docm_variants_mar_2016.vcf --ensembl | tee testout/ganno_tamborero.vcf
 colordiff testout/ganno_tamborero.vcf
+
+
+## register
+
+python setup.py register -r pypitest
+
+python setup.py sdist upload -r pypitest
