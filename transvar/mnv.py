@@ -43,7 +43,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
         try:
 
             if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError("Transcript name unmatched")
+                raise IncompatibleTranscriptError("unmatched_transcript_name_%s;expect_%s" % (q.tpt, t.name))
             t.ensure_seq()
 
             r = Record(is_var=True)
@@ -75,9 +75,10 @@ def annotate_mnv_cdna(args, q, tpts, db):
                 if t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
                     try:
                         tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r, args)
-                    except IncompatibleTranscriptError as inst:
-                        _beg, _end, _seqlen = inst
-                        r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+                    except IncompatibleTranscriptError as e:
+                        r.append_info(e.message)
+                        # _beg, _end, _seqlen = inst
+                        # r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
                 else:
                     r.csqn.append(r.reg.csqn()+"BlockSubstitution")
 
@@ -318,12 +319,14 @@ def annotate_mnv_gdna(args, q, db):
                         _, tnuc_beg_adj = t.intronic_lean(tnuc_beg, 'c_greater')
                         _, tnuc_end_adj = t.intronic_lean(tnuc_end, 'c_smaller')
                         tnuc_mnv_coding(t, tnuc_beg_adj.pos, tnuc_end_adj.pos, tnuc_altseq, r, args)
-                    except IncompatibleTranscriptError as inst:
-                        if len(inst) == 3:
-                            _beg, _end, _seqlen = inst
-                            r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
-                        else:
-                            raise inst
+                    except IncompatibleTranscriptError as e:
+                        r.append_info(e.message)
+                        # wrap_exception(e, q, args)
+                        # if len(inst) == 3:
+                        #     _beg, _end, _seqlen = inst
+                        #     r.append_info('mnv_(%s-%s)_at_truncated_refseq_of_length_%d' % (_beg, _end, _seqlen))
+                        # else:
+                        #     raise inst
                 else:
                     r.csqn.append(r.reg.csqn()+"BlockSubstitution")
 
@@ -379,7 +382,9 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
             r.append_info('end_codon_cDNA=%s' % '-'.join(map(str, range(end_codon_end-2, end_codon_end+1))))
 
         if len(old_seq) % 3 != 0:
-            raise IncompatibleTranscriptError(beg, end, len(t.seq))
+            # raise IncompatibleTranscriptError(beg, end, len(t.seq))
+            raise IncompatibleTranscriptError(
+                'mnv_[%s_%s]_at_truncated_refseq_of_length_%d' % (beg, end, len(t.seq)))
 
         old_taa_seq = translate_seq(old_seq)
         new_taa_seq = translate_seq(new_seq)

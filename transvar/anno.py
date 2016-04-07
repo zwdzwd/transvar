@@ -119,12 +119,12 @@ def _main_(args, q, db, at):
     """ process 1 input """
     try:
         return _main_core_(args,q,db,at)
-        # except WrongReferenceError as e:
-        #     wrap_exception(e, q, args)
-        # except InvalidInputError as e:
-        #     wrap_exception(e, q, args)
-    except Exception as e:
+    except WrongReferenceError as e:
         wrap_exception(e, q, args)
+    except InvalidInputError as e:
+        wrap_exception(e, q, args)
+    # except Exception as e:
+        # wrap_exception(e, q, args)
 
     return
 
