@@ -54,12 +54,15 @@ def gunzip(fn):
     os.remove(fn)
 
     
-cfg_fns = [os.path.join(os.path.dirname(__file__), 'transvar.cfg'),
-           os.path.expanduser(os.getenv('TRANSVAR_CFG', '~/.transvar.cfg'))]
+cfg_fns = [
+    os.path.expanduser(os.getenv('TRANSVAR_CFG', 
+                                 os.path.join(os.path.dirname(__file__), 'transvar.cfg'))),
+    os.path.expanduser('~/.transvar.cfg')]
 
-downloaddirs = [os.path.join(os.path.dirname(__file__), 'transvar.download'),
-                os.path.expanduser(os.getenv('TRANSVAR_DOWNLOAD_DIR',
-                                             os.path.expanduser('~/.transvar.download')))]
+downloaddirs = [
+    os.path.expanduser(os.getenv('TRANSVAR_DOWNLOAD_DIR',
+                                 os.path.join(os.path.dirname(__file__), 'transvar.download'))),
+    os.path.expanduser('~/.transvar.download')]
 
 # dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
 dwroot = 'http://transvar.info/transvar_user/annotations/'
