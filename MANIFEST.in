@@ -1,1 +1,2 @@
 recursive-include external *.c *.h
+recursive-include external Makefile

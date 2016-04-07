@@ -25,6 +25,25 @@ colordiff testout/ganno_tamborero.vcf
 
 ## register
 
-python setup.py register -r pypitest
+python setup.py register -r https://testpypi.python.org/pypi
 
-python setup.py sdist upload -r pypitest
+python setup.py sdist upload -r https://testpypi.python.org/pypi
+
+pip install -i https://testpypi.python.org/pypi
+
+# ~/.pypirc
+# [distutils]
+# index-servers =
+#   pypi
+#   pypitest
+
+# [pypi]
+# repository=https://pypi.python.org/pypi
+# username=zwdzwd
+# password=Terminator_123
+
+# [pypitest]
+# repository=https://testpypi.python.org/pypi
+# username=name
+# password=pass
+
