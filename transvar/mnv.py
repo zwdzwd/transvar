@@ -65,7 +65,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
             tnuc_refseq = reverse_complement(gnuc_refseq) if t.strand == '-' else gnuc_refseq
             gnuc_altseq = reverse_complement(q.altseq) if t.strand == '-' else q.altseq
             if q.refseq and tnuc_refseq != q.refseq:
-                raise IncompatibleTranscriptError()
+                raise IncompatibleTranscriptError('reference_unmatched_%s_expect_%s' % (q.refseq, tnuc_refseq))
 
             r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
             r.tnuc_range = nuc_set_mnv(q.beg, q.end, tnuc_refseq, q.altseq)

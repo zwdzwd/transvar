@@ -70,7 +70,7 @@ def _main_core_(args, q, db, at):
         elif isinstance(q, QueryREG):
             return annotate_region_cdna(args, q, tpts, db)
         else:
-            raise Exception('mutation type inference error for %s' % q.op)
+            raise InvalidInputError('invalid_mutation_string: %s (type:%s)' % (q.op, at))
         
     elif at == 'p':
 
@@ -94,7 +94,7 @@ def _main_core_(args, q, db, at):
         elif isinstance(q, QueryREG):
             return annotate_region_protein(args, q, tpts, db)
         else:
-            raise Exception('mutation type inference error for %s' % q.op)
+            raise InvalidInputError('invalid_mutation_string: %s (type:%s)' % (q.op, at))
 
     elif at == 'g':
 
@@ -113,24 +113,23 @@ def _main_core_(args, q, db, at):
         elif isinstance(q, QueryREG):
             return annotate_region_gdna(args, q, db)
         else:
-            raise Exception('mutation type inference error for %s' % q.op)
+            raise InvalidInputError('invalid_mutation_string: %s (type:%s)' % (q.op, at))
 
 def _main_(args, q, db, at):
-
+    """ process 1 input """
     try:
         return _main_core_(args,q,db,at)
-    except WrongReferenceError as e:
-        err_warn('Incompatible reference: %s' % e.msg)
-        r = Record()
-        r.append_info("Incompatible_reference_%s" % e.wrongref)
-        r.format(q.op)
-        if args.suspend:
-            raise e
+        # except WrongReferenceError as e:
+        #     wrap_exception(e, q, args)
+        # except InvalidInputError as e:
+        #     wrap_exception(e, q, args)
+    except Exception as e:
+        wrap_exception(e, q, args)
 
     return
-    
-def main_list(args, db, at, mutation_parser):
 
+def main_list(args, db, at, mutation_parser):
+    """ process a list of inputs """
     for q, line in mutation_parser:
 
         if q.tok is None:           # parsing error
@@ -166,7 +165,12 @@ def main_one(args, db, at):
     try:
         q = parse_tok_mutation_str(args.i, at)
     except InvalidInputError:
-        err_die('invalid mutation string %s (type:%s)' % (args.i, at))
+        r = Record()
+        r.append_info('invalid_mutation_string: %s (type:%s)' % (args.i, at))
+        err_warn('invalid mutation string: %s (type: %s)' % (args.i, at))
+        r.format(q.op)
+        return
+        # err_die('invalid mutation string %s (type:%s)' % (args.i, at))
 
     if not q:
         return
@@ -206,7 +210,13 @@ def main(args, at):
 
 def parser_add_general(parser):
 
-    parser.add_argument('--suspend', action='store_true', help='suspend execution upon error, append to the info field')
+    parser.add_argument('--suspend', 
+                        action='store_true', 
+                        help='suspend execution upon error, rather than append to the info field')
+    parser.add_argument('-v', '--verbose',
+                        default=0,
+                        type=int,
+                        help="verbose level, higher output more debugging information [0]")
 
 def add_parser_anno(subparsers, config):
 

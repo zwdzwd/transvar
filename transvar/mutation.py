@@ -38,7 +38,7 @@ def _parse_gdna_mutation(s):
     m = re.match(r'(g\.)?(\d+)(_(\d+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
 
     if not m:
-        err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
+        raise InvalidInputError('invalid_mutation_"%s"' % s)
 
     (_, _beg, _end_s, _end, _, _is_del, _d,
      _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = m.groups()
@@ -65,7 +65,7 @@ def _parse_gdna_mutation(s):
         if _i:
             q.insseq = _i.upper()
         else:
-            err_raise(InvalidInputError, 'insertion without inserted sequence: %s.' % s)
+            raise InvalidInputError('insertion_without_inserted_sequence_%s' % s)
     elif _is_ins and _is_del:
         q = QueryMNV()
         q.beg = int(_beg)
@@ -100,7 +100,7 @@ def _parse_cdna_mutation(s):
     # m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
     m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
     if not m:
-        err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
+        raise InvalidInputError('invalid_mutation_"%s".' % s)
 
     (_, _beg, _end_s, _end, _, _is_del, _d,
      _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = m.groups()
@@ -191,7 +191,7 @@ def _parse_protein_mutation(s):
             success = True
 
     if not success:
-        err_raise(InvalidInputError, 'invalid mutation: "%s".' % s)
+        raise InvalidInputError('invalid_mutation_"%s"' % s)
 
     _beg_aa = read_aa(_beg_aa)
     _end_aa = read_aa(_end_aa)
@@ -278,7 +278,7 @@ def parse_mutation_str(mut_str, mut):
     elif mut == 'p':
         return _parse_protein_mutation(mut_str)
     else:
-        err_raise(InvalidInputError, 'invalid mutation: "%s".' % mut_str)
+        raise InvalidInputError('invalid_mutation_"%s"' % mut_str)
 
 def parse_tok_mutation_str(s, muttype):
 
@@ -467,7 +467,7 @@ def parser_add_mutation(parser):
                         help='column for nucleotide position (1-based)')
     parser.add_argument('-r', type=int, default=-1,
                         help='column for reference base/amino acid (1-based)')
-    parser.add_argument('-v', type=int, default=-1,
+    parser.add_argument('-a', type=int, default=-1,
                         help='column for variant base/amino acid (1-based)')
     parser.add_argument('-t', type=int, default=-1,
                         help='columns for preferred transcript (1-based)')

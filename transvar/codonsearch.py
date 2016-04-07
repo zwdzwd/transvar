@@ -90,11 +90,9 @@ def main_list(args, db): #name2gene, thash):
             try:
                 _main_core_(args, q, db)
             except UnImplementedError as e:
-                err_print(line)
-                raise e
+                wrap_exception(e, q, args)
             except SequenceRetrievalError as e:
-                err_print(line)
-                raise e        
+                wrap_exception(e, q, args)
         if not genefound:
             err_warn('gene %s is not recognized.' % q.tok)
 

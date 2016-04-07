@@ -372,7 +372,7 @@ def parse_pos(posstr):
     else:
         m = re.match(r'(\d+)([+-]\d+)', posstr)
         if not m:
-            err_raise(InvalidInputError, 'invalid position string %s.' % posstr)
+            raise InvalidInputError('invalid_position_string_%s' % posstr)
         p = Pos()
         p.pos = int(m.group(1))
         p.tpos = int(m.group(2))
@@ -706,3 +706,11 @@ def format_all(rs, q, args):
             print s
         except IOError:
             sys.exit(1)
+
+def wrap_exception(e, q, args):
+    r = Record()
+    r.append_info("Error_"+e.message)
+    err_warn(e.message)
+    r.format(q.op)
+    if args.suspend:
+        raise e

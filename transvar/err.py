@@ -69,3 +69,4 @@ def err_raise(cls, msg):
 def err_print(msg):
     fn = inspect.stack()[1][3]
     sys.stderr.write('[%s] %s\n' % (fn, str(msg)))
+

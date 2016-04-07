@@ -147,10 +147,7 @@ def reflen(chrm):
     try:
         return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
     except KeyError:
-        e = WrongReferenceError()
-        e.msg = "Incompatible reference: %s" % chrm
-        e.wrongref = chrm
-        raise e
+        raise WrongReferenceError("Invalid_reference_%s" % chrm)
 
 def printseq(seq, args):
 

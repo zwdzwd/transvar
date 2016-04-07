@@ -240,8 +240,8 @@ def annotate_deletion_gdna(args, q, db):
 
     warning = None
     if q.delseq and q.delseq != gnd.gnuc_delseq:
-        warning = "invalid_deletion_seq_%s_(expect_%s)" % (gnuc_delseq, q.delseq)
-        err_warn("%s invalid deletion sequence %s (expect %s), maybe wrong reference?" % (q.op, gnuc_delseq, q.delseq))
+        warning = "invalid_deletion_seq_%s_(expect_%s)" % (gnd.gnuc_delseq, q.delseq)
+        err_warn("%s invalid deletion sequence %s (expect %s), maybe wrong reference?" % (q.op, gnd.gnuc_delseq, q.delseq))
 
     rs = []
     for reg in describe(args, q, db):
@@ -331,28 +331,28 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
     else:                       # out-of-phase
 
         if len(c1.seq) != 3 or len(c2.seq) != 3:
-            if len(t.seq) % 3 != 0:
-                r.append_info("truncated_refseq_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
-                return
-            raise IncompatibleTranscriptError()
-        
+            if len(t.seq) % 3 != 0: # truncated transcript sequence
+                raise IncompatibleTranscriptError("truncated_transcript_sequence_at_boundary_(start_codon_seq_%s_and_end_codon_seq_%s)" % (c1.seq, c2.seq))
+            else:               # unknown error
+                raise IncompatibleTranscriptError("unknown_error_causing_codon_seq_not_multiplicative_of_3")
+
         beg_codon_beg = c1.index*3-2
         end_codon_end = c2.index*3
         new_codon_seq = t.seq[beg_codon_beg-1:p1.pos-1] + \
                         t.seq[p2.pos:end_codon_end]
 
         if len(new_codon_seq) != 3:
-            err_print(t.gene_name+'\t'+t.transcript_type)
-            err_print(p1)
-            err_print(p2)
-            err_print(len(t.seq))
-            err_print(c1.seq)
-            err_print(c2.seq)
-            err_print(len(t.seq) % 3)
-            err_print(t.seq[-10:])
-            if (len(t.seq)%3 != 0):
-                r.append_info('truncated_refseq_at_boundary_(codon_seq_%s)' % c1.seq)
-            raise IncompatibleTranscriptError('new_codon_seq: %s' % new_codon_seq)
+            # err_print(t.gene_name+'\t'+t.transcript_type)
+            # err_print(p1)
+            # err_print(p2)
+            # err_print(len(t.seq))
+            # err_print(c1.seq)
+            # err_print(c2.seq)
+            # err_print(len(t.seq) % 3)
+            # err_print(t.seq[-10:])
+            # if (len(t.seq)%3 != 0):
+            #     r.append_info('truncated_refseq_at_boundary_(codon_seq_%s)' % c1.seq)
+            raise IncompatibleTranscriptError('unknown_error_causing_codon_seq_not_multiplicative_of_3_%s' % new_codon_seq)
 
         taa_alt = codon2aa(new_codon_seq)
         tnuc_delseq = t.seq[beg_codon_beg-1:end_codon_end]
@@ -382,7 +382,7 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
     old_seq = t.seq[cbeg_beg-1:]
     new_seq = t.seq[cbeg_beg-1:pbeg.pos-1]+t.seq[pend.pos:]
     if not old_seq:
-        raise IncompatibleTranscriptError()
+        raise IncompatibleTranscriptError("invalid_cDNA_position_%d;expect_[0_%d]" % cbeg_beg, len(t.seq))
 
     ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
     if ret:

@@ -71,7 +71,7 @@ start_codons = [ 'TTG', 'CTG', 'ATG', ]
 
 def codon2aa(codonseq):
     if codonseq not in standard_codon_table:
-        raise IncompatibleTranscriptError('Invalid codon sequence')
+        raise IncompatibleTranscriptError('Invalid_codon_sequence_%s' % codonseq)
     return standard_codon_table[codonseq]
 
 reverse_codon_table = {
@@ -113,7 +113,7 @@ def aaseq_redundancy(aaseq):
 
 def aa2codon(aa):
     if aa not in reverse_codon_table:
-        raise IncompatibleTranscriptError('Invalid amino acid')
+        raise IncompatibleTranscriptError('Invalid_amino_acid_%s' % aa)
     return reverse_codon_table[aa]
 
 # site in codon follow the genomic order.
@@ -249,7 +249,7 @@ def tnuc_range2gnuc_range_(np, tbeg, tend):
     try:
         return min(np[tbeg-1], np[tend-1]), max(np[tbeg-1], np[tend-1])
     except IndexError:
-        raise IncompatibleTranscriptError('tnuc range not found in transcript')
+        raise IncompatibleTranscriptError('invalid_cDNA_range_[%d_%d];expect_[0_%d]' % (tbed, tend, len(np)))
 
 class Transcript():
 
@@ -348,7 +348,7 @@ class Transcript():
         seq = faidx.refgenome.fetch_sequence(self.chrm, self.beg, self.end)
 
         if (not seq) or (len(seq) != self.end - self.beg + 1):
-            raise SequenceRetrievalError()
+            raise SequenceRetrievalError('failed_sequence_retrieval_length_%d;expect_length_%d' % (len(seq), self.end-self.beg+1))
 
         segs = []
         for ex_beg, ex_end in self.exons:
@@ -396,13 +396,13 @@ class Transcript():
     def taa2aa(self, taa):
         self.ensure_seq()
         if taa*3 > self.cdslen():
-            raise IncompatibleTranscriptError('Incompatible reference amino acid')
+            raise IncompatibleTranscriptError('invalid_reference_protein_position_%d;expect_[0_%d]' % (taa, self.cdslen()/3))
         return codon2aa(self.seq[taa*3-3:taa*3])
 
     def taa_range2tnuc_seq(self, taa_beg, taa_end):
 
         if taa_beg*3 > self.cdslen() or taa_end*3 > self.cdslen():
-            raise IncompatibleTranscriptError('codon nonexistent')
+            raise IncompatibleTranscriptError('invalid_protein_sequence_[%d_%d];expect_[0_%d]' % (taa_beg, taa_end, self.cdslen()/3))
 
         self.ensure_seq()
         return self.seq[taa_beg*3-3:taa_end*3]
@@ -424,7 +424,7 @@ class Transcript():
         """
         self.ensure_position_array()
         if tnuc_pos >= len(self.np):
-            raise IncompatibleTranscriptError()
+            raise IncompatibleTranscriptError('invalid_cDNA_position_%d;expect_[0_%d]' % (tnuc_pos, len(self.np)))
         return self.np[tnuc_pos-1]
 
     def tnuc2gnuc(self, tnuc_pos):
@@ -502,7 +502,7 @@ class Transcript():
                 codon.seq    = self.seq[ni-3:ni]
                 return codon
             else:
-                raise IncompatibleTranscriptError()
+                raise IncompatibleTranscriptError('invalid_cDNA_position_%d;expect_[0_%d]' % (ni, len(np)))
         else:
             np = []
             for beg, end in reversed(self.exons):
@@ -521,7 +521,7 @@ class Transcript():
                 codon.seq    = self.seq[ni-3:ni]
                 return codon
             else:
-                raise IncompatibleTranscriptError()
+                raise IncompatibleTranscriptError('invalid_cDNA_position_%d;expect_[0_%d]' % (ni, len(np)))
 
     def _init_codon_(self, index):
         c = Codon()
@@ -612,7 +612,7 @@ class Transcript():
                         rg.splice = 'Acceptor' if self.strand == '-' else 'Donor'
                     return rg
 
-        raise Exception()       # you shouldn't reach here
+        raise Exception('unknown_error')       # you shouldn't reach here
 
     def describe_span(self, gnuc_beg, gnuc_end, args):
 
@@ -661,7 +661,7 @@ class Transcript():
                     ci = (i+1)/3+1
                     
                 else:
-                    raise Exception()
+                    raise Exception('unknown_error')
                             
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
@@ -707,7 +707,7 @@ class Transcript():
                     ci = (i+1)/3+1
                     
                 else:
-                    raise Exception()
+                    raise Exception('unknown_intronic_policy')
                 
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
@@ -729,12 +729,15 @@ class Transcript():
 
         self.ensure_position_array()
         if pos.tpos > 0:
-            if abs(self._tnuc2gnuc(pos.pos) - self._tnuc2gnuc(pos.pos+1)) == 1:
-                raise IncompatibleTranscriptError()
+            x = self._tnuc2gnuc(pos.pos)
+            y = self._tnuc2gnuc(pos.pos+1)
+            if abs(x-y) == 1: # continuous genomic coordinates for continuous cDNA coordinates
+                raise IncompatibleTranscriptError('exon_boundary_violation_cDNA_[%d_%d]_gDNA_[%d_%d]' % (pos.pos,pos.pos+1,x,y))
         elif pos.tpos < 0:
-            if abs(self._tnuc2gnuc(pos.pos) - self._tnuc2gnuc(pos.pos-1)) == 1:
-                raise IncompatibleTranscriptError()
-
+            x = self._tnuc2gnuc(pos.pos-1)
+            y = self._tnuc2gnuc(pos.pos)
+            if abs(x-y) == 1: # continuous genomic coordinates for continuous cDNA coordinates
+                raise IncompatibleTranscriptError('exon_boundary_violation_cDNA_[%d_%d]_gDNA_[%d_%d]' % (pos.pos-1,pos.pos,x,y))
 
     def gpos2codon(self, gpos, intronic_policy='closer'):
 
@@ -1434,7 +1437,7 @@ class Gene():
 def translate_seq(seq):
 
     if len(seq) % 3 != 0:
-        raise IncompatibleTranscriptError('translated coding sequence not multiplicative of 3, most likely a truncated sequence.')
+        raise IncompatibleTranscriptError('coding_sequence_not_multiplicative_of_3;length_%d' % len(seq))
 
     aa_seq = []
     for i in xrange(len(seq)/3):

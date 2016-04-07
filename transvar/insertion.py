@@ -40,9 +40,7 @@ def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
     beg_codon_index = (tnuc_pos + 2) / 3
     beg_codon_beg = beg_codon_index*3 - 2
     if beg_codon_beg+2 > len(t.seq):
-        r.append_info("truncated_refseq_at_boundary")
-        err_print('truncated refseq at boundary codon end: %d, transcript length: %d' % (beg_codon_beg+3, len(t.seq)))
-        raise IncompatibleTranscriptError()
+        raise IncompatibleTranscriptError('truncated_refseq_at_boundary_codon_end_%d;transcript_length_%d' % (beg_codon_beg+3, len(t.seq)))
 
     old_seq = t.seq[beg_codon_beg-1:]
     new_seq = t.seq[beg_codon_beg-1:tnuc_pos]+insseq+t.seq[tnuc_pos:]
@@ -84,7 +82,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                 c1 = t.cpos2codon((tnuc_pos+2)/3)
                 c2 = t.cpos2codon((tnuc_pos+3)/3)
                 if not c1 or not c2:
-                    raise IncompatibleTranscriptError()
+                    raise IncompatibleTranscriptError('codon_nonexistent_at_cDNA_%d' % tnuc_pos)
                 r.csqn.append("InFrameInsertion")
                 taa_set_ins(r, t, c1.index, taa_insseq, args)
                 r.append_info('phase=0')
@@ -93,7 +91,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             codon_index = (tnuc_pos+2)/3
             codon = t.cpos2codon(codon_index)
             if not codon:
-                raise IncompatibleTranscriptError()
+                raise IncompatibleTranscriptError('codon_nonexistent_at_cDNA_%d' % codon_index)
 
             codon_beg = codon_index*3-2
             codon_end = codon_index*3
@@ -107,7 +105,6 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                     return
                 taa_insseq += codon2aa(new_seq[i*3:i*3+3])
 
-            if not codon: raise IncompatibleTranscriptError()
             taa_ref = codon2aa(codon.seq)
             if taa_ref == taa_insseq[0]:
                 # SdelinsSH becomes a pure insertion [current_codon]_[codon_after]insH
@@ -136,7 +133,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
 
         try:
             if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError("Transcript name unmatched")
+                raise IncompatibleTranscriptError("Transcript_name_unmatched")
             t.ensure_seq()
 
             r = Record(is_var=True)
@@ -166,9 +163,9 @@ def annotate_insertion_cdna(args, q, tpts, db):
                     tnuc_coding_ins(args, tnuc_ins, t, r, db)
                 else:
                     r.set_csqn_byreg("Insertion")
-        except IncompatibleTranscriptError:
+        except IncompatibleTranscriptError as e:
             continue
-        except SequenceRetrievalError:
+        except SequenceRetrievalError as e:
             continue
 
         found = True
@@ -176,9 +173,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record(is_var=True)
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q, args)
 
     return
 

@@ -117,10 +117,7 @@ class SeqBuf():
         global refgenome
         self.seq = refgenome.fetch_sequence(self.chrm, self.beg, self.end)
         if len(self.seq) != 2001:
-            e = WrongReferenceError()
-            e.msg = "Invalid position %d (expect to be from 0 to %d at %s)" % (p, refgenome.chrm2len(self.chrm), self.chrm)
-            e.wrongref = self.chrm
-            raise e
+            raise WrongReferenceError("Invalid_position_%d_(expect_from_0_to_%d_at_%s)" % (p, refgenome.chrm2len(self.chrm), self.chrm))
 
     def get_base(self, chrm, p):
 

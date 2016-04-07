@@ -40,14 +40,14 @@ def annotate_snv_cdna(args, q, tpts, db):
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError('transcript id unmatched')
+                raise IncompatibleTranscriptError('transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
             t.ensure_seq()
             
             if (q.cpos() <= 0 or q.cpos() > t.cdslen()):
-                raise IncompatibleTranscriptError()
+                raise IncompatibleTranscriptError('invalid_cDNA_position_%d;expect_[0_%d]' % (q.cpos(), t.cdslen()))
             codon = t.cpos2codon((q.cpos()+2)/3)
             if not codon:
-                raise IncompatibleTranscriptError()
+                raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % q.cpos())
 
             r = Record(is_var=True)
             r.chrm = t.chrm
@@ -59,11 +59,11 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
             if t.strand == '+':
                 if q.ref and r.gnuc_ref != q.ref:
-                    raise IncompatibleTranscriptError()
+                    raise IncompatibleTranscriptError('invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
                 r.gnuc_alt = q.alt if q.alt else ''
             else:
                 if q.ref and r.gnuc_ref != complement(q.ref):
-                    raise IncompatibleTranscriptError()
+                    raise IncompatibleTranscriptError('invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
                 r.gnuc_alt = complement(q.alt) if q.alt else ''
 
             r.tnuc_pos = q.pos
@@ -77,7 +77,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
 
                 if (q.ref and q.ref != t.seq[q.cpos()-1]):
-                    raise IncompatibleTranscriptError('SNV ref not matched')
+                    raise IncompatibleTranscriptError('invalid_reference_%s;expect_%s' % (q.ref, t.seq[q.cpos()-1]))
 
                 r.taa_ref = aaf(codon2aa(codon.seq), args)
                 r.taa_pos = codon.index
@@ -100,21 +100,16 @@ def annotate_snv_cdna(args, q, tpts, db):
                 r.csqn.append(r.reg.csqn()+"SNV")
                 t.check_exon_boundary(q.pos)
 
-        except IncompatibleTranscriptError:
+        except IncompatibleTranscriptError as e:
             continue
-        except SequenceRetrievalError:
+        except SequenceRetrievalError as e:
             continue
         found = True
         format_one(r, rs, q, args)
     format_all(rs, q, args)
 
     if not found:
-        r = Record(is_var=True)
-        r.tnuc_pos = q.pos
-        r.tnuc_ref = q.ref
-        r.tnuc_alt = q.alt
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q, args)
 
     return
 
@@ -128,21 +123,21 @@ def _annotate_snv_protein(args, q, t, db):
 
     # when there's a transcript specification
     if q.tpt and t.name != q.tpt:
-        raise IncompatibleTranscriptError('transcript id unmatched')
+        raise IncompatibleTranscriptError('transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
 
     t.ensure_seq()
 
     if (q.pos <= 0 or q.pos > t.cdslen()):
-        raise IncompatibleTranscriptError('codon nonexistent')
+        raise IncompatibleTranscriptError('codon_nonexistent_%d;expect_[0:%d]' % (q.pos, t.cdslen()))
     codon = t.cpos2codon(q.pos)
     if not codon:
-        raise IncompatibleTranscriptError('codon nonexistent')
+        raise IncompatibleTranscriptError('codon_nonexistent_%d;expect_[0:%d]' % (q.pos, t.cdslen()))
 
     # skip if reference amino acid is given
     # and codon sequence does not generate reference aa
     # codon.seq is natural sequence
     if q.ref and codon.seq not in aa2codon(q.ref):
-        raise IncompatibleTranscriptError('reference amino acid unmatched')
+        raise IncompatibleTranscriptError('invalid_reference_amino_acid_%s;expect_%s' % (q.ref, codon2aa(codon.seq)))
 
     r = Record(is_var=True)
     r.chrm = t.chrm
@@ -280,10 +275,11 @@ def annotate_snv_protein(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        r = Record(is_var=True)
-        set_taa_snv(r, q.pos, q.ref, q.alt, args)
-        r.info = 'no_valid_transcript_found'
-        r.format(q.op)
+        wrap_exception(Exception('no_valid_transcript_found'), q, args)
+        # r = Record(is_var=True)
+        # set_taa_snv(r, q.pos, q.ref, q.alt, args)
+        # r.info = 'no_valid_transcript_found'
+        # r.format(q.op)
 
 
 def annotate_snv_gdna(args, q, db):
@@ -293,19 +289,14 @@ def annotate_snv_gdna(args, q, db):
     r.pos = q.pos
 
     # check reference base
-    try:
-        gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
-    except SequenceRetrievalError as e:
-        r.info = 'SequenceRetrievalError'
-        r.format(q.op)
-        err_warn(e)
-        return
+    # try:
+    gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
+    # except SequenceRetrievalError as e:
+    #     wrap_exception(e, q, args)
+    #     return
 
     if q.ref and gnuc_ref != q.ref:
-        r.info = "invalid_reference_base_%s_(expect_%s)" % (q.ref, gnuc_ref)
-        r.format(q.op)
-        err_print("invalid reference base %s (expect %s), maybe wrong reference?" % (q.ref, gnuc_ref))
-        return
+        raise InvalidInputError("invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref))
     else:
         q.ref = gnuc_ref
 
