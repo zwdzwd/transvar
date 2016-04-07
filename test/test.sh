@@ -22,6 +22,7 @@ colordiff testout/panno_tamborero golden/panno_tamborero
 transvar ganno --vcf data/tamborero_data/docm_variants_mar_2016.vcf --ensembl | tee testout/ganno_tamborero.vcf
 colordiff testout/ganno_tamborero.vcf
 
+transvar ganno -l data/tamborero_data/transvar_dna_input.txt --ensembl | tee testout/ganno_tamborero_output
 
 ## register testpypi
 
