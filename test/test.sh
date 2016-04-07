@@ -29,7 +29,11 @@ python setup.py register -r https://testpypi.python.org/pypi
 
 python setup.py sdist upload -r https://testpypi.python.org/pypi
 
-pip install -i https://testpypi.python.org/pypi
+pip install -i https://testpypi.python.org/pypi transvar
+
+python setup.py sdist upload -r https://pypi.python.org/pypi
+
+pip install -i https://pypi.python.org/pypi transvar
 
 # ~/.pypirc
 # [distutils]
