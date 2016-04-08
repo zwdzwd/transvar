@@ -5,7 +5,7 @@ The MIT License (MIT)
 
 Copyright (c) 2015,2016
 The University of Texas MD Anderson Cancer Center
-Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
+Wanding Zhou, Tenghui Chen, Ken Chen
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the 
