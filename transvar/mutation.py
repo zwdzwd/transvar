@@ -418,8 +418,7 @@ def vcf_parse_mutation(args, at='g'):
                 q.refseq = ref.upper()
                 q.altseq = alt.upper()
             else:
-                q = Query()
-                q.msg = "InvalidVCFLine"
+                q = Query()     # parsing failure
                 err_warn("Invalid VCF line: %s" % line.strip('\n'))
 
             q.op = line.strip()
