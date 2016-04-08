@@ -168,7 +168,7 @@ def main_one(args, db, at):
         r = Record()
         r.append_info('invalid_mutation_string: %s (type:%s)' % (args.i, at))
         err_warn('invalid mutation string: %s (type: %s)' % (args.i, at))
-        r.format(q.op)
+        r.format(args.i)
         return
         # err_die('invalid mutation string %s (type:%s)' % (args.i, at))
 
