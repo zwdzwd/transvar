@@ -48,8 +48,8 @@ pip install -i https://pypi.python.org/pypi transvar
 
 # [pypi]
 # repository=https://pypi.python.org/pypi
-# username=zwdzwd
-# password=Terminator_123
+# username=name
+# password=pass
 
 # [pypitest]
 # repository=https://testpypi.python.org/pypi
