@@ -124,7 +124,7 @@ def _main_(args, q, db, at):
     # except InvalidInputError as e:
     # wrap_exception(e, q, args)
     except Exception as e:
-        wrap_exception(e, q, args)
+        wrap_exception(e, q.op, args)
 
     return
 

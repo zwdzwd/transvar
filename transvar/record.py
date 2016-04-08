@@ -707,10 +707,10 @@ def format_all(rs, q, args):
         except IOError:
             sys.exit(1)
 
-def wrap_exception(e, q, args):
+def wrap_exception(e, op, args):
     r = Record()
     r.append_info("Error_"+e.message)
     err_warn(e.message)
-    r.format(q.op)
+    r.format(op)
     if args.suspend:
         raise e
