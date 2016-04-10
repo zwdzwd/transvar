@@ -28,11 +28,14 @@ to upgrade from a previous version
 Download the program
 #######################
 
+Current release
+^^^^^^^^^^^^^^^^^
+
 Latest release is available `here <https://github.com/zwdzwd/transvar/releases/latest>`__
 
 For all previous versions, see `here <https://github.com/zwdzwd/transvar/releases>`__
 
-Other old stable releases:
+Other old stable releases
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 + stable 2.0.x version `v2.0.12.20150626 <https://github.com/zwdzwd/transvar/archive/v2.0.12.20150626.zip>`__

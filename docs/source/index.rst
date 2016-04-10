@@ -17,6 +17,8 @@ Contents:
    annotation_from_genomic_level
    annotation_from_protein_level
    annotation_from_cdna_level
+   interpret_variant_consequence
+   faq
    license
    help
 
