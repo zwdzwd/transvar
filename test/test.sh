@@ -2,6 +2,7 @@
 mkdir -p testout
 
 transvar panno -l cosmic/cosmic_panno_frameshift -g 1 -m 4 --ccds | tee testout/panno_cosmic_frameshift
+colordiff testout/
 
 transvar panno -l data/cosmic/cosmic_panno_deletion -g 1 -m 4 --ccds | tee testout/panno_cosmic_deletion
 
@@ -48,8 +49,8 @@ pip install -i https://pypi.python.org/pypi transvar
 
 # [pypi]
 # repository=https://pypi.python.org/pypi
-# username=zwdzwd
-# password=Terminator_123
+# username=name
+# password=pass
 
 # [pypitest]
 # repository=https://testpypi.python.org/pypi
