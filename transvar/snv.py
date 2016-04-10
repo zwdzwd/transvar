@@ -111,7 +111,7 @@ def annotate_snv_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q, args)
+        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q.op, args)
 
     return
 
@@ -277,7 +277,7 @@ def annotate_snv_protein(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        wrap_exception(Exception('no_valid_transcript_found'), q, args)
+        wrap_exception(Exception('no_valid_transcript_found'), q.op, args)
         # r = Record(is_var=True)
         # set_taa_snv(r, q.pos, q.ref, q.alt, args)
         # r.info = 'no_valid_transcript_found'

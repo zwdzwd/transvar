@@ -173,7 +173,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
     format_all(rs, q, args)
 
     if not found:
-        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q, args)
+        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q.op, args)
 
     return
 

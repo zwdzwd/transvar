@@ -5,4 +5,14 @@ TransVar is a multi-way annotator for genetic elements and genetic variations. I
 
 **User Guide is available [here](https://github.com/zwdzwd/transvar/wiki/Home).**
 
+Try out transvar via pip
+
+```bash
+sudo pip install transvar
+```
+or locally
+```bash
+pip install --user transvar
+```
+
 This is a continued TransVar implementation from what was hosted at [https://bitbucket.org/wanding/transvar](https://bitbucket.org/wanding/transvar).

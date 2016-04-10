@@ -112,7 +112,7 @@ def _main_core_(args, q, db, at):
             return annotate_insertion_gdna(args, q, db)
         elif isinstance(q, QueryREG):
             return annotate_region_gdna(args, q, db)
-        else:
+        else:                   # for VCF the naked Query() means parsing failure
             raise InvalidInputError('invalid_mutation_string: %s (type:%s)' % (q.op, at))
 
 def _main_(args, q, db, at):
@@ -124,7 +124,7 @@ def _main_(args, q, db, at):
     # except InvalidInputError as e:
     # wrap_exception(e, q, args)
     except Exception as e:
-        wrap_exception(e, q, args)
+        wrap_exception(e, q.op, args)
 
     return
 
@@ -145,15 +145,16 @@ def main_list(args, db, at, mutation_parser):
             q.tok = q.tok.upper()
             genefound = False
             for q.gene in db.get_gene(q.tok):
-                genefound = True
                 _main_(args, q, db, at)
+                genefound = True
 
             if not genefound:
-                r = Record()
-                r.append_info('gene_not_recognized_(%s)' % q.tok)
-                err_warn('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
-                r.format(q.op)
-                continue
+                wrap_exception(Exception('invalid_gene_%s' % q.tok), q.op, args)
+                # r = Record()
+                # r.append_info('gene_not_recognized_(%s)' % q.tok)
+                # err_warn('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
+                # r.format(q.op)
+                # continue
             
         # try:
         # except:
@@ -164,22 +165,23 @@ def main_one(args, db, at):
 
     try:
         q = parse_tok_mutation_str(args.i, at)
-    except InvalidInputError:
-        r = Record()
-        r.append_info('invalid_mutation_string: %s (type:%s)' % (args.i, at))
-        err_warn('invalid mutation string: %s (type: %s)' % (args.i, at))
-        r.format(q.op)
+    except Exception as e:
+        wrap_exception(e, args.i, args)
         return
-        # err_die('invalid mutation string %s (type:%s)' % (args.i, at))
+    # r = Record()
+    # r.append_info('invalid_mutation_string: %s (type:%s)' % (args.i, at))
+    # err_warn('invalid mutation string: %s (type: %s)' % (args.i, at))
+    # r.format(args.i)
+    # err_die('invalid mutation string %s (type:%s)' % (args.i, at))
 
-    if not q:
-        return
+    # if not q:
+    #     return
 
     q.op = args.i
-    if at == 'g':
+    if at == 'g':               # genomic input
         q.tok = normalize_chrm(q.tok)
         _main_(args, q, db, at)
-    else:
+    else:                       # cDNA or protein
         q.tok = q.tok.upper()
         genefound = False
         for q.gene in db.get_gene(q.tok):
@@ -187,7 +189,8 @@ def main_one(args, db, at):
             genefound = True
 
         if not genefound:
-            err_die('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
+            wrap_exception(Exception('invalid_gene_%s' % q.tok), q.op, args)
+            # err_die('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
 
 def main(args, at):
 

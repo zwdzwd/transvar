@@ -38,7 +38,7 @@ def _parse_gdna_mutation(s):
     m = re.match(r'(g\.)?(\d+)(_(\d+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
 
     if not m:
-        raise InvalidInputError('invalid_mutation_"%s"' % s)
+        raise InvalidInputError('invalid_mutation_string_%s' % s)
 
     (_, _beg, _end_s, _end, _, _is_del, _d,
      _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = m.groups()
@@ -100,7 +100,7 @@ def _parse_cdna_mutation(s):
     # m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
     m = re.match(r'(c\.)?([\d+-]+)(_([\d+-]+))?(\.)?(del([atgcATGC\d]*))?(ins([atgcATGC]*))?(([atgcATGC?]*)>([atgcATGC?]*))?(dup([atgcATGC\d]*))?$', s)
     if not m:
-        raise InvalidInputError('invalid_mutation_"%s".' % s)
+        raise InvalidInputError('invalid_mutation_string_%s' % s)
 
     (_, _beg, _end_s, _end, _, _is_del, _d,
      _is_ins, _i, _is_sub, _ref, _alt, _is_dup, _dupseq) = m.groups()
@@ -191,7 +191,7 @@ def _parse_protein_mutation(s):
             success = True
 
     if not success:
-        raise InvalidInputError('invalid_mutation_"%s"' % s)
+        raise InvalidInputError('invalid_mutation_string_%s' % s)
 
     _beg_aa = read_aa(_beg_aa)
     _end_aa = read_aa(_end_aa)
@@ -278,7 +278,7 @@ def parse_mutation_str(mut_str, mut):
     elif mut == 'p':
         return _parse_protein_mutation(mut_str)
     else:
-        raise InvalidInputError('invalid_mutation_"%s"' % mut_str)
+        raise InvalidInputError('invalid_mutation_string_%s' % mut_str)
 
 def parse_tok_mutation_str(s, muttype):
 
@@ -418,8 +418,7 @@ def vcf_parse_mutation(args, at='g'):
                 q.refseq = ref.upper()
                 q.altseq = alt.upper()
             else:
-                q = Query()
-                q.msg = "InvalidVCFLine"
+                q = Query()     # parsing failure
                 err_warn("Invalid VCF line: %s" % line.strip('\n'))
 
             q.op = line.strip()
@@ -442,12 +441,15 @@ def list_parse_mutation(args, muttype):
             fields = line.strip().split(args.d)
         try:
             q = _list_parse_mutation(args, fields, indices, muttype)
-        except IndexError as e:
-            err_print(str(e))
-            err_print("may be different delimiter in the input file? (try -d s)")
-            sys.exit(1)
-        except InvalidInputError as e:
-            err_print(str(e))
+        # except IndexError as e:
+        #     err_print(str(e))
+        #     err_print("may be different delimiter in the input file? (try -d s)")
+        #     sys.exit(1)
+        # except InvalidInputError as e:
+        #     err_print(str(e))
+        #     continue
+        except Exception as e:
+            wrap_exception(e, '|'.join(indices.extract(fields)), args)
             continue
 
         yield q, line
