@@ -359,7 +359,7 @@ A block-substitution that is in-frame,
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
 
 Promoter region
-#################
+##################
 
 One can define the promoter boundary through the `--prombeg` and `--promend` option. Default promoter region is defined from 1000bp upstream of the transcription start site to the transcription start site. One could customize this setting to e.g., [-1000bp, 2000bp] by
 
@@ -412,6 +412,72 @@ One can define the promoter boundary through the `--prombeg` and `--promend` opt
       ;source=Ensembl
 
 The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
+
+Splice sites
+^^^^^^^^^^^^^^^^^^
+
+Consider a splice donor site chr7:5568790_5568791 (a donor site, intron side by definition, reverse strand, chr7:5568792- is the exon),
+
+The 1st exonic nucleotide before donor splice site:
+
+.. code::
+
+   $ transvar ganno -i 'chr7:5568792C>G' --ccds
+
+output a exonic variation and a missense variation
+
+::
+
+   chr7:5568792C>G	CCDS5341 (protein_coding)	ACTB	-
+      chr7:g.5568792C>G/c.363G>C/p.Q121H	inside_[cds_in_exon_2]
+      CSQN=Missense;C2=NextToSpliceDonorOfExon2_At_chr7:5568791;codon_pos=5568792-5
+      568793-5568794;ref_codon_seq=CAG;source=CCDS
+
+
+The 1st nucleotide in the canonical donor splice site (intron side, this is commonly regarded as the splice site location):
+
+.. code::
+
+   $ transvar ganno -i 'chr7:5568791C>G' --ccds
+
+output a splice variation
+
+::
+
+   chr7:5568791C>G	CCDS5341 (protein_coding)	ACTB	-
+      chr7:g.5568791C>G/c.363+1G>C/.	inside_[intron_between_exon_2_and_3]
+      CSQN=SpliceDonorSNV;C2=SpliceDonorOfExon2_At_chr7:5568791;source=CCDS
+
+
+The 2nd nucleotide in the canonical donor splice site (2nd on the intron side, still considered part of the splice site):
+
+.. code::
+
+$ transvar ganno -i 'chr7:5568790A>G' --ccds
+
+output a splice variation
+
+::
+
+   chr7:5568790A>G CCDS5341 (protein_coding)       ACTB    -
+      chr7:g.5568790A>G/c.363+2T>C/.       inside_[intron_between_exon_2_and_3]
+      CSQN=SpliceDonorSNV;C2=SpliceDonorOfExon2_At_chr7:5568791;source=CCDS
+
+
+The 1st nucleotide downstream next to the canonical donor splice site (3rd nucleotide in the intron side, not part of the splice site):
+
+.. code::
+
+   $ transvar ganno -i 'chr7:5568789C>G' --ccds
+
+output a pure intronic variation
+
+::
+
+   chr7:5568789C>G	CCDS5341 (protein_coding)	ACTB	-
+      chr7:g.5568789C>G/c.363+3G>C/.	inside_[intron_between_exon_2_and_3]
+      CSQN=IntronicSNV;source=CCDS
+
 
 UTR region
 #####################
