@@ -414,7 +414,7 @@ One can define the promoter boundary through the `--prombeg` and `--promend` opt
 The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
 
 Splice sites
-^^^^^^^^^^^^^^^^^^
+################
 
 Consider a splice donor site chr7:5568790_5568791 (a donor site, intron side by definition, reverse strand, chr7:5568792- is the exon),
 
@@ -480,7 +480,7 @@ output a pure intronic variation
 
 
 UTR region
-#####################
+#############
 
 .. code:: bash
 
