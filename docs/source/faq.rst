@@ -112,7 +112,7 @@ For example,
 How can I let TransVar output sequence context?
 #################################################
 
-The option `--aacontext 5` output +/- 5bp protein sequence context.
+The option ``--aacontext 5`` output +/- 5bp protein sequence context.
 
 .. code:: bash
 
@@ -138,17 +138,17 @@ shows the protein sequence context in the aacontext tag.
 How to report results in one line for each query?
 ###################################################
 
-Use `--oneline` option. This separates the outputs from each transcript by '|||'.
+Use ``--oneline`` option. This separates the outputs from each transcript by '|||'.
 
 I got 'gene_not_recognized', what's wrong?
 ###########################################
 
-Most likely you forgot to specify a transcipt definition such as `--ccds` or `--ensembl`. Sometimes there are non-canonical names for genes, this can be fixed through the `--alias` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
+Most likely you forgot to specify a transcipt definition such as ``--ccds`` or ``--ensembl``. Sometimes there are non-canonical names for genes, this can be fixed through the ``--alias`` option and specify an alias table. TransVar comes with alias table from UCSC knownGene.
 
-Does TransVar support alternative format for MNV such as `c.508_509CC>TT`?
+Does TransVar support alternative format for MNV such as c.508_509CC>TT?
 ###########################################################################
 
-Yes, but only in input. For example, `c.508_509CC>TT`
+Yes, but only in input. For example, **c.508_509CC>TT**
 
 .. code:: bash
 
@@ -167,9 +167,9 @@ Yes, but only in input. For example, `c.508_509CC>TT`
 Does TransVar support relaxed input without 'g.', 'c.' and 'p.'?
 ######################################################################
 
-Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, `12:109702119insACC` is equally acceptable as `chr12:g.109702119_109702120insACC`. TransVar also accepts '>' in denoting MNV. E.g., `c.113G>TACTAGC` can be used in place of `c.113delGinsTACTAGC`. This is common in some database such as COSMIC.
+Yes, the 'g.', 'c.' and 'p.' are optional in the input. For example, ``12:109702119insACC`` is equally acceptable as ``chr12:g.109702119_109702120insACC``. TransVar also accepts '>' in denoting MNV. E.g., ``c.113G>TACTAGC`` can be used in place of ``c.113delGinsTACTAGC``. This is common in some database such as COSMIC.
 
 When I annotate a variant for protein identifier, why would I end up getting results in another variant type?
 #####################################################################################################################
 
-TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, `ACIN1:c.1930_1931insATTCAC` will be annotated with `p.S643_R644insHS` rather than `R644delinsHSR`. Protein level mutation will be generated as if no nucleotide mutation information exists.
+TransVar follows in full the HGVS nomenclature while annotating protein level mutation identifiers. For example, a out-of-phase, in frame insertion, ``ACIN1:c.1930_1931insATTCAC`` will be annotated with ``p.S643_R644insHS`` rather than ``R644delinsHSR``. Protein level mutation will be generated as if no nucleotide mutation information exists.

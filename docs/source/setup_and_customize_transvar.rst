@@ -14,6 +14,7 @@ store the path to transvar.cfg
 
    export TRANSVAR_CFG=path_to_transvar.cfg
 
+If not specified, TransVar will use **[installdir]/lib/transvar/transvar.cfg** directory or your local **~/.transvar.cfg** if the installation directory is inaccessible.
 
 TRANSVAR_DOWNLOAD_DIR
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -24,14 +25,36 @@ store the path to the directory where auto-download of annotation and reference 
 
    export TRANSVAR_DOWNLOAD_DIR=path_to_transvar_download_directory
 
+If not specified, TransVar will use **[installdir]/lib/transvar/transvar.download** directory or your local **~/.transvar.download** if the installation directory is inaccessible.
+
 Install and specify reference genome assembly
 ###############################################
 
-For some genome assembly (currently hg18, hg19, hg38, mm9 and mm10) we provide download via `transvar config --download_ref --refversion [reference name]`. See `transvar config -h` for all choices of `[reference name]`).
-For other genome assemblies,one could download the genome and index it manually by, `transvar index --reference [fasta]`. Under the hood, TransVar uses the `samtools faidx`. So one could use any existing faidx indices without a glitch.
+Download from TransVar database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For some genome assembly (currently hg18, hg19, hg38, mm9 and mm10) we provide download via
+
+.. code:: bash
+
+   transvar config --download_ref --refversion [reference name]
+
+See ``transvar config -h`` for all choices of ``[reference name]``).
+
+Manual download and index
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For other genome assemblies, one could manually download the genome and index it manually by, 
+
+.. code:: bash
+
+   transvar index --reference [fasta]
+
+Under the hood, TransVar uses the "samtools faidx". So one could use any existing faidx indices without a glitch.
 Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome.
 
 To set the default location of genome file for a reference version, say, to ./hg19.fa,
+
 .. code:: bash
 
    transvar config -k reference -v ./hg19.fa --refversion hg19
@@ -48,15 +71,28 @@ so that there is no need to specify the location of reference on subsequent usag
 Install and specify transcript annotations
 ############################################
 
-TransVar provides automatic download of transcript annotations. E.g., ``transvar config --download_anno --refversion hg19`` will automatically download annotation from Ensembl, RefSeq etc. to **[installdir]/lib/transvar/transvar.download** directory or your local **~/.transvar.download** if the installation directory is inaccessible. See **transvar config -h** for all version names.
-These will also create default mappings under the corresponding reference version section of transvar.cfg like
+Download from TransVar database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One could automatically download transcript annotations via E.g., 
+
+.. code:: bash
+
+   transvar config --download_anno --refversion hg19
+
+which download annotation from TransVar database to **[installdir]/lib/transvar/transvar.download** directory or your local **~/.transvar.download** if the installation directory is inaccessible. See **transvar config -h** for all version names.
+These will also create default mappings under the corresponding reference version section of **transvar.cfg** like
 
 ::
    
    [hg19]
    ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
 
+Download from Ensembl ftp
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 One also has the option of downloading from Ensembl collection.
+
 .. code:: bash
 
    transvar config --download_ensembl --refversion mus_musculus
