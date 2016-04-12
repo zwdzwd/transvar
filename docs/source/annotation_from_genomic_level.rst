@@ -453,7 +453,7 @@ The 2nd nucleotide in the canonical donor splice site (2nd on the intron side, s
 
 .. code::
 
-$ transvar ganno -i 'chr7:5568790A>G' --ccds
+   $ transvar ganno -i 'chr7:5568790A>G' --ccds
 
 output a splice variation
 
