@@ -35,7 +35,7 @@ TransVar infers nucleotide mutation through ``PIK3CA:c.1633G>A``. Note that nucl
 outputs
 
 ::
-   
+
    PIK3CA:c.1633G>A	CCDS43171 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
       CSQN=Missense;dbsnp=rs104886003(chr3:178936091G>A);reference_codon=GAG;altern
@@ -46,11 +46,11 @@ The SNV can be in the intronic region, e.g.,
 .. code:: bash
 
    $ transvar canno --ccds -i 'ABCB11:c.1198-8C>A'
-   
+
 outputs
 
 ::
-   
+
    ABCB11:c.1198-8C>A	CCDS46444 (protein_coding)	ABCB11	-
       chr2:g.169833205G>T/c.1198-8C>A/.	inside_[intron_between_exon_10_and_11]
       CSQN=IntronicSNV;source=CCDS
@@ -63,11 +63,11 @@ An insertion may result in: 1) a pure insertion of amino acids; 2) a block subst
 Example: to annotate an **in-frame, in-phase insertion**,
 
 .. code:: bash
-   
+
    $ transvar canno --ccds -i 'ACIN1:c.1932_1933insATTCAC'
 
 ::
-   
+
    ACIN1:c.1932_1933insATTCAC	CCDS9587 (protein_coding)	ACIN1	-
       chr14:g.23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548785_23548786insGTGAAT;unalign_gD
@@ -144,7 +144,7 @@ Example: to annotate a **frame-shift insertion**, frameshift mutations have not 
 results in
 
 ::
-   
+
    AAAS:c.1225_1226insG	CCDS8856 (protein_coding)	AAAS	-
       chr12:g.53702093dupC/c.1225dupG/p.E409Gfs*17	inside_[cds_in_exon_13]
       CSQN=Frameshift;left_align_gDNA=g.53702089_53702090insC;unalign_gDNA=g.537020
@@ -165,7 +165,7 @@ Example: to annotate an **intronic insertion**,
 outputs
 
 ::
-   
+
    ADAM33:c.991-3_991-2insC	CCDS13058 (protein_coding)	ADAM33	-
       chr20:g.3654151dupG/c.991-3dupC/.	inside_[intron_between_exon_10_and_11]
       CSQN=IntronicInsertion;left_align_gDNA=g.3654145_3654146insG;unalign_gDNA=g.3
@@ -183,7 +183,7 @@ Insertion could occur to *splice sites*. TransVar identifies such cases and repo
 results in
 
 ::
-   
+
    ADAM33:c.991_992insC	CCDS13058 (protein_coding)	ADAM33	-
       chr20:g.3654142_3654143insG/c.991_992insC/.	inside_[cds_in_exon_11]
       CSQN=SpliceAcceptorInsertion;left_align_gDNA=g.3654142_3654143insG;unalign_gD
@@ -202,7 +202,7 @@ Example: to annotate an **in-frame deletion**,
    $ transvar canno --ccds -i 'A4GNT:c.694_696delTTG'
 
 ::
-   
+
    A4GNT:c.694_696delTTG	CCDS3097 (protein_coding)	A4GNT	-
       chr3:g.137843435_137843437delACA/c.694_696delTTG/p.L232delL	inside_[cds_in_exon_2]
       CSQN=InFrameDeletion;left_align_gDNA=g.137843433_137843435delCAA;unaligned_gD
@@ -251,6 +251,7 @@ Example: to annotate a **deletion that span from intronic to coding region**, pr
       G;unaligned_gDNA=g.169833196_169833205delTTCTGGAGTG;left_align_cDNA=c.1198-8_
       1199delCACTCCAGAA;unalign_cDNA=c.1198-8_1199delCACTCCAGAA;C2=acceptor_splice_
       site_on_exon_11_at_chr2:169833198_lost;source=CCDS
+
 
 block substitution
 ^^^^^^^^^^^^^^^^^^^^

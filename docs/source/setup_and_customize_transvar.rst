@@ -200,3 +200,4 @@ outputs the full reference sequence:
       GGGACT;unaligned_gDNA=g.101347000_101347023delTTGGGGTGAGAAATAGAGGGGACT;left_a
       lign_cDNA=c.4074+29_4074+52delAGTCCCCTCTATTTCTCACCCCAA;unalign_cDNA=c.4074+29
       _4074+52delAGTCCCCTCTATTTCTCACCCCAA;aliases=ENSP00000435342;source=Ensembl
+

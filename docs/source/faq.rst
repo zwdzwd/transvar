@@ -102,7 +102,7 @@ For example,
    $ transvar panno --ccds -i 'PIK3CA:p.Glu545Lys' --aa3
 
 ::
-   
+
    PIK3CA:p.Glu545Lys	CCDS43171 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.Glu545Lys	inside_[cds_in_exon_9]
       CSQN=Missense;reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_vari
@@ -119,7 +119,7 @@ The option ``--aacontext 5`` output +/- 5bp protein sequence context.
    $ transvar ganno -i 'chr17:7577124' --ccds --aacontext 5
 
 ::
-   
+
    chr17:7577124	CCDS11118 (protein_coding)	TP53	-
       chr17:g.7577124C>/c.814G>/p.V272	inside_[cds_in_exon_7]
       is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
@@ -155,7 +155,7 @@ Yes, but only in input. For example, **c.508_509CC>TT**
    $ transvar canno --ccds -i 'A1CF:c.508_509CC>TT'
 
 ::
-   
+
    A1CF:c.508_509CC>TT	CCDS7241 (protein_coding)	A1CF	-
       chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS

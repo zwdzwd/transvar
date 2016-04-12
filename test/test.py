@@ -60,7 +60,7 @@ else:
 import transvar
 
 for ifn in ifns:
-    if not ifn.endswith(".md"):
+    if not ifn.endswith(".rst"):
         continue
 
     if fromdir:
@@ -74,15 +74,15 @@ for ifn in ifns:
 
     result = ''
     tofill = False
-    infill = False
+    blank = 0
     for line in ifh:
 
         line = line.replace('@VERSION', transvar.__version__)
 
-        if line.startswith('$'):    # exexcute sentinel
+        if line.startswith('   $'):    # exexcute sentinel
 
             ofh.write(line)
-            line = line[2:].strip()
+            line = line.strip()[2:].strip()
             ar = re.split(r'[\'"]', line.strip())
 
             B = []
@@ -102,44 +102,49 @@ for ifn in ifns:
             print result
             # print '\n'.join([rr for rr in result.split('\n') if not (len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'))])
             tofill = True
-            infill = False
+            blank = 0
             oldfill = ''
 
-        elif line.startswith('```text') and tofill:
-            infill = True
+        elif line.startswith('::') and tofill:
+            blank = 1
             tofill = False
             ofh.write(line)
 
-        elif line.startswith('```') and infill:
+        elif line.strip() == ""  and blank > 0:
 
-            newfill = ''
-            for rr in result.split('\n'):
-
-                if len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'):
-                    continue
-
-                for r in wrap(rr):
-                    newfill += r+'\n'
-
-            if newfill != oldfill:
-                print '\n+++ OLD +++'
-                print oldfill
-                print '\n+++ NEW +++'
-                print newfill
-                raw_input("Difference ...")
+            if blank == 1:
+                oldfill += line
+                blank += 1
             else:
-                print "\nSame!\n"
 
-            ofh.write(newfill)
-            ofh.write('```\n')
+                newfill = '\n'
+                for rr in result.split('\n'):
 
-            infill = False
+                    if len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'):
+                        continue
 
-        elif infill:
+                    for r in wrap(rr):
+                        newfill += '   '+r+'\n'
+
+                if newfill != oldfill:
+                    # print len(newfill)
+                    # print len(oldfill)
+                    print '\n+++ OLD +++'
+                    print oldfill
+                    print '\n+++ NEW +++'
+                    print newfill
+                    raw_input("Difference ...")
+                else:
+                    print "\nSame!\n"
+
+                ofh.write(newfill+'\n')
+                # ofh.write('```\n')
+                blank = 0
+
+        elif blank>0:
             oldfill += line
 
         else:
-
             ofh.write(line)
 
     ifh.close()

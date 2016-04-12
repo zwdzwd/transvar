@@ -270,8 +270,33 @@ Sometimes the alternative amino acid can be missing
    $ transvar panno -i ADAMTSL1:p.I396fs*30 --ccds
 
 ::
-   
-   something
+
+   ADAMTSL1:p.I396fs*30	CCDS6485 (protein_coding)	ADAMTSL1	+
+      chr9:g.18680354_18680355insA/c.1181_1182insA/p.I396fs*30	inside_[cds_in_exon_11]
+      CSQN=Frameshift;left_align_cDNA=c.1181_1182insA;left_align_gDNA=g.18680354_18
+      680355insA;candidates=g.18680354_18680355insC/c.1181_1182insC/g.18680354_1868
+      0355insC/c.1181_1182insC,g.18680354_18680355insT/c.1181_1182insT/g.18680354_1
+      8680355insT/c.1181_1182insT,g.18680357_18680358insA/c.1184_1185insA/g.1868035
+      7_18680358insA/c.1184_1185insA,g.18680357_18680358insT/c.1184_1185insT/g.1868
+      0357_18680358insT/c.1184_1185insT,g.18680357dupG/c.1184dupG/g.18680349_186803
+      50insG/c.1176_1177insG,g.18680358_18680359insG/c.1185_1186insG/g.18680358_186
+      80359insG/c.1185_1186insG,g.18680358_18680359insT/c.1185_1186insT/g.18680358_
+      18680359insT/c.1185_1186insT,g.18680358dupC/c.1185dupC/g.18680357_18680358ins
+      C/c.1184_1185insC,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360
+      insC/c.1186_1187insC;3_CandidatesOmitted;source=CCDS
+   ADAMTSL1:p.I396fs*30	CCDS47954 (protein_coding)	ADAMTSL1	+
+      chr9:g.18680354_18680355insA/c.1181_1182insA/p.I396fs*30	inside_[cds_in_exon_11]
+      CSQN=Frameshift;left_align_cDNA=c.1181_1182insA;left_align_gDNA=g.18680354_18
+      680355insA;candidates=g.18680354_18680355insC/c.1181_1182insC/g.18680354_1868
+      0355insC/c.1181_1182insC,g.18680354_18680355insT/c.1181_1182insT/g.18680354_1
+      8680355insT/c.1181_1182insT,g.18680357_18680358insA/c.1184_1185insA/g.1868035
+      7_18680358insA/c.1184_1185insA,g.18680357_18680358insT/c.1184_1185insT/g.1868
+      0357_18680358insT/c.1184_1185insT,g.18680357dupG/c.1184dupG/g.18680349_186803
+      50insG/c.1176_1177insG,g.18680358_18680359insG/c.1185_1186insG/g.18680358_186
+      80359insG/c.1185_1186insG,g.18680358_18680359insT/c.1185_1186insT/g.18680358_
+      18680359insT/c.1185_1186insT,g.18680358dupC/c.1185dupC/g.18680357_18680358ins
+      C/c.1184_1185insC,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360
+      insC/c.1186_1187insC;3_CandidatesOmitted;source=CCDS
 
 
 TransVar can also take protein identifiers such as  as input. For example,

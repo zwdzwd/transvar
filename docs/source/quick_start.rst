@@ -31,7 +31,7 @@ outputs show two hits from the two databases, i.e., UCSC and CCDS.
       CSQN=Missense;reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_vari
       ants=chr3:g.178936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G
       >A);source=UCSCRefGene
-      PIK3CA:p.E545K	CCDS43171 (protein_coding)	PIK3CA	+
+   PIK3CA:p.E545K	CCDS43171 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
       CSQN=Missense;reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_vari
       ants=chr3:g.178936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G
@@ -46,7 +46,7 @@ One could provide input based on transcript ID, e.g **NM_006218.1:p.E545K** and 
 
 outputs
 ::
-   
+
    NM_006218.2:p.E545K	NM_006218 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_10]
       CSQN=Missense;reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_vari
