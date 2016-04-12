@@ -2,8 +2,8 @@
 Setup and Customize
 ********************
 
-Use environment variable to direct download and configuration
-##############################################################
+Use environment variables
+#############################
 
 TRANSVAR_CFG
 ^^^^^^^^^^^^^^

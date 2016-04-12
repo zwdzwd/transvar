@@ -19,6 +19,7 @@ Contents:
    annotation_from_cdna_level
    interpret_variant_consequence
    faq
+   features
    license
    help
 
