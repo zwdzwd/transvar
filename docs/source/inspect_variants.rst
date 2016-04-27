@@ -2,7 +2,7 @@
 Inspect variant sequences
 ***************************
 
-The **--print-protein** and **--print-protein-pretty** options displays the full variant protein sequence in the `variant_protein_seq` field of the info when the genomic variant hits a protein-coding transcript.
+The **--print-protein** and **--print-protein-pretty** options displays the full variant protein sequence in the **variant_protein_seq** field of the info when the genomic variant hits a protein-coding transcript.
 
 Missense substitution
 #######################
