@@ -117,6 +117,7 @@ def _main_core_(args, q, db, at):
 
 def _main_(args, q, db, at):
     """ process 1 input """
+    # _main_core_(args,q,db,at)
     try:
         return _main_core_(args,q,db,at)
     # except WrongReferenceError as e:

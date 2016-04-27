@@ -103,8 +103,11 @@ def annotate_snv_cdna(args, q, tpts, db):
                     elif r.taa_alt:
                         r.csqn.append('Synonymous')
                     r.append_info(
-                        'reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
-                    variant_protein_seq_snv(r, t, args)
+                        'reference_codon=%s;alternative_codon=%s' % (
+                            codon.seq, ''.join(mut_seq)))
+                    
+                    variant_protein_seq_sub(
+                        r, t, args, r.taa_pos, r.taa_pos, r.taa_alt)
 
             else:  # coordinates are with respect to the exon boundary
                 r.csqn.append(r.reg.csqn()+"SNV")
@@ -368,7 +371,8 @@ def annotate_snv_gdna(args, q, db):
                                     r.csqn.append('Missense')
                             elif r.taa_alt:
                                 r.csqn.append('Synonymous')
-                        variant_protein_seq_snv(r, reg.t, args)
+                            variant_protein_seq_sub(
+                                r, reg.t, args, r.taa_pos, r.taa_pos, r.taa_alt)
                     else:
                         r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
 

@@ -324,7 +324,7 @@ def taa_set_del(r, t, taa_beg, taa_end, args):
                   taa_del_id(t, i1l, i2l, args))
     r.append_info('unalign_protein=p.%s' %
                   taa_del_id(t, taa_beg, taa_end, args))
-    variant_protein_seq_deletion(r, t, args, i1r, i2r)
+    variant_protein_seq_del(r, t, args, i1r, i2r)
 
 def del_coding_inframe(args, c1, c2, p1, p2, t, r):
 
@@ -372,11 +372,13 @@ def del_coding_inframe(args, c1, c2, p1, p2, t, r):
         elif new_codon_seq == '*':
             r.csqn.append("Nonsense")
             r.taa_range = "%s%d%s" % (aaf(taa_delseq[0], args), c1.index, taa_alt)
+            variant_protein_seq_sub(r, t, args, c1.index, c1.index, taa_alt)
         else:
             r.csqn.append('MultiAAMissense')
             r.taa_range = '%s%d_%s%ddelins%s' % (
                 aaf(taa_delseq[0], args), c1.index,
                 aaf(taa_delseq[-1], args), c2.index, taa_alt)
+            variant_protein_seq_sub(r, t, args, c1.index, c2.index, taa_alt)
 
 def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
 

@@ -34,6 +34,7 @@ from describe import *
 from insertion import taa_set_ins, annotate_insertion_gdna
 from deletion import taa_set_del, annotate_deletion_gdna
 from snv import annotate_snv_gdna
+from proteinseqs import *
 
 def annotate_mnv_cdna(args, q, tpts, db):
 
@@ -376,10 +377,13 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         new_seq = t.seq[beg_codon_beg-1:beg-1]+altseq+t.seq[end:end_codon_end]
 
         if beg_codon_index == end_codon_index:
-            r.append_info('codon_cDNA=%s' % '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
+            r.append_info('codon_cDNA=%s' %
+                          '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
         else:
-            r.append_info('begin_codon_cDNA=%s' % '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
-            r.append_info('end_codon_cDNA=%s' % '-'.join(map(str, range(end_codon_end-2, end_codon_end+1))))
+            r.append_info('begin_codon_cDNA=%s' %
+                          '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
+            r.append_info('end_codon_cDNA=%s' %
+                          '-'.join(map(str, range(end_codon_end-2, end_codon_end+1))))
 
         if len(old_seq) % 3 != 0:
             # raise IncompatibleTranscriptError(beg, end, len(t.seq))
@@ -405,25 +409,34 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 
         if not new_taa_seq1:
             r.csqn.append("InFrameDeletion")
-            taa_set_del(r, t, beg_codon_index+head_trim, end_codon_index-tail_trim, args)
+            taa_set_del(r, t, beg_codon_index+head_trim,
+                        end_codon_index-tail_trim, args)
             return
 
         if len(old_taa_seq1) == 1:
             if len(new_taa_seq1) == 1:
                 r.csqn.append("Missense")
+                taa_pos = beg_codon_index + head_trim
+                taa_alt = aaf(new_taa_seq1, args)
                 r.taa_range = '%s%d%s' % (
-                    aaf(old_taa_seq1[0], args), beg_codon_index + head_trim, aaf(new_taa_seq1, args))
-                return
+                    aaf(old_taa_seq1[0], args), taa_pos, taa_alt)
             else:
                 r.csqn.append("MultiAAMissense")
+                taa_pos = beg_codon_index + head_trim
+                taa_alt = aaf(new_taa_seq1, args)
                 r.taa_range = '%s%ddelins%s' % (
-                    aaf(old_taa_seq1[0], args), beg_codon_index + head_trim, aaf(new_taa_seq1, args))
-                return
+                    aaf(old_taa_seq1[0], args), taa_pos, taa_alt)
+            variant_protein_seq_sub(r, t, args, taa_pos, taa_pos, taa_alt)
+            return
 
         r.csqn.append("MultiAAMissense")
+        taa_beg = beg_codon_index + head_trim
+        taa_end = end_codon_index - tail_trim
+        taa_alt = aaf(new_taa_seq1, args)
         r.taa_range = '%s%d_%s%ddelins%s' % (
-            aaf(old_taa_seq1[0], args), beg_codon_index + head_trim,
-            aaf(old_taa_seq1[-1], args), end_codon_index - tail_trim, aaf(new_taa_seq1, args))
+            aaf(old_taa_seq1[0], args), taa_beg,
+            aaf(old_taa_seq1[-1], args), taa_end, taa_alt)
+        variant_protein_seq_sub(r, t, args, taa_beg, taa_end, taa_alt)
 
     else:                   # frame-shift
 
@@ -436,6 +449,7 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         if aae:
             r.csqn.append("Frameshift")
             r.taa_range = aae.format(args)
+            variant_protein_seq_fs(r, t, aae, args)
         else:
             r.csqn.append("Synonymous")
             r.taa_range = '(=)'

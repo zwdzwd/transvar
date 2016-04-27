@@ -1,5 +1,5 @@
 *************************
-gDNA level annotation
+Genomic level annotation
 *************************
 
 Annotation from genomic level is handled by the `ganno` subcommand in TransVar.
@@ -32,16 +32,49 @@ Long genomic regions
 
 .. code:: bash
 
+   $ transvar ganno -i 'chr19:g.41978629_41983350' --ensembl --refversion mm10
+
+::
+
+   chr19:g.41978629_41983350	ENSMUST00000167927 (nonsense_mediated_decay),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000171561 (protein_coding),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000163398 (nonsense_mediated_decay),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000164776 (nonsense_mediated_decay),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000026168 (protein_coding),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000171755 (retained_intron),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000169775 (nonsense_mediated_decay),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+   chr19:g.41978629_41983350	ENSMUST00000168484 (nonsense_mediated_decay),ENSMUST00000026170 (protein_coding)	MMS19,UBTD1	-,+
+      chr19:g.41978629_41983350/./.	from_[intron_between_exon_1_and_2;MMS19]_to_[intron_between_exon_1_and_2;UBTD1]
+      .
+
+Results indicates a 4721 bp region spanning the promoters of two closely located, opposite-oriented genes MMS19 and UBTD1. The starting point and ending point are situated in the first introns of the two genes.
+
+.. code:: bash
+
    $ transvar ganno -i '9:g.133750356_137990357' --ccds
 
 outputs
 
 ::
 
-   9:g.133750356_137990357	CCDS35165 (protein_coding),CCDS6986 (protein_coding)	.	.
+   9:g.133750356_137990357	CCDS35165 (protein_coding),CCDS6986 (protein_coding)	ABL1,OLFM1	+,+
       chr9:g.133750356_137990357/./.	from_[cds_in_exon_7;ABL1]_to_[intron_between_exon_4_and_5;OLFM1]_spanning_[51_genes]
       .
-   9:g.133750356_137990357	CCDS35166 (protein_coding),CCDS6986 (protein_coding)	.	.
+   9:g.133750356_137990357	CCDS35166 (protein_coding),CCDS6986 (protein_coding)	ABL1,OLFM1	+,+
       chr9:g.133750356_137990357/./.	from_[cds_in_exon_7;ABL1]_to_[intron_between_exon_4_and_5;OLFM1]_spanning_[51_genes]
       .
 
@@ -58,10 +91,10 @@ outputs
 
 ::
 
-   9:g.133750356_1337503570	CCDS35165 (protein_coding),	.	.
+   9:g.133750356_1337503570	CCDS35165 (protein_coding),	ABL1,	+
       chr9:g.133750356_141213431/./.	from_[cds_in_exon_7;ABL1]_to_[intergenic_between_EHMT1(484,026_bp_downstream)_and_3'-telomere(0_bp)]_spanning_[136_genes]
       .
-   9:g.133750356_1337503570	CCDS35166 (protein_coding),	.	.
+   9:g.133750356_1337503570	CCDS35166 (protein_coding),	ABL1,	+
       chr9:g.133750356_141213431/./.	from_[cds_in_exon_7;ABL1]_to_[intergenic_between_EHMT1(484,026_bp_downstream)_and_3'-telomere(0_bp)]_spanning_[136_genes]
       .
 
@@ -366,53 +399,43 @@ One can define the promoter boundary through the `--prombeg` and `--promend` opt
 
 .. code:: bash
 
-   $ transvar ganno -i 'chr19:g.41950335_41951908' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
+   $ transvar ganno -i 'chr19:g.41978629_41980350' --ensembl --prombeg 2000 --promend 1000 --refversion mm10
 
 ::
 
-   chr19:g.41950335_41951908	ENSMUST00000167927 (nonsense_mediated_decay)	MMS19	-
-      chr19:g.41950335_41951908/c.1071+3684_1071+5257/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-      whole_exon_[20]_included;aliases=ENSMUSP00000132483;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000171561 (protein_coding)	MMS19	-
-      chr19:g.41950335_41951908/c.1915+499_2016-252/p.E639_E672	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-      whole_exon_[20]_included;start_codon=41950753-41950752-41950083;end_codon=419
-      52407-41950851-41950850;aliases=ENSMUSP00000130900;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000170209 (retained_intron)	MMS19	-
-      chr19:g.41950335_41951908/c.2251+499_2352-252/.	from_[intron_between_exon_16_and_17]_to_[intron_between_exon_15_and_16]
-      whole_exon_[16]_included;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000163287 (protein_coding)	MMS19	-
-      chr19:g.41950335_41951908/c.1477+499_1578-252/p.E493_E526	from_[intron_between_exon_17_and_18]_to_[intron_between_exon_16_and_17]
-      whole_exon_[17]_included;start_codon=41950753-41950752-41950083;end_codon=419
-      52407-41950851-41950850;aliases=ENSMUSP00000128653;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000163398 (nonsense_mediated_decay)	MMS19	-
-      chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-      whole_exon_[19]_included;aliases=ENSMUSP00000126864;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000164776 (nonsense_mediated_decay)	MMS19	-
-      chr19:g.41950335_41951908/c.225+12487_225+14060/.	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-      whole_exon_[19]_included;aliases=ENSMUSP00000129478;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000026168 (protein_coding)	MMS19	-
-      chr19:g.41950335_41951908/c.1786+499_1887-252/p.E596_E629	from_[intron_between_exon_19_and_20]_to_[intron_between_exon_18_and_19]
-      whole_exon_[19]_included;start_codon=41950753-41950752-41950083;end_codon=419
-      52407-41950851-41950850;aliases=ENSMUSP00000026168;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000166090 (nonsense_mediated_decay)	MMS19	-
-      chr19:g.41950335_41951908/c.636+499_737-252/.	from_[intron_between_exon_7_and_8]_to_[intron_between_exon_6_and_7]
-      whole_exon_[7]_included;aliases=ENSMUSP00000131219;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000171755 (retained_intron)	MMS19	-
-      chr19:g.41950335_41951908/c.1941+499_2042-252/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-      whole_exon_[20]_included;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000167820 (protein_coding)	MMS19	-
-      chr19:g.41950335_41951908/c.179-1057_279-252/p.E60_E93	from_[intron_between_exon_3_and_4]_to_[intron_between_exon_2_and_3]
-      whole_exon_[3]_included;start_codon=41950753-41950752-41950083;end_codon=4195
-      3669-41950851-41950850;aliases=ENSMUSP00000130399;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000169775 (nonsense_mediated_decay)	MMS19	-
-      chr19:g.41950335_41951908/c.522+11101_522+12674/.	from_[intron_between_exon_20_and_21]_to_[intron_between_exon_19_and_20]
-      whole_exon_[20]_included;aliases=ENSMUSP00000128234;source=Ensembl
-   chr19:g.41950335_41951908	ENSMUST00000166517 (retained_intron)	MMS19	-
-      chr19:g.41950335_41951908/c.1-564_594-252/.	from_[intron_between_exon_1_and_2]_to_[intergenic_between_MMS19(564_bp_upstream)_and_MMS19(1,189_bp_downstream)]
-      promoter_region_of_[MMS19]_overlaping_1565_bp(99.43%);whole_exon_[1]_included
-      ;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000167927 (nonsense_mediated_decay)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_237_bp(13.76%);aliases=ENSMUSP000001324
+      83;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000171561 (protein_coding)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_194_bp(11.27%);aliases=ENSMUSP000001309
+      00;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000163398 (nonsense_mediated_decay)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_234_bp(13.59%);aliases=ENSMUSP000001268
+      64;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000164776 (nonsense_mediated_decay)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_215_bp(12.49%);aliases=ENSMUSP000001294
+      78;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000026168 (protein_coding)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_219_bp(12.72%);aliases=ENSMUSP000000261
+      68;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000171755 (retained_intron)	MMS19	-
+      chr19:g.41978629_41980350/c.141+649_141+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_212_bp(12.31%);source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000169775 (nonsense_mediated_decay)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_214_bp(12.43%);aliases=ENSMUSP000001282
+      34;source=Ensembl
+   chr19:g.41978629_41980350	ENSMUST00000168484 (nonsense_mediated_decay)	MMS19	-
+      chr19:g.41978629_41980350/c.115+649_115+2370/.	inside_[intron_between_exon_1_and_2]
+      promoter_region_of_[MMS19]_overlaping_221_bp(12.83%);aliases=ENSMUSP000001268
+      81;source=Ensembl
 
-The result shows that 99.43% of the target region is inside the promoter region. The overlap is as long as 1564 base pairs.
+The last result shows that 12-13% of the target region is inside the promoter region. The overlap is as long as ~200 base pairs.
 
 Splice sites
 ################

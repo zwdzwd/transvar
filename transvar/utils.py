@@ -92,6 +92,13 @@ def aa_is_stop(aa):
     else:
         return False
 
+def aa_has_stop(aa):
+
+    if '*' in aa or 'X' in aa:
+        return True
+    else:
+        return False
+
 aa_1to3_table = {
     "A": "Ala",
     "R": "Arg",

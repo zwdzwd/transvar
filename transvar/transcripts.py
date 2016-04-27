@@ -260,6 +260,7 @@ class Transcript():
 
         self.transcript_type = transcript_type
         self.gene_name = ''
+        self.strand = ''
         self.gene   = None
         self.seq    = None
         self.name   = '.'

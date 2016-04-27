@@ -159,7 +159,7 @@ def annotate_region_protein(args, q, tpts, db):
     return
 
 def annotate_region_gdna(args, q, db):
-    
+
     normalize_reg(q)
     rs = []
     for reg in describe(args, q, db):
@@ -229,20 +229,31 @@ def annotate_region_gdna(args, q, db):
             
             if hasattr(reg, 't'):
                 r.tname = reg.t.format()
+                r.gene = reg.t.gene_name
+                r.strand = reg.t.strand
             else:
                 if hasattr(reg.b1, 't') and hasattr(reg.b2, 't'):
                     if reg.b1.t == reg.b2.t:
                         r.tname = reg.b1.t.format()
+                        r.gene = reg.b1.t.gene_name
+                        r.strand = reg.b1.t.strand
                     else:
                         r.tname = '%s,%s' % (reg.b1.t.format(), reg.b2.t.format())
+                        r.gene = '%s,%s' % (reg.b1.t.gene_name, reg.b2.t.gene_name)
+                        r.strand = '%s,%s' % (reg.b1.t.strand, reg.b2.t.strand)
                 elif hasattr(reg.b1, 't'):
                     r.tname = reg.b1.t.format()+','
+                    r.gene = reg.b1.t.gene_name+','
+                    r.strand = reg.b1.t.strand
                 elif hasattr(reg.b2, 't'):
                     r.tname = ','+reg.b2.t.format()
+                    r.gene = reg.b2.t.gene_name+','
+                    r.strand = reg.b2.t.strand
+
+            if not r.gene:
+                r.gene = '.'
 
             if hasattr(reg, 't'):
-                r.gene = reg.t.gene_name if reg.t.gene_name else '.'
-                r.strand = reg.t.strand
                 c1, p1 = reg.t.gpos2codon(q.beg)
                 c2, p2 = reg.t.gpos2codon(q.end)
 
@@ -251,8 +262,8 @@ def annotate_region_gdna(args, q, db):
                 else:
                     r.tnuc_range = '%s_%s' % (p2,p1)
 
-                # if protein coding transcript and not purely intronic region, set amino acid
-                # print 0
+                # if protein coding transcript and not purely
+                # intronic region, set amino acid
                 if reg.t.transcript_type == 'protein_coding' and not same_intron(p1, p2):
                     c1, p1 = reg.t.intronic_lean(p1, 'g_greater')
                     c2, p2 = reg.t.intronic_lean(p2, 'g_smaller')
@@ -267,9 +278,11 @@ def annotate_region_gdna(args, q, db):
                     else:
                         # print 2
                         if reg.t.strand == '+':
-                            r.taa_range = '%s%d_%s%d' % (aaf(c1.aa(), args), c1.index, c2.aa(), c2.index)
+                            r.taa_range = '%s%d_%s%d' % (
+                                aaf(c1.aa(), args), c1.index, c2.aa(), c2.index)
                         else:
-                            r.taa_range = '%s%d_%s%d' % (aaf(c2.aa(), args), c2.index, c1.aa(), c1.index)
+                            r.taa_range = '%s%d_%s%d' % (
+                                aaf(c2.aa(), args), c2.index, c1.aa(), c1.index)
                         r.append_info('start_codon=%s;end_codon=%s' % (c1.locformat(), c2.locformat()))
 
         else:

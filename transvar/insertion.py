@@ -51,7 +51,7 @@ def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
             r.csqn.append('Nonsense')
         else:
             r.csqn.append("Frameshift")
-            variant_protein_seq_fs(r, t, aae, args)
+        variant_protein_seq_fs(r, t, aae, args)
         r.taa_range = aae.format(args)
     else:
         r.csqn.append('Synonymous')

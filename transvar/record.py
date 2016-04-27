@@ -99,6 +99,10 @@ class RegAnno():
         self.cds_beg = None     # if site hits CDS start
         self.cds_end = None     # if site hits CDS end
 
+    def __repr__(self):
+
+        return '<RegAnno: exon: %s intronic: %s>' % (self.exonic, self.intronic)
+
     def genic(self):
 
         if hasattr(self, "intergenic"):
@@ -198,7 +202,8 @@ class RegIntergenicAnno():
 
 def same_region(r1, r2):
     
-    return r1.format() == r2.format()
+    return ((r1.format() == r2.format()) and
+            ((not hasattr(r1,'t')) or (not hasattr(r2,'t')) or r1.t == r2.t))
 
 class RegCDSAnno():
 

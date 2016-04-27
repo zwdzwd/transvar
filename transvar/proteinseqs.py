@@ -31,28 +31,31 @@ SOFTWARE.
 
 from utils import *
 
-def variant_protein_seq_snv(r, t, args):
+def variant_protein_seq_sub(r, t, args, taa_beg, taa_end, taa_alt):
 
     """ r.taa_alt, r.taa_ref and r.taa_pos must be accessible """
-    if r.taa_alt and (args.pp or args.ppp):
+    if args.pp or args.ppp:
         pp = list(aaf(t.get_proteinseq(), args, use_list=True))
 
-        if aa_is_stop(r.taa_alt):
+        if aa_has_stop(taa_alt):
             if args.ppp:
-                pp[r.taa_pos-1] = '__[%s>%s]' % (''.join(pp[r.taa_pos:]), r.taa_alt)
-                pp = pp[:r.taa_pos]
+                pp[taa_beg-1] = '__[%s>%s]' % (''.join(pp[taa_beg:]), taa_alt)
+                pp = pp[:taa_beg]
             else:
-                pp[r.taa_pos-1] = r.taa_alt
-                pp = pp[:r.taa_pos]
+                pp[taa_beg-1] = taa_alt
+                pp = pp[:taa_beg]
         else:
             if args.ppp:
-                pp[r.taa_pos-1] = '__[%s>%s]__' % (r.taa_ref, r.taa_alt)
+                pp[taa_beg-1] = '__[%s>%s]__' % (
+                    ''.join(pp[taa_beg-1:taa_end]), taa_alt)
+                del pp[taa_beg:taa_end]
             else:
-                pp[r.taa_pos-1] = r.taa_alt
-        
+                pp[taa_beg-1] = taa_alt
+                del pp[taa_beg:taa_end]
+                
         r.append_info('variant_protein_seq=%s' % ''.join(pp))
 
-def variant_protein_seq_deletion(r, t, args, taa_beg, taa_end):
+def variant_protein_seq_del(r, t, args, taa_beg, taa_end):
 
     if args.pp or args.ppp:
         pp = list(aaf(t.get_proteinseq(), args, use_list=True))
