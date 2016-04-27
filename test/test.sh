@@ -25,6 +25,13 @@ colordiff testout/ganno_tamborero.vcf
 
 transvar ganno -l data/tamborero_data/transvar_dna_input.txt --ensembl | tee testout/ganno_tamborero_output
 
+## upload github
+
+modify transvar/version.py
+git commit -am "this version"
+git tag -a v[version] -m "version [version]"
+git push --tag
+
 ## register testpypi
 
 python setup.py register -r https://testpypi.python.org/pypi

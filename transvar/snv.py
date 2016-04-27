@@ -32,27 +32,7 @@ from utils import *
 from record import *
 from describe import *
 from err import *
-
-def variant_protein_sequence_snv(r, t, args):
-
-    """ r.taa_alt, r.taa_ref and r.taa_pos must be accessible """
-    if r.taa_alt and (args.pp or args.ppp):
-        pp = list(aaf(t.get_proteinseq(), args, use_list=True))
-
-        if aa_is_stop(r.taa_alt):
-            if args.ppp:
-                pp[r.taa_pos-1] = '__[%s>%s]' % (''.join(pp[r.taa_pos:]), r.taa_alt)
-                pp = pp[:r.taa_pos]
-            else:
-                pp[r.taa_pos-1] = r.taa_alt
-                pp = pp[:r.taa_pos]
-        else:
-            if args.ppp:
-                pp[r.taa_pos-1] = '__[%s>%s]__' % (r.taa_ref, r.taa_alt)
-            else:
-                pp[r.taa_pos-1] = r.taa_alt
-        
-        r.append_info('variant_protein_seq=%s' % ''.join(pp))
+from proteinseqs import *
 
 def annotate_snv_cdna(args, q, tpts, db):
 
@@ -124,7 +104,7 @@ def annotate_snv_cdna(args, q, tpts, db):
                         r.csqn.append('Synonymous')
                     r.append_info(
                         'reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
-                    variant_protein_sequence_snv(r, t, args)
+                    variant_protein_seq_snv(r, t, args)
 
             else:  # coordinates are with respect to the exon boundary
                 r.csqn.append(r.reg.csqn()+"SNV")
@@ -388,7 +368,7 @@ def annotate_snv_gdna(args, q, db):
                                     r.csqn.append('Missense')
                             elif r.taa_alt:
                                 r.csqn.append('Synonymous')
-                        variant_protein_sequence_snv(r, reg.t, args)
+                        variant_protein_seq_snv(r, reg.t, args)
                     else:
                         r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
 

@@ -24,7 +24,6 @@ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 """
 
 from transcripts import *
@@ -32,6 +31,7 @@ from utils import *
 from record import *
 from copy import copy
 from describe import *
+from proteinseqs import *
 
 # TODO: refactor left-right align
 class GNucDeletion():
@@ -315,18 +315,6 @@ def taa_del_id(t, taa_beg, taa_end, args):
 
     return s
 
-def variant_protein_sequence_deletion(r, t, args, taa_beg, taa_end):
-
-    if args.pp or args.ppp:
-        pp = list(aaf(t.get_proteinseq(), args, use_list=True))
-        if args.pp:
-            del pp[taa_beg-1:taa_end]
-        elif args.ppp:
-            delseq = ''.join(pp[taa_beg-1:taa_end])
-            del pp[taa_beg-1:taa_end]
-            pp.insert(taa_beg-1, '__[%s_deletion]__' % delseq)
-        r.append_info('variant_protein_seq=%s' % ''.join(pp))
-        
 def taa_set_del(r, t, taa_beg, taa_end, args):
 
     i1r, i2r = t.taa_roll_right_del(taa_beg, taa_end)
@@ -334,9 +322,9 @@ def taa_set_del(r, t, taa_beg, taa_end, args):
     i1l, i2l = t.taa_roll_left_del(taa_beg, taa_end)
     r.append_info('left_align_protein=p.%s' %
                   taa_del_id(t, i1l, i2l, args))
-    r.append_info('unalign_protein=p.%s' % taa_del_id(
-        t, taa_beg, taa_end, args))
-    variant_protein_sequence_deletion(r, t, args, i1r, i2r)
+    r.append_info('unalign_protein=p.%s' %
+                  taa_del_id(t, taa_beg, taa_end, args))
+    variant_protein_seq_deletion(r, t, args, i1r, i2r)
 
 def del_coding_inframe(args, c1, c2, p1, p2, t, r):
 
@@ -399,11 +387,11 @@ def del_coding_frameshift(args, cbeg, cend, pbeg, pend, t, r):
     if not old_seq:
         raise IncompatibleTranscriptError("invalid_cDNA_position_%d;expect_[0_%d]" % cbeg_beg, len(t.seq))
 
-    ret = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
-    if ret:
-        taa_pos, taa_ref, taa_alt, termlen = ret
-        r.taa_range = '%s%d%sfs*%d' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+    aae = t.extend_taa_seq(cbeg.index, old_seq, new_seq)
+    if aae:
+        r.taa_range = aae.format(args)
         r.csqn.append("Frameshift")
+        variant_protein_seq_fs(r, t, aae, args)
     else: # rare chance when stop codon seen before difference
         r.taa_range = '(=)'
         r.csqn.append("Synonymous")

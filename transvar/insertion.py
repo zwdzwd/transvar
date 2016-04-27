@@ -31,6 +31,7 @@ from transcripts import *
 from utils import *
 from record import *
 from describe import *
+from proteinseqs import *
 
 def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
 
@@ -44,14 +45,14 @@ def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
 
     old_seq = t.seq[beg_codon_beg-1:]
     new_seq = t.seq[beg_codon_beg-1:tnuc_pos]+insseq+t.seq[tnuc_pos:]
-    ret = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
-    if ret:
-        taa_pos, taa_ref, taa_alt, termlen = ret
-        if taa_alt == '*':
+    aae = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
+    if aae:
+        if aae.taa_alt == '*':
             r.csqn.append('Nonsense')
         else:
             r.csqn.append("Frameshift")
-        r.taa_range = '%s%d%sfs*%d' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+            variant_protein_seq_fs(r, t, aae, args)
+        r.taa_range = aae.format(args)
     else:
         r.csqn.append('Synonymous')
         r.taa_range = '(=)'
@@ -381,8 +382,11 @@ def taa_set_ins(r, t, index, taa_insseq, args):
     try:
         r.taa_range = taa_ins_id(t, i1r, taa_insseq_r, args)
         i1l, taa_insseq_l = t.taa_roll_left_ins(index, taa_insseq)
-        r.append_info('left_align_protein=p.%s' % taa_ins_id(t, i1l, taa_insseq_l, args))
-        r.append_info('unalign_protein=p.%s' % taa_ins_id(t, index, taa_insseq, args))
+        r.append_info('left_align_protein=p.%s' %
+                      taa_ins_id(t, i1l, taa_insseq_l, args))
+        r.append_info('unalign_protein=p.%s' %
+                      taa_ins_id(t, index, taa_insseq, args))
+        variant_protein_seq_ins(r, t, args, i1r, taa_insseq_r)
     except IncompatibleTranscriptError:
         r.append_info("truncated_refseq_at_boundary")
 

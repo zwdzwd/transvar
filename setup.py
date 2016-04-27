@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 # The MIT License
+#
+# Copyright (c) 2016
+# Wanding Zhou
 # 
 # Copyright (c) 2014, 2015 The University of Texas MD Anderson Cancer Center
 # Wanding Zhou, Tenghui Chen and Ken Chen
@@ -25,7 +28,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# Contact: Ken Chen <kchen3@mdanderson.org>
+# Contact: Wanding Zhou <zhouwanding@gmail.com>
 
 import os
 import sys

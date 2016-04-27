@@ -432,11 +432,10 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         old_seq = t.seq[beg_codon_beg-1:]
         new_seq = t.seq[beg_codon_beg-1:beg-1]+altseq+t.seq[end:]
 
-        ret = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
-        if ret:
-            taa_pos, taa_ref, taa_alt, termlen = ret
+        aae = t.extend_taa_seq(beg_codon_index, old_seq, new_seq)
+        if aae:
             r.csqn.append("Frameshift")
-            r.taa_range = '%s%d%sfs*%d' % (aaf(taa_ref, args), taa_pos, aaf(taa_alt, args), termlen)
+            r.taa_range = aae.format(args)
         else:
             r.csqn.append("Synonymous")
             r.taa_range = '(=)'

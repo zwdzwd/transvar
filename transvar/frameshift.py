@@ -46,13 +46,10 @@ def fuzzy_match_deletion(t, codon, q, args):
             old_seq = t.seq[jb:]
             new_seq = t.seq[jb:j]+t.seq[j+ds:]
             tnuc_delseq = t.seq[j:j+ds]
-            ret = t.extend_taa_seq(j/3+1, old_seq, new_seq)
-            if ret:
-                _taa_pos, _taa_ref, _taa_alt, _termlen = ret
-                # print q.pos, q.ref, q.alt, q.stop_index, j, _taa_pos, _taa_ref, _taa_alt, _termlen
-                # print q.pos, q.ref, q.alt, type(q.stop_index), j, type(_taa_pos), type(_taa_ref), type(_taa_alt), type(_termlen)
-                if (q.ref == _taa_ref and ((not q.alt) or q.alt == _taa_alt)
-                    and q.stop_index == _termlen and q.pos == _taa_pos):
+            aae = t.extend_taa_seq(j/3+1, old_seq, new_seq)
+            if aae:
+                if (q.ref == aae.taa_ref and ((not q.alt) or q.alt == aae.taa_alt)
+                    and q.stop_index == aae.termlen and q.pos == aae.taa_pos):
                     t.ensure_position_array()
                     if t.strand == '+':
                         gnuc_beg, gnuc_end = t.np[j], t.np[j+ds-1]
@@ -117,17 +114,16 @@ def fuzzy_match_insertion_aa_change(t, j, ins_len, q):
     for _insseq in itertools.product(alphabets, repeat=ins_len):
         insseq = ''.join(_insseq)
         new_seq = t.seq[jb:j]+insseq+t.seq[j:]
-        ret = t.extend_taa_seq(j/3+1, old_seq, new_seq)
-        if ret:
-            _taa_pos, _taa_ref, _taa_alt, _termlen = ret
-            if (((not q.alt) or _taa_alt == q.alt) and q.ref == _taa_ref
-                and q.pos == _taa_pos and _termlen <= q.stop_index):
-                m = FuzzyInsMatch()
-                m.insseq = insseq
-                m.termlen = _termlen
-                match_seq.append(m)
-                if _termlen == q.stop_index:
-                    termlen_match = True
+        aae = t.extend_taa_seq(j/3+1, old_seq, new_seq)
+        if (aae and 
+            (((not q.alt) or aae.taa_alt == q.alt) and q.ref == aae.taa_ref
+             and q.pos == aae.taa_pos and aae.termlen <= q.stop_index)):
+            m = FuzzyInsMatch()
+            m.insseq = insseq
+            m.termlen = aae.termlen
+            match_seq.append(m)
+            if m.termlen == q.stop_index:
+                termlen_match = True
 
     # early stop when termlen also matches
     if termlen_match:

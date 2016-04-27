@@ -359,43 +359,6 @@ A block-substitution that is in-frame,
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
 
 
-Inspect variant protein sequence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The `--print-protein` and `--print-protein-pretty` options displays the full variant protein sequence in the `variant_protein_seq` field of the info when the genomic variant hits a protein-coding transcript.
-
-.. code:: bash
-
-   $ transvar ganno -i 'chr1:g.115256530G>A' --ensembl --print-protein
-
-::
-
-
-`--print-protein-pretty` output is more human-readable and highlight the mutation in brackets.
-
-.. code:: bash
-
-   $ transvar ganno --ccds -i 'chr3:g.178936091G>A' --print-protein-pretty
-
-::
-
-The alphabet transformation option `--aa3` applies here as well.
-
-.. code:: bash
-
-   $ transvar ganno -i 'chr1:g.115256530G>A' --ensembl --print-protein-pretty --aa3
-
-::
-
-To inspect the protein sequence after a deletion,
-
-.. code:: bash
-
-   $ transvar canno --ccds -i 'CCDS8856:c.769_771delGGG' --print-protein-pretty
-
-::
-
-   
 Promoter region
 ##################
 
@@ -497,8 +460,8 @@ output a splice variation
 
 ::
 
-   chr7:5568790A>G CCDS5341 (protein_coding)       ACTB    -
-      chr7:g.5568790A>G/c.363+2T>C/.       inside_[intron_between_exon_2_and_3]
+   chr7:5568790A>G	CCDS5341 (protein_coding)	ACTB	-
+      chr7:g.5568790A>G/c.363+2T>C/.	inside_[intron_between_exon_2_and_3]
       CSQN=SpliceDonorSNV;C2=SpliceDonorOfExon2_At_chr7:5568791;source=CCDS
 
 

@@ -30,6 +30,7 @@ SOFTWARE.
 import sys, re
 import faidx
 from record import *
+from utils import *
 from collections import deque
 import operator
 
@@ -1014,10 +1015,13 @@ class Transcript():
         return beg, end
 
     def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
-
+        """
+        this function also returns the extended sequence itself 
+        """
         taa_pos = None
         termlen = -1 # use -1 to detect abnormal computes
         seq_end = self.cds_end
+        new_aa_seq = ''
         i = 0
         while True:
             ci = i*3
@@ -1035,6 +1039,7 @@ class Transcript():
 
             taa_ref_run = codon2aa(old_codon_seq)
             taa_alt_run = codon2aa(new_codon_seq)
+            new_aa_seq += taa_alt_run
             # print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
             if taa_pos == None and taa_ref_run != taa_alt_run:
                 taa_pos = i
@@ -1048,14 +1053,29 @@ class Transcript():
                 break
             i += 1
 
+        new_aa_seq = new_aa_seq[taa_pos:]
         if taa_pos == None:
             print 'oldseq', old_seq
             print 'newseq', new_seq
         taa_pos += taa_pos_base
 
-        return taa_pos, taa_ref, taa_alt, termlen
+        aae = AAExtension()
+        aae.taa_pos = taa_pos
+        aae.taa_ref = taa_ref
+        aae.taa_alt = taa_alt
+        aae.termlen = termlen
+        aae.new_aa_seq = new_aa_seq
 
+        return aae
 
+class AAExtension():
+
+    def format(self, args):
+
+        return '%s%d%sfs*%d' % (
+            aaf(self.taa_ref, args),
+            self.taa_pos, aaf(self.taa_alt, args), self.termlen)
+    
 def tnuc_del_id(pbeg, pend, args, tnuc_delseq=None):
 
     if pbeg == pend:
