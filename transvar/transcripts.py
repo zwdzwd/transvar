@@ -298,11 +298,16 @@ class Transcript():
         return cdslen
 
     def format(self):
-        # if self.transcript_type == 'protein_coding':
-        # return self.name
-        # else:
         return '%s (%s)' % (self.name, self.transcript_type)
 
+    def getseq(self, beg, end):
+        self.ensure_seq()
+        return self.seq[beg-1:end]
+
+    def get_proteinseq(self):
+        self.ensure_seq()
+        return translate_seq(self.seq)
+    
     def region(self, gnuc_beg, gnuc_end):
         """ annotate genomic region with respect to this transcript """
         # check if gnuc_beg and gnuc_end are inside the genomic region
@@ -337,9 +342,11 @@ class Transcript():
             return 'Unknown'
 
     def ensure_seq(self):
-        """ return True when successful,
+        """ 
+        retrieve coding sequence (coding only, not UTRs) in the transcript object
+        the sequence is in the nature sense, i.e., reverse-complemented when on '-' strand
+        return True when successful,
         potential reason include patch chromosomes
-        only coding sequence
         """
         if self.seq: return
         if not faidx.refgenome:
@@ -1005,11 +1012,6 @@ class Transcript():
             end += 1
 
         return beg, end
-
-    def getseq(self, beg, end):
-
-        self.ensure_seq()
-        return self.seq[beg-1:end]
 
     def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
 

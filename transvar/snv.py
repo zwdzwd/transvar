@@ -33,6 +33,27 @@ from record import *
 from describe import *
 from err import *
 
+def print_alternative_protein_sequence(r, t, args):
+
+    """ r.taa_alt, r.taa_ref and r.taa_pos must be accessible """
+    if r.taa_alt and (args.pp or args.ppp):
+        pp = list(aaf(t.get_proteinseq(), args))
+
+        if aa_is_stop(r.taa_alt):
+            if args.ppp:
+                pp[r.taa_pos-1] = '__[%s>%s]' % (''.join(pp[r.taa_pos:]), r.taa_alt)
+                pp = pp[:r.taa_pos]
+            else:
+                pp[r.taa_pos-1] = r.taa_alt
+                pp = pp[:r.taa_pos]
+        else:
+            if args.ppp:
+                pp[r.taa_pos-1] = '__[%s>%s]__' % (r.taa_ref, r.taa_alt)
+            else:
+                pp[r.taa_pos-1] = r.taa_alt
+        
+        r.append_info('variant_protein_seq=%s' % ''.join(pp))
+
 def annotate_snv_cdna(args, q, tpts, db):
 
     found = False
@@ -41,7 +62,8 @@ def annotate_snv_cdna(args, q, tpts, db):
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError('transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
+                raise IncompatibleTranscriptError(
+                    'transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
             t.ensure_seq()
             
             if (q.cpos() <= 0 or q.cpos() > t.cdslen()):
@@ -61,11 +83,13 @@ def annotate_snv_cdna(args, q, tpts, db):
             r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
             if t.strand == '+':
                 if q.ref and r.gnuc_ref != q.ref:
-                    raise IncompatibleTranscriptError('invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
+                    raise IncompatibleTranscriptError(
+                        'invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
                 r.gnuc_alt = q.alt if q.alt else ''
             else:
                 if q.ref and r.gnuc_ref != complement(q.ref):
-                    raise IncompatibleTranscriptError('invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
+                    raise IncompatibleTranscriptError(
+                        'invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
                 r.gnuc_alt = complement(q.alt) if q.alt else ''
 
             r.tnuc_pos = q.pos
@@ -78,8 +102,10 @@ def annotate_snv_cdna(args, q, tpts, db):
             # coding region
             if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
 
+                # Incompatible transcript
                 if (q.ref and q.ref != t.seq[q.cpos()-1]):
-                    raise IncompatibleTranscriptError('invalid_reference_%s;expect_%s' % (q.ref, t.seq[q.cpos()-1]))
+                    raise IncompatibleTranscriptError(
+                        'invalid_reference_%s;expect_%s' % (q.ref, t.seq[q.cpos()-1]))
 
                 r.taa_ref = aaf(codon2aa(codon.seq), args)
                 r.taa_pos = codon.index
@@ -96,8 +122,10 @@ def annotate_snv_cdna(args, q, tpts, db):
                             r.csqn.append('Missense')
                     elif r.taa_alt:
                         r.csqn.append('Synonymous')
-                    r.append_info('reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
-                
+                    r.append_info(
+                        'reference_codon=%s;alternative_codon=%s' % (codon.seq, ''.join(mut_seq)))
+                    print_alternative_protein_sequence(r, t, args)
+
             else:  # coordinates are with respect to the exon boundary
                 r.csqn.append(r.reg.csqn()+"SNV")
                 t.check_exon_boundary(q.pos)
@@ -360,6 +388,7 @@ def annotate_snv_gdna(args, q, db):
                                     r.csqn.append('Missense')
                             elif r.taa_alt:
                                 r.csqn.append('Synonymous')
+                        print_alternative_protein_sequence(r, reg.t, args)
                     else:
                         r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
 

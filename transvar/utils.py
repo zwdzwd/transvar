@@ -85,6 +85,13 @@ aa_3to1_table = {
     "Asx": "B",                 # N or D
 }
 
+def aa_is_stop(aa):
+
+    if aa == '*' or aa == 'X':
+        return True
+    else:
+        return False
+
 aa_1to3_table = {
     "A": "Ala",
     "R": "Arg",
@@ -123,26 +130,23 @@ def aa_3to1(aaseq):
 
     return aaseq1
 
-def aa_1to3(aaseq1):
+def aa_1to3(aaseq1, use_list=False):
 
-    aaseq3 = ''
+    if use_list:
+        aaseq3 = []
+    else:
+        aaseq3 = ''
     for aa in aaseq1:
         aaseq3 += aa_1to3_table[aa]
 
     return aaseq3
 
-def aaf(aaseq, args):
+def aaf(aaseq, args, use_list=False):
     if args.aa3:
-        return aa_1to3(aaseq)
+        return aa_1to3(aaseq, use_list=use_list)
     else:
         return aaseq
 
-def aafx(x, args):              # end codon
-    if args.aa3:
-        return 'X'
-    else:
-        return '*'
-        
 def reflen(chrm):
     try:
         return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
