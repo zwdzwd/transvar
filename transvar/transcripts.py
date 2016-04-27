@@ -1016,7 +1016,7 @@ class Transcript():
     def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
 
         taa_pos = None
-        termlen = -1            # use -1 to detect abnormal computes
+        termlen = -1 # use -1 to detect abnormal computes
         seq_end = self.cds_end
         i = 0
         while True:
@@ -1035,15 +1035,15 @@ class Transcript():
 
             taa_ref_run = codon2aa(old_codon_seq)
             taa_alt_run = codon2aa(new_codon_seq)
-            #print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
+            # print i, old_codon_seq, new_codon_seq, taa_ref_run, taa_alt_run
             if taa_pos == None and taa_ref_run != taa_alt_run:
                 taa_pos = i
                 taa_ref = taa_ref_run
                 taa_alt = taa_alt_run
             if taa_alt_run == '*':
                 if taa_pos == None:
-                    # Terminating codon encountered before difference
-                    return None     # nothing occur to protein level
+                    # stop codon encountered before difference
+                    return None  # nothing occur to protein level
                 termlen = i + 1 - taa_pos
                 break
             i += 1

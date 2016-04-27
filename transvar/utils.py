@@ -134,10 +134,12 @@ def aa_1to3(aaseq1, use_list=False):
 
     if use_list:
         aaseq3 = []
+        for aa in aaseq1:
+            aaseq3.append(aa_1to3_table[aa])
     else:
         aaseq3 = ''
-    for aa in aaseq1:
-        aaseq3 += aa_1to3_table[aa]
+        for aa in aaseq1:
+            aaseq3 += aa_1to3_table[aa]
 
     return aaseq3
 

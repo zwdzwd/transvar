@@ -387,8 +387,15 @@ The alphabet transformation option `--aa3` applies here as well.
 
 ::
 
+To inspect the protein sequence after a deletion,
 
+.. code:: bash
 
+   $ transvar canno --ccds -i 'CCDS8856:c.769_771delGGG' --print-protein-pretty
+
+::
+
+   
 Promoter region
 ##################
 
