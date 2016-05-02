@@ -250,7 +250,7 @@ def tnuc_range2gnuc_range_(np, tbeg, tend):
     try:
         return min(np[tbeg-1], np[tend-1]), max(np[tbeg-1], np[tend-1])
     except IndexError:
-        raise IncompatibleTranscriptError('invalid_cDNA_range_[%d_%d];expect_[0_%d]' % (tbed, tend, len(np)))
+        raise IncompatibleTranscriptError('invalid_cDNA_range_[%d_%d];expect_[0_%d]' % (tbeg, tend, len(np)))
 
 class Transcript():
 
