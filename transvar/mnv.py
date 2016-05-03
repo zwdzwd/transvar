@@ -72,7 +72,7 @@ def annotate_mnv_cdna(args, q, tpts, db):
             r.tnuc_range = nuc_set_mnv(q.beg, q.end, tnuc_refseq, q.altseq)
 
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
-            if (not r.set_splice('lost', 'Substitution')):
+            if (not r.set_splice('lost', 'BlockSubstitution')):
                 if t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
                     try:
                         tnuc_mnv_coding(t, q.beg.pos, q.end.pos, q.altseq, r, args)
@@ -314,7 +314,7 @@ def annotate_mnv_gdna(args, q, db):
                 tnuc_altseq = reverse_complement(gnuc_altseq)
             r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
 
-            if not r.set_splice('lost', 'Substitution'):
+            if not r.set_splice('lost', 'BlockSubstitution'):
                 if r.reg.t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
                     try:
                         _, tnuc_beg_adj = t.intronic_lean(tnuc_beg, 'c_greater')
