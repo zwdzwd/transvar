@@ -30,7 +30,7 @@ transvar ganno -l data/tamborero_data/transvar_dna_input.txt --ensembl | tee tes
 modify transvar/version.py
 git commit -am "this version"
 git tag -a v[version] -m "version [version]"
-git push --tag
+git push --tags
 
 ## register testpypi
 

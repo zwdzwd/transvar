@@ -87,6 +87,7 @@ Intergenic
 | IntergenicBlockSubstitution    | Intergenic block substitution                      |
 +--------------------------------+----------------------------------------------------+ 
 
+
 Splice site
 ^^^^^^^^^^^^^^
 
@@ -103,7 +104,7 @@ Splice site
 +---------------------------------+----------------------------------------------------+
 | SpliceDonorBlockSubstitution    | Block substitution occurs at splice donor          |
 +---------------------------------+----------------------------------------------------+
-| SpliceAcceptorBlockSubstitution | Block substitution occurs at splice acceptor     |
+| SpliceAcceptorBlockSubstitution | Block substitution occurs at splice acceptor       |
 +---------------------------------+----------------------------------------------------+
 | SpliceDonorInsertion            | Insertion at splice donor                          |
 +---------------------------------+----------------------------------------------------+
