@@ -42,7 +42,8 @@ pip install -i https://testpypi.python.org/pypi transvar
 
 ## pypi
 
-python setup.py register -r https://pypi.python.org/pypi
+## once
+## python setup.py register -r https://pypi.python.org/pypi
 
 python setup.py sdist upload -r https://pypi.python.org/pypi
 
