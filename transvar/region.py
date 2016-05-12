@@ -298,7 +298,7 @@ def annotate_gene(args, q, tpts, db):
     for t in tpts:
         r = Record()
         r.chrm = t.chrm
-        r.gene = q.tok
+        r.gene = q.gene.name
         r.gnuc_range = '%d_%d' % (t.beg, t.end)
         r.tnuc_range = '%d_%d' % (1, t.cdslen())
         if t.strand == '+':
