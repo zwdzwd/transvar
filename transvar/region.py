@@ -310,6 +310,8 @@ def annotate_gene(args, q, tpts, db):
         if t.transcript_type == 'protein_coding':
             r.append_info('cds=%s:%d_%d' % (t.chrm, t.cds_beg, t.cds_end))
             r.taa_range = '%s%d_%s%d' % (aaf(t.taa2aa(1), args), 1, aaf(t.taa2aa(t.cdslen()/3), args), t.cdslen()/3)
+            if args.pp or args.ppp:
+                r.append_info('ref_protein_seq=%s' % aaf(t.get_proteinseq(), args))
             if t.cdslen() % 3 != 0:
                 r.append_info('truncated_refseq_at_boundary')
 
