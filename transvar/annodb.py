@@ -88,7 +88,7 @@ class AnnoDB():
                 db.parse_all(self.name2gene, self.name2trnx)
 
             self.thash = THash()
-            genes = set(name2gene.values())
+            genes = set(self.name2gene.values())
             for g in genes:
                 for t in g.tpts:
                     self.thash.insert(t)

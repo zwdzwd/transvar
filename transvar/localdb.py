@@ -115,9 +115,7 @@ class TransVarDB():
     def parse_all(self, name2gene, name2trnx):
 
         self.dbfh.seek(0)
-        for line in self.dbfh:
-            fields = line.strip('\n').split('\t')
-            t = parse_trnx_loc(fields)
+        for t in self.parse_trnx():
             if t.gene_name in name2gene:
                 g = name2gene[t.gene_name]
             else:
