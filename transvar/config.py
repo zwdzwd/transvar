@@ -82,8 +82,10 @@ fns[('hg19', 'raw')] = [
 ]
 
 fns[('hg19', 'dbsnp')] = [
-    ('dbsnp', 'hg19_dbsnp.vcf.gz', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b144_GRCh37p13/VCF/00-All.vcf.gz'),
-    (None, 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b144_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
+    ('dbsnp', 'hg19_dbsnp.vcf.gz', '%s/hg19_dbsnp.vcf.gz' % dwroot),
+    (None, 'hg19_dbsnp.vcf.gz.tbi', '%s/hg19_dbsnp.vcf.gz.tbi' % dwroot),
+    # 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b146_GRCh37p13/VCF/00-All.vcf.gz'),
+    # (None, 'hg19_dbsnp.vcf.gz.tbi', 'ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b146_GRCh37p13/VCF/00-All.vcf.gz.tbi'),
 ]
 
 fns[('hg18', 'raw')] = [
