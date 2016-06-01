@@ -40,6 +40,11 @@ python setup.py sdist upload -r https://testpypi.python.org/pypi
 
 pip install -i https://testpypi.python.org/pypi transvar
 
+## test
+
+cd test/
+python test.py ../docs/source/ outdocs
+
 ## pypi
 
 ## once

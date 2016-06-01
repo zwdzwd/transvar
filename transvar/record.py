@@ -605,11 +605,25 @@ class Record():
 
             if hasattr(self.reg, 'cross_start') and self.reg.cross_start:
                 expt = True
-                self.append_info('cds_start_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_beg, action))
+                if self.reg.t.strand == '+':
+                    self.csqn.append('CdsStart'+csqn_action)
+                    self.append_info('cds_start_at_%s:%d%s' %
+                                     (self.reg.t.chrm, self.reg.t.cds_beg, action))
+                else:
+                    self.csqn.append('CdsStop'+csqn_action)
+                    self.append_info('cds_stop_at_%s:%d%s' %
+                                     (self.reg.t.chrm, self.reg.t.cds_beg, action))
 
             if hasattr(self.reg, 'cross_end') and self.reg.cross_end:
                 expt = True
-                self.append_info('cds_end_at_%s:%d%s' % (self.reg.t.chrm, self.reg.t.cds_end, action))
+                if self.reg.t.strand == '+':
+                    self.csqn.append('CdsStop'+csqn_action)
+                    self.append_info('cds_end_at_%s:%d%s' %
+                                     (self.reg.t.chrm, self.reg.t.cds_end, action))
+                else:
+                    self.csqn.append('CdsStart'+csqn_action)
+                    self.append_info('cds_start_at_%s:%d%s' %
+                                     (self.reg.t.chrm, self.reg.t.cds_end, action))
         else:                   # single site
             if hasattr(self.reg, 'splice'):
                 if not self.reg.splice.nextto: # hit splice site, not just next to it

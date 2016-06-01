@@ -270,15 +270,15 @@ def annotate_deletion_gdna(args, q, db):
             if q.end > t.cds_end-2 and q.beg < t.cds_beg + 2:
                 r.append_info('whole_gene_deletion')
 
-            # loss of start codon
-            # TransVar took a simplistic approach, as long as
-            # the deletion hit start codon, annotation is labeled as a start loss
-            if q.beg <= t.cds_beg + 2 and q.end >= t.cds_beg:
-                r.append_info('start_loss')
+            # # loss of start codon
+            # # TransVar took a simplistic approach, as long as
+            # # the deletion hit start codon, annotation is labeled as a start loss
+            # if q.beg <= t.cds_beg + 2 and q.end >= t.cds_beg:
+            #     r.append_info('start_loss')
 
-            # loss of stop codon
-            if q.beg <= t.cds_end and q.end >= t.cds_end - 2:
-                r.append_info('stop_loss')
+            # # loss of stop codon
+            # if q.beg <= t.cds_end and q.end >= t.cds_end - 2:
+            #     r.append_info('stop_loss')
 
             gnd.set_record(r, args)
             if t.transcript_type == 'protein_coding' and not same_intron(gnd.p1, gnd.p2):

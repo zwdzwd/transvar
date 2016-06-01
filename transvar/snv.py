@@ -314,6 +314,7 @@ def annotate_snv_gdna(args, q, db):
         q.ref = gnuc_ref
 
     rs = []
+    # import pdb; pdb.set_trace()
     for reg in describe(args, q, db):
 
         # skip if transcript ID does not match

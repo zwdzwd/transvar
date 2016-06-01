@@ -609,3 +609,86 @@ results in
       chr1:g.29560_29570/c.7_17/.	inside_[noncoding_exon_1]
       source=Ensembl
 
+Coding Start and Stop
+#######################
+
+The following illustrates deletion of a coding start.
+
+.. code:: bash
+
+   $ transvar ganno -i "chr7:g.5569279_5569288del" --ccds
+
+results in
+
+::
+
+   chr7:g.5569279_5569288del	CCDS5341 (protein_coding)	ACTB	-
+      chr7:g.5569279_5569288delCATCATCCAT/c.3_12delGGATGATGAT/.	inside_[cds_in_exon_1]
+      CSQN=CdsStartDeletion;left_align_gDNA=g.5569277_5569286delATCATCATCC;unaligne
+      d_gDNA=g.5569279_5569288delCATCATCCAT;left_align_cDNA=c.1_10delATGGATGATG;una
+      lign_cDNA=c.1_10delATGGATGATG;cds_start_at_chr7:5569288_lost;source=CCDS
+
+Deletion of a coding stop
+
+.. code:: bash
+
+   $ transvar ganno -i "chr7:g.5567379_5567380del" --ccds
+
+results in
+
+
+Coding start loss due to SNP
+
+.. code:: bash
+
+   $ transvar ganno -i "chr7:g.5568911T>A" --refseq
+
+results in
+
+::
+
+   chr7:g.5568911T>A	XM_005249819 (protein_coding)	ACTB	-
+      chr7:g.5568911T>A/c.1A>T/.	inside_[cds_in_exon_2]
+      CSQN=CdsStartSNV;C2=cds_start_at_chr7:5568911;dbxref=GeneID:60,HGNC:132,HPRD:
+      00032,MIM:102630;aliases=XP_005249876;source=RefSeq
+   chr7:g.5568911T>A	NM_001101 (protein_coding)	ACTB	-
+      chr7:g.5568911T>A/c.244A>T/p.M82L	inside_[cds_in_exon_3]
+      CSQN=Missense;codon_pos=5568909-5568910-5568911;ref_codon_seq=ATG;dbxref=Gene
+      ID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=NP_001092;source=RefSeq
+   chr7:g.5568911T>A	XM_005249820 (protein_coding)	ACTB	-
+      chr7:g.5568911T>A/c.1-564A>T/.	inside_[5-UTR;noncoding_exon_3]
+      CSQN=5-UTRSNV;dbxref=GeneID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=XP_0052
+      49877;source=RefSeq
+   chr7:g.5568911T>A	XM_005249818 (protein_coding)	ACTB	-
+      chr7:g.5568911T>A/c.244A>T/p.M82L	inside_[cds_in_exon_3]
+      CSQN=Missense;codon_pos=5568909-5568910-5568911;ref_codon_seq=ATG;dbxref=Gene
+      ID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=XP_005249875;source=RefSeq
+
+
+Coding stop loss due to SNP
+
+.. code:: bash
+
+   $ transvar ganno -i "chr7:g.5567379C>A" --refseq
+
+results in
+
+::
+
+   chr7:g.5567379C>A	XM_005249819 (protein_coding)	ACTB	-
+      chr7:g.5567379C>A/c.885G>T/.	inside_[cds_in_exon_5]
+      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
+      32,MIM:102630;aliases=XP_005249876;source=RefSeq
+   chr7:g.5567379C>A	NM_001101 (protein_coding)	ACTB	-
+      chr7:g.5567379C>A/c.1128G>T/.	inside_[cds_in_exon_6]
+      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
+      32,MIM:102630;aliases=NP_001092;source=RefSeq
+   chr7:g.5567379C>A	XM_005249820 (protein_coding)	ACTB	-
+      chr7:g.5567379C>A/c.762G>T/.	inside_[cds_in_exon_7]
+      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
+      32,MIM:102630;aliases=XP_005249877;source=RefSeq
+   chr7:g.5567379C>A	XM_005249818 (protein_coding)	ACTB	-
+      chr7:g.5567379C>A/c.1128G>T/.	inside_[cds_in_exon_6]
+      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
+      32,MIM:102630;aliases=XP_005249875;source=RefSeq
+

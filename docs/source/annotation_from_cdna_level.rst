@@ -311,8 +311,8 @@ When block substitution occurs **across splice site**, TransVar put a tag in the
 
    A1CF:c.1459_1460+3delinsCC	CCDS7241 (protein_coding)	A1CF	-
       chr10:g.52570797_52570801delinsGG/c.1459_1460+3delinsCC/.	from_[intron_between_exon_9_and_10]_to_[cds_in_exon_9]
-      CSQN=SpliceDonorSubstitution;C2=donor_splice_site_on_exon_9_at_chr10:52570799
-      _lost;source=CCDS
+      CSQN=SpliceDonorBlockSubstitution;C2=donor_splice_site_on_exon_9_at_chr10:525
+      70799_lost;source=CCDS
 
 duplication
 ^^^^^^^^^^^^^^^
