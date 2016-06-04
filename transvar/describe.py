@@ -148,15 +148,18 @@ def describe_genic_site(args, chrm, gpos, t, db):
             if t.transcript_type == 'protein_coding':
                 if gpos >= t.cds_beg and gpos <= t.cds_end:
                     reg.cds = True
-                if gpos == t.cds_beg:
+                # the position hit the first codon
+                if gpos >= t.cds_beg and gpos <= t.cds_beg + 2:
                     if t.strand == '+':
                         reg.cds_beg = t.cds_beg
                     else:
                         reg.cds_end = t.cds_beg
-                if gpos == t.cds_end:
+                if gpos <= t.cds_end and gpos >= t.cds_end - 2:
                     if t.strand == '+':
+                        # the position hit the last codon
                         reg.cds_end = t.cds_end
                     else:
+                        # the position hit the last codon
                         reg.cds_beg = t.cds_end
 
                 if gpos == t.beg:
@@ -297,7 +300,7 @@ def describe(args, q, db):
     """
 
     tpts, genes = get_transcripts(args, q, db)
-
+    # import pdb; pdb.set_trace()
     if tpts:
         if hasattr(q, 'pos') or q.beg == q.end: # point
 
