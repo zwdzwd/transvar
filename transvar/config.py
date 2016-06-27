@@ -69,6 +69,8 @@ dwroot = 'http://transvar.info/transvar_user/annotations/'
 
 fns = {}
 
+# download link updates:
+# 03/06/2016: ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz
 fns[('hg19', 'raw')] = [
     ('refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
     ('ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
@@ -104,11 +106,17 @@ for rv in ['hg18', 'hg19', 'hg38', 'mm9', 'mm10']:
         (None, '%s.fa.fai' % rv, '%s/%s.fa.fai' % (dwroot, rv)),
     ]
 
+# download link update:
+# 01/05/2015: refseq: ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p2_top_level.gff3.gz
+# 01/05/2015: ensembl: ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz
+# 06/27/2016: refseq: ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p7_top_level.gff3.gz
+# 06/27/2016: ensembl: ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz
+# 06/27/2016: gencode: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz
 fns[('hg38', 'raw')] = [
-    ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p2_top_level.gff3.gz'),
-    # ('ccds', 'hg38.ccds.txt', ''),
-    ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-77/gtf/homo_sapiens/Homo_sapiens.GRCh38.77.gtf.gz'),
-    ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz'),
+    ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p7_top_level.gff3.gz'),
+    ('ccds', 'hg38.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human/CCDS.current.txt'),
+    ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz'),
+    ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_24/gencode.v24.annotation.gtf.gz'),
     ('ucsc', 'hg38.ucsc.txt.gz', '%s/hg38.ucsc.refgene.txt.gz?dl=1' % dwroot),
 ]
 

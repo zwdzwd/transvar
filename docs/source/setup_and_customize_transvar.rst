@@ -88,6 +88,18 @@ These will also create default mappings under the corresponding reference versio
    [hg19]
    ucsc = /home/wzhou1/download/hg19.ucsc.txt.gz
 
+Index from GTF files
+^^^^^^^^^^^^^^^^^^^^^
+
+TransVar databases can be obtained from indexing a GTF file. For example,
+
+.. code:: bash
+
+   transvar index --refseq hg38.refseq.gff.gz
+
+The above will create a bunch of transvar databaase files with the suffix hg38.refseq.gff.gz.transvardb*. 
+
+
 Download from Ensembl ftp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
