@@ -70,3 +70,10 @@ pip install -i https://pypi.python.org/pypi transvar
 # username=name
 # password=pass
 
+
+## building feature database
+### ensembl motifs
+zcat AnnotatedFeatures.gff.gz | gawk -F"\t" -v OFS="\t" '{match($9,"epigenome=([^;]*)",a); gsub(" ","_",a[1]); print $1,$4,$5,$3"|"a[1];}' | sortbed >hg38_AnnotatedFeatures_Ensembl85
+transvar index --sorted --bed hg38_AnnotatedFeatures_Ensembl85
+
+zcat MotifFeatures.gff.gz | awk '{match($9,/motif_feature_type=([^;]*)/,a); print $1,$4,$5,a[1];}' >hg38_MotifFeatures_Ensembl85

@@ -33,6 +33,8 @@ import parser
 from cPickle import load
 
 class AnnoDB():
+
+    """ AnnoDB keeps a collection of TransVarDB """
     
     def __init__(self, args, config):
 
@@ -73,7 +75,7 @@ class AnnoDB():
         if args.uniprot:
             idmap = load(open(args.uniprot))
             for db in self.dbs:
-                db.add_idmap(idmap)
+                db.idmap = idmap
         self.config = config
         self.args = args
         self.resources = {}

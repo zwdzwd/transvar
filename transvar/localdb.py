@@ -35,12 +35,20 @@ from transcripts import *
 from cPickle import load, dump
 import faidx
 import tabix
+import subprocess
 
 tabix_path = '%s/tabix' % os.path.abspath(os.path.dirname(__file__))
 bgzip_path = '%s/bgzip' % os.path.abspath(os.path.dirname(__file__))
 
 p_trxn_version=re.compile(r'(.*)\.(\d+)$')
 class TransVarDB():
+
+    """ hold transcripts and genes
+    In TransVar, transcripts are indexed in two ways to allow both access from name and from coordinates.
+    *.transvardb is ordered by gene name and index contains location to the first item
+    *.transvardb.loc_idx is a bed-like file ordered by coordinates
+    Different from TransVarDB, FeatureDB is only indexed by coordinates.
+    """
 
     def __init__(self, dbfn=None, source=None):
 
@@ -61,13 +69,15 @@ class TransVarDB():
         self.idmap = None
         self.source = source
 
-    def add_idmap(self, idmap):
-
-        self.idmap = idmap
+    ##########################
+    # parsers for transvardb #
+    ##########################
 
     def parse_trnx(self, gname=None):
 
-        """ parse starts from dbfh current location """
+        """ parse name-indexed transcript file
+        parsing starts from dbfh current location
+        """
         for line in self.dbfh:
             fields = line.strip('\n').split('\t')
             if gname is not None and fields[0] != gname:
@@ -94,6 +104,9 @@ class TransVarDB():
 
     def parse_trnx_loc(self, fields):
 
+        """ parse location-indexed transcript file
+        return only 1 line
+        """
         t = Transcript()
         t.chrm = fields[0]
         t.beg = int(fields[1])
@@ -114,6 +127,10 @@ class TransVarDB():
 
     def parse_all(self, name2gene, name2trnx):
 
+        """ parse the whole transcript file
+        this is for in-memory processing
+        """
+
         self.dbfh.seek(0)
         for line in self.dbfh:
             fields = line.strip('\n').split('\t')
@@ -127,19 +144,16 @@ class TransVarDB():
             if t.name not in name2trnx:
                 name2trnx[t.name] = []
             name2trnx[t.name].append(t)
+
+
+    ########################################################
+    # retrieve transcripts by gene name or transcript name #
+    ########################################################
             
-    def get_by_gene(self, name):
-
-        if name in self.gene_idx:
-            pos = self.gene_idx[name]
-            self.dbfh.seek(pos)
-            g = Gene(name)
-            for t in self.parse_trnx(gname=name):
-                g.link_t(t)
-            yield g
-
     def get(self, name, lvl=1):
 
+        """ get by either gene name or transcript name """
+        
         nohit = True
         for g in self.get_by_gene(name):
             nohit = False
@@ -167,54 +181,18 @@ class TransVarDB():
                     for g in self.get(name2, lvl=0):
                         yield g
 
-    def iloc_query(self, chrm, beg, end):
+    def get_by_gene(self, name):
 
-        self.ensure_loc_idx()
-        return tabix_query(self.loc_idx, chrm, beg, end)
+        """ get by gene name """
 
-    def ensure_loc_idx(self):
-        if self.loc_idx is None:
-            idx_fn = self.dbfn+'.loc_idx'
-            if not os.path.exists(idx_fn):
-                err_die("Missing location index. Consider rerunning the transvar index command")
-            self.loc_idx = tabix.open(idx_fn)
+        if name in self.gene_idx:
+            pos = self.gene_idx[name]
+            self.dbfh.seek(pos)
+            g = Gene(name)
+            for t in self.parse_trnx(gname=name):
+                g.link_t(t)
+            yield g
 
-    def get_by_loc(self, chrm, beg, end=None, flanking=0):
-
-        """ get transcript if between begin and end """
-        self.ensure_loc_idx()
-        if not end: end = beg
-        chrm = normalize_chrm(chrm)
-        for fields in self.iloc_query(chrm,beg-flanking,end+flanking):
-            yield self.parse_trnx_loc(fields)
-            
-    def get_closest_upstream(self, chrm, pos):
-        pos = int(pos)
-        chrm = normalize_chrm(chrm)
-        s = 50000
-        for p in xrange(pos, -1, -s):
-            fs = [f for f in self.iloc_query(chrm, p-s, p) if int(f[2])<pos]
-            if fs:
-                fs.sort(key=lambda f:int(f[2]), reverse=True)
-                return self.parse_trnx_loc(fs[0])
-        return None
-
-    def get_closest_downstream(self, chrm, pos):
-        pos = int(pos)
-        chrm = normalize_chrm(chrm)
-        s = 50000
-        chrmlen = faidx.refgenome.chrm2len(chrm)
-        for p in xrange(pos, chrmlen, s):
-            fs = [f for f in self.iloc_query(chrm, p, p+s) if int(f[1])>pos]
-            if fs:
-                fs.sort(key=lambda f:int(f[1]))
-                return self.parse_trnx_loc(fs[0])
-        return None
-
-    def get_closest(self, chrm, beg, end):
-        """ closest transcripts upstream and downstream """
-        return (self.get_closest_upstream(chrm, beg), self.get_closest_downstream(chrm, end))
-    
     def get_by_trnx(self, name, version=None):
 
         """ read a gene by transcript name, the gene has only one
@@ -264,12 +242,71 @@ class TransVarDB():
             for g in name2gene.itervalues():
                 yield g
 
+    ##############################################
+    # retrieve transcript by genomic coordinates #
+    ##############################################
+
+    def _ensure_loc_idx(self):
+        if self.loc_idx is None:
+            idx_fn = self.dbfn+'.loc_idx'
+            if not os.path.exists(idx_fn):
+                err_die("Missing location index. Consider rerunning the transvar index command")
+            self.loc_idx = tabix.open(idx_fn)
+    
+    def _iloc_query(self, chrm, beg, end):
+
+        self._ensure_loc_idx()
+        return tabix_query(self.loc_idx, chrm, beg, end)
+
+    def get_by_loc(self, chrm, beg, end=None, flanking=0):
+
+        """ get transcript if between begin and end """
+        self._ensure_loc_idx()
+        if not end: end = beg
+        chrm = normalize_chrm(chrm)
+        for fields in self._iloc_query(chrm,beg-flanking,end+flanking):
+            yield self.parse_trnx_loc(fields)
+            
+    def get_closest_upstream(self, chrm, pos):
+        pos = int(pos)
+        chrm = normalize_chrm(chrm)
+        s = 50000
+        for p in xrange(pos, -1, -s):
+            fs = [f for f in self._iloc_query(chrm, p-s, p) if int(f[2])<pos]
+            if fs:
+                fs.sort(key=lambda f:int(f[2]), reverse=True)
+                return self.parse_trnx_loc(fs[0])
+        return None
+
+    def get_closest_downstream(self, chrm, pos):
+        pos = int(pos)
+        chrm = normalize_chrm(chrm)
+        s = 50000
+        chrmlen = faidx.refgenome.chrm2len(chrm)
+        for p in xrange(pos, chrmlen, s):
+            fs = [f for f in self._iloc_query(chrm, p, p+s) if int(f[1])>pos]
+            if fs:
+                fs.sort(key=lambda f:int(f[1]))
+                return self.parse_trnx_loc(fs[0])
+        return None
+
+    def get_closest(self, chrm, beg, end):
+        """ closest transcripts upstream and downstream """
+        return (self.get_closest_upstream(chrm, beg), self.get_closest_downstream(chrm, end))
+
+
+    #####################################
+    # index transcripts from raw files ##
+    #####################################
+    
     def index(self, raw_fns):
 
+        # each class that subclassed TransVarDB should have parse_raw
         self.parse_raw(*raw_fns)
         # set cds_beg and cds_end
         set_cds_boundary(self.name2gene)
-        
+
+        ## .transvardb
         names = sorted(self.name2gene.keys())
         dbfn = raw_fns[0]+'.transvardb'
         dbfh = open(dbfn, 'w')
@@ -301,17 +338,20 @@ class TransVarDB():
                            (g.name, t.name, t.version, t.transcript_type, t.beg, t.end, t.chrm,
                             t.strand, t.cds_beg, t.cds_end, t.exons, ';'.join(t.aliases), g.dbxref))
 
+        ## .gene_idx - index gene name
         idxfn = dbfn+'.gene_idx'
         dump(gene_idx, open(idxfn, 'w'), 2)
 
+        ## .trxn_idx - index transcript name
         idxfn = dbfn+'.trxn_idx'
         dump(trnx_idx, open(idxfn, 'w'), 2)
 
+        ## .alias_idx - index alias name
         if len(alias_idx) > 0:
             idxfn = dbfn+'.alias_idx'
             dump(alias_idx, open(idxfn, 'w'), 2)
 
-        import subprocess
+        ## .loc_idx - tab-index genomic locations
         idxfn = dbfn+'.loc_idx'
         tpts.sort()
         s = ''
@@ -320,11 +360,82 @@ class TransVarDB():
                 t.chrm, t.beg, t.end, t.gene_name, t.name, t.version, t.transcript_type,
                 t.strand, t.cds_beg, t.cds_end, t.exons, ';'.join(t.aliases), t.gene.dbxref)
 
+        ## call external tabix
         with open(idxfn,'w') as fh:
             p = subprocess.Popen(bgzip_path, stdout=fh, stdin=subprocess.PIPE)
             p.communicate(input=s)
-
         subprocess.check_call([tabix_path, '-p', 'bed', idxfn])
+
+class FeatureDB():
+
+    def parse_bed(self, bed_fn, db_fn):
+
+        """ bed format indexing takes only the first four columns,
+        the annotation is the fourth column
+        """
+        bed_fh = opengz(bed_fn)
+        with open(db_fn+'.presort', "w") as outfile:
+            for line in bed_fh:
+                fields = line.strip('\n').split('\t')
+                if len(fields) < 4:
+                    continue
+                outfile.write('%s\t%s\t%s\t%s\n' % (
+                    normalize_chrm(fields[0]), fields[1], fields[2], fields[3]))
+                
+    def parse_gff(self, gff_fn, db_fn):
+
+        """ GFF: seqname, source, feature, start, end, score, strand, frame, attribute
+        indexing made a bed file with seqname, start, end, feature
+        """
+        gff_fh = opengz(gff_fn)
+        with open(db_fn+'.presort', 'w') as outfile:
+            for line in gff_fh:
+                fields = line.strip('\n').split('\t')
+                if len(fields) < 4:
+                    continue
+                outfile.write('%s\t%s\t%s\t%s\n' % (
+                    normalize_chrm(fields[0]), fields[3], fields[4], fields[2]))
+
+    def parse_vcf(self, vcf_fn, db_fn):
+
+        """ VCF: #CHROM, POS, ID, REF, ALT, QUAL, FILTER, INF, 
+        indexing made a bed file with CHROM, POS, POS+len(REF), ID|REF|ALT """
+        vcf_fh = opengz(vcf_fn)
+        with open(db_fn+'.presort', 'w') as outfile:
+            for line in vcf_fh:
+                if line.startswith('#'):
+                    continue
+                fields = line.strip('\n').split('\t')
+                if len(fields) < 7:
+                    continue
+                outfile.write('%s\t%s\t%d\t%s|%s|%s\n' % (
+                    normalize_chrm(fields[0]), fields[1], int(fields[1])+len(fields[3]),
+                    fields[2],fields[3],fields[4]))
+    
+    def index(self, fn, raw_format, is_sorted):
+        db_fn = fn+'.featuredb'
+        if raw_format == 'bed':
+            self.parse_bed(fn, db_fn)
+        elif raw_format == 'vcf':
+            self.parse_vcf(fn, db_fn)
+        elif raw_format == 'gff':
+            self.parse_gff(fn, db_fn)
+        else:
+            raise Exception('Unknown format, must be a bug.\n')
+
+        if is_sorted:
+            subprocess.check_call(['mv', db_fn+'.presort', db_fn+'.sort'])
+        else:
+            with open(db_fn+'.sort', "w") as outfile:
+                subprocess.check_call(['sort', '-T', os.path.dirname(os.path.abspath(db_fn)),
+                                       '-k', '1,1', '-k', '2,2n', db_fn+'.presort'], stdout=outfile)
+        with open(db_fn, 'w') as outfile:
+            subprocess.check_call([bgzip_path, '-c', db_fn+'.sort'], stdout=outfile)
+        subprocess.check_call([tabix_path, '-p', 'bed', db_fn])
+
+        # clean
+        subprocess.check_call(['rm', '-f', db_fn+'.presort'])
+        subprocess.check_call(['rm', '-f', db_fn+'.sort'])
 
 def set_cds_boundary(name2gene):
 
@@ -921,6 +1032,14 @@ class UCSCKnownGeneDB(TransVarDB):
 
 def main_index(args):
 
+    """ this takes care of indexing
+    1) gene/transcripts; 
+    2) other general features (TFBS, histone etc); 
+    3) reference; 
+    4) alias to gene/transcripts
+    """
+
+    # gene / transcripts
     if args.ensembl:
         db = EnsemblDB()
         db.index([args.ensembl])
@@ -949,10 +1068,25 @@ def main_index(args):
         db = UCSCRefGeneDB()
         db.index([args.ucsc])
 
+    # features
+    if args.gff:
+        db = FeatureDB()
+        db.index(args.gff, 'gff', args.sorted)
+
+    if args.bed:
+        db = FeatureDB()
+        db.index(args.bed, 'bed', args.sorted)
+
+    if args.vcf:
+        db = FeatureDB()
+        db.index(args.vcf, 'vcf', args.sorted)
+
+    # aliases
     if args.uniprot:
         tid2uniprot = parser.parse_uniprot_mapping(args.uniprot)
         dump(tid2uniprot, open(args.uniprot+'.idx','w'), 2)
 
+    # references
     if args.reference and args.reference != "_DEF_":
         import config
         config.samtools_faidx(args.reference)
@@ -961,6 +1095,10 @@ def add_parser_index(subparsers):
 
     p = subparsers.add_parser('index', help="index custom data base")
     parser.parser_add_annotation(p)
+    p.add_argument('--gff', nargs='?', default=None, const='_DEF_', help='Index a feature in GFF format')
+    p.add_argument('--vcf', nargs='?', default=None, const='_DEF_', help='Index a feature in VCF format')
+    p.add_argument('--bed', nargs='?', default=None, const='_DEF_', help='Index a feature in BED format')
+    p.add_argument('--sorted', action='store_true', help='feature is sorted, no need to redo sorting')
     p.set_defaults(func=main_index)
 
 def main():
