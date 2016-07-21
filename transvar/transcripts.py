@@ -133,6 +133,7 @@ class Codon():
         self.index  = -1 # 1-based
 
     def tloc(self, i):
+        # follow transcript direction
         if self.strand == '+':
             return self.locs[i]
         else:

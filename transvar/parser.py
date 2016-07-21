@@ -685,6 +685,7 @@ def parser_add_annotation(parser):
                         help='CCDS transcript annotation table (config key: ccds)')
     parser.add_argument('--aceview', nargs='?', default=None, const='_DEF_',
                         help='AceView GFF transcript annotation (config key: aceview)')
+    # parser.add_argument
     # parser.add_argument('--custom', nargs='?', default=None, const='_DEF_',
     #                     help='A customized transcript table with sequence (config key: custom)')
     parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',

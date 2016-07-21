@@ -248,6 +248,7 @@ def _annotate_snv_protein(args, q, t, db):
             r.append_info('candidate_mnv_variants=%s' % ','.join(cdd_mnv_muts))
 
         db.query_dbsnp_codon(r, codon, q.alt if q.alt else None)
+        db.query_feature(r, r.chrm, codon.locs[0], codon.locs[2])
     else:
         r.gnuc_range = '%d_%d' % (codon.locs[0], codon.locs[2])
         r.tnuc_range = '%d_%d' % ((codon.index-1)*3+1, (codon.index-1)*3+3)

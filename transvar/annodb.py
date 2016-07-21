@@ -96,12 +96,24 @@ class AnnoDB():
                     self.thash.insert(t)
 
     def init_resource(self):
-
+        """ init features and other annotation resources """
         for rname in ['dbsnp']:
             if self.config.has_option(self.rv, 'dbsnp'):
                 import tabix
                 self.resources['dbsnp'] = tabix.open(self.config.get(self.rv, 'dbsnp'))
 
+        self.features = []
+        for rname in self.config.options(self.rv):
+            featdb =  self.config.get(self.rv, rname)
+            if featdb.endswith('.featuredb'):
+                self.features.append((rname,tabix.open(featdb)))
+
+    def query_feature(self, r, chrm, beg, end):
+        """ find all the dbsnp in a range """
+        for rname, feat in self.features:
+            for fields in tabix_query(feat, chrm, int(beg), int(end)):
+                r.append_info('[feature:%s]=%s|%s:%s_%s' %
+                              (rname, fields[3], fields[0], fields[1], fields[2]))
 
     def _query_dbsnp_(self, chrm, beg, end, ref=None, alt=None):
 
@@ -145,12 +157,14 @@ class AnnoDB():
 
     def query_dbsnp_range(self, r, beg, end, alt):
 
+        """ find all the dbsnp in a range """
         dbsnps = self._query_dbsnp_(r.chrm, beg, end, alt=alt)
         if dbsnps:
             r.append_info('dbsnp='+','.join(dbsnps))
         
     def query_dbsnp_codon(self, r, codon, taa_alt):
 
+        """ find all the dbsnp in a codon """
         dbsnps = []
         for tnuc_altseq in reverse_codon_table[taa_alt]:
             subs = []
