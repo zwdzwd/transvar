@@ -37,15 +37,17 @@ class Pos():
 
     def __init__(self, pos='', tpos=0):
 
-        self.pos = pos
-        self.tpos = tpos         # respect to exon boundary, non-zero value indicates the position is relative to exon boundary
+        self.pos = pos # self.pos < 0 is for end of the coding sequence
+        # respect to exon boundary, non-zero value indicates the position is relative to exon boundary
+        self.tpos = tpos
 
     def __repr__(self):
         if self.tpos < 0:
             return '%s%d' % (str(self.pos), self.tpos)
         elif self.tpos > 0:
             return '%s+%d' % (str(self.pos), self.tpos)
-        else: return str(self.pos)
+        else:
+            return str(self.pos)
 
     def __eq__(self, other):
         if (self.pos == other.pos and
@@ -374,15 +376,26 @@ def parse_pos(posstr):
         p = Pos()
         p.pos = int(posstr)
         p.tpos = 0
-    else:
-        m = re.match(r'(\d+)([+-]\d+)', posstr)
-        if not m:
-            raise InvalidInputError('invalid_position_string_%s' % posstr)
+        return p
+
+    m = re.match(r'(\d+)([+-]\d+)', posstr)
+    if m:
         p = Pos()
         p.pos = int(m.group(1))
         p.tpos = int(m.group(2))
+        return p
 
-    return p
+    m = re.match(r'([+-]\d+)', posstr)
+    if m:
+        p = Pos()
+        if m.group(1)[0] == '-':
+            p.pos = 1
+        else:
+            p.pos = -1          # '+' for END of transcript
+        p.tpos = int(m.group(1))
+        return p
+
+    raise InvalidInputError('invalid_position_string_%s' % posstr)
 
 class Query(object):
 
@@ -433,7 +446,9 @@ class QuerySNV(Query):
         self.ref = ''
         self.alt = ''
 
-    def cpos(self):
+    def cpos(self, t=None):
+        if t is not None and self.pos.pos < 0:
+            return t.cdslen()
         return self.pos.pos
 
 class QueryDEL(Query):

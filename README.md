@@ -15,4 +15,9 @@ or locally
 pip install --user transvar
 ```
 
+To upgrade from previous installation, you can
+```bash
+pip install -U transvar
+```
+
 This is a continued TransVar implementation from what was hosted at [https://bitbucket.org/wanding/transvar](https://bitbucket.org/wanding/transvar).

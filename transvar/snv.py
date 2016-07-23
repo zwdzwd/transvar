@@ -45,10 +45,11 @@ def annotate_snv_cdna(args, q, tpts, db):
                 raise IncompatibleTranscriptError(
                     'transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
             t.ensure_seq()
-            
-            if (q.cpos() <= 0 or q.cpos() > t.cdslen()):
-                raise IncompatibleTranscriptError('invalid_cDNA_position_%d;expect_[0_%d]' % (q.cpos(), t.cdslen()))
-            codon = t.cpos2codon((q.cpos()+2)/3)
+
+            if (q.cpos(t) <= 0 or q.cpos(t) > t.cdslen()):
+                raise IncompatibleTranscriptError(
+                    'invalid_cDNA_position_%d;expect_[0_%d]' % (q.cpos(t), t.cdslen()))
+            codon = t.cpos2codon((q.cpos(t)+2)/3)
             if not codon:
                 raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % q.cpos())
 
@@ -83,9 +84,9 @@ def annotate_snv_cdna(args, q, tpts, db):
             if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
 
                 # Incompatible transcript
-                if (q.ref and q.ref != t.seq[q.cpos()-1]):
+                if (q.ref and q.ref != t.seq[q.cpos(t)-1]):
                     raise IncompatibleTranscriptError(
-                        'invalid_reference_%s;expect_%s' % (q.ref, t.seq[q.cpos()-1]))
+                        'invalid_reference_%s;expect_%s' % (q.ref, t.seq[q.cpos(t)-1]))
 
                 r.taa_ref = aaf(codon2aa(codon.seq), args)
                 r.taa_pos = codon.index
@@ -93,7 +94,7 @@ def annotate_snv_cdna(args, q, tpts, db):
                     r.taa_alt = ''
                 else:
                     mut_seq = list(codon.seq[:])
-                    mut_seq[(q.cpos()-1) % 3] = q.alt
+                    mut_seq[(q.cpos(t)-1) % 3] = q.alt
                     r.taa_alt = aaf(codon2aa(''.join(mut_seq)), args)
                     if r.taa_ref != r.taa_alt:
                         if r.taa_alt == '*':

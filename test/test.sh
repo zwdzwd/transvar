@@ -25,33 +25,27 @@ colordiff testout/ganno_tamborero.vcf
 
 transvar ganno -l data/tamborero_data/transvar_dna_input.txt --ensembl | tee testout/ganno_tamborero_output
 
-## upload github
+# procedures to follow to update
 
+## 1. test
+cd test/
+python test.py ../docs/source/ outdocs
+mv outdocs/*.rst ../docs/source/
+
+## 2. upload github
 modify transvar/version.py
-git commit -am "this version"
-git tag -a v[version] -m "version [version]"
+git commit -am "version 2.2.12.20160723"
+git tag -a v2.2.12.20160723 -m "version 2.2.12.20160723"
 git push --tags
 
 ## register testpypi
-
-python setup.py register -r https://testpypi.python.org/pypi
-
-python setup.py sdist upload -r https://testpypi.python.org/pypi
-
+## python setup.py register -r https://testpypi.python.org/pypi
+## python setup.py sdist upload -r https://testpypi.python.org/pypi
 pip install -i https://testpypi.python.org/pypi transvar
 
-## test
-
-cd test/
-python test.py ../docs/source/ outdocs
-
-## pypi
-
-## once
+## 3. upload pypi
 ## python setup.py register -r https://pypi.python.org/pypi
-
 python setup.py sdist upload -r https://pypi.python.org/pypi
-
 pip install -i https://pypi.python.org/pypi transvar
 
 # ~/.pypirc
@@ -69,7 +63,6 @@ pip install -i https://pypi.python.org/pypi transvar
 # repository=https://testpypi.python.org/pypi
 # username=name
 # password=pass
-
 
 ## building feature database
 

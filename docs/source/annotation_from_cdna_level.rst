@@ -55,6 +55,20 @@ outputs
       chr2:g.169833205G>T/c.1198-8C>A/.	inside_[intron_between_exon_10_and_11]
       CSQN=IntronicSNV;source=CCDS
 
+Or in the UTR region, e.g.,
+
+.. code:: bash
+
+   $ transvar canno -i 'KCNJ11:c.-134G>T' --ensembl
+
+::
+
+   KCNJ11:c.-134G>T	ENST00000339994 (protein_coding)	KCNJ11	-
+      chr11:g.17409772C>A/c.1-134G>T/.	inside_[5-UTR;noncoding_exon_1]
+      CSQN=5-UTRSNV;dbsnp=rs387906398(chr11:17409772C>A);aliases=ENSP00000345708;so
+      urce=Ensembl
+
+
 insertion
 ^^^^^^^^^^^^
 
