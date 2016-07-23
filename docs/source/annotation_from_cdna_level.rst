@@ -55,7 +55,7 @@ outputs
       chr2:g.169833205G>T/c.1198-8C>A/.	inside_[intron_between_exon_10_and_11]
       CSQN=IntronicSNV;source=CCDS
 
-Or in the UTR region, e.g.,
+Or in the 5'-UTR region, e.g.,
 
 .. code:: bash
 
@@ -68,7 +68,7 @@ Or in the UTR region, e.g.,
       CSQN=5-UTRSNV;dbsnp=rs387906398(chr11:17409772C>A);aliases=ENSP00000345708;so
       urce=Ensembl
 
-Or in the 5'-UTR region, e.g.,
+Or in the 3'-UTR region, e.g.,
 
 .. code:: bash
 
