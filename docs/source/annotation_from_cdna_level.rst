@@ -76,7 +76,19 @@ Or in the 5'-UTR region, e.g.,
 
 ::
 
-   
+   MSH2:c.*95C>T	NM_000251 (protein_coding)	MSH2	+
+      chr2:g.47710183C>T/c.*95C>T/.	inside_[3-UTR;noncoding_exon_16]
+      CSQN=3-UTRSNV;dbsnp=rs587779062(chr2:47710183C>T);dbxref=GeneID:4436,HGNC:732
+      5,HPRD:00389,MIM:609309;aliases=NP_000242;source=RefSeq
+   MSH2:c.*95C>T	NM_001258281 (protein_coding)	MSH2	+
+      chr2:g.47710183C>T/c.*95C>T/.	inside_[3-UTR;noncoding_exon_17]
+      CSQN=3-UTRSNV;dbsnp=rs587779062(chr2:47710183C>T);dbxref=GeneID:4436,HGNC:732
+      5,HPRD:00389,MIM:609309;aliases=NP_001245210;source=RefSeq
+   MSH2:c.*95C>T	XM_005264333 (protein_coding)	MSH2	+
+      chr2:g.47710183C>T/c.*95C>T/.	inside_[3-UTR;noncoding_exon_15]
+      CSQN=3-UTRSNV;dbsnp=rs587779062(chr2:47710183C>T);dbxref=GeneID:4436,HGNC:732
+      5,HPRD:00389,MIM:609309;aliases=XP_005264390;source=RefSeq
+
       
 insertion
 ^^^^^^^^^^^^
