@@ -36,12 +36,14 @@ mv outdocs/*.rst ../docs/source/
 modify transvar/version.py
 git commit -am "version 2.2.12.20160723"
 git tag -a v2.2.12.20160723 -m "version 2.2.12.20160723"
+git push
 git push --tags
+## manually draft a release
 
 ## register testpypi
 ## python setup.py register -r https://testpypi.python.org/pypi
 ## python setup.py sdist upload -r https://testpypi.python.org/pypi
-pip install -i https://testpypi.python.org/pypi transvar
+## pip install -i https://testpypi.python.org/pypi transvar
 
 ## 3. upload pypi
 ## python setup.py register -r https://pypi.python.org/pypi
