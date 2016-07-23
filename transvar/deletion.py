@@ -169,9 +169,9 @@ def annotate_deletion_cdna(args, q, tpts, db):
             continue
 
         found = True
-        format_one(r, rs, q, args)
+        format_one(r, rs, q.op, args)
 
-    format_all(rs, q, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record(is_var=True)
@@ -223,9 +223,9 @@ def annotate_deletion_protein(args, q, tpts, db):
         r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
         r.append_info('imprecise')
         found = True
-        format_one(r, rs, q, args)
+        format_one(r, rs, q.op, args)
 
-    format_all(rs, q, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record(is_var=True)
@@ -293,8 +293,8 @@ def annotate_deletion_gdna(args, q, db):
             gnd.set_record(r, args)
             r.set_csqn_byreg("Deletion")
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
 ### add taa feature in deletion ###
 

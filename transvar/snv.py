@@ -39,19 +39,21 @@ def annotate_snv_cdna(args, q, tpts, db):
     found = False
     rs = []
     gene_name = ""
+    # import pdb; pdb.set_trace()
     for t in tpts:
+        qpos = t.tnuc_resolve_pos(q.pos)
         try:
             if q.tpt and t.name != q.tpt:
                 raise IncompatibleTranscriptError(
                     'transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
             t.ensure_seq()
 
-            if (q.cpos(t) <= 0 or q.cpos(t) > t.cdslen()):
+            if (qpos.pos <= 0 or qpos.pos > t.cdslen()):
                 raise IncompatibleTranscriptError(
-                    'invalid_cDNA_position_%d;expect_[0_%d]' % (q.cpos(t), t.cdslen()))
-            codon = t.cpos2codon((q.cpos(t)+2)/3)
+                    'invalid_cDNA_position_%d;expect_[0_%d]' % (qpos.pos, t.cdslen()))
+            codon = t.cpos2codon((qpos.pos+2)/3)
             if not codon:
-                raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % q.cpos())
+                raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % qpos.pos)
 
             r = Record(is_var=True)
             r.chrm = t.chrm
@@ -60,7 +62,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             gene_name = t.gene_name
             r.strand = t.strand
 
-            r.gnuc_pos = t.tnuc2gnuc(q.pos)
+            r.gnuc_pos = t.tnuc2gnuc(qpos)
             r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
             if t.strand == '+':
                 if q.ref and r.gnuc_ref != q.ref:
@@ -79,14 +81,13 @@ def annotate_snv_cdna(args, q, tpts, db):
 
             db.query_dbsnp(r, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
             r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
-            
             # coding region
-            if q.pos.tpos == 0 and t.transcript_type == 'protein_coding':
+            if qpos.tpos == 0 and t.transcript_type == 'protein_coding':
 
                 # Incompatible transcript
-                if (q.ref and q.ref != t.seq[q.cpos(t)-1]):
+                if (q.ref and q.ref != t.seq[qpos.pos-1]):
                     raise IncompatibleTranscriptError(
-                        'invalid_reference_%s;expect_%s' % (q.ref, t.seq[q.cpos(t)-1]))
+                        'invalid_reference_%s;expect_%s' % (q.ref, t.seq[qpos.pos-1]))
 
                 r.taa_ref = aaf(codon2aa(codon.seq), args)
                 r.taa_pos = codon.index
@@ -94,7 +95,7 @@ def annotate_snv_cdna(args, q, tpts, db):
                     r.taa_alt = ''
                 else:
                     mut_seq = list(codon.seq[:])
-                    mut_seq[(q.cpos(t)-1) % 3] = q.alt
+                    mut_seq[(qpos.pos-1) % 3] = q.alt
                     r.taa_alt = aaf(codon2aa(''.join(mut_seq)), args)
                     if r.taa_ref != r.taa_alt:
                         if r.taa_alt == '*':
@@ -112,15 +113,15 @@ def annotate_snv_cdna(args, q, tpts, db):
 
             else:  # coordinates are with respect to the exon boundary
                 r.csqn.append(r.reg.csqn()+"SNV")
-                t.check_exon_boundary(q.pos)
+                t.check_exon_boundary(qpos)
 
         except IncompatibleTranscriptError as e:
             continue
         except SequenceRetrievalError as e:
             continue
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q.op, args)
@@ -286,8 +287,8 @@ def annotate_snv_protein(args, q, tpts, db):
         set_taa_snv(r, q.pos, q.ref, r.taa_alt, args)
         r.reg = RegCDSAnno(t, c)
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         wrap_exception(Exception('no_valid_transcript_found'), q.op, args)
@@ -386,8 +387,8 @@ def annotate_snv_gdna(args, q, db):
         else:
             r.csqn.append(r.reg.csqn()+"SNV")
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
 def set_taa_snv(r, pos, ref, alt, args):
 

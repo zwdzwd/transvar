@@ -88,8 +88,8 @@ def annotate_mnv_cdna(args, q, tpts, db):
         except SequenceRetrievalError:
             continue
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record(is_var=True)
@@ -156,8 +156,8 @@ def annotate_mnv_protein(args, q, tpts, db):
         r.reg.from_taa_range(q.beg, q.end)
 
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
     
     if not found:
         r = Record(is_var=True)
@@ -356,8 +356,8 @@ def annotate_mnv_gdna(args, q, db):
             if genes:
                 r.gene = ','.join(genes)
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
 def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 

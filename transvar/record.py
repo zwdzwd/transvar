@@ -45,7 +45,10 @@ class Pos():
         if self.tpos < 0:
             return '%s%d' % (str(self.pos), self.tpos)
         elif self.tpos > 0:
-            return '%s+%d' % (str(self.pos), self.tpos)
+            if self.pos < 0:
+                return '*%d' % self.tpos
+            else:
+                return '%s+%d' % (str(self.pos), self.tpos)
         else:
             return str(self.pos)
 
@@ -385,14 +388,17 @@ def parse_pos(posstr):
         p.tpos = int(m.group(2))
         return p
 
-    m = re.match(r'([+-]\d+)', posstr)
+    m = re.match(r'([*+-]\d+)', posstr)
     if m:
         p = Pos()
         if m.group(1)[0] == '-':
             p.pos = 1
         else:
-            p.pos = -1          # '+' for END of transcript
-        p.tpos = int(m.group(1))
+            p.pos = -1          # '+'/'*' for END of transcript
+        tpos = m.group(1)
+        if tpos[0] == '*':      # strip '*'
+            tpos = tpos[1:]
+        p.tpos = int(tpos)
         return p
 
     raise InvalidInputError('invalid_position_string_%s' % posstr)
@@ -445,11 +451,6 @@ class QuerySNV(Query):
         self.pos = ''
         self.ref = ''
         self.alt = ''
-
-    def cpos(self, t=None):
-        if t is not None and self.pos.pos < 0:
-            return t.cdslen()
-        return self.pos.pos
 
 class QueryDEL(Query):
 
@@ -587,7 +588,8 @@ class Record():
             if hasattr(self.reg, 'promoter'):
                 if self.reg.promoter:
                     for t, overlap, frac in self.reg.promoter:
-                        self.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)' % (t.gene_name, overlap, frac))
+                        self.append_info('promoter_region_of_[%s]_overlaping_%d_bp(%1.2f%%)'
+                                         % (t.gene_name, overlap, frac))
 
     def set_splice(self, action='', csqn_action=''):
 
@@ -725,16 +727,16 @@ class Record():
         return template.format(r=self, reg=self.reg.format(),
                                gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
 
-def format_one(r, rs, q, args):
+def format_one(r, rs, qop, args):
     if not args.oneline:
-        r.format(q.op)
+        r.format(qop)
     else:
         rs.append(r.formats())
     
-def format_all(rs, q, args):
+def format_all(rs, qop, args):
 
     if args.oneline and len(rs) > 0:
-        s = q.op+'\t' if q.op else ''
+        s = qop+'\t' if qop else ''
         s += '\t|||\t'.join(rs)
         try:
             print s
@@ -748,3 +750,4 @@ def wrap_exception(e, op, args):
     r.format(op)
     if args.suspend:
         raise e
+

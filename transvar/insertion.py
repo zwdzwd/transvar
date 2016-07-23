@@ -170,8 +170,8 @@ def annotate_insertion_cdna(args, q, tpts, db):
             continue
 
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q.op, args)
@@ -232,8 +232,8 @@ def annotate_insertion_protein(args, q, tpts, db):
         except SequenceRetrievalError:
             continue
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record(is_var=True)
@@ -288,8 +288,8 @@ def annotate_insertion_gdna(args, q, db):
         else:
             r.set_csqn_byreg("Insertion")
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
         
 
 def annotate_duplication_cdna(args, q, tpts, db):
@@ -344,8 +344,8 @@ def annotate_duplication_cdna(args, q, tpts, db):
             continue
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record(is_var=True)

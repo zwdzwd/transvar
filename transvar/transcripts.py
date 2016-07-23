@@ -433,8 +433,13 @@ class Transcript():
         take integer as input
         """
         self.ensure_position_array()
-        if tnuc_pos >= len(self.np):
-            raise IncompatibleTranscriptError('invalid_cDNA_position_%d;expect_[0_%d]' % (tnuc_pos, len(self.np)))
+        ## tnuc_pos < 0 represents 
+        if tnuc_pos < 0:
+            tnuc_pos = len(self.np)
+        if tnuc_pos > len(self.np):
+            raise IncompatibleTranscriptError(
+                'invalid_cDNA_position_%d;expect_[0_%d]' % (tnuc_pos, len(self.np)))
+
         return self.np[tnuc_pos-1]
 
     def tnuc2gnuc(self, tnuc_pos):
@@ -443,6 +448,12 @@ class Transcript():
             return self._tnuc2gnuc(tnuc_pos.pos) - tnuc_pos.tpos
         else:
             return self._tnuc2gnuc(tnuc_pos.pos) + tnuc_pos.tpos
+
+    def tnuc_resolve_pos(self, tnuc_pos_q):
+        """ resolve tnuc_pos_q.pos in case it is negative (point to the cds length) """
+        if tnuc_pos_q.pos < 0:
+            return Pos(pos = self.cdslen(), tpos = tnuc_pos_q.tpos)
+        return tnuc_pos_q
 
     def gnuc2exoninds(self, gnuc_beg, gnuc_end): # not used
 
@@ -739,11 +750,15 @@ class Transcript():
 
         self.ensure_position_array()
         if pos.tpos > 0:
+            if pos.pos == len(self.np) or pos.pos < 0:
+                return
             x = self._tnuc2gnuc(pos.pos)
             y = self._tnuc2gnuc(pos.pos+1)
             if abs(x-y) == 1: # continuous genomic coordinates for continuous cDNA coordinates
                 raise IncompatibleTranscriptError('exon_boundary_violation_cDNA_[%d_%d]_gDNA_[%d_%d]' % (pos.pos,pos.pos+1,x,y))
         elif pos.tpos < 0:
+            if pos.pos == 1:
+                return
             x = self._tnuc2gnuc(pos.pos-1)
             y = self._tnuc2gnuc(pos.pos)
             if abs(x-y) == 1: # continuous genomic coordinates for continuous cDNA coordinates

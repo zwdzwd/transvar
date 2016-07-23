@@ -311,9 +311,9 @@ def annotate_frameshift(args, q, tpts, db):
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.pos, q.pos+(q.stop_index if q.stop_index>=0 else 0))
         found = True
-        format_one(r, rs, q, args)
+        format_one(r, rs, q.op, args)
 
-    format_all(rs, q, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record(is_var=True)

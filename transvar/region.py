@@ -44,6 +44,7 @@ def _annotate_region_cdna(args, q, t, db):
     r.gene = t.gene_name
     r.strand = t.strand
 
+    # import pdb; pdb.set_trace()
     t.check_exon_boundary(q.beg)
     t.check_exon_boundary(q.end)
 
@@ -92,8 +93,8 @@ def annotate_region_cdna(args, q, tpts, db):
         except SequenceRetrievalError:
             continue
         found = True
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     if not found:
         r = Record()
@@ -153,8 +154,8 @@ def annotate_region_protein(args, q, tpts, db):
         r = Record()
         r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
     return
 
@@ -288,8 +289,8 @@ def annotate_region_gdna(args, q, db):
         else:
             raise Exception()   # shouldn't reach
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
                 
 
 def annotate_gene(args, q, tpts, db):
@@ -319,7 +320,7 @@ def annotate_gene(args, q, tpts, db):
         r.tname = t.format()
         r.reg = 'whole_transcript'
 
-        format_one(r, rs, q, args)
-    format_all(rs, q, args)
+        format_one(r, rs, q.op, args)
+    format_all(rs, q.op, args)
 
 
