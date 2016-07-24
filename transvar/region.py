@@ -1,6 +1,9 @@
 """
 The MIT License
 
+Copyright (c) 2016
+Wanding Zhou, Van Andel Research Institute
+
 Copyright (c) 2015
 The University of Texas MD Anderson Cancer Center
 Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
@@ -32,21 +35,37 @@ from record import *
 from transcripts import *
 from describe import *
 
-def _annotate_region_cdna(args, q, t, db):
+def annotate_region_cdna_transcript1(args, q, t, db):
 
+    """Annotate based on one transcript
+
+    Args:
+        args (argparse.Namespace): command line arguments
+        q (record.QueryREG): query of region
+        t (transcript.Transcript): transcript
+        db (annodb.AnnoDB): annotation database
+
+    Returns:
+        r (record.Record): record
+
+    Raises:
+        IncompatibleTranscriptError: transcript is incompatible
+    """
+
+    # check transcript name if it is given
     if q.tpt and t.name != q.tpt:
         raise IncompatibleTranscriptError('Transcript name unmatched')
-    t.ensure_seq()
 
+    # check q.beg and q.end is a valid Pos w.r.t exon boundaries
+    t.check_exon_boundary(q.beg)
+    t.check_exon_boundary(q.end)
+
+    t.ensure_seq()
     r = Record()
     r.chrm = t.chrm
     r.tname = t.format()
     r.gene = t.gene_name
     r.strand = t.strand
-
-    # import pdb; pdb.set_trace()
-    t.check_exon_boundary(q.beg)
-    t.check_exon_boundary(q.end)
 
     gnuc_beg = t.tnuc2gnuc(q.beg)
     gnuc_end = t.tnuc2gnuc(q.end)
@@ -87,7 +106,7 @@ def annotate_region_cdna(args, q, tpts, db):
     rs = []
     for t in tpts:
         try:
-            r = _annotate_region_cdna(args, q, t, db)
+            r = annotate_region_cdna_transcript1(args, q, t, db)
         except IncompatibleTranscriptError:
             continue
         except SequenceRetrievalError:
