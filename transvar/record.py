@@ -733,15 +733,25 @@ def format_one(r, rs, qop, args):
     else:
         rs.append(r.formats())
     
-def format_all(rs, qop, args):
+def format_records(records, qop, args):
 
-    if args.oneline and len(rs) > 0:
-        s = qop+'\t' if qop else ''
-        s += '\t|||\t'.join(rs)
-        try:
-            print s
-        except IOError:
-            sys.exit(1)
+    """Print records"""
+
+    if len(records) > 0:
+        if args.oneline:
+            s = qop+'\t' if qop else ''
+            s += '\t|||\t'.join([r.formats() for r in records])
+            try:
+                print s
+            except IOError:
+                sys.exit(1)
+        else:
+            for r in records:
+                r.format(qop)
+    else:
+        r = Record()
+        r.append_info('no_valid_transcript_found')
+        r.format(qop)
 
 def wrap_exception(e, op, args):
     r = Record()

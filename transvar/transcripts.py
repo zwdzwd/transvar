@@ -245,7 +245,7 @@ def psort(a,b):
 
 def tnuc_range2gnuc_range_(np, tbeg, tend):
 
-    """ convert transcript range to genomic range
+    """convert transcript range to genomic range
     tbeg and tend are 1-based
     """
     try:
@@ -257,7 +257,7 @@ class Transcript():
 
     def __init__(self, transcript_type='protein_coding'):
 
-        """ chrm, strand, start, end, seq (optional), cds_beg, cds_end """
+        """chrm, strand, start, end, seq (optional), cds_beg, cds_end"""
 
         self.transcript_type = transcript_type
         self.gene_name = ''
