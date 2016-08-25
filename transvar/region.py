@@ -52,50 +52,48 @@ def annotate_region_cdna_transcript1(args, q, t, db):
         IncompatibleTranscriptError: transcript is incompatible
     """
 
+    ## checks
     # check transcript name if it is given
     if q.tpt and t.name != q.tpt:
         raise IncompatibleTranscriptError('Transcript name unmatched')
-
     # check q.beg and q.end is a valid Pos w.r.t exon boundaries
     t.check_exon_boundary(q.beg)
     t.check_exon_boundary(q.end)
 
-    t.ensure_seq()
+    # transcript info
     r = Record()
     r.chrm = t.chrm
     r.tname = t.format()
     r.gene = t.gene_name
     r.strand = t.strand
 
+    # region
     gnuc_beg = t.tnuc2gnuc(q.beg)
     gnuc_end = t.tnuc2gnuc(q.end)
     r.gnuc_beg = min(gnuc_beg, gnuc_end)
     r.gnuc_end = max(gnuc_beg, gnuc_end)
-    tnuc_coding_beg = q.beg.pos if q.beg.tpos <= 0 else q.beg.pos+1 # base after intron
-    tnuc_coding_end = q.end.pos if q.end.tpos >= 0 else q.end.pos-1 # base before intron
-    gnuc_coding_beg = t._tnuc2gnuc(tnuc_coding_beg)
-    gnuc_coding_end = t._tnuc2gnuc(tnuc_coding_end)
+    r.reg = describe_genic(args, t.chrm, r.gnuc_beg, r.gnuc_end, t, db)
+    expt = r.set_splice('included')
 
+    # reference
     r.refrefseq = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_beg, r.gnuc_end)
     r.natrefseq = reverse_complement(r.refrefseq) if t.strand == '-' else r.refrefseq
     if q.refseq and r.natrefseq != q.refseq:
         raise IncompatibleTranscriptError()
 
+    # g-syntax
     if r.gnuc_beg != r.gnuc_end:
         r.gnuc_range = '%d_%d%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq) 
     else:
         r.gnuc_range = '%d%s' % (r.gnuc_beg, r.refrefseq)
 
-
-    # r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
+    # c-syntax
     if q.beg != q.end:
         r.tnuc_range = '%s_%s%s' % (q.beg, q.end, r.natrefseq)
     else:
         r.tnuc_range = '%s%s' % (q.beg, r.natrefseq)
 
-    r.reg = describe_genic(args, t.chrm, r.gnuc_beg, r.gnuc_end, t, db)
-    expt = r.set_splice('included')
-    # region_in_exon(np, q.beg, q.end):
+    # p-syntax
     if hasattr(r.reg, 'cover_cds') and r.reg.cover_cds:
         c1, p1 = t.intronic_lean(q.beg, 'c_greater')
         c2, p2 = t.intronic_lean(q.end, 'c_smaller')
@@ -114,7 +112,7 @@ def annotate_region_cdna(args, q, tpts, db):
     """Annotate based on all transcripts
 
     Print or return records
-    
+
     Args:
         args (argparse.Namespace): command line arguments
         q (record.QueryREG): query of region
@@ -159,40 +157,49 @@ def annotate_region_protein_transcript1(args, q, t, db):
         IncompatibleTranscriptError: transcript is incompatible
     """
 
-    if q.tpt and t.name != q.tpt:
-        raise IncompatibleTranscriptError('Transcript name unmatched')
-    t.ensure_seq()
-
-    r = Record()
-    r.chrm = t.chrm
-    r.tname = t.format()
-
-    if q.end*3 > t.cdslen():
-        raise IncompatibleTranscriptError('codon nonexistent')
-
+    # reference
     tnuc_beg = q.beg*3 - 2
     tnuc_end = q.end*3
-    r.gnuc_beg, r.gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
-    r.natrefseq = t.seq[tnuc_beg-1:tnuc_end]
-    r.refrefseq = reverse_complement(r.natrefseq) if t.strand == '-' else r.natrefseq
-    taa_natrefseq = translate_seq(r.natrefseq)
+    natrefseq = t.getseq(tnuc_beg, tnuc_end)
+    refrefseq = reverse_complement(natrefseq) if t.strand == '-' else natrefseq
+    taa_natrefseq = translate_seq(natrefseq)
+
+    ## checks
+    if q.tpt and t.name != q.tpt:
+        raise IncompatibleTranscriptError('Transcript name unmatched')
+    if q.end*3 > t.cdslen():
+        raise IncompatibleTranscriptError('codon nonexistent')
     if q.beg_aa and q.beg_aa != taa_natrefseq[0]:
         raise IncompatibleTranscriptError('beginning reference amino acid unmatched')
     if q.end_aa and q.end_aa != taa_natrefseq[-1]:
         raise IncompatibleTranscriptError('ending reference amino acid unmatched')
-    if q.refseq and not re.match(q.refseq.replace('x','[A-Z]'), taa_natrefseq): # != q.refseq:
+    if q.refseq and not re.match(q.refseq.replace('x','[A-Z]'), taa_natrefseq):
         raise IncompatibleTranscriptError('reference sequence unmatched')
-    r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
-    r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
-    r.taa_range = '%s%d_%s%d' % (aaf(taa_natrefseq[0], args), q.beg, aaf(taa_natrefseq[-1], args), q.end) if q.beg != q.end else '%d%s' % (q.beg, aaf(taa_natrefseq[0], args))
-    r.pos = '%d-%d' % (r.gnuc_beg, r.gnuc_end)
+
+    # transcript info
+    r = Record()
+    r.chrm = t.chrm
+    r.tname = t.format()
     r.gene = t.gene_name
     r.strand = t.strand
 
+    # region
     r.reg = RegCDSAnno(t)
     r.reg.from_taa_range(q.beg, q.end)
+
+    # g-syntax
+    r.gnuc_beg, r.gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
+    r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
+
+    # c-syntax
+    r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
+
+    # p-syntax
+    r.taa_range = '%s%d_%s%d' % (aaf(taa_natrefseq[0], args), q.beg, aaf(taa_natrefseq[-1], args), q.end) if q.beg != q.end else '%d%s' % (q.beg, aaf(taa_natrefseq[0], args))
+
+    # info
     r.append_info('protein_sequence=%s;cDNA_sequence=%s;gDNA_sequence=%s' % (
-        printseq(taa_natrefseq, args), printseq(r.natrefseq, args), printseq(r.refrefseq, args)))
+        printseq(taa_natrefseq, args), printseq(natrefseq, args), printseq(refrefseq, args)))
 
     return r
 
@@ -263,7 +270,7 @@ def annotate_region_gdna_intergenic_point(args, q, reg):
     #     r.info = 'gene_type=%s;' % ','.join(list(iis))
     return r
 
-def annotate_region_gdna_genic_point():
+def annotate_region_gdna_genic_point(args, q, reg):
 
     """annotate gDNA genic point
 
@@ -454,7 +461,7 @@ def annotate_gene(args, q, tpts, db):
     """annotate gene
     """
 
-    rs = []
+    records = []
     for t in tpts:
         r = Record()
         r.chrm = t.chrm
@@ -478,8 +485,11 @@ def annotate_gene(args, q, tpts, db):
         r.strand = t.strand
         r.tname = t.format()
         r.reg = 'whole_transcript'
+        
+        records.append(r)
 
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+    format_records(records, q.op, args)
+    # format_records(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
 
-    return
+    return records

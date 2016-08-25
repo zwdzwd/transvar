@@ -37,7 +37,7 @@ from proteinseqs import *
 def annotate_snv_cdna(args, q, tpts, db):
 
     found = False
-    rs = []
+    records = []
     gene_name = ""
     # import pdb; pdb.set_trace()
     for t in tpts:
@@ -119,14 +119,16 @@ def annotate_snv_cdna(args, q, tpts, db):
             continue
         except SequenceRetrievalError as e:
             continue
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        records.append(r)
 
-    if not found:
-        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q.op, args)
+    format_records(records, q.op, args)
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
 
-    return
+    # if not found:
+    # wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q.op, args)
+
+    return records
 
 def _annotate_snv_protein(args, q, t, db):
 
@@ -270,8 +272,7 @@ def __core_annotate_codon_snv(args, q, db):
 
 def annotate_snv_protein(args, q, tpts, db):
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
         try:
             r, c = _annotate_snv_protein(args, q, t, db)
@@ -286,38 +287,32 @@ def annotate_snv_protein(args, q, tpts, db):
         # alternative should be based on actual alternative aa determined
         set_taa_snv(r, q.pos, q.ref, r.taa_alt, args)
         r.reg = RegCDSAnno(t, c)
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        
+        records.append(r)
+    
+    format_records(records, q.op, args)
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
 
-    if not found:
-        wrap_exception(Exception('no_valid_transcript_found'), q.op, args)
-        # r = Record(is_var=True)
-        # set_taa_snv(r, q.pos, q.ref, q.alt, args)
-        # r.info = 'no_valid_transcript_found'
-        # r.format(q.op)
+    # if not found:
+    #     wrap_exception(Exception('no_valid_transcript_found'), q.op, args)
+    #     # r = Record(is_var=True)
+    #     # set_taa_snv(r, q.pos, q.ref, q.alt, args)
+    #     # r.info = 'no_valid_transcript_found'
+    #     # r.format(q.op)
+    return records
 
 
 def annotate_snv_gdna(args, q, db):
 
-    r = Record(is_var=True)
-    r.chrm = q.tok
-    r.pos = q.pos
-
-    # check reference base
-    # try:
     gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
-    # except SequenceRetrievalError as e:
-    #     wrap_exception(e, q, args)
-    #     return
-
-    if q.ref and gnuc_ref != q.ref:
-        raise InvalidInputError("invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref))
-    else:
+    if not q.ref:
         q.ref = gnuc_ref
 
-    rs = []
-    # import pdb; pdb.set_trace()
+    if gnuc_ref != q.ref:
+        wrap_exception(Exception("invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref)))
+
+    records = []
     for reg in describe(args, q, db):
 
         # skip if transcript ID does not match
@@ -392,8 +387,13 @@ def annotate_snv_gdna(args, q, db):
         else:
             r.csqn.append(r.reg.csqn()+"SNV")
 
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        records.append(r)
+
+    format_records(records, q.op, args)
+
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
+    return records
 
 def set_taa_snv(r, pos, ref, alt, args):
 

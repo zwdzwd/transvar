@@ -38,8 +38,7 @@ from proteinseqs import *
 
 def annotate_mnv_cdna(args, q, tpts, db):
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
         try:
 
@@ -87,21 +86,14 @@ def annotate_mnv_cdna(args, q, tpts, db):
             continue
         except SequenceRetrievalError:
             continue
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
 
-    if not found:
-        r = Record(is_var=True)
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
-
-    return
+        records.append(r)
+    format_records(records, q.op, args)
+    return records
 
 def annotate_mnv_protein(args, q, tpts, db):
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
@@ -155,17 +147,18 @@ def annotate_mnv_protein(args, q, tpts, db):
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.beg, q.end)
 
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
-    
-    if not found:
-        r = Record(is_var=True)
-        r.taa_range = '%s%s_%s%sdelins%s' % (
-            aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+        records.append(r)
 
-        r.format(q.op)
+    format_records(records, q.op, args)
+    return records
+    
+    # if not found:
+    #     r = Record(is_var=True)
+    #     r.taa_range = '%s%s_%s%sdelins%s' % (
+    #         aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
+    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+
+    #     r.format(q.op)
 
 def decompose_mut(q):
     import ssw
@@ -283,7 +276,7 @@ def annotate_mnv_gdna(args, q, db):
             annotate_deletion_gdna(args, q, db)
             return
 
-    rs = []
+    records = []
     for reg in describe(args, q, db):
 
         r = Record(is_var=True)
@@ -356,8 +349,10 @@ def annotate_mnv_gdna(args, q, db):
             if genes:
                 r.gene = ','.join(genes)
 
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        records.append(r)
+
+    format_records(records, q.op, args)
+    return records
 
 def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 

@@ -148,8 +148,8 @@ def _annotate_deletion_cdna(args, q, r, t, db):
 
 def annotate_deletion_cdna(args, q, tpts, db):
 
-    found = False
-    rs = []
+    # found = False
+    records = []
     for t in tpts:
         if q.tpt and t.name != q.tpt:
             raise IncompatibleTranscriptError("Transcript name unmatched")
@@ -168,23 +168,26 @@ def annotate_deletion_cdna(args, q, tpts, db):
         except SequenceRetrievalError:
             continue
 
-        found = True
-        format_one(r, rs, q.op, args)
+        # found = True
+        records.append(r)
 
-    format_all(rs, q.op, args)
+    format_records(records, q.op, args)
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
 
-    if not found:
-        r = Record(is_var=True)
-        tnuc_del_id(q.beg, q.end, args, q.delseq)
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+    # if not found:
+    #     r = Record(is_var=True)
+    #     tnuc_del_id(q.beg, q.end, args, q.delseq)
+    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+    #     r.format(q.op)
 
-    return
+    return records
 
 def annotate_deletion_protein(args, q, tpts, db):
 
-    found = False
-    rs = []
+    # found = False
+    # rs = []
+    records = []
     for t in tpts:
         try:
             if q.tpt and t.name != q.tpt:
@@ -222,15 +225,17 @@ def annotate_deletion_protein(args, q, tpts, db):
         taa_set_del(r, t, q.beg, q.end, args)
         r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
         r.append_info('imprecise')
-        found = True
-        format_one(r, rs, q.op, args)
+        # found = True
+        records.append(r)
+        # format_one(r, rs, q.op, args)
 
-    format_all(rs, q.op, args)
-
-    if not found:
-        r = Record(is_var=True)
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+    # format_all(rs, q.op, args)
+    format_records(records, q.op, args)
+    # if not found:
+    #     r = Record(is_var=True)
+    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+    #     r.format(q.op)
+    return records
 
 def annotate_deletion_gdna(args, q, db):
 
@@ -243,7 +248,8 @@ def annotate_deletion_gdna(args, q, db):
         warning = "invalid_deletion_seq_%s_(expect_%s)" % (gnd.gnuc_delseq, q.delseq)
         err_warn("%s invalid deletion sequence %s (expect %s), maybe wrong reference?" % (q.op, gnd.gnuc_delseq, q.delseq))
 
-    rs = []
+    # rs = []
+    records = []
     for reg in describe(args, q, db):
 
         r = Record(is_var=True)
@@ -292,9 +298,12 @@ def annotate_deletion_gdna(args, q, db):
         else:
             gnd.set_record(r, args)
             r.set_csqn_byreg("Deletion")
+        records.append(r)
 
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+    format_records(records, q.op, args)
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
+    return records
 
 ### add taa feature in deletion ###
 

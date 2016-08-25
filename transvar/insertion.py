@@ -128,8 +128,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
 
 def annotate_insertion_cdna(args, q, tpts, db):
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
 
         try:
@@ -169,14 +168,15 @@ def annotate_insertion_cdna(args, q, tpts, db):
         except SequenceRetrievalError as e:
             continue
 
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        records.append(r)
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
+    format_records(records, q.op, args)
 
-    if not found:
-        wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q.op, args)
+    # if not found:
+    #     wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q.op, args)
 
-    return
+    return records
 
 
 def codon_mutation_ins(args, q, t, db):
@@ -218,8 +218,7 @@ def codon_mutation_ins(args, q, t, db):
 
 def annotate_insertion_protein(args, q, tpts, db):
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
         try:
             r = codon_mutation_ins(args, q, t, db)
@@ -231,20 +230,24 @@ def annotate_insertion_protein(args, q, tpts, db):
             continue
         except SequenceRetrievalError:
             continue
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        records.append(r)
 
-    if not found:
-        r = Record(is_var=True)
-        r.taa_range = '%s%s_%s%sins%s' % (aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.insseq, args))
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+    format_records(records, q.op, args)
+    # format_one(r, rs, q.op, args)
+    # format_all(rs, q.op, args)
+
+    # if not found:
+    #     r = Record(is_var=True)
+    #     r.taa_range = '%s%s_%s%sins%s' % (aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.insseq, args))
+    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+    #     r.format(q.op)
+
+    return records
 
 def annotate_insertion_gdna(args, q, db):
 
     """ annotate_duplication_gdna is also delegated by this """
-    rs = []
+    records = []
     for reg in describe(args, q, db):
 
         r = Record(is_var=True)
@@ -288,14 +291,15 @@ def annotate_insertion_gdna(args, q, db):
         else:
             r.set_csqn_byreg("Insertion")
 
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
-        
+        records.append(r)
+
+    format_records(records, q.op, args)
+    return records
+       
 
 def annotate_duplication_cdna(args, q, tpts, db):
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
         try:
 
@@ -343,15 +347,16 @@ def annotate_duplication_cdna(args, q, tpts, db):
         except SequenceRetrievalError:
             continue
         r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
-        found = True
-        format_one(r, rs, q.op, args)
-    format_all(rs, q.op, args)
+        records.append(r)
 
-    if not found:
-        r = Record(is_var=True)
-        r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+    format_records(records, q.op, args)
+
+    # if not found:
+    #     r = Record(is_var=True)
+    #     r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
+    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+    #     r.format(q.op)
+    return records
 
 def taa_ins_id(t, index, taa_insseq, args):
 

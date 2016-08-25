@@ -296,8 +296,7 @@ def annotate_frameshift(args, q, tpts, db):
         annotate_snv_protein(args, q, tpts, db)
         return
 
-    found = False
-    rs = []
+    records = []
     for t in tpts:
         try:
             r = _annotate_frameshift(args, q, t)
@@ -310,16 +309,16 @@ def annotate_frameshift(args, q, tpts, db):
         r.csqn.append("Frameshift")
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.pos, q.pos+(q.stop_index if q.stop_index>=0 else 0))
-        found = True
-        format_one(r, rs, q.op, args)
+        records.append(r)
 
-    format_all(rs, q.op, args)
-
-    if not found:
-        r = Record(is_var=True)
-        r.taa_range = format_fs(q, args)
-        r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-        r.format(q.op)
+    format_records(records, q.op, args)
+    # format_all(rs, q.op, args)
+    # if not found:
+    #     r = Record(is_var=True)
+    #     r.taa_range = format_fs(q, args)
+    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
+    #     r.format(q.op)
+    return records
 
 
 def format_fs(q, args):
