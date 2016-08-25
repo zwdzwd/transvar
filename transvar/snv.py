@@ -1,6 +1,9 @@
 """
 The MIT License
 
+Copyright (c) 2016
+Wanding Zhou (zhouwanding@gmail.com)
+
 Copyright (c) 2015
 The University of Texas MD Anderson Cancer Center
 Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
@@ -34,7 +37,23 @@ from describe import *
 from err import *
 from proteinseqs import *
 
+#############################
+###### cDNA annotation ######
+#############################
+
 def annotate_snv_cdna(args, q, tpts, db):
+
+    """annotate cDNA SNV
+
+    Args:
+        args: (argparse.Namespace): command line arguments
+        q (record.QuerySNV): query of a SNV
+        tpts (a list of transcript.Transcript): transcripts to consider
+        db (annoDB.AnnoDB): annotation database
+
+    Returns:
+        records (list of record.Record): a list of records
+    """
 
     found = False
     records = []
@@ -122,13 +141,47 @@ def annotate_snv_cdna(args, q, tpts, db):
         records.append(r)
 
     format_records(records, q.op, args)
-    # format_one(r, rs, q.op, args)
-    # format_all(rs, q.op, args)
-
-    # if not found:
-    # wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)_%s' % (len(tpts),gene_name)), q.op, args)
-
     return records
+
+
+################################
+###### protein annotation ######
+################################
+
+def annotate_snv_protein(args, q, tpts, db):
+
+    """annotate protein SNV
+
+    Args:
+        args: (argparse.Namespace): command line arguments
+        q (record.QuerySNV): query of a SNV
+        tpts (a list of transcript.Transcript): transcripts to consider
+        db (annoDB.AnnoDB): annotation database
+
+    Returns:
+        records (list of record.Record): a list of records
+    """
+    records = []
+    for t in tpts:
+        try:
+            r, c = _annotate_snv_protein(args, q, t, db)
+        except IncompatibleTranscriptError as e:
+            continue
+        except SequenceRetrievalError as e:
+            err_warn(e)
+            continue
+
+        r.gene = t.gene_name
+        r.strand = t.strand
+        # alternative should be based on actual alternative aa determined
+        set_taa_snv(r, q.pos, q.ref, r.taa_alt, args)
+        r.reg = RegCDSAnno(t, c)
+        
+        records.append(r)
+    
+    format_records(records, q.op, args)
+    return records
+
 
 def _annotate_snv_protein(args, q, t, db):
 
@@ -270,40 +323,22 @@ def __core_annotate_codon_snv(args, q, db):
             continue
         yield t, c
 
-def annotate_snv_protein(args, q, tpts, db):
-
-    records = []
-    for t in tpts:
-        try:
-            r, c = _annotate_snv_protein(args, q, t, db)
-        except IncompatibleTranscriptError as e:
-            continue
-        except SequenceRetrievalError as e:
-            err_warn(e)
-            continue
-
-        r.gene = t.gene_name
-        r.strand = t.strand
-        # alternative should be based on actual alternative aa determined
-        set_taa_snv(r, q.pos, q.ref, r.taa_alt, args)
-        r.reg = RegCDSAnno(t, c)
-        
-        records.append(r)
-    
-    format_records(records, q.op, args)
-    # format_one(r, rs, q.op, args)
-    # format_all(rs, q.op, args)
-
-    # if not found:
-    #     wrap_exception(Exception('no_valid_transcript_found'), q.op, args)
-    #     # r = Record(is_var=True)
-    #     # set_taa_snv(r, q.pos, q.ref, q.alt, args)
-    #     # r.info = 'no_valid_transcript_found'
-    #     # r.format(q.op)
-    return records
-
+#############################
+###### gDNA annotation ######
+#############################
 
 def annotate_snv_gdna(args, q, db):
+
+    """annotate gDNA SNV
+
+    Args:
+        args: (argparse.Namespace): command line arguments
+        q (record.QuerySNV): query of a SNV
+        db (annodb.AnnoDB): annotation database
+
+    Returns:
+        records (list of record.Record): a list of records
+    """
 
     gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
     if not q.ref:
@@ -329,71 +364,86 @@ def annotate_snv_gdna(args, q, db):
         db.query_dbsnp(r, q.pos, q.ref, q.alt if q.alt else None)
 
         if hasattr(reg, 't'):
-
-            c,p = reg.t.gpos2codon(q.pos)
-
-            r.tname = reg.t.format()
-            r.gene = reg.t.gene_name
-            r.strand = reg.t.strand
-            r.tnuc_pos = p
-
-            if c.strand == '+':
-                r.tnuc_ref = r.gnuc_ref
-                r.tnuc_alt = r.gnuc_alt
-            else:
-                r.tnuc_ref = complement(r.gnuc_ref)
-                r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
-
-            if r.gnuc_ref == r.gnuc_alt:
-                csqn_action = "Synonymous"
-            else:
-                csqn_action = "SNV"
-                
-            if not r.set_splice("mutated", csqn_action):
-                if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
-                    if c.seq in standard_codon_table:
-                        r.taa_ref = aaf(standard_codon_table[c.seq], args)
-                        r.taa_pos = c.index
-
-                        if args.aacontext>0 and r.taa_ref:
-                            aa1 = aaf(reg.t.taa_range2aa_seq(
-                                c.index-args.aacontext if c.index>=args.aacontext else 0, c.index-1), args)
-                            aa2 = aaf(reg.t.taa_range2aa_seq(c.index+1, c.index+args.aacontext), args)
-                            r.append_info('aacontext=%s[%s]%s' % (aa1, r.taa_ref, aa2))
-
-                        if q.alt:
-                            if c.strand == '+':
-                                alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
-                            else:
-                                alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
-
-                            r.taa_alt = aaf(codon2aa(alt_seq), args)
-                            if r.taa_alt != r.taa_ref:
-                                if r.taa_alt == '*':
-                                    r.csqn.append('Nonsense')
-                                else:
-                                    r.csqn.append('Missense')
-                            elif r.taa_alt:
-                                r.csqn.append('Synonymous')
-                            variant_protein_seq_sub(
-                                r, reg.t, args, r.taa_pos, r.taa_pos, r.taa_alt)
-                    else:
-                        r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)' % (c.seq, c.index, reg.t.cdslen()/3))
-
-                    r.append_info('codon_pos=%s' % (c.locformat(),))
-                    r.append_info('ref_codon_seq=%s' % c.seq)
-                else:
-                    r.csqn.append(r.reg.csqn()+"SNV")
+            r = annotate_snv_gdna_trannscript(reg, r, q, args)
         else:
             r.csqn.append(r.reg.csqn()+"SNV")
 
         records.append(r)
 
     format_records(records, q.op, args)
-
-    # format_one(r, rs, q.op, args)
-    # format_all(rs, q.op, args)
     return records
+
+def annotate_snv_gdna_trannscript(reg, r, q, args):
+
+    """annotate gDNA SNV at transcript region
+
+    Args:
+        reg (RegSpanAnno): span region
+        q (record.QuerySNV): query of SNV
+        r (record.Record): record to be updated
+        args (argparse.Namespace): command line arguments
+
+    Return:
+        r (record.Record): record
+    """
+
+    c,p = reg.t.gpos2codon(q.pos)
+
+    r.tname = reg.t.format()
+    r.gene = reg.t.gene_name
+    r.strand = reg.t.strand
+    r.tnuc_pos = p
+
+    if c.strand == '+':
+        r.tnuc_ref = r.gnuc_ref
+        r.tnuc_alt = r.gnuc_alt
+    else:
+        r.tnuc_ref = complement(r.gnuc_ref)
+        r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
+
+    if r.gnuc_ref == r.gnuc_alt:
+        csqn_action = "Synonymous"
+    else:
+        csqn_action = "SNV"
+
+    if not r.set_splice("mutated", csqn_action):
+        if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
+            if c.seq in standard_codon_table:
+                r.taa_ref = aaf(standard_codon_table[c.seq], args)
+                r.taa_pos = c.index
+
+                if args.aacontext>0 and r.taa_ref:
+                    aa1 = aaf(reg.t.taa_range2aa_seq(
+                        c.index-args.aacontext if c.index>=args.aacontext else 0, c.index-1), args)
+                    aa2 = aaf(reg.t.taa_range2aa_seq(c.index+1, c.index+args.aacontext), args)
+                    r.append_info('aacontext=%s[%s]%s' % (aa1, r.taa_ref, aa2))
+
+                if q.alt:
+                    if c.strand == '+':
+                        alt_seq = set_seq(c.seq, c.locs.index(q.pos), q.alt)
+                    else:
+                        alt_seq = set_seq(c.seq, 2-c.locs.index(q.pos), complement(q.alt))
+
+                    r.taa_alt = aaf(codon2aa(alt_seq), args)
+                    if r.taa_alt != r.taa_ref:
+                        if r.taa_alt == '*':
+                            r.csqn.append('Nonsense')
+                        else:
+                            r.csqn.append('Missense')
+                    elif r.taa_alt:
+                        r.csqn.append('Synonymous')
+                    variant_protein_seq_sub(
+                        r, reg.t, args, r.taa_pos, r.taa_pos, r.taa_alt)
+            else:
+                r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)'
+                              % (c.seq, c.index, reg.t.cdslen()/3))
+
+            r.append_info('codon_pos=%s' % (c.locformat(),))
+            r.append_info('ref_codon_seq=%s' % c.seq)
+        else:
+            r.csqn.append(r.reg.csqn()+"SNV")
+
+    return r
 
 def set_taa_snv(r, pos, ref, alt, args):
 
