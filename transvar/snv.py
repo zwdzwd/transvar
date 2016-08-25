@@ -349,7 +349,12 @@ def annotate_snv_gdna(args, q, db):
                 r.tnuc_ref = complement(r.gnuc_ref)
                 r.tnuc_alt = complement(r.gnuc_alt) if r.gnuc_alt else ''
 
-            if not r.set_splice("mutated", "SNV"):
+            if r.gnuc_ref == r.gnuc_alt:
+                csqn_action = "Synonymous"
+            else:
+                csqn_action = "SNV"
+                
+            if not r.set_splice("mutated", csqn_action):
                 if p.tpos == 0 and reg.t.transcript_type=='protein_coding':
                     if c.seq in standard_codon_table:
                         r.taa_ref = aaf(standard_codon_table[c.seq], args)
