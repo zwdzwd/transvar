@@ -58,7 +58,6 @@ def annotate_snv_cdna(args, q, tpts, db):
     found = False
     records = []
     gene_name = ""
-    # import pdb; pdb.set_trace()
     for t in tpts:
         qpos = t.tnuc_resolve_pos(q.pos)
         try:

@@ -299,6 +299,20 @@ def annotate_insertion_gdna(args, q, db):
 
 def annotate_duplication_cdna(args, q, tpts, db):
 
+    """Annotation cDNA duplication on all transcripts
+
+    Print or return records
+
+    Args:
+        args (argparse.Namespace): command line arguments
+        q (record.QueryDUP): query of duplication
+        tpts (lists of transcript.Transcript): transcripts
+        db (annodb.AnnoDB): annotation database
+
+    Returns:
+        records (list of record.Record): a list of records
+    """
+
     records = []
     for t in tpts:
         try:
@@ -350,12 +364,6 @@ def annotate_duplication_cdna(args, q, tpts, db):
         records.append(r)
 
     format_records(records, q.op, args)
-
-    # if not found:
-    #     r = Record(is_var=True)
-    #     r.tnuc_range = '%s_%sdup%s' % (q.beg, q.end, q.dupseq)
-    #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
-    #     r.format(q.op)
     return records
 
 def taa_ins_id(t, index, taa_insseq, args):
