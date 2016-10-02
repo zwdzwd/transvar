@@ -36,10 +36,19 @@ from snv import annotate_snv_protein
 import itertools
 alphabets = 'ACGT'
 
-def fuzzy_match_deletion(t, codon, q, args):
+class MatchedIndel:
 
-    matches = {}                # map right-aligned gDNA identifier to detailed information
-    for ds in [1,2]:            # probe deletion of length 1,2
+    def __init__(self):
+
+        self.gnuc_r = '.'       # right aligned gDNA id
+        self.gnuc_l = '.'
+        self.tnuc_r = '.'
+        self.tnuc_l = '.'
+        self.edit_length = 0
+
+def fuzzy_match_deletion(gid2match, t, codon, q, args):
+
+    for ds in [1,2,3,4]:        # probe deletion of length 1,2
         i = codon.index*3
         for j in xrange(i, max(0, i-10), -1):
             jb = j/3*3
@@ -60,7 +69,7 @@ def fuzzy_match_deletion(t, codon, q, args):
                     gnuc_beg_r, gnuc_end_r = gnuc_roll_right_del(t.chrm, gnuc_beg, gnuc_end)
                     gnuc_delseq_r = faidx.getseq(t.chrm, gnuc_beg_r, gnuc_end_r)
                     gnuc_id_r = gnuc_del_id(t.chrm, gnuc_beg_r, gnuc_end_r, args, gnuc_delseq=gnuc_delseq_r)
-                    if gnuc_id_r not in matches:
+                    if gnuc_id_r not in gid2match:
                         # compute gDNA id left aligned
                         gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(t.chrm, gnuc_beg, gnuc_end)
                         gnuc_delseq_l = faidx.getseq(t.chrm, gnuc_beg_l, gnuc_end_l)
@@ -81,12 +90,15 @@ def fuzzy_match_deletion(t, codon, q, args):
                             tnuc_delseq_r = reverse_complement(gnuc_delseq_l)
 
                         # cDNA representation
-                        matches[gnuc_id_r] = (
-                            gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l, args, gnuc_delseq_l),
-                            tnuc_del_id(p1r, p2r, args, tnuc_delseq_r),
-                            tnuc_del_id(p1l, p2l, args, tnuc_delseq_l))
-                        
-    return matches
+                        m = MatchedIndel()
+                        m.gnuc_r = gnuc_id_r
+                        m.gnuc_l = gnuc_del_id(t.chrm, gnuc_beg_l, gnuc_end_l, args, gnuc_delseq_l)
+                        m.tnuc_r = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
+                        m.tnuc_l = tnuc_del_id(p1l, p2l, args, tnuc_delseq_l)
+                        m.edit_length = len(gnuc_delseq_l)
+                        gid2match[m.gnuc_r] = m
+
+    return gid2match
 
 class FuzzyInsMatch():
 
@@ -135,7 +147,7 @@ def fuzzy_match_insertion_scan_loc(t, codon_index, ins_len, q):
     """ given insertion length, scan different insertion location """
     i = codon_index*3
     matched_seqs = []
-    # prime 10 insertion location before the channged aa
+    # prime 10 insertion locations before the channged aa
     for j in xrange(i, max(0,i-10), -1):
         matched_seq = fuzzy_match_insertion_aa_change(t, j, ins_len, q)
         if matched_seq:
@@ -145,70 +157,91 @@ def fuzzy_match_insertion_scan_loc(t, codon_index, ins_len, q):
 
     return matched_seqs
 
-def fuzzy_match_insertion_update_match(matches, t, insseq, j):
+def fs_insertion_format(t, insseq, tnuc_index):
+
+    """record insertion as a match to the queried frameshift
+    
+    Args:
+        t (transcript.Transcript): transcript
+        insseq (string): insertion nucleotide sequence
+        tnuc_index (integer): insertion position in the transcript
+
+    Returns:
+        m (MatchedIndel): matched indel
+    """
 
     t.ensure_position_array()
-
-    # if this is the first match and there is ambiguous base 'N'
-    # instantiate this by a normal base 'C' (since there 'C' is
-    # not involved in the stop codon and still keeping the 'N' in
-    # the candidate
-    # make sure that there is at least 1 output with no 'N'
-    if len(matches) == 0 and 'N' in insseq:
-        fuzzy_match_insertion_update_match(matches, t, insseq.replace('N','C'), j)
-
     gnuc_insseq = insseq if t.strand == '+' else reverse_complement(insseq)
     # note that t.np is 0-based
-    gnuc_ins = gnuc_set_ins_core(t.chrm, t.np[j-1] if t.strand == '+' else t.np[j], gnuc_insseq)
+    gnuc_ins = gnuc_set_ins_core(t.chrm, t.np[tnuc_index-1] if t.strand == '+' else t.np[tnuc_index], gnuc_insseq)
     tnuc_ins = tnuc_set_ins_core(gnuc_ins, t)
-    matches[gnuc_ins.right_align()] = (
-        gnuc_ins.left_align(),
-        tnuc_ins.right_align(),
-        tnuc_ins.left_align())
+    m = MatchedIndel()
+    m.gnuc_r = gnuc_ins.right_align()
+    m.gnuc_l = gnuc_ins.left_align()
+    m.tnuc_r = tnuc_ins.right_align()
+    m.tnuc_l = tnuc_ins.left_align()
+    m.edit_length = len(insseq)
+    m.o_insseq = insseq
+    m.o_tnuc_index = tnuc_index
+    return m
 
-def fuzzy_match_insertion(t, codon, q):
+def fuzzy_match_insertion(gid2match, t, codon, q):
 
-    matches = {}
+    """fuzzy match frame shift to insertion
+    
+    Args:
+        gid2match: gDNA identifier to all matched nucleotide change
+        t: transcript.Transcript
+        codon: codon.Codon
+        q: record.QueryFrameShift
+
+    Return:
+        update matches
+    """
 
     # prime the first changed aa, this involves
     # at most 5 base non-free insertion (those do not
-    #  interfere with reference bases to form new codons)
+    # interfere with reference bases to form new codons)
     mseqs = []
+    early_stop = False
     for ds in xrange(1,6):
         if len(mseqs) > 3000:
             break
         exact_match_found = False
+        # scan the insertion location and insertion sequence,
+        # has to match aa change,but not necessarily termination length
         mseq = fuzzy_match_insertion_scan_loc(t, codon.index, ds, q)
-        if mseq and [m for m in mseq if m.termlen == q.stop_index]:
-            for m in mseq:
-                if m.termlen == q.stop_index:
-                    fuzzy_match_insertion_update_match(matches, t, m.insseq, m.tnuc_pos)
+        if mseq and [ms for ms in mseq if ms.termlen == q.stop_index]:
+            for ms in mseq:
+                if ms.termlen == q.stop_index: # if they match the query, then early stop
+                    m = fs_insertion_format(t, ms.insseq, ms.tnuc_pos)
+                    gid2match[m.gnuc_r] = m
+                    early_stop = True
                     exact_match_found = True
         mseqs.extend(mseq)
         if exact_match_found:
             break
 
-    # early stop
-    if matches:
-        return matches
+    if early_stop:
+        return
 
     # cannot match first aa change
     # TODO: enlarge the search span for locations instead of giving up
     if not mseqs:
-        return {}
+        return
 
     max_termlen = max(m.termlen for m in mseqs)
     freefill_len = q.stop_index - max_termlen
     # determine additional insertion leading to the stop codon
     if freefill_len < 10:
-        for i, m in enumerate(mseqs):
-            if m.termlen == max_termlen:
-                k = 3-m.tnuc_pos%3
-                filled_insseq = m.insseq[:k]+'N'*(freefill_len*3)+m.insseq[k:]
-                # print i
-                fuzzy_match_insertion_update_match(matches, t, filled_insseq, m.tnuc_pos)
+        for i, ms in enumerate(mseqs):
+            if ms.termlen == max_termlen:
+                k = 3-ms.tnuc_pos%3
+                filled_insseq = ms.insseq[:k]+'N'*(freefill_len*3)+ms.insseq[k:]
+                m = fs_insertion_format(t, filled_insseq, ms.tnuc_pos)
+                gid2match[m.gnuc_r] = m
 
-    return matches
+    return
 
 def _annotate_frameshift(args, q, t):
 
@@ -245,36 +278,43 @@ def _annotate_frameshift(args, q, t):
     # print codon.index
     # print t.seq
 
-    matches = fuzzy_match_deletion(t, codon, q, args)
-    if not matches:
-        matches = fuzzy_match_insertion(t, codon, q)
-    if matches:
-        gmatches = sorted(matches.keys())
-        chosen = None
+    gid2match = {}    # map right-aligned gDNA identifier to detailed information
+    fuzzy_match_deletion(gid2match, t, codon, q, args)
+    fuzzy_match_insertion(gid2match, t, codon, q)
 
-        # get a match without 'N'
-        for i, gnuc_range in enumerate(gmatches):
-            if 'N' not in gnuc_range:
-                r.gnuc_range = gnuc_range
-                chosen = i
-                break
+    if gid2match:               # fuzzy match succeeded
+        matches = gid2match.values()
 
-        gnuc_id_l, tnuc_id_r, tnuc_id_l = matches[r.gnuc_range]
-        r.tnuc_range = tnuc_id_r
-        r.append_info('left_align_cDNA=c.%s' % tnuc_id_l)
-        r.append_info('left_align_gDNA=g.%s' % gnuc_id_l)
+        # prioritize by edit length
+        matches = sorted(matches, key=lambda m:m.edit_length)
+        chosen = matches[0]
+        if 'N' in chosen.gnuc_r:      # all matches are with 'N'
+            # if there is ambiguous base 'N'
+            # instantiate this by a normal base 'C' (since there 'C' is
+            # not involved in the stop codon and still keeping the 'N' in
+            # the candidate
+            chosen = fs_insertion_format(t, chosen.o_insseq.replace('N','C'), chosen.o_tnuc_index)
+
+        r.gnuc_range = chosen.gnuc_r
+        r.tnuc_range = chosen.tnuc_r
+        r.append_info('left_align_cDNA=c.%s' % chosen.tnuc_l)
+        r.append_info('left_align_gDNA=g.%s' % chosen.gnuc_l)
+
+        # output other candidates if they exist until args.nc
         if len(matches) > 1:
+
             cands = []
-            for k in xrange(0,min(args.nc,len(gmatches))):
+            for k in xrange(0,min(args.nc,len(matches))):
                 if k == chosen:
                     continue
-                gnuc_id_r = gmatches[k]
-                gnuc_id_l, tnuc_id_r, tnuc_id_l = matches[gnuc_id_r]
-                cands.append('g.%s/c.%s/g.%s/c.%s' % (gnuc_id_r, tnuc_id_r, gnuc_id_l, tnuc_id_l))
+                m = matches[k]
+                cands.append('g.%s/c.%s/g.%s/c.%s' % (
+                    m.gnuc_r, m.tnuc_r, m.gnuc_l, m.tnuc_l))
             r.append_info('candidates=%s' % ','.join(cands))
             if len(matches) > args.nc:
                 r.append_info('%d_CandidatesOmitted' % (len(matches)-args.nc))
-    else:
+    else:                       # fuzzy match failed
+        
         tnuc_beg = (codon.index-1)*3+1
         tnuc_end = (q.pos+q.stop_index)*3 # may be out of bound
         r.tnuc_range = '(%d_%d)' % (tnuc_beg, tnuc_end)
