@@ -186,18 +186,39 @@ Block substitution
 Frame-shift variants
 ^^^^^^^^^^^^^^^^^^^^^^^
 
+Frame-shift variants can be results of either insertion or deletion. In the cases where both are plausible the variants are prioritized by the length of the insertion/deletion. Mutations of smallest variants are given as the most likely inference. Other candidates are in given in the `candidates` field.
+
+.. code:: bash
+
+   $ transvar panno --refseq -i 'PTEN:p.T319fs*1'
+
+::
+
+
+In this example, both deletion `c.950_953delTACT` and insertion `c.954_955insTA` are possible. Both insertion involves fewer nucleotides and is chosen as the most likely inference. Deletion is given in the `candidates` tag.
+
+The `candidates` field shows the right-aligned genomic, right-aligned cDNA, left-aligned genomic and left-aligned cDNA identifiers separated by `/`.
+
 .. code:: bash
 
    $ transvar panno --ccds -i 'A1BG:p.G132fs*2'
-
-The `candidate` field shows the right-aligned genomic, right-aligned cDNA, left-aligned genomic and left-aligned cDNA identifiers separated by `/`.
 
 ::
 
    A1BG:p.G132fs*2	CCDS12976 (protein_coding)	A1BG	-
       chr19:g.58863868delC/c.395delG/p.G132fs*2	inside_[cds_in_exon_4]
       CSQN=Frameshift;left_align_cDNA=c.394delG;left_align_gDNA=g.58863867delC;cand
-      idates=g.58863873delG/c.393delC/g.58863869delG/c.389delC;source=CCDS
+      idates=g.58863873delG/c.393delC/g.58863869delG/c.389delC,g.58863867_58863868i
+      nsTAAT/c.394_395insATTA/g.58863867_58863868insTAAT/c.394_395insATTA,g.5886386
+      7_58863868insTAGT/c.394_395insACTA/g.58863867_58863868insTAGT/c.394_395insACT
+      A,g.58863867_58863868insTACA/c.394_395insTGTA/g.58863867_58863868insTACA/c.39
+      4_395insTGTA,g.58863867_58863868insTATG/c.394_395insCATA/g.58863867_58863868i
+      nsTATG/c.394_395insCATA,g.58863867_58863868insTACG/c.394_395insCGTA/g.5886386
+      7_58863868insTACG/c.394_395insCGTA,g.58863867_58863868insTAAG/c.394_395insCTT
+      A/g.58863867_58863868insTAAG/c.394_395insCTTA,g.58863867_58863868insTAAA/c.39
+      4_395insTTTA/g.58863867_58863868insTAAA/c.394_395insTTTA,g.58863867_58863868i
+      nsTAGG/c.394_395insCCTA/g.58863867_58863868insTAGG/c.394_395insCCTA;4_Candida
+      tesOmitted;source=CCDS
 
 Frameshift variants can be difficult since there might be too many valid underlying nucleotide variants. 
 Suppose we have a relatively long insertion,
@@ -245,22 +266,22 @@ would return more than 80 underlying variants. In this case the argument `--max-
 ::
 
    WT1:p.A170Cfs*70	CCDS55751 (protein_coding)	WT1	-
-      chr11:g.32417908_32417909insTTGGGGCA/c.507_508insTGCCCCAA/p.A170Cfs*70	inside_[cds_in_exons_[7,8,9]]
-      CSQN=Frameshift;left_align_cDNA=c.507_508insTGCCCCAA;left_align_gDNA=g.324179
-      08_32417909insTTGGGGCA;candidates=g.32417908_32417909insAANNNACA/c.507_508ins
-      TGTNNNTT/g.32417908_32417909insAANNNACA/c.507_508insTGTNNNTT,g.32417908_32417
-      909insAANNNGCA/c.507_508insTGCNNNTT/g.32417908_32417909insAANNNGCA/c.507_508i
-      nsTGCNNNTT,g.32417908_32417909insACNNNACA/c.507_508insTGTNNNGT/g.32417908_324
-      17909insACNNNACA/c.507_508insTGTNNNGT,g.32417908_32417909insACNNNGCA/c.507_50
-      8insTGCNNNGT/g.32417908_32417909insACNNNGCA/c.507_508insTGCNNNGT,g.32417908_3
-      2417909insAGNNNACA/c.507_508insTGTNNNCT/g.32417908_32417909insAGNNNACA/c.507_
-      508insTGTNNNCT,g.32417908_32417909insAGNNNGCA/c.507_508insTGCNNNCT/g.32417908
-      _32417909insAGNNNGCA/c.507_508insTGCNNNCT,g.32417908_32417909insATNNNACA/c.50
-      7_508insTGTNNNAT/g.32417908_32417909insATNNNACA/c.507_508insTGTNNNAT,g.324179
-      08_32417909insATNNNGCA/c.507_508insTGCNNNAT/g.32417908_32417909insATNNNGCA/c.
-      507_508insTGCNNNAT,g.32417908_32417909insGANNNACA/c.507_508insTGTNNNTC/g.3241
-      7908_32417909insGANNNACA/c.507_508insTGTNNNTC,g.32417908_32417909insGANNNGCA/
-      c.507_508insTGCNNNTC/g.32417908_32417909insGANNNGCA/c.507_508insTGCNNNTC;79_C
+      chr11:g.32417909_32417910insCAGGGCAG/c.506_507insCTGCCCTG/p.A170Cfs*70	inside_[cds_in_exons_[7,8,9]]
+      CSQN=Frameshift;left_align_cDNA=c.506_507insCTGCCCTG;left_align_gDNA=g.324179
+      09_32417910insCAGGGCAG;candidates=g.32417909_32417910insCANNNCAG/c.506_507ins
+      CTGNNNTG/g.32417909_32417910insCANNNCAG/c.506_507insCTGNNNTG,g.32417908_32417
+      909insGAANNNCA/c.507_508insTGNNNTTC/g.32417908_32417909insGAANNNCA/c.507_508i
+      nsTGNNNTTC,g.32417909_32417910insCANNNCAC/c.507_508insTGNNNTGG/g.32417908_324
+      17909insCCANNNCA/c.506_507insGTGNNNTG,g.32417909_32417910insTANNNCAC/c.507_50
+      8insTGNNNTAG/g.32417908_32417909insCTANNNCA/c.506_507insGTGNNNTA,g.32417909_3
+      2417910insCANNNCAA/c.506_507insTTGNNNTG/g.32417909_32417910insCANNNCAA/c.506_
+      507insTTGNNNTG,g.32417909_32417910insTANNNCAG/c.506_507insCTGNNNTA/g.32417909
+      _32417910insTANNNCAG/c.506_507insCTGNNNTA,g.32417912_32417913insAGNNNCTT/c.50
+      3_504insAAGNNNCT/g.32417912_32417913insAGNNNCTT/c.503_504insAAGNNNCT,g.324179
+      10_32417911insGCACNNNG/c.506_507insNNNGTGCC/g.32417909_32417910insGGCACNNN/c.
+      505_506insCNNNGTGC,g.32417908_32417909insTCANNNCA/c.507_508insTGNNNTGA/g.3241
+      7908_32417909insTCANNNCA/c.507_508insTGNNNTGA,g.32417910_32417911insGCAANNNG/
+      c.506_507insNNNTTGCC/g.32417909_32417910insGGCAANNN/c.505_506insCNNNTTGC;72_C
       andidatesOmitted;source=CCDS
 
 Sometimes the alternative amino acid can be missing
@@ -272,31 +293,31 @@ Sometimes the alternative amino acid can be missing
 ::
 
    ADAMTSL1:p.I396fs*30	CCDS6485 (protein_coding)	ADAMTSL1	+
-      chr9:g.18680354_18680355insA/c.1181_1182insA/p.I396fs*30	inside_[cds_in_exon_11]
-      CSQN=Frameshift;left_align_cDNA=c.1181_1182insA;left_align_gDNA=g.18680354_18
-      680355insA;candidates=g.18680354_18680355insC/c.1181_1182insC/g.18680354_1868
-      0355insC/c.1181_1182insC,g.18680354_18680355insT/c.1181_1182insT/g.18680354_1
-      8680355insT/c.1181_1182insT,g.18680357_18680358insA/c.1184_1185insA/g.1868035
-      7_18680358insA/c.1184_1185insA,g.18680357_18680358insT/c.1184_1185insT/g.1868
-      0357_18680358insT/c.1184_1185insT,g.18680357dupG/c.1184dupG/g.18680349_186803
-      50insG/c.1176_1177insG,g.18680358_18680359insG/c.1185_1186insG/g.18680358_186
-      80359insG/c.1185_1186insG,g.18680358_18680359insT/c.1185_1186insT/g.18680358_
-      18680359insT/c.1185_1186insT,g.18680358dupC/c.1185dupC/g.18680357_18680358ins
-      C/c.1184_1185insC,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360
-      insC/c.1186_1187insC;3_CandidatesOmitted;source=CCDS
+      chr9:g.18680360_18680361insG/c.1187_1188insG/p.I396fs*30	inside_[cds_in_exon_11]
+      CSQN=Frameshift;left_align_cDNA=c.1187_1188insG;left_align_gDNA=g.18680360_18
+      680361insG;candidates=g.18680359dupA/c.1186dupA/g.18680358_18680359insA/c.118
+      5_1186insA,g.18680358dupC/c.1185dupC/g.18680357_18680358insC/c.1184_1185insC,
+      g.18680358_18680359insT/c.1185_1186insT/g.18680358_18680359insT/c.1185_1186in
+      sT,g.18680357_18680358insA/c.1184_1185insA/g.18680357_18680358insA/c.1184_118
+      5insA,g.18680357_18680358insT/c.1184_1185insT/g.18680357_18680358insT/c.1184_
+      1185insT,g.18680357dupG/c.1184dupG/g.18680349_18680350insG/c.1176_1177insG,g.
+      18680354_18680355insT/c.1181_1182insT/g.18680354_18680355insT/c.1181_1182insT
+      ,g.18680358_18680359insG/c.1185_1186insG/g.18680358_18680359insG/c.1185_1186i
+      nsG,g.18680354_18680355insA/c.1181_1182insA/g.18680354_18680355insA/c.1181_11
+      82insA;3_CandidatesOmitted;source=CCDS
    ADAMTSL1:p.I396fs*30	CCDS47954 (protein_coding)	ADAMTSL1	+
-      chr9:g.18680354_18680355insA/c.1181_1182insA/p.I396fs*30	inside_[cds_in_exon_11]
-      CSQN=Frameshift;left_align_cDNA=c.1181_1182insA;left_align_gDNA=g.18680354_18
-      680355insA;candidates=g.18680354_18680355insC/c.1181_1182insC/g.18680354_1868
-      0355insC/c.1181_1182insC,g.18680354_18680355insT/c.1181_1182insT/g.18680354_1
-      8680355insT/c.1181_1182insT,g.18680357_18680358insA/c.1184_1185insA/g.1868035
-      7_18680358insA/c.1184_1185insA,g.18680357_18680358insT/c.1184_1185insT/g.1868
-      0357_18680358insT/c.1184_1185insT,g.18680357dupG/c.1184dupG/g.18680349_186803
-      50insG/c.1176_1177insG,g.18680358_18680359insG/c.1185_1186insG/g.18680358_186
-      80359insG/c.1185_1186insG,g.18680358_18680359insT/c.1185_1186insT/g.18680358_
-      18680359insT/c.1185_1186insT,g.18680358dupC/c.1185dupC/g.18680357_18680358ins
-      C/c.1184_1185insC,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360
-      insC/c.1186_1187insC;3_CandidatesOmitted;source=CCDS
+      chr9:g.18680360_18680361insG/c.1187_1188insG/p.I396fs*30	inside_[cds_in_exon_11]
+      CSQN=Frameshift;left_align_cDNA=c.1187_1188insG;left_align_gDNA=g.18680360_18
+      680361insG;candidates=g.18680359dupA/c.1186dupA/g.18680358_18680359insA/c.118
+      5_1186insA,g.18680358dupC/c.1185dupC/g.18680357_18680358insC/c.1184_1185insC,
+      g.18680358_18680359insT/c.1185_1186insT/g.18680358_18680359insT/c.1185_1186in
+      sT,g.18680357_18680358insA/c.1184_1185insA/g.18680357_18680358insA/c.1184_118
+      5insA,g.18680357_18680358insT/c.1184_1185insT/g.18680357_18680358insT/c.1184_
+      1185insT,g.18680357dupG/c.1184dupG/g.18680349_18680350insG/c.1176_1177insG,g.
+      18680354_18680355insT/c.1181_1182insT/g.18680354_18680355insT/c.1181_1182insT
+      ,g.18680358_18680359insG/c.1185_1186insG/g.18680358_18680359insG/c.1185_1186i
+      nsG,g.18680354_18680355insA/c.1181_1182insA/g.18680354_18680355insA/c.1181_11
+      82insA;3_CandidatesOmitted;source=CCDS
 
 
 TransVar can also take protein identifiers such as  as input. For example,
@@ -309,9 +330,9 @@ TransVar can also take protein identifiers such as  as input. For example,
 ::
 
    NP_006266.2:p.G240Afs*50	NM_006275 (protein_coding)	SRSF6	+
-      chr20:g.42089385delA/c.717delA/p.G240Afs*50	inside_[cds_in_exon_6]
-      CSQN=Frameshift;left_align_cDNA=c.714delA;left_align_gDNA=g.42089382delA;cand
-      idates=g.42089387delG/c.719delG/g.42089386delG/c.718delG;dbxref=GeneID:6431,H
+      chr20:g.42089387delG/c.719delG/p.G240Afs*50	inside_[cds_in_exon_6]
+      CSQN=Frameshift;left_align_cDNA=c.718delG;left_align_gDNA=g.42089386delG;cand
+      idates=g.42089385delA/c.717delA/g.42089382delA/c.714delA;dbxref=GeneID:6431,H
       GNC:10788,HPRD:09054,MIM:601944;aliases=NP_006266;source=RefSeq
 
 The output gives the exact details of the mutation on the DNA levels, properly right-aligned. The `candidates` fields also include other equally-likely mutation identifiers. `candidates` have the format `[right-align-gDNA]/[right-align-cDNA]/[left-align-gDNA]/[left-align-cDNA]` for each hit and `,` separation between hits. 
@@ -325,12 +346,12 @@ Similar applies when the underlying mutation is an insertion. TransVar can infer
 ::
 
    AASS:p.I355Mfs*10	CCDS5783 (protein_coding)	AASS	-
-      chr7:g.121753753_121753754insCC/c.1064_1065insGG/p.I355Mfs*10	inside_[cds_in_exon_9]
-      CSQN=Frameshift;left_align_cDNA=c.1064_1065insGG;left_align_gDNA=g.121753753_
-      121753754insCC;candidates=g.121753753_121753754insGC/c.1064_1065insGC/g.12175
-      3753_121753754insGC/c.1064_1065insGC,g.121753753_121753754insTC/c.1064_1065in
-      sGA/g.121753753_121753754insTC/c.1064_1065insGA,g.121753754_121753755insCA/c.
-      1064_1065insGT/g.121753753_121753754insAC/c.1063_1064insTG;source=CCDS
+      chr7:g.121753753_121753754insGC/c.1064_1065insGC/p.I355Mfs*10	inside_[cds_in_exon_9]
+      CSQN=Frameshift;left_align_cDNA=c.1064_1065insGC;left_align_gDNA=g.121753753_
+      121753754insGC;candidates=g.121753754_121753755insCA/c.1064_1065insGT/g.12175
+      3753_121753754insAC/c.1063_1064insTG,g.121753753_121753754insCC/c.1064_1065in
+      sGG/g.121753753_121753754insCC/c.1064_1065insGG,g.121753753_121753754insTC/c.
+      1064_1065insGA/g.121753753_121753754insTC/c.1064_1065insGA;source=CCDS
 
 When the alternative becomes a stop codon, frameshift mutation becomes a nonsense mutation:
 
