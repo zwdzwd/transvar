@@ -230,14 +230,18 @@ def fuzzy_match_insertion(gid2match, t, codon, q):
     if not mseqs:
         return
 
+    # determine additional insertion leading to the stop codon
+    # pad N to make the length-to-terminal match
     max_termlen = max(m.termlen for m in mseqs)
     freefill_len = q.stop_index - max_termlen
-    # determine additional insertion leading to the stop codon
+    # if the identifier requires too many N to make the length-to-terminal
+    # it is not likely to be the real one, threshold used here is 10
     if freefill_len < 10:
         for i, ms in enumerate(mseqs):
             if ms.termlen == max_termlen:
-                k = 3-ms.tnuc_pos%3
+                k = 3-(ms.tnuc_pos+1)%3
                 filled_insseq = ms.insseq[:k]+'N'*(freefill_len*3)+ms.insseq[k:]
+                # print ms, filled_insseq, ms.tnuc_pos, 3-(ms.tnuc_pos+1)%3
                 m = fs_insertion_format(t, filled_insseq, ms.tnuc_pos)
                 gid2match[m.gnuc_r] = m
 
