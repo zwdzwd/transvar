@@ -308,8 +308,9 @@ def _annotate_frameshift(args, q, t):
                 if k == chosen:
                     continue
                 m = matches[k]
-                cands.append('g.%s/c.%s/g.%s/c.%s' % (
-                    m.gnuc_r, m.tnuc_r, m.gnuc_l, m.tnuc_l))
+                if m.gnuc_r != chosen.gnuc_r:
+                    cands.append('g.%s/c.%s/g.%s/c.%s' % (
+                        m.gnuc_r, m.tnuc_r, m.gnuc_l, m.tnuc_l))
             r.append_info('candidates=%s' % ','.join(cands))
             if len(matches) > args.nc:
                 r.append_info('%d_CandidatesOmitted' % (len(matches)-args.nc))
