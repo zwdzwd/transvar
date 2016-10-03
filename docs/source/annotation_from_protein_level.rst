@@ -194,6 +194,13 @@ Frame-shift variants can be results of either insertion or deletion. In the case
 
 ::
 
+   PTEN:p.T319fs*1	NM_000314 (protein_coding)	PTEN	+
+      chr10:g.89720803_89720804insTA/c.954_955insTA/p.T319fs*1	inside_[cds_in_exon_8]
+      CSQN=Frameshift;left_align_cDNA=c.954_955insTA;left_align_gDNA=g.89720803_897
+      20804insTA;candidates=g.89720803_89720804insTG/c.954_955insTG/g.89720803_8972
+      0804insTG/c.954_955insTG,g.89720804_89720807delACTT/c.955_958delACTT/g.897207
+      99_89720802delTACT/c.950_953delTACT;dbxref=GeneID:5728,HGNC:9588,MIM:601728;a
+      liases=NP_000305;source=RefSeq
 
 In this example, both deletion `c.950_953delTACT` and insertion `c.954_955insTA` are possible. Both insertion involves fewer nucleotides and is chosen as the most likely inference. Deletion is given in the `candidates` tag.
 
