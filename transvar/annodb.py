@@ -27,10 +27,10 @@ SOFTWARE.
 
 """
 
-from transcripts import *
-from localdb import TransVarDB
-import parser
-from cPickle import load
+from .transcripts import *
+from .localdb import TransVarDB
+from . import parser
+from pickle import load
 
 class AnnoDB():
 

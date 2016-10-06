@@ -26,12 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
-from transcripts import *
-from utils import *
-from record import *
-from err import *
-from snv import annotate_snv_protein
+from __future__ import division
+from .transcripts import *
+from .utils import *
+from .record import *
+from .err import *
+from .snv import annotate_snv_protein
 
 import itertools
 alphabets = 'ACGT'
@@ -50,12 +50,12 @@ def fuzzy_match_deletion(gid2match, t, codon, q, args):
 
     for ds in [1,2,3,4]:        # probe deletion of length 1,2
         i = codon.index*3
-        for j in xrange(i, max(0, i-10), -1):
-            jb = j/3*3
+        for j in range(i, max(0, i-10), -1):
+            jb = j//3*3
             old_seq = t.seq[jb:]
             new_seq = t.seq[jb:j]+t.seq[j+ds:]
             tnuc_delseq = t.seq[j:j+ds]
-            aae = t.extend_taa_seq(j/3+1, old_seq, new_seq)
+            aae = t.extend_taa_seq(j//3+1, old_seq, new_seq)
             if aae:
                 if (q.ref == aae.taa_ref and ((not q.alt) or q.alt == aae.taa_alt)
                     and q.stop_index == aae.termlen and q.pos == aae.taa_pos):
@@ -119,15 +119,15 @@ def fuzzy_match_insertion_aa_change(t, j, ins_len, q):
     j is the tnuc location of insertion
     ins_len is the nucleotide length of insertion
     """
-    jb = j/3*3
+    jb = j//3*3
     old_seq = t.seq[jb:]
     match_seq = []
     termlen_match = False
     for _insseq in itertools.product(alphabets, repeat=ins_len):
         insseq = ''.join(_insseq)
         new_seq = t.seq[jb:j]+insseq+t.seq[j:]
-        aae = t.extend_taa_seq(j/3+1, old_seq, new_seq)
-        if (aae and 
+        aae = t.extend_taa_seq(j//3+1, old_seq, new_seq)
+        if (aae and
             (((not q.alt) or aae.taa_alt == q.alt) and q.ref == aae.taa_ref
              and q.pos == aae.taa_pos and aae.termlen <= q.stop_index)):
             m = FuzzyInsMatch()
@@ -148,7 +148,7 @@ def fuzzy_match_insertion_scan_loc(t, codon_index, ins_len, q):
     i = codon_index*3
     matched_seqs = []
     # prime 10 insertion locations before the channged aa
-    for j in xrange(i, max(0,i-10), -1):
+    for j in range(i, max(0,i-10), -1):
         matched_seq = fuzzy_match_insertion_aa_change(t, j, ins_len, q)
         if matched_seq:
             for m in matched_seq:
@@ -160,7 +160,7 @@ def fuzzy_match_insertion_scan_loc(t, codon_index, ins_len, q):
 def fs_insertion_format(t, insseq, tnuc_index):
 
     """record insertion as a match to the queried frameshift
-    
+
     Args:
         t (transcript.Transcript): transcript
         insseq (string): insertion nucleotide sequence
@@ -188,7 +188,7 @@ def fs_insertion_format(t, insseq, tnuc_index):
 def fuzzy_match_insertion(gid2match, t, codon, q):
 
     """fuzzy match frame shift to insertion
-    
+
     Args:
         gid2match: gDNA identifier to all matched nucleotide change
         t: transcript.Transcript
@@ -204,7 +204,7 @@ def fuzzy_match_insertion(gid2match, t, codon, q):
     # interfere with reference bases to form new codons)
     mseqs = []
     early_stop = False
-    for ds in xrange(1,6):
+    for ds in range(1,6):
         if len(mseqs) > 3000:
             break
         exact_match_found = False
@@ -287,7 +287,7 @@ def _annotate_frameshift(args, q, t):
     fuzzy_match_insertion(gid2match, t, codon, q)
 
     if gid2match:               # fuzzy match succeeded
-        matches = gid2match.values()
+        matches = list(gid2match.values())
 
         # prioritize by edit length
         matches = sorted(matches, key=lambda m:m.edit_length)
@@ -308,7 +308,7 @@ def _annotate_frameshift(args, q, t):
         if len(matches) > 1:
 
             cands = []
-            for k in xrange(0,min(args.nc,len(matches))):
+            for k in range(0,min(args.nc,len(matches))):
                 if k == chosen:
                     continue
                 m = matches[k]
@@ -319,7 +319,7 @@ def _annotate_frameshift(args, q, t):
             if len(matches) > args.nc:
                 r.append_info('%d_CandidatesOmitted' % (len(matches)-args.nc))
     else:                       # fuzzy match failed
-        
+
         tnuc_beg = (codon.index-1)*3+1
         tnuc_end = (q.pos+q.stop_index)*3 # may be out of bound
         r.tnuc_range = '(%d_%d)' % (tnuc_beg, tnuc_end)
@@ -367,7 +367,7 @@ def annotate_frameshift(args, q, tpts, db):
 
 
 def format_fs(q, args):
-    
+
     if q.stop_index >= 0:
         return '%s%d%sfs*%d' % (aaf(q.ref, args), q.pos, aaf(q.alt, args), q.stop_index)
     else:

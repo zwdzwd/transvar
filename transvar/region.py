@@ -29,11 +29,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
-from err import *
-from record import *
-from transcripts import *
-from describe import *
+from __future__ import division
+from .err import *
+from .record import *
+from .transcripts import *
+from .describe import *
 
 def annotate_region_cdna_transcript1(args, q, t, db):
 
@@ -83,7 +83,7 @@ def annotate_region_cdna_transcript1(args, q, t, db):
 
     # g-syntax
     if r.gnuc_beg != r.gnuc_end:
-        r.gnuc_range = '%d_%d%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq) 
+        r.gnuc_range = '%d_%d%s' % (r.gnuc_beg, r.gnuc_end, r.refrefseq)
     else:
         r.gnuc_range = '%d%s' % (r.gnuc_beg, r.refrefseq)
 
@@ -97,7 +97,7 @@ def annotate_region_cdna_transcript1(args, q, t, db):
     if hasattr(r.reg, 'cover_cds') and r.reg.cover_cds:
         c1, p1 = t.intronic_lean(q.beg, 'c_greater')
         c2, p2 = t.intronic_lean(q.end, 'c_smaller')
-        
+
         if c1.index == c2.index:
             r.taa_pos = c1.index
             r.taa_ref = aaf(codon2aa(c1.seq), args)
@@ -371,7 +371,7 @@ def annotate_region_gdna_genic_span(args, q, reg):
     return r
 
 def annotate_region_gdna_intergenic_span(args, q, reg):
-    
+
     """annotate gDNA intergenic span
     Print or return records
 
@@ -415,7 +415,7 @@ def annotate_region_gdna(args, q, db):
 
     """Annotate gDNA region
     Print or return records
-    
+
     Args:
         args (argparse.Namespace): command line arguments
         q (record.QueryREG): query of region
@@ -451,7 +451,7 @@ def annotate_region_gdna(args, q, db):
             raise Exception()              # shouldn't reach
 
         records.append(r)
-    
+
     format_records(records, q.op, args)
 
     return records
@@ -476,7 +476,7 @@ def annotate_gene(args, q, tpts, db):
         r.append_info('#exons=%d' % len(t.exons))
         if t.transcript_type == 'protein_coding':
             r.append_info('cds=%s:%d_%d' % (t.chrm, t.cds_beg, t.cds_end))
-            r.taa_range = '%s%d_%s%d' % (aaf(t.taa2aa(1), args), 1, aaf(t.taa2aa(t.cdslen()/3), args), t.cdslen()/3)
+            r.taa_range = '%s%d_%s%d' % (aaf(t.taa2aa(1), args), 1, aaf(t.taa2aa(t.cdslen()//3), args), t.cdslen()//3)
             if args.pp or args.ppp:
                 r.append_info('ref_protein_seq=%s' % aaf(t.get_proteinseq(), args))
             if t.cdslen() % 3 != 0:
@@ -485,7 +485,7 @@ def annotate_gene(args, q, tpts, db):
         r.strand = t.strand
         r.tname = t.format()
         r.reg = 'whole_transcript'
-        
+
         records.append(r)
 
     format_records(records, q.op, args)

@@ -108,10 +108,6 @@ if havesetuptools:
 exec(open('transvar/version.py').read())
 
 def main():
-    if float(sys.version[:3])<2.6 or float(sys.version[:3])>=2.8:
-        sys.stderr.write("CRITICAL: Python version must be 2.6 or 2.7!\n")
-        sys.exit(1)
-        
     ext_modules = [
         Extension("transvar.tabix",
                   sources = [

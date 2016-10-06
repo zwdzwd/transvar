@@ -28,8 +28,8 @@ SOFTWARE.
 """
 
 import re, sys
-from utils import *
-from err import *
+from .utils import *
+from .err import *
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
@@ -92,7 +92,7 @@ class RegAnno():
     """
 
     def __init__(self):
-        self.exonic = False 
+        self.exonic = False
         self.exon = None
         self.cds = False        # whether in CDS
         self.UTR = None         # '3' or '5'
@@ -120,7 +120,7 @@ class RegAnno():
         return self.cds
 
     def csqn(self):
-        """ generate csqn based on region, this gets called 
+        """ generate csqn based on region, this gets called
         usually when there is no amino acid change """
         if self.intronic:
             return "Intronic"
@@ -170,7 +170,7 @@ class RegIntergenicAnno():
         self.e5_name = None
         self.e5_dist = None
         self.e5_strand = None
-        
+
         self.e3_name = None
         self.e3_dist = None
         self.e3_strand = None
@@ -206,14 +206,14 @@ class RegIntergenicAnno():
         return 'inside_[%s]' % (self.format0(),)
 
 def same_region(r1, r2):
-    
+
     return ((r1.format() == r2.format()) and
             ((not hasattr(r1,'t')) or (not hasattr(r2,'t')) or r1.t == r2.t))
 
 class RegCDSAnno():
 
-    """ Annotation of a region or a site in codon level 
-    rather than nucleotide level used in annotating 
+    """ Annotation of a region or a site in codon level
+    rather than nucleotide level used in annotating
     protein regions/sites/changes
     """
 
@@ -231,7 +231,7 @@ class RegCDSAnno():
 
     def from_taa_range(self, taa_beg, taa_end):
         self.exons = self.t._tnuc_range2exon_inds(taa_beg*3-2, taa_end*3)
-        
+
     def format0(self):
 
         s = ''
@@ -290,7 +290,7 @@ class RegSpanAnno():
     #             self.b1.intergenic[1] == self.b2.intergenic[1])
 
     def csqn(self):
-        """ generate csqn based on region, this gets called 
+        """ generate csqn based on region, this gets called
         usually when there is no amino acid change """
 
         # TODO: check if the span is large and cover many splice sites.
@@ -336,28 +336,28 @@ class RegSpanAnno():
 
         # if self.in_UTR():
         #     f = append_inf(f, '%s-UTR' % self.b1.UTR)
-            
+
         # if self.in_exon():
         #     if self.b1.cds and self.b2.cds:
         #         f = append_inf(f, 'CDS_%d' % self.b1.exon)
         #     else:
         #         f = append_inf(f, 'Exonic_%d' % self.b1.exon)
-                
+
         # elif self.in_intron():
         #     f = append_inf(f, self.b1.format())
         #     # f = append_inf(f, 'Intronic_%d_%d' %
         #     #                (self.b1.intron_exon1, self.b1.intron_exon2))
-            
+
         # elif self.intergenic():
         #     f = append_inf(f, 'intergenic_%s' % self.b1.intergenic)
-            
+
         # else:
         #     f = append_inf(f, 'from_[%s]_to_[%s]' % (self.b1.format(), self.b2.format()))
 
         # return f
 
 class SpliceSite():
-    
+
     def __init__(self):
         self.chrm   = "chrNA"
         self.pos    = -1
@@ -433,7 +433,7 @@ class QueryGENE(Query):
 
         super(QueryGENE, self).__init__()
         self.gene = ''
-        
+
 class QueryREG(Query):
 
     def __init__(self):
@@ -513,7 +513,7 @@ class QueryDUP(Query):
 
 def normalize_reg(q):
 
-    """ create a sensable region 
+    """ create a sensable region
     respect to the length of the chromosome """
 
     if q.beg > reflen(q.tok):
@@ -525,18 +525,18 @@ def normalize_reg(q):
         q.end = reflen(q.tok)
     if q.beg < 0:
         err_warn('region beg %d negative, truncated to 0.')
-        q.beg = 0    
+        q.beg = 0
     if q.end < 0:
         err_warn('region end %d negative, truncated to 0.')
-        q.end = 0    
+        q.end = 0
 
 template = "{r.tname}\t{r.gene}\t{r.strand}\t{gnuc}/{tnuc}/{taa}\t{reg}\t{r.info}"
 def print_header_s():
     return 'transcript\tgene\tstrand\tcoordinates(gDNA/cDNA/protein)\tregion\tinfo'
-    
+
 def print_header():
     return 'input\t'+print_header_s()
-    
+
 class Record():
 
     def __init__(self, is_var=False):
@@ -665,14 +665,14 @@ class Record():
                 if csqn_action != "Synonymous":
                     expt = True
                 self.append_info('transcription_end_at_%s:%d' % (self.reg.t.chrm, self.reg.tes))
-        
+
         return expt
 
     def set_csqn_byreg(self, action=""):
         self.csqn.append(self.reg.csqn()+action)
 
     def gnuc(self):
-        
+
         """ format in chr1:A12345T """
         s = self.chrm+':g.'
         if hasattr(self, 'gnuc_range') and self.gnuc_range:
@@ -704,14 +704,14 @@ class Record():
 
         s = op+'\t' if op else ''
         s += self.formats()
-        
+
         try:
-            print s
+            print(s)
         except IOError:
             sys.exit(1)
 
     def formats(self):
-        
+
         if self.is_var:
             if len(self.csqn) == 0:
                 self.prepend_info("CSQN=Unclassified")
@@ -727,7 +727,7 @@ class Record():
                 self.append_info('aliases=%s' % ','.join(self.reg.t.aliases))
             if self.reg.t.source:
                 self.append_info('source=%s' % self.reg.t.source)
-        
+
         return template.format(r=self, reg=self.reg.format(),
                                gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
 
@@ -736,7 +736,7 @@ def format_one(r, rs, qop, args):
         r.format(qop)
     else:
         rs.append(r.formats())
-    
+
 def format_records(records, qop, args):
 
     """Print records"""
@@ -746,7 +746,7 @@ def format_records(records, qop, args):
             s = qop+'\t' if qop else ''
             s += '\t|||\t'.join([r.formats() for r in records])
             try:
-                print s
+                print(s)
             except IOError:
                 sys.exit(1)
         else:
@@ -759,8 +759,8 @@ def format_records(records, qop, args):
 
 def wrap_exception(e, op, args):
     r = Record()
-    r.append_info("Error_"+e.message)
-    err_warn(e.message)
+    r.append_info("Error_"+str(e))
+    err_warn(str(e))
     r.format(op)
     if args.suspend:
         raise e

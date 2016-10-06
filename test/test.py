@@ -97,9 +97,9 @@ for ifn in ifns:
             result, err = p.communicate()
             result = result.strip()
 
-            print
-            print '======'+line+'======'
-            print result
+            print()
+            print('======'+line+'======')
+            print(result)
             # print '\n'.join([rr for rr in result.split('\n') if not (len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'))])
             tofill = True
             blank = 0
@@ -129,13 +129,13 @@ for ifn in ifns:
                 if newfill != oldfill:
                     # print len(newfill)
                     # print len(oldfill)
-                    print '\n+++ OLD +++'
-                    print oldfill
-                    print '\n+++ NEW +++'
-                    print newfill
-                    raw_input("Difference ...")
+                    print('\n+++ OLD +++')
+                    print(oldfill)
+                    print('\n+++ NEW +++')
+                    print(newfill)
+                    input("Difference ...")
                 else:
-                    print "\nSame!\n"
+                    print("\nSame!\n")
 
                 ofh.write(newfill+'\n')
                 # ofh.write('```\n')

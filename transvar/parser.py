@@ -27,7 +27,7 @@ SOFTWARE.
 
 """
 
-from transcripts import *
+from .transcripts import *
 
 def parse_ucsc_refgene(map_file, name2gene):
 
@@ -56,8 +56,8 @@ def parse_ucsc_refgene(map_file, name2gene):
         t.source = 'UCSC_refGene'
         ex_begs, ex_ends = fields[9], fields[10]
 
-        for ex_beg, ex_end in zip(map(lambda x: int(x)+1, ex_begs.strip(',').split(',')),
-                                  map(int, ex_ends.strip(',').split(','))):
+        for ex_beg, ex_end in zip([int(x)+1 for x in ex_begs.strip(',').split(',')],
+                                  list(map(int, ex_ends.strip(',').split(',')))):
             t.exons.append((ex_beg, ex_end))
             
         t.exons.sort() # keep exons sorted
@@ -94,8 +94,8 @@ def parse_ucsc_refgene_customized(map_file, name2gene):
         t.name = '.'
         ex_begs, ex_ends = fields[8], fields[9]
 
-        for ex_beg, ex_end in zip(map(int, ex_begs.split(',')),
-                                  map(int, ex_ends.split(','))):
+        for ex_beg, ex_end in zip(list(map(int, ex_begs.split(','))),
+                                  list(map(int, ex_ends.split(',')))):
             t.exons.append((ex_beg, ex_end))
             
         t.exons.sort() # keep exons sorted
@@ -336,7 +336,7 @@ def parse_ensembl_gtf_hg18(gtf_fn, name2gene):
                 cnt += 1
             t.cds.append((int(fields[3]), int(fields[4])))
 
-    for t in tid2transcript.values():
+    for t in list(tid2transcript.values()):
         t.exons.sort()
         t.beg = t.exons[0][0]
         t.end = t.exons[-1][1]
@@ -423,8 +423,8 @@ def parse_ucsc_kg_table(kg_fn, alias_fn, name2gene):
         t.cds_end = int(fields[6])
         t.source = 'UCSC_knownGene'
         ex_begs, ex_ends = fields[8], fields[9]
-        for ex_beg, ex_end in zip(map(int, ex_begs.strip(',').split(',')),
-                                  map(int, ex_ends.strip(',').split(','))):
+        for ex_beg, ex_end in zip(list(map(int, ex_begs.strip(',').split(','))),
+                                  list(map(int, ex_ends.strip(',').split(',')))):
             t.exons.append((ex_beg, ex_end))
         t.exons.sort()
         g.tpts.append(t)
@@ -548,7 +548,7 @@ def parse_aceview_transcripts(aceview_gff_fn, name2gene):
             t.exons.append((int(fields[3]), int(fields[4])))
 
     # skip transcripts without CDS, e.g., LOC391566.aAug10-unspliced
-    for tid, t in id2tpt.iteritems():
+    for tid, t in id2tpt.items():
         if t.cds and t.exons:
             t.exons.sort()
             t.beg = t.exons[0][0]
@@ -612,7 +612,7 @@ def parse_annotation(args):
 
     # remove genes without transcripts
     names_no_tpts = []
-    for name, gene in name2gene.iteritems():
+    for name, gene in name2gene.items():
         # print gene, len(gene.tpts)
         if not gene.tpts:
             names_no_tpts.append(name)
@@ -647,7 +647,7 @@ def parse_annotation(args):
     if args.uniprot:
         tid2uniprot = parse_uniprot_mapping(args.uniprot)
         name2protein = {}
-        for name, gene in name2gene.iteritems():
+        for name, gene in name2gene.items():
             for tpt in gene.tpts:
                 if tpt.name in tid2uniprot:
                     uniprot = tid2uniprot[tpt.name]

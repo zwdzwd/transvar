@@ -29,7 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from utils import *
+from .utils import *
 
 def variant_protein_seq_sub(r, t, args, taa_beg, taa_end, taa_alt):
 

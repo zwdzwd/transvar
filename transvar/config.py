@@ -27,11 +27,11 @@ SOFTWARE.
 
 """
 
-import ConfigParser
+import configparser
 import subprocess
 import os, sys
-import urllib2
-from err import *
+import urllib.request, urllib.error, urllib.parse
+from .err import *
 
 samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
 
@@ -142,7 +142,7 @@ fns[('mm10', 'raw')] = [
 
 # build anno topics
 fns2 = []
-for (refv, topic), vs in fns.iteritems():
+for (refv, topic), vs in fns.items():
     if topic == 'raw':          # convert all the raw files
         vs2 = []
         for k, fn, url in vs:
@@ -181,9 +181,9 @@ def download_url(url, file_name):
     # file_name = url.split('/')[-1]
     # try:
     if hasattr(ssl, '_create_unverified_context'):
-        u = urllib2.urlopen(url, context=ssl._create_unverified_context())
+        u = urllib.request.urlopen(url, context=ssl._create_unverified_context())
     else:
-        u = urllib2.urlopen(url)
+        u = urllib.request.urlopen(url)
 
     # except urllib2.URLError:
     # return
@@ -209,7 +209,7 @@ def download_url(url, file_name):
         # status = status + chr(8)*(len(status)+1)
         progress = float(file_size_dl)/raw_file_size
 
-    print 'Done (%1.1f MB).' % (file_size_dl/1000000., )
+    print('Done (%1.1f MB).' % (file_size_dl/1000000., ))
     f.close()
 
 def download_requests(url, file_name):
@@ -227,7 +227,7 @@ def download_requests(url, file_name):
                 n += len(chunk)
                 fd.write(chunk)
 
-        print 'Done (%1.1f MB).' % (n/1000000., )
+        print('Done (%1.1f MB).' % (n/1000000., ))
 
 def config_set(config, section, option, value):
 
@@ -312,7 +312,7 @@ def download_anno_topic_ensembl(args, config):
         species = [os.path.basename(o) for o in ftp.nlst("%s/gtf/" % esroot)]
         for i, sp in enumerate(species):
             err_print('[%d] %s' % (i,sp))
-        choice = raw_input("Please choose your target taxon [%d]: " % species.index("homo_sapiens"))
+        choice = input("Please choose your target taxon [%d]: " % species.index("homo_sapiens"))
         if not choice:
             choice = species.index('homo_sapiens')
         choice = int(choice)
@@ -342,7 +342,7 @@ def download_anno_topic_ensembl(args, config):
     config_set(config, rv, 'reference', genodir+'/'+genoname[:-3])
 
     err_print("Indexing GTF")
-    import localdb
+    from . import localdb
     db = localdb.EnsemblDB()
     db.index([gtfdir+'/'+gtfname])
     config_set(config, rv, 'ensembl', gtfdir+'/'+gtfname+'.transvardb')
@@ -350,13 +350,13 @@ def download_anno_topic_ensembl(args, config):
     config.set('DEFAULT', 'refversion', rv)
 
 def read_config():
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(cfg_fns)
     return config
 
 def main(args):
 
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(cfg_fns)
 
     if args.k and args.v:
@@ -407,7 +407,7 @@ def main(args):
 
 def main_current(args):
 
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(cfg_fns)
     if args.refversion != 'DEFAULT':
         rv = args.refversion
@@ -416,13 +416,13 @@ def main_current(args):
     else:
         err_die("no default reference version set.")
 
-    print "reference version: %s" % rv
+    print("reference version: %s" % rv)
     if 'reference' in config.options(rv):
-        print 'reference: %s' % config.get(rv, 'reference')
-    print "Available databases: "
+        print('reference: %s' % config.get(rv, 'reference'))
+    print("Available databases: ")
     for op in config.options(rv):
         if op not in ['refversion', 'reference']:
-            print '%s: %s' % (op, config.get(rv, op))
+            print('%s: %s' % (op, config.get(rv, op)))
 
     return
 
