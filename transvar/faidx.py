@@ -103,6 +103,12 @@ def getseq(chrm, beg, end):
     global refgenome
     return refgenome.fetch_sequence(chrm, beg, end)
 
+def reflen(chrm):
+    try:
+        return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
+    except KeyError:
+        raise WrongReferenceError("Invalid_reference_%s" % chrm)
+
 class SeqBuf():
 
     def __init__(self, chrm, p):

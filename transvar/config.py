@@ -30,8 +30,12 @@ SOFTWARE.
 import configparser
 import subprocess
 import os, sys
-import urllib.request, urllib.error, urllib.parse
 from .err import *
+
+from future.standard_library import install_aliases
+install_aliases()
+from urllib.request import urlopen
+# import urllib.request, urllib.error, urllib.parse
 
 samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
 
@@ -181,9 +185,9 @@ def download_url(url, file_name):
     # file_name = url.split('/')[-1]
     # try:
     if hasattr(ssl, '_create_unverified_context'):
-        u = urllib.request.urlopen(url, context=ssl._create_unverified_context())
+        u = urlopen(url, context=ssl._create_unverified_context())
     else:
-        u = urllib.request.urlopen(url)
+        u = urlopen(url)
 
     # except urllib2.URLError:
     # return

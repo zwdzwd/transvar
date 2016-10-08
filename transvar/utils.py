@@ -28,7 +28,6 @@ SOFTWARE.
 """
 from __future__ import division
 import sys
-from . import faidx
 from .err import *
 import tabix
 
@@ -155,12 +154,6 @@ def aaf(aaseq, args, use_list=False):
         return aa_1to3(aaseq, use_list=use_list)
     else:
         return aaseq
-
-def reflen(chrm):
-    try:
-        return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
-    except KeyError:
-        raise WrongReferenceError("Invalid_reference_%s" % chrm)
 
 def printseq(seq, args):
 

@@ -127,6 +127,9 @@ def main():
               ),
     ]
 
+    install_requires = ['future']
+    if sys.version_info[0] < 3:
+        install_requires.append('configparser')
 
     setup(
         name = "TransVar",
@@ -155,7 +158,7 @@ def main():
         cmdclass = cmdclass,
         platforms = "Linux, OSX",
         # long_description = """ """
-        # install_requires=['numpy>=1.6']
+        install_requires=install_requires,
     )
 
 if __name__ == '__main__':
