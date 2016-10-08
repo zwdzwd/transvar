@@ -97,7 +97,7 @@ for ifn in ifns:
             result, err = p.communicate()
             result = result.strip()
 
-            print()
+            print('\n')
             print('======'+line+'======')
             print(result)
             # print '\n'.join([rr for rr in result.split('\n') if not (len(rr.strip()) == 0 or rr.startswith('[') or rr.startswith('input'))])
