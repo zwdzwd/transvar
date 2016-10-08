@@ -146,7 +146,7 @@ def main():
         ext_modules = ext_modules,
         classifiers = [
             "Programming Language :: Python",
-            "Development Status :: 4 - Beta",
+            "Development Status :: 6 - Mature",
             "Intended Audience :: Developers",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: MIT License",
