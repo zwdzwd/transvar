@@ -36,12 +36,13 @@ class SSWAln:
     def __repr__(self):
         return "<Align sc:%d q:[%d-%d] r:[%d-%d] cigar:%s>" % (self.score, self.qbeg, self.qend, self.rbeg, self.rend, str(self.cigar))
 
-    
+from builtins import bytes    
 def ssw_aln(qseq, rseq, gap=False):
     if gap:
-        _aln = ssw.aln_gap(qseq, rseq)
+        _aln = ssw.aln_gap(qseq.encode('ascii'), rseq.encode('ascii'))
     else:
-        _aln = ssw.aln(qseq, rseq)
+        _aln = ssw.aln(qseq.encode('ascii'), rseq.encode('ascii'))
+
     aln = SSWAln()
     aln.score = _aln.contents.score
     aln.qbeg  = _aln.contents.qbeg

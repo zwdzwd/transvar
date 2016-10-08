@@ -276,6 +276,7 @@ def describe_genic_range(args, chrm, beg, end, t, db, genes):
         if beg <= t.cds_end and end >= t.cds_end:
             reg.cross_end = True
 
+        reg.cover_exon = False
         for exon in t.exons:
             if exon[0] <= end and exon[1] >= beg:
                 reg.cover_exon = True

@@ -105,7 +105,8 @@ def getseq(chrm, beg, end):
 
 def reflen(chrm):
     try:
-        return faidx.refgenome.faidx[normalize_chrm(chrm)][0]
+        global refgenome
+        return refgenome.faidx[normalize_chrm(chrm)][0]
     except KeyError:
         raise WrongReferenceError("Invalid_reference_%s" % chrm)
 

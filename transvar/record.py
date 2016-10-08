@@ -28,6 +28,7 @@ SOFTWARE.
 """
 
 import re, sys
+from .faidx import *
 from .utils import *
 from .err import *
 import locale
