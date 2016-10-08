@@ -26,10 +26,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
+from __future__ import division
 import sys
-import faidx
-from err import *
+from . import faidx
+from .err import *
 import tabix
 
 MAXCHRMLEN=300000000
@@ -131,7 +131,7 @@ aa_1to3_table = {
 def aa_3to1(aaseq):
 
     aaseq1 = ''
-    for i in xrange(len(aaseq)/3):
+    for i in range(len(aaseq)//3):
         aa = aaseq[3*i:3*i+3]
         aaseq1 += aa_3to1_table[aa]
 
@@ -184,11 +184,11 @@ class THash():
 
     def insert(self, t):
         chrm = normalize_chrm(t.chrm)
-        for ki in xrange(t.cds_beg/self.binsize, t.cds_end/self.binsize+1):
+        for ki in range(t.cds_beg//self.binsize, t.cds_end//self.binsize+1):
             k = (chrm, ki)
             self.add_transcript_by_key(k, t)
-        # k1 = (chrm, t.cds_beg / self.binsize)
-        # k2 = (chrm, t.cds_end / self.binsize)
+        # k1 = (chrm, t.cds_beg // self.binsize)
+        # k2 = (chrm, t.cds_end // self.binsize)
         # if k1 == k2:
         #     self.add_transcript_by_key(k1, t)
         # else:
@@ -196,14 +196,14 @@ class THash():
         #     self.add_transcript_by_key(k2, t)
 
     def get_transcripts_cds(self, chrm, beg, end=None, flanking=0):
-        
+
         """ get transcript if between CDS beginning and end """
         if not end: end = beg
         chrm = normalize_chrm(chrm)
-        kbeg = int(beg) / self.binsize
-        kend = int(end) / self.binsize
+        kbeg = int(beg) // self.binsize
+        kend = int(end) // self.binsize
         ts = []
-        for ki in xrange(kbeg, kend+1):
+        for ki in range(kbeg, kend+1):
             k = (chrm, ki)
             if k in self.key2transcripts:
                 for t in self.key2transcripts[k]:
@@ -217,10 +217,10 @@ class THash():
 
         if not end: end = beg
         chrm = normalize_chrm(chrm)
-        kbeg = int(beg) / self.binsize
-        kend = int(end) / self.binsize
+        kbeg = int(beg) // self.binsize
+        kend = int(end) // self.binsize
         ts = []
-        for ki in xrange(kbeg, kend+1):
+        for ki in range(kbeg, kend+1):
             k = (chrm, ki)
             # print ki, kbeg, kend, k
             if k in self.key2transcripts:
@@ -233,7 +233,7 @@ class THash():
     def get_closest_transcripts_upstream(self, chrm, pos):
         pos = int(pos)
         chrm = normalize_chrm(chrm)
-        for ki in xrange(pos/self.binsize, -1, -1):
+        for ki in range(pos//self.binsize, -1, -1):
             k = (chrm, ki)
             if k in self.key2transcripts:
                 tpts = [t for t in self.key2transcripts[k] if t.end < pos]
@@ -245,7 +245,7 @@ class THash():
     def get_closest_transcripts_downstream(self, chrm, pos):
         pos = int(pos)
         chrm = normalize_chrm(chrm)
-        for ki in xrange(pos/self.binsize, MAXCHRMLEN/self.binsize, 1):
+        for ki in range(pos//self.binsize, MAXCHRMLEN//self.binsize, 1):
             k = (chrm, ki)
             if k in self.key2transcripts:
                 tpts = [t for t in self.key2transcripts[k] if t.beg > pos]
@@ -253,7 +253,7 @@ class THash():
                     tpts.sort(key=lambda t: t.beg)
                     return tpts[0]
         return None
-    
+
     # def get_closest_transcripts(self, chrm, beg, end):
 
     #     """ closest transcripts upstream and downstream """
@@ -271,8 +271,8 @@ class THash():
     #     if tpt.chrm not in self.chrm2bin:
     #         self.chrm2bin[tpt.chrm] = [[]]*self.bins
     #     else:
-    #         bin1 = self.chrm2bin[tpt.chrm][tpt.cds_beg/self.binsize]
-    #         bin2 = self.chrm2bin[tpt.chrm][tpt.cds_end/self.binsize]
+    #         bin1 = self.chrm2bin[tpt.chrm][tpt.cds_beg//self.binsize]
+    #         bin2 = self.chrm2bin[tpt.chrm][tpt.cds_end//self.binsize]
     #         if bin1 == bin2:
     #             bin1.append(tpt)
     #         else:
@@ -285,7 +285,7 @@ class THash():
     #         return []
 
     #     tpts = []
-    #     for tpt in self.chrm2bin[chrm][pos / self.binsize]:
+    #     for tpt in self.chrm2bin[chrm][pos // self.binsize]:
     #         if tpt.cds_beg <= pos and tpt.cds_end >= pos:
     #             if std and tpt != tpt.gene.std_tpt:
     #                 continue
@@ -319,7 +319,7 @@ class THash():
 #         while True:
 #             t = chrm2transcripts[i]
 #             if t.beg > t: break
-#             if t.end 
+#             if t.end
 #             if t.end >= pos:
 #                 l.append(t)
 #             i += 1
@@ -330,7 +330,7 @@ def get_config(config, option, rv=None):
     if not config.has_section(rv):
         err_warn('%s (%s) has no default value, please specify' % (option, rv))
         return None
-    
+
     if config.has_option(rv, option):
         return config.get(rv, option)
     else:
@@ -372,7 +372,7 @@ class Indices:
         for start, end in self.spans:
             if not end:
                 end = len(lst)
-            result.extend([lst[_] for _ in xrange(start, end)])
+            result.extend([lst[_] for _ in range(start, end)])
 
         return result
 
@@ -396,7 +396,7 @@ def parse_indices(indstr):
 
 
 def opengz(fn):
-    
+
     if fn.endswith('.gz'):
         import gzip
         fh = gzip.open(fn)

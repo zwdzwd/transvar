@@ -26,15 +26,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
-from err import *
-from record import *
-from transcripts import *
-from describe import *
-from insertion import taa_set_ins, annotate_insertion_gdna
-from deletion import taa_set_del, annotate_deletion_gdna
-from snv import annotate_snv_gdna
-from proteinseqs import *
+from __future__ import division
+from .err import *
+from .record import *
+from .transcripts import *
+from .describe import *
+from .insertion import taa_set_ins, annotate_insertion_gdna
+from .deletion import taa_set_del, annotate_deletion_gdna
+from .snv import annotate_snv_gdna
+from .proteinseqs import *
 
 def annotate_mnv_cdna(args, q, tpts, db):
 
@@ -143,7 +143,7 @@ def annotate_mnv_protein(args, q, tpts, db):
         except SequenceRetrievalError:
             continue
         r.taa_range = '%s%s_%s%sdelins%s' % (
-            aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
+            aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq,
         r.reg = RegCDSAnno(t)
         r.reg.from_taa_range(q.beg, q.end)
 
@@ -151,17 +151,17 @@ def annotate_mnv_protein(args, q, tpts, db):
 
     format_records(records, q.op, args)
     return records
-    
+
     # if not found:
     #     r = Record(is_var=True)
     #     r.taa_range = '%s%s_%s%sdelins%s' % (
-    #         aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq, 
+    #         aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq,
     #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
 
     #     r.format(q.op)
 
 def decompose_mut(q):
-    import ssw
+    from . import ssw
     # print q.altseq
     # print q.refseq
     aln = ssw.ssw_aln(q.altseq, q.refseq)
@@ -177,7 +177,7 @@ def decompose_mut(q):
             _altseq = ''
             _refseq = ''
             _coords = []
-            for i in xrange(cl):
+            for i in range(cl):
                 if q.altseq[qpos+i] == q.refseq[rpos+i]:
                     _altseq += ' '
                     _refseq += ' '
@@ -186,7 +186,7 @@ def decompose_mut(q):
                         _coords.append(i)
                     _altseq += q.altseq[qpos+i]
                     _refseq += q.refseq[rpos+i]
-            ss = zip(_coords, _altseq.strip().split(), _refseq.strip().split())
+            ss = list(zip(_coords, _altseq.strip().split(), _refseq.strip().split()))
             for j, alt, ref in ss:
                 if len(ref) == 1:
                     qq = QuerySNV()
@@ -231,7 +231,7 @@ def annotate_mnv_gdna(args, q, db):
     # check reference sequence
     gnuc_refseq = faidx.refgenome.fetch_sequence(q.tok, q.beg, q.end)
     if q.refseq and gnuc_refseq != q.refseq:
-        
+
         r = Record(is_var=True)
         r.chrm = q.tok
         r.pos = '%d-%d' % (q.beg, q.end)
@@ -239,12 +239,12 @@ def annotate_mnv_gdna(args, q, db):
         r.format(q.op)
         err_print("Warning: %s invalid reference %s (expect %s), maybe wrong reference?" % (q.op, q.refseq, gnuc_refseq))
         return
-    
+
     else:                       # make sure q.refseq exists
         q.refseq = gnuc_refseq
 
     if args.haplotype:
-        import anno
+        from . import anno
         for qq in decompose_mut(q):
             qq.op = q.op
             qq.tok = q.tok
@@ -335,7 +335,7 @@ def annotate_mnv_gdna(args, q, db):
                     tnames.append(reg.b1.t.name)
                     strands.append(reg.b1.t.strand)
                     genes.append(reg.b1.t.gene_name)
-                    
+
             if hasattr(reg.b2, 't'):
                 if reg.b2.t.name not in tnames:
                     tnames.append(reg.b2.t.name)
@@ -362,8 +362,8 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
         # altseq follows the tnuc (cDNA) order
         # set taa range
 
-        beg_codon_index = (beg + 2) / 3
-        end_codon_index = (end + 2) / 3
+        beg_codon_index = (beg + 2) // 3
+        end_codon_index = (end + 2) // 3
 
         beg_codon_beg = beg_codon_index*3 - 2
         end_codon_end = end_codon_index*3 # 1 past the last codon
@@ -373,12 +373,12 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 
         if beg_codon_index == end_codon_index:
             r.append_info('codon_cDNA=%s' %
-                          '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
+                          '-'.join(map(str, list(range(beg_codon_beg, beg_codon_beg+3)))))
         else:
             r.append_info('begin_codon_cDNA=%s' %
-                          '-'.join(map(str, range(beg_codon_beg, beg_codon_beg+3))))
+                          '-'.join(map(str, list(range(beg_codon_beg, beg_codon_beg+3)))))
             r.append_info('end_codon_cDNA=%s' %
-                          '-'.join(map(str, range(end_codon_end-2, end_codon_end+1))))
+                          '-'.join(map(str, list(range(end_codon_end-2, end_codon_end+1)))))
 
         if len(old_seq) % 3 != 0:
             # raise IncompatibleTranscriptError(beg, end, len(t.seq))
@@ -435,7 +435,7 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 
     else:                   # frame-shift
 
-        beg_codon_index = (beg + 2) / 3
+        beg_codon_index = (beg + 2) // 3
         beg_codon_beg = beg_codon_index * 3 - 2
         old_seq = t.seq[beg_codon_beg-1:]
         new_seq = t.seq[beg_codon_beg-1:beg-1]+altseq+t.seq[end:]

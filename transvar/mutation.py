@@ -28,9 +28,9 @@ SOFTWARE.
 """
 
 import re, sys, argparse
-from utils import *
-from record import *
-from err import *
+from .utils import *
+from .record import *
+from .err import *
 
 def _parse_gdna_mutation(s):
 

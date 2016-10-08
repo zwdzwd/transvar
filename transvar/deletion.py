@@ -26,12 +26,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from transcripts import *
-from utils import *
-from record import *
+from .transcripts import *
+from .utils import *
+from .record import *
 from copy import copy
-from describe import *
-from proteinseqs import *
+from .describe import *
+from .proteinseqs import *
 
 # TODO: refactor left-right align
 class GNucDeletion():

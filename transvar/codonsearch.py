@@ -27,15 +27,15 @@ SOFTWARE.
 
 """
 import sys, re, argparse
-from mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
-from parser import parser_add_annotation
-from annodb import AnnoDB
-from transcripts import *
-from err import *
-from utils import *
-from config import read_config
-from snv import __core_annotate_codon_snv
-from record import Query, QueryREG
+from .mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
+from .parser import parser_add_annotation
+from .annodb import AnnoDB
+from .transcripts import *
+from .err import *
+from .utils import *
+from .config import read_config
+from .snv import __core_annotate_codon_snv
+from .record import Query, QueryREG
 
 outformat="{altid}\t{chrm}\t{codon1}\t{codon2}\t{tptstr}"
 
@@ -49,7 +49,7 @@ def _main_core_(args, q, db):
 
     for t1, c1 in __core_annotate_codon_snv(args, q, db):
         # search any of the 3 positions
-        for cind in xrange(3):
+        for cind in range(3):
             gpos = c1.locs[cind]
             for t2 in db.get_transcripts(t1.chrm, gpos):
                 c2, p = t2.gpos2codon(gpos)
@@ -70,18 +70,18 @@ def _main_core_(args, q, db):
                 else:
                     k2transcripts[k] = [tpair]
 
-    for k, tpairs in k2transcripts.iteritems():
+    for k, tpairs in k2transcripts.items():
         altid, chrm, c1, c2 = k
         if q.op: s = q.op+'\t'
         else: s = ''
         s += outformat.format(altid=altid, tptstr=','.join(tpairs), chrm=chrm,
                               codon1='-'.join(map(str,c1)), codon2='-'.join(map(str,c2)))
-        print s
+        print(s)
 
 def main_list(args, db): #name2gene, thash):
 
     if not args.noheader:
-        print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
+        print('origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice')
     for q, line in list_parse_mutation(args, 'p'):
 
         genefound = False
@@ -100,7 +100,7 @@ def main_list(args, db): #name2gene, thash):
 def main_one(args, db): #name2gene, thash):
 
     if not args.noheader:
-        print 'origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice'
+        print('origin_id\talt_id\tchrm\tcodon1\tcodon2\ttranscripts_choice')
     q = parse_tok_mutation_str(args.i, 'p')
     q.op = args.i
     genefound = False

@@ -26,14 +26,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-import argparse
-import parser
+from . import argparse
+from . import parser
 import sys
 import re, os
-from utils import *
-from transcripts import *
-from cPickle import load, dump
-import faidx
+from .utils import *
+from .transcripts import *
+from pickle import load, dump
+from . import faidx
 import tabix
 import subprocess
 
@@ -59,10 +59,10 @@ class TransVarDB():
         self.dbfh = open(self.dbfn)
 
         idxfn = dbfn+'.gene_idx'
-        self.gene_idx = load(open(idxfn))
+        self.gene_idx = load(open(idxfn, 'rb'))
 
         idxfn = dbfn+'.trxn_idx'
-        self.trnx_idx = load(open(idxfn))
+        self.trnx_idx = load(open(idxfn, 'rb'))
 
         self.alias_idx = None
         self.loc_idx = None
@@ -149,11 +149,11 @@ class TransVarDB():
     ########################################################
     # retrieve transcripts by gene name or transcript name #
     ########################################################
-            
+
     def get(self, name, lvl=1):
 
         """ get by either gene name or transcript name """
-        
+
         nohit = True
         for g in self.get_by_gene(name):
             nohit = False
@@ -170,7 +170,7 @@ class TransVarDB():
             m = p_trxn_version.match(name)
             if m:
                 _name = m.group(1)
-                
+
             for g in self.get_by_alias(_name):
                 nohit = False
                 yield g
@@ -238,8 +238,8 @@ class TransVarDB():
                     g = Gene(t.gene_name)
                     name2gene[g.name] = g
                 g.link_t(t)
-                
-            for g in name2gene.itervalues():
+
+            for g in name2gene.values():
                 yield g
 
     ##############################################
@@ -252,7 +252,7 @@ class TransVarDB():
             if not os.path.exists(idx_fn):
                 err_die("Missing location index. Consider rerunning the transvar index command")
             self.loc_idx = tabix.open(idx_fn)
-    
+
     def _iloc_query(self, chrm, beg, end):
 
         self._ensure_loc_idx()
@@ -266,12 +266,12 @@ class TransVarDB():
         chrm = normalize_chrm(chrm)
         for fields in self._iloc_query(chrm,beg-flanking,end+flanking):
             yield self.parse_trnx_loc(fields)
-            
+
     def get_closest_upstream(self, chrm, pos):
         pos = int(pos)
         chrm = normalize_chrm(chrm)
         s = 50000
-        for p in xrange(pos, -1, -s):
+        for p in range(pos, -1, -s):
             fs = [f for f in self._iloc_query(chrm, p-s, p) if int(f[2])<pos]
             if fs:
                 fs.sort(key=lambda f:int(f[2]), reverse=True)
@@ -283,7 +283,7 @@ class TransVarDB():
         chrm = normalize_chrm(chrm)
         s = 50000
         chrmlen = faidx.refgenome.chrm2len(chrm)
-        for p in xrange(pos, chrmlen, s):
+        for p in range(pos, chrmlen, s):
             fs = [f for f in self._iloc_query(chrm, p, p+s) if int(f[1])>pos]
             if fs:
                 fs.sort(key=lambda f:int(f[1]))
@@ -298,7 +298,7 @@ class TransVarDB():
     #####################################
     # index transcripts from raw files ##
     #####################################
-    
+
     def index(self, raw_fns):
 
         # each class that subclassed TransVarDB should have parse_raw
@@ -311,7 +311,7 @@ class TransVarDB():
         dbfn = raw_fns[0]+'.transvardb'
         dbfh = open(dbfn, 'w')
         gene_idx = {}
-        trnx_idx = {} 
+        trnx_idx = {}
         alias_idx = {}
         tpts = []
         for name in names:
@@ -381,7 +381,7 @@ class FeatureDB():
                     continue
                 outfile.write('%s\t%s\t%s\t%s\n' % (
                     normalize_chrm(fields[0]), fields[1], fields[2], fields[3]))
-                
+
     def parse_gff(self, gff_fn, db_fn):
 
         """ GFF: seqname, source, feature, start, end, score, strand, frame, attribute
@@ -398,7 +398,7 @@ class FeatureDB():
 
     def parse_vcf(self, vcf_fn, db_fn):
 
-        """ VCF: #CHROM, POS, ID, REF, ALT, QUAL, FILTER, INF, 
+        """ VCF: #CHROM, POS, ID, REF, ALT, QUAL, FILTER, INF,
         indexing made a bed file with CHROM, POS, POS+len(REF), ID|REF|ALT """
         vcf_fh = opengz(vcf_fn)
         with open(db_fn+'.presort', 'w') as outfile:
@@ -411,7 +411,7 @@ class FeatureDB():
                 outfile.write('%s\t%s\t%d\t%s|%s|%s\n' % (
                     normalize_chrm(fields[0]), fields[1], int(fields[1])+len(fields[3]),
                     fields[2],fields[3],fields[4]))
-    
+
     def index(self, fn, raw_format, is_sorted):
         db_fn = fn+'.featuredb'
         if raw_format == 'bed':
@@ -439,7 +439,7 @@ class FeatureDB():
 
 def set_cds_boundary(name2gene):
 
-    for g in name2gene.itervalues():
+    for g in name2gene.values():
         for t in g.tpts:
             t.exons.sort()
             if not (hasattr(t, 'cds_beg') and hasattr(t, 'cds_end')):
@@ -504,7 +504,7 @@ class EnsemblDB(TransVarDB):
                 # the old version has no 'transcript_biotype'
                 # the equivalent transcript_biotype is fields[1]
                 tid = info['transcript_id']
-                if tid not in id2ent: 
+                if tid not in id2ent:
                     transcript_type = info['transcript_biotype'] if 'transcript_biotype' in info else fields[1]
                     id2ent[tid] = Transcript(transcript_type=transcript_type)
                 t = id2ent[tid]
@@ -603,7 +603,7 @@ class EnsemblDB(TransVarDB):
                     if info['protein_id'] not in t.aliases:
                         t.aliases.append(info['protein_id'])
 
-        for t in tid2transcript.values():
+        for t in list(tid2transcript.values()):
             t.exons.sort()
             t.beg = t.exons[0][0]
             t.end = t.exons[-1][1]
@@ -654,7 +654,7 @@ class CCDSDB(TransVarDB):
 
         err_print("loaded %d transcripts from CCDS table." % cnt)
 
-        
+
 class RefSeqDB(TransVarDB):
 
     def __init__(self, dbfn=None):
@@ -747,7 +747,7 @@ class RefSeqDB(TransVarDB):
                         cnt += 1
                     t = g.gene_t
                 t.exons.append((int(fields[3]), int(fields[4])))
-                
+
             elif fields[2] == 'CDS' and info['Parent'] in id2ent:
 
                 if reg.unlocalized:
@@ -841,7 +841,7 @@ class AceViewDB(TransVarDB):
                 t.exons.append((int(fields[3]), int(fields[4])))
 
         # skip transcripts without CDS, e.g., LOC391566.aAug10-unspliced
-        for tid, t in id2tpt.iteritems():
+        for tid, t in id2tpt.items():
             if t.cds and t.exons:
                 t.exons.sort()
                 t.beg = t.exons[0][0]
@@ -956,8 +956,8 @@ class UCSCRefGeneDB(TransVarDB):
             t.source = 'UCSC_refGene'
             ex_begs, ex_ends = fields[9], fields[10]
 
-            for ex_beg, ex_end in zip(map(lambda x: int(x)+1, ex_begs.strip(',').split(',')),
-                                      map(int, ex_ends.strip(',').split(','))):
+            for ex_beg, ex_end in zip([int(x)+1 for x in ex_begs.strip(',').split(',')],
+                                      list(map(int, ex_ends.strip(',').split(',')))):
                 t.exons.append((ex_beg, ex_end))
 
             t.exons.sort() # keep exons sorted
@@ -969,7 +969,7 @@ class UCSCRefGeneDB(TransVarDB):
 
 class UCSCKnownGeneDB(TransVarDB):
 
-    """ NOTE!!! knowngene gene name is considered an alias to the transcript ID. 
+    """ NOTE!!! knowngene gene name is considered an alias to the transcript ID.
     the recorded gene name is just the transcript ID """
     def __init__(self, dbfn=None):
         TransVarDB.__init__(self, dbfn)
@@ -1019,8 +1019,8 @@ class UCSCKnownGeneDB(TransVarDB):
             t.cds_end = int(fields[6])
             t.source = 'UCSC_knownGene'
             ex_begs, ex_ends = fields[8], fields[9]
-            for ex_beg, ex_end in zip(map(int, ex_begs.strip(',').split(',')),
-                                      map(int, ex_ends.strip(',').split(','))):
+            for ex_beg, ex_end in zip(list(map(int, ex_begs.strip(',').split(','))),
+                                      list(map(int, ex_ends.strip(',').split(',')))):
                 t.exons.append((ex_beg, ex_end))
             t.exons.sort()
             g.tpts.append(t)
@@ -1033,9 +1033,9 @@ class UCSCKnownGeneDB(TransVarDB):
 def main_index(args):
 
     """ this takes care of indexing
-    1) gene/transcripts; 
-    2) other general features (TFBS, histone etc); 
-    3) reference; 
+    1) gene/transcripts;
+    2) other general features (TFBS, histone etc);
+    3) reference;
     4) alias to gene/transcripts
     """
 
@@ -1088,7 +1088,7 @@ def main_index(args):
 
     # references
     if args.reference and args.reference != "_DEF_":
-        import config
+        from . import config
         config.samtools_faidx(args.reference)
 
 def add_parser_index(subparsers):
@@ -1102,17 +1102,17 @@ def add_parser_index(subparsers):
     p.set_defaults(func=main_index)
 
 def main():
-    
+
     import itertools
     db = TransVarDB(sys.argv[1])
-    print list(itertools.chain(*[g.tpts for g in db.get('ZNF418')]))
-    print list(itertools.chain(*[g.tpts for g in db.get('TTK')]))
-    print list(itertools.chain(*[g.tpts for g in db.get('ENST00000574474')]))
-    print list(itertools.chain(*[g.tpts for g in db.get('TP53')]))
-    print list(itertools.chain(*[g.tpts for g in db.get('EGFR')]))
-    print list(itertools.chain(*[g.tpts for g in db.get('A2M')]))
-    print list(itertools.chain(*[g.tpts for g in db.get('NM_005228')]))
-    print db.get_by_loc('chr1',1022955, 1023955)
+    print(list(itertools.chain(*[g.tpts for g in db.get('ZNF418')])))
+    print(list(itertools.chain(*[g.tpts for g in db.get('TTK')])))
+    print(list(itertools.chain(*[g.tpts for g in db.get('ENST00000574474')])))
+    print(list(itertools.chain(*[g.tpts for g in db.get('TP53')])))
+    print(list(itertools.chain(*[g.tpts for g in db.get('EGFR')])))
+    print(list(itertools.chain(*[g.tpts for g in db.get('A2M')])))
+    print(list(itertools.chain(*[g.tpts for g in db.get('NM_005228')])))
+    print(db.get_by_loc('chr1',1022955, 1023955))
 
 if __name__ == "__main__":
     main()

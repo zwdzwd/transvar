@@ -26,13 +26,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
+from __future__ import division
 import sys, re
-import faidx
-from record import *
-from utils import *
+from . import faidx
+from .record import *
+from .utils import *
 from collections import deque
 import operator
+from functools import reduce
 
 def complement(base):
 
@@ -45,7 +46,7 @@ def complement(base):
     }[base]
 
 def reverse_complement(seq):
-    
+
     return ''.join([complement(base) for base in reversed(seq)])
 
 
@@ -110,7 +111,7 @@ def aaseq2nuc1(aaseq):
 
 def aaseq_redundancy(aaseq):
 
-    return reduce(operator.mul, map(lambda x: len(reverse_codon_table[x]), aaseq))
+    return reduce(operator.mul, [len(reverse_codon_table[x]) for x in aaseq])
 
 def aa2codon(aa):
     if aa not in reverse_codon_table:
@@ -121,7 +122,7 @@ def aa2codon(aa):
 # no matter the strand the positive or negative, first site has
 # the smallest genomic coordinate
 class Codon():
-    
+
     # chrm, locs, strand
     def __init__(self):
 
@@ -138,7 +139,7 @@ class Codon():
             return self.locs[i]
         else:
             return self.locs[2-i]
-        
+
     def refseq(self):
 
         if self.strand == '+': return self.seq
@@ -171,7 +172,7 @@ class Codon():
             return "NA\tNA\tNA\tNA\tNA\tNA\tNA\tNA"
 
 def reverse_tnuc_pos(codon, tnuc_pos):
-    
+
     if codon.strand == '+':
         return codon.locs[(tnuc_pos-1)%3]
     else:
@@ -180,7 +181,7 @@ def reverse_tnuc_pos(codon, tnuc_pos):
 def codondiff(c1, c2):
 
     diff = []
-    for i in xrange(3):
+    for i in range(3):
         if c1[i] != c2[i]:
             diff.append(i)
 
@@ -219,7 +220,7 @@ def tnuc_region_in_exon(np, beg, end):
 
     if beg.tpos != 0: return False
     if end.tpos != 0: return False
-    for i in xrange(beg.pos, end.pos-1):
+    for i in range(beg.pos, end.pos-1):
         if abs(np[i] - np[i+1]) != 1:
             return False
     return True
@@ -310,7 +311,7 @@ class Transcript():
     def get_proteinseq(self):
         self.ensure_seq()
         return translate_seq(self.seq)
-    
+
     def region(self, gnuc_beg, gnuc_end):
         """ annotate genomic region with respect to this transcript """
         # check if gnuc_beg and gnuc_end are inside the genomic region
@@ -320,7 +321,7 @@ class Transcript():
             if (exon[0] <= gnuc_beg and exon[1] >= gnuc_end):
                 _cds_beg = min(self.cds_beg, self.cds_end)
                 _cds_end = max(self.cds_beg, self.cds_end)
-                
+
                 if gnuc_beg > _cds_beg and gnuc_end < _cds_end:
                     return 'Coding'
                 elif gnuc_beg < _cds_beg and gnuc_end < _cds_beg:
@@ -345,7 +346,7 @@ class Transcript():
             return 'Unknown'
 
     def ensure_seq(self):
-        """ 
+        """
         retrieve coding sequence (coding only, not UTRs) in the transcript object
         the sequence is in the nature sense, i.e., reverse-complemented when on '-' strand
         return True when successful,
@@ -382,13 +383,13 @@ class Transcript():
         if self.strand == "+":
             np = []
             for beg, end in self.exons:
-                np += range(max(beg, self.cds_beg),
-                            min(self.cds_end, end)+1)
+                np += list(range(max(beg, self.cds_beg),
+                            min(self.cds_end, end)+1))
         else:
             np = []
             for beg, end in reversed(self.exons):
-                np += range(min(self.cds_end, end),
-                            max(beg, self.cds_beg)-1,-1)
+                np += list(range(min(self.cds_end, end),
+                            max(beg, self.cds_beg)-1,-1))
 
         return np
 
@@ -406,13 +407,13 @@ class Transcript():
     def taa2aa(self, taa):
         self.ensure_seq()
         if taa*3 > self.cdslen():
-            raise IncompatibleTranscriptError('invalid_reference_protein_position_%d;expect_[0_%d]' % (taa, self.cdslen()/3))
+            raise IncompatibleTranscriptError('invalid_reference_protein_position_%d;expect_[0_%d]' % (taa, self.cdslen()//3))
         return codon2aa(self.seq[taa*3-3:taa*3])
 
     def taa_range2tnuc_seq(self, taa_beg, taa_end):
 
         if taa_beg*3 > self.cdslen() or taa_end*3 > self.cdslen():
-            raise IncompatibleTranscriptError('invalid_protein_sequence_[%d_%d];expect_[0_%d]' % (taa_beg, taa_end, self.cdslen()/3))
+            raise IncompatibleTranscriptError('invalid_protein_sequence_[%d_%d];expect_[0_%d]' % (taa_beg, taa_end, self.cdslen()//3))
 
         self.ensure_seq()
         return self.seq[taa_beg*3-3:taa_end*3]
@@ -422,7 +423,7 @@ class Transcript():
         return translate_seq(self.taa_range2tnuc_seq(taa_beg, taa_end))
 
     def tnuc2codon(self, tnuc_pos):
-        taa_pos = (tnuc_pos + 2) / 3
+        taa_pos = (tnuc_pos + 2) // 3
         codon = self.cpos2codon(taa_pos)
         pos_r = (tnuc_pos-1) % 3 # 0,1,2 for first, second and third base
         if self.strand == '-': pos_r = 2 - pos_r
@@ -433,7 +434,7 @@ class Transcript():
         take integer as input
         """
         self.ensure_position_array()
-        ## tnuc_pos < 0 represents 
+        ## tnuc_pos < 0 represents
         if tnuc_pos < 0:
             tnuc_pos = len(self.np)
         if tnuc_pos > len(self.np):
@@ -468,7 +469,7 @@ class Transcript():
                     exoninds.append(i)
 
         return exoninds
-    
+
     def _tnuc_range2exon_inds(self, tnuc_beg, tnuc_end):
 
         exoninds = []
@@ -508,8 +509,8 @@ class Transcript():
         if self.strand == "+":
             np = []
             for beg, end in self.exons:
-                np += range(max(beg, self.cds_beg),
-                            min(self.cds_end, end)+1)
+                np += list(range(max(beg, self.cds_beg),
+                            min(self.cds_end, end)+1))
             assert len(np) == len(self.seq)
 
             ni = cpos*3
@@ -527,8 +528,8 @@ class Transcript():
         else:
             np = []
             for beg, end in reversed(self.exons):
-                np += range(min(self.cds_end, end),
-                            max(beg, self.cds_beg)-1,-1)
+                np += list(range(min(self.cds_end, end),
+                            max(beg, self.cds_beg)-1,-1))
             assert len(np) == len(self.seq)
 
             ni = cpos*3
@@ -572,7 +573,7 @@ class Transcript():
 
     #     if self.cds_end < gpos:
     #         p = Pos(len(self.seq), gpos-self.cds_end)
-    #         c = self._init_codon_((len(self.seq)+2)/3)
+    #         c = self._init_codon_((len(self.seq)+2)//3)
     #         c.seq = self.seq[c.index*3-3:c.index*3]
     #         c.locs = np[c.index*3-3:c.index*3]
     #         reg = '3-UTR' if self.strand == '+' else '5-UTR'
@@ -587,7 +588,7 @@ class Transcript():
         rg.dist2tss = gpos - self.exons[0][0] if self.strand == '+' else self.exons[-1][1] - gpos
         if rg.dist2tss >= -args.prombeg and rg.dist2tss <= args.promend:
             rg.promoter = True
-        
+
         # intergenic, NOTE USE describe_intergenic_neighbors
         if gpos < self.exons[0][0]:
             rg.intergenic = (self.exons[0][0] - gpos, 'upstream' if self.strand == '+' else 'downstream')
@@ -655,35 +656,35 @@ class Transcript():
 
         if gpos > self.cds_end:
             p = Pos(len(self.seq), gpos-self.cds_end)
-            c = self._init_codon_((len(self.seq)+2)/3)
+            c = self._init_codon_((len(self.seq)+2)//3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
             return c, p
-        
+
         for i, pos in enumerate(np):
             if gpos == pos:
-                c = self._init_codon_(i/3+1)
+                c = self._init_codon_(i//3+1)
                 c.seq    = self.seq[i-i%3:i-i%3+3]
                 c.locs   = np[i-i%3:i-i%3+3]
                 p = Pos(i+1, 0)
                 return c, p
             if gpos < pos:
-                
+
                 if ((intronic_policy == 'closer' and gpos-np[i-1] < pos-gpos) or
                     intronic_policy == 'c_smaller'):
-                    
+
                     p = Pos(i, gpos-np[i-1])
-                    ci = i/3+1
-                    
+                    ci = i//3+1
+
                 elif ((intronic_policy == 'closer' and gpos-np[i-1] >= pos-gpos) or
                       intronic_policy == 'c_greater'):
-                    
+
                     p = Pos(i+1, gpos-pos)
-                    ci = (i+1)/3+1
-                    
+                    ci = (i+1)//3+1
+
                 else:
                     raise Exception('unknown_error')
-                            
+
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
@@ -693,7 +694,7 @@ class Transcript():
 
         if gpos < self.cds_beg:
             p = Pos(len(self.seq), self.cds_beg-gpos)
-            c = self._init_codon_((len(self.seq)+2)/3)
+            c = self._init_codon_((len(self.seq)+2)//3)
             c.seq = self.seq[c.index*3-3:c.index*3]
             c.locs = np[c.index*3-3:c.index*3]
             return c, p
@@ -707,29 +708,29 @@ class Transcript():
 
         for i, pos in enumerate(np):
             if gpos == pos:
-                c = self._init_codon_(i/3+1)
+                c = self._init_codon_(i//3+1)
                 c.seq = self.seq[i-i%3:i-i%3+3]
                 c.locs = tuple(reversed(np[i-i%3:i-i%3+3]))
                 p = Pos(i+1, 0)
                 return c, p
-            
+
             if gpos > pos:
-                
+
                 if ((intronic_policy == 'closer' and np[i-1]-gpos < gpos-pos) or
                     intronic_policy == 'c_smaller'):
-                    
+
                     p = Pos(i, np[i-1]-gpos)
-                    ci = i/3+1
-                    
+                    ci = i//3+1
+
                 elif ((intronic_policy == 'closer' and np[i-1]-gpos >= gpos-pos) or
                       intronic_policy == 'c_greater'):
-                    
+
                     p = Pos(i+1, pos-gpos)
-                    ci = (i+1)/3+1
-                    
+                    ci = (i+1)//3+1
+
                 else:
                     raise Exception('unknown_intronic_policy')
-                
+
                 c = self._init_codon_(ci)
                 c.seq = self.seq[ci*3-3:ci*3]
                 c.locs = np[ci*3-3:ci*3]
@@ -745,7 +746,7 @@ class Transcript():
         return
 
     def check_exon_boundary(self, pos):
-        
+
         """ check consistency with exon boundary """
 
         self.ensure_position_array()
@@ -766,8 +767,8 @@ class Transcript():
 
     def gpos2codon(self, gpos, intronic_policy='closer'):
 
-        """ intronic policy: 
-        if gpos falls in intron, 
+        """ intronic policy:
+        if gpos falls in intron,
         closer reports the closer end
         c_smaller reports the smaller cDNA coordinate end
         c_greater reports the greater cDNA coordinate end
@@ -784,7 +785,7 @@ class Transcript():
 
         if intronic_policy == 'g_smaller':
             intronic_policy = 'c_smaller' if self.strand == '+' else 'c_greater'
-        
+
         # ret = self._gpos2codon_UTR(gpos, np)
         # if ret: return ret
         if self.strand == "+":
@@ -796,7 +797,7 @@ class Transcript():
 
         self.ensure_position_array()
         if p.tpos == 0:
-            c = self._init_codon2_((p.pos+2)/3)
+            c = self._init_codon2_((p.pos+2)//3)
             return (c, p)
 
         if direc == 'g_greater':
@@ -813,20 +814,20 @@ class Transcript():
 
         if direc == 'c_greater':
             if p.tpos < 0:
-                c = self._init_codon2_((p.pos+2)/3)
+                c = self._init_codon2_((p.pos+2)//3)
                 return (c, p)
             if p.tpos > 0:
                 p = Pos(p.pos+1, p.tpos-abs(self.np[p.pos]-self.np[p.pos-1]))
-                c = self._init_codon2_((p.pos+2)/3)
+                c = self._init_codon2_((p.pos+2)//3)
                 return (c, p)
 
         if direc == 'c_smaller':
             if p.tpos > 0:
-                c = self._init_codon2_((p.pos+2)/3)
+                c = self._init_codon2_((p.pos+2)//3)
                 return (c, p)
             if p.tpos < 0:
                 p = Pos(p.pos-1, abs(self.np[p.pos-2]-self.np[p.pos-1])+p.tpos)
-                c = self._init_codon2_((p.pos+2)/3)
+                c = self._init_codon2_((p.pos+2)//3)
                 return (c, p)
 
     def overlap_region(self, beg, end):
@@ -896,7 +897,7 @@ class Transcript():
 
         self.ensure_seq()
         _taa_insseq_ = deque(taa_insseq)
-        taa_len = len(self.seq) / 3
+        taa_len = len(self.seq) // 3
         while True:
             if index + 1 >= taa_len:
                 break
@@ -938,7 +939,7 @@ class Transcript():
     def taa_roll_right_del(self, taa_beg, taa_end):
 
         self.ensure_seq()
-        taa_len = len(self.seq) / 3
+        taa_len = len(self.seq) // 3
         while True:
             if taa_end + 1 >= taa_len:
                 break
@@ -1033,7 +1034,7 @@ class Transcript():
 
     def extend_taa_seq(self, taa_pos_base, old_seq, new_seq):
         """
-        this function also returns the extended sequence itself 
+        this function also returns the extended sequence itself
         """
         taa_pos = None
         termlen = -1 # use -1 to detect abnormal computes
@@ -1045,7 +1046,7 @@ class Transcript():
             old_codon_seq = old_seq[ci:ci+3]
             new_codon_seq = new_seq[ci:ci+3]
             # if sequence comes to ends, extend sequence from reference file
-            if (old_codon_seq not in standard_codon_table or 
+            if (old_codon_seq not in standard_codon_table or
                 new_codon_seq not in standard_codon_table):
                 seq_inc = faidx.refgenome.fetch_sequence(self.chrm, seq_end+1, seq_end+100)
                 old_seq += seq_inc
@@ -1072,8 +1073,8 @@ class Transcript():
 
         new_aa_seq = new_aa_seq[taa_pos:]
         if taa_pos == None:
-            print 'oldseq', old_seq
-            print 'newseq', new_seq
+            print('oldseq', old_seq)
+            print('newseq', new_seq)
         taa_pos += taa_pos_base
 
         aae = AAExtension()
@@ -1092,7 +1093,7 @@ class AAExtension():
         return '%s%d%sfs*%d' % (
             aaf(self.taa_ref, args),
             self.taa_pos, aaf(self.taa_alt, args), self.termlen)
-    
+
 def tnuc_del_id(pbeg, pend, args, tnuc_delseq=None):
 
     if pbeg == pend:
@@ -1218,7 +1219,7 @@ class NucInsertion():
         pass
 
     def unalign(self):
-        
+
         n = len(self.insseq)
         if self.flank5 == self.insseq:
             if len(self.flank5) == 1:
@@ -1264,7 +1265,7 @@ def gnuc_set_ins_core(chrm, beg, insseq):
     i.flank3_beg = i.end
     i.flank3_end = i.end+n-1
     i.flank3 = faidx.getseq(chrm, i.flank3_beg, i.flank3_end)
-    
+
     # right align
     i.beg_r, i.insseq_r = gnuc_roll_right_ins(chrm, i.beg, i.insseq)
     i.end_r = i.beg_r + 1
@@ -1274,7 +1275,7 @@ def gnuc_set_ins_core(chrm, beg, insseq):
     i.flank3_beg_r = i.end_r
     i.flank3_end_r = i.end_r+n-1
     i.flank3_r = faidx.getseq(chrm, i.flank3_beg_r, i.flank3_end_r)
-    
+
     # left align
     i.beg_l, i.insseq_l = gnuc_roll_left_ins(chrm, i.beg, i.insseq)
     i.end_l = i.beg_l + 1
@@ -1284,7 +1285,7 @@ def gnuc_set_ins_core(chrm, beg, insseq):
     i.flank3_beg_l = i.end_l
     i.flank3_end_l = i.end_l+n-1
     i.flank3_l = faidx.getseq(chrm, i.flank3_beg_l, i.flank3_end_l)
-    
+
     return i
 
 def gnuc_set_ins(chrm, beg, insseq, r):
@@ -1439,7 +1440,7 @@ class Gene():
 
         return max([t for t in self.tpts if t.transcript_type=='protein_coding'],
                    key=lambda x: x.cdslen())
-    
+
     def longest_tpt(self):
 
         return max(self.tpts, key=lambda x: x.tlen())
@@ -1449,11 +1450,11 @@ class Gene():
         return [t for t in self.tpts if t.transcript_type == 'protein_coding']
 
     def chrm(self):
-        
+
         return self.std_tpt.chrm
 
     def strand(self):
-        
+
         return self.std_tpt.strand
 
     def cpos2codon(self, cpos):
@@ -1479,7 +1480,7 @@ def translate_seq(seq):
         raise IncompatibleTranscriptError('coding_sequence_not_multiplicative_of_3;length_%d' % len(seq))
 
     aa_seq = []
-    for i in xrange(len(seq)/3):
+    for i in range(len(seq)//3):
         aa = codon2aa(seq[i*3:i*3+3])
         aa_seq.append(aa)
         if aa == '*':

@@ -26,19 +26,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
-from transcripts import *
-from utils import *
-from record import *
-from describe import *
-from proteinseqs import *
+from __future__ import division
+from .transcripts import *
+from .utils import *
+from .record import *
+from .describe import *
+from .proteinseqs import *
 
 def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
 
     insseq = tnuc_ins.insseq
     tnuc_pos = tnuc_ins.beg.pos
 
-    beg_codon_index = (tnuc_pos + 2) / 3
+    beg_codon_index = (tnuc_pos + 2) // 3
     beg_codon_beg = beg_codon_index*3 - 2
     if beg_codon_beg+2 > len(t.seq):
         raise IncompatibleTranscriptError('truncated_refseq_at_boundary_codon_end_%d;transcript_length_%d' % (beg_codon_beg+3, len(t.seq)))
@@ -71,7 +71,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             # check stop codon
             stop_codon_seen = False
             taa_insseq = ''
-            for i in xrange(len(insseq)/3):
+            for i in range(len(insseq)//3):
                 if codon2aa(insseq[i*3:i*3+3]) == '*':
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     stop_codon_seen = True
@@ -80,8 +80,8 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
 
             if not stop_codon_seen:
                 # otherwise, a pure insertion
-                c1 = t.cpos2codon((tnuc_pos+2)/3)
-                c2 = t.cpos2codon((tnuc_pos+3)/3)
+                c1 = t.cpos2codon((tnuc_pos+2)//3)
+                c2 = t.cpos2codon((tnuc_pos+3)//3)
                 if not c1 or not c2:
                     raise IncompatibleTranscriptError('codon_nonexistent_at_cDNA_%d' % tnuc_pos)
                 r.csqn.append("InFrameInsertion")
@@ -89,7 +89,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
                 r.append_info('phase=0')
         else:
             # insertion is after 1st or 2nd base of a codon
-            codon_index = (tnuc_pos+2)/3
+            codon_index = (tnuc_pos+2)//3
             codon = t.cpos2codon(codon_index)
             if not codon:
                 raise IncompatibleTranscriptError('codon_nonexistent_at_cDNA_%d' % codon_index)
@@ -100,7 +100,7 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
             codon_subseq2 = t.seq[tnuc_pos:codon_end]
             new_seq = codon_subseq1+insseq+codon_subseq2
             taa_insseq = ''
-            for i in xrange(len(new_seq)/3):
+            for i in range(len(new_seq)//3):
                 if codon2aa(new_seq[i*3:i*3+3]) == '*':
                     tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
                     return
@@ -180,7 +180,7 @@ def annotate_insertion_cdna(args, q, tpts, db):
 
 
 def codon_mutation_ins(args, q, t, db):
-    
+
     if q.tpt and t.name != q.tpt:
         raise IncompatibleTranscriptError("Transcript name unmatched")
     t.ensure_seq()
@@ -257,7 +257,7 @@ def annotate_insertion_gdna(args, q, db):
 
         gnuc_ins = gnuc_set_ins(q.tok, q.pos, q.insseq, r)
         # TODO check q.insseq exists
-        
+
         if hasattr(reg, 't'):
 
             t = reg.t
@@ -282,7 +282,7 @@ def annotate_insertion_gdna(args, q, db):
                 else:
                     r.set_csqn_byreg("Insertion")
 
-                # c1 = t.cpos2codon((tnuc_ins.beg.pos+2)/3)
+                # c1 = t.cpos2codon((tnuc_ins.beg.pos+2)//3)
                 # p1 = tnuc_ins.beg
                 # if len(tnuc_ins.insseq) % 3 == 0:
                 #     ins_gene_coding_inframe(t, r, c1, p1, tnuc_ins.insseq)
@@ -295,7 +295,7 @@ def annotate_insertion_gdna(args, q, db):
 
     format_records(records, q.op, args)
     return records
-       
+
 
 def annotate_duplication_cdna(args, q, tpts, db):
 
@@ -376,7 +376,7 @@ def taa_ins_id(t, index, taa_insseq, args):
     else:
         flank5_seq = None
 
-    # if index+n < len(self.seq)/3:
+    # if index+n < len(self.seq)//3:
     #     flank3_seq = self.taa_range2aa_seq(index+1, index+n)
     # else:
     #     flank3_seq = None
@@ -389,7 +389,7 @@ def taa_ins_id(t, index, taa_insseq, args):
         s = '%s%d_%s%dins%s' % (aaf(aa, args), index, aaf(aa2, args), index+1, aaf(taa_insseq, args))
 
     return s
-        
+
 def taa_set_ins(r, t, index, taa_insseq, args):
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
     try:
@@ -402,4 +402,3 @@ def taa_set_ins(r, t, index, taa_insseq, args):
         variant_protein_seq_ins(r, t, args, i1r, taa_insseq_r)
     except IncompatibleTranscriptError:
         r.append_info("truncated_refseq_at_boundary")
-

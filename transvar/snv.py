@@ -29,13 +29,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
-from transcripts import *
-from utils import *
-from record import *
-from describe import *
-from err import *
-from proteinseqs import *
+from __future__ import division
+from .transcripts import *
+from .utils import *
+from .record import *
+from .describe import *
+from .err import *
+from .proteinseqs import *
 
 #############################
 ###### cDNA annotation ######
@@ -69,7 +69,7 @@ def annotate_snv_cdna(args, q, tpts, db):
             if (qpos.pos <= 0 or qpos.pos > t.cdslen()):
                 raise IncompatibleTranscriptError(
                     'invalid_cDNA_position_%d;expect_[0_%d]' % (qpos.pos, t.cdslen()))
-            codon = t.cpos2codon((qpos.pos+2)/3)
+            codon = t.cpos2codon((qpos.pos+2)//3)
             if not codon:
                 raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % qpos.pos)
 
@@ -125,7 +125,7 @@ def annotate_snv_cdna(args, q, tpts, db):
                     r.append_info(
                         'reference_codon=%s;alternative_codon=%s' % (
                             codon.seq, ''.join(mut_seq)))
-                    
+
                     variant_protein_seq_sub(
                         r, t, args, r.taa_pos, r.taa_pos, r.taa_alt)
 
@@ -175,9 +175,9 @@ def annotate_snv_protein(args, q, tpts, db):
         # alternative should be based on actual alternative aa determined
         set_taa_snv(r, q.pos, q.ref, r.taa_alt, args)
         r.reg = RegCDSAnno(t, c)
-        
+
         records.append(r)
-    
+
     format_records(records, q.op, args)
     return records
 
@@ -223,7 +223,7 @@ def _annotate_snv_protein(args, q, t, db):
         tgt_codon_seqs = [x for x in aa2codon(q.alt) if x != codon.seq]
         # tgt_codon_seqs = aa2codon(q.alt)
         diffs = [codondiff(x, codon.seq) for x in tgt_codon_seqs]
-        diffinds = sorted(range(len(diffs)), key=lambda i: len(diffs[i]))
+        diffinds = sorted(list(range(len(diffs))), key=lambda i: len(diffs[i]))
 
         # guessed mutation
         gi = diffinds[0]        # guessed diff index
@@ -257,7 +257,7 @@ def _annotate_snv_protein(args, q, t, db):
             else:
                 r.gnuc_range = '%d_%ddel%sins%s' % (codon.locs[2-gdiff[-1]],
                                                codon.locs[2-gdiff[0]],
-                                               reverse_complement(tnuc_ref), 
+                                               reverse_complement(tnuc_ref),
                                                reverse_complement(tnuc_alt))
         # candidate mutations
         cdd_snv_muts = []
@@ -285,7 +285,7 @@ def _annotate_snv_protein(args, q, t, db):
                 tnuc_alt = tgtcodonseq[diff[0]:diff[-1]+1]
                 tnuc_tok = 'c.%d_%ddel%sins%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
                 if codon.strand == '+':
-                    gnuc_tok = '%s:g.%d_%ddel%sins%s' % (t.chrm, 
+                    gnuc_tok = '%s:g.%d_%ddel%sins%s' % (t.chrm,
                                                          codon.locs[diff[0]],
                                                          codon.locs[diff[-1]],
                                                          tnuc_ref, tnuc_alt)
@@ -352,7 +352,7 @@ def annotate_snv_gdna(args, q, db):
         # skip if transcript ID does not match
         if q.tpt and hasattr(reg, 't') and reg.t.name != q.tpt:
             continue
-        
+
         r = Record(is_var=True)
         r.reg = reg
         r.chrm = q.tok
@@ -435,7 +435,7 @@ def annotate_snv_gdna_trannscript(reg, r, q, args):
                         r, reg.t, args, r.taa_pos, r.taa_pos, r.taa_alt)
             else:
                 r.append_info('truncated_refseq_at_boundary_(codon_seq_%s_codon_index_%d_protein_length_%d)'
-                              % (c.seq, c.index, reg.t.cdslen()/3))
+                              % (c.seq, c.index, reg.t.cdslen()//3))
 
             r.append_info('codon_pos=%s' % (c.locformat(),))
             r.append_info('ref_codon_seq=%s' % c.seq)

@@ -51,7 +51,7 @@ def ssw_aln(qseq, rseq, gap=False):
     if aln.qbeg > 0:
         aln.cigar.append((4, aln.qbeg))
     qlen = aln.qbeg
-    for i in xrange(_aln.contents.ncigar):
+    for i in range(_aln.contents.ncigar):
         ct = _aln.contents.ctype[i]
         cl = _aln.contents.clen[i]
         aln.cigar.append((ct, cl))

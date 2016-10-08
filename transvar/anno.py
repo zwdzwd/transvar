@@ -28,21 +28,21 @@ SOFTWARE.
 """
 
 import sys, argparse, re
-from annodb import AnnoDB
+from .annodb import AnnoDB
 # from transcripts import *
-from parser import parser_add_annotation
+from .parser import parser_add_annotation
 # import parser
-from record import *
-from err import *
-from config import read_config
-from mutation import parse_tok_mutation_str, list_parse_mutation, vcf_parse_mutation, parser_add_mutation
+from .record import *
+from .err import *
+from .config import read_config
+from .mutation import parse_tok_mutation_str, list_parse_mutation, vcf_parse_mutation, parser_add_mutation
 
-from mnv import annotate_mnv_gdna, annotate_mnv_protein, annotate_mnv_cdna
-from snv import annotate_snv_gdna, annotate_snv_protein, annotate_snv_cdna
-from insertion import annotate_insertion_gdna, annotate_insertion_protein, annotate_insertion_cdna, annotate_duplication_cdna
-from deletion import annotate_deletion_gdna, annotate_deletion_protein, annotate_deletion_cdna
-from region import annotate_region_gdna, annotate_region_protein, annotate_region_cdna, annotate_gene
-from frameshift import annotate_frameshift
+from .mnv import annotate_mnv_gdna, annotate_mnv_protein, annotate_mnv_cdna
+from .snv import annotate_snv_gdna, annotate_snv_protein, annotate_snv_cdna
+from .insertion import annotate_insertion_gdna, annotate_insertion_protein, annotate_insertion_cdna, annotate_duplication_cdna
+from .deletion import annotate_deletion_gdna, annotate_deletion_protein, annotate_deletion_cdna
+from .region import annotate_region_gdna, annotate_region_protein, annotate_region_cdna, annotate_gene
+from .frameshift import annotate_frameshift
 from functools import partial
 
 def _main_core_(args, q, db, at):
@@ -198,7 +198,7 @@ def main(args, at):
     db = AnnoDB(args, config)
 
     if (not args.vcf) and (not args.noheader):
-        print print_header()
+        print(print_header())
 
     if args.l:
         main_list(args, db, at, list_parse_mutation(args, at))

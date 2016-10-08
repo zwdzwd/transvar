@@ -26,8 +26,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-from transcripts import *
-from record import *
+from .transcripts import *
+from .record import *
 from copy import copy
 
 def site_set_promoter(args, reg, dist2tss, t):
@@ -46,7 +46,7 @@ def reg_set_promoter(args, reg, dist2tss1, dist2tss2, t, qlen):
         reg.promoter.append((t, olen, float(olen)/qlen*100))
 
 def get_transcripts(args, q, db):
-    
+
     if hasattr(q, 'pos'):
         tpts = [t for t in db.get_transcripts(q.tok, q.pos, q.pos)]
     else:
@@ -60,8 +60,8 @@ def get_transcripts(args, q, db):
             g = Gene(t.gene_name)
             name2gene[t.gene_name] = g
         g.link_t(t)
-        
-    genes = name2gene.values()
+
+    genes = list(name2gene.values())
     if args.longest: # pick the longest transcript for each gene
         # the alternative solution is to get the longest of all transcript of the gene,
         # whether the transcript overlap the target region or not, which is improper.
@@ -89,13 +89,13 @@ def describe_intergenic_site(args, db, chrm, beg=None, end=None, pos=None, tu=No
     if pos is not None:
         beg = pos
         end = pos
-        
+
     _tu, _td = db.get_closest_transcripts(chrm, beg, end)
     if tu is None:
         tu = _tu
     if td is None:
         td = _td
-        
+
     site = RegIntergenicAnno()
     if tu:
         site.e5 = tu
@@ -144,7 +144,7 @@ def describe_genic_site(args, chrm, gpos, t, db):
         exind = i+1 if t.strand == '+' else len(t.exons) - i
         if exon[0] <= gpos and exon[1] >= gpos: # exonic
             reg.exonic = True
-            
+
             if t.transcript_type == 'protein_coding':
                 if gpos >= t.cds_beg and gpos <= t.cds_end:
                     reg.cds = True
@@ -276,7 +276,7 @@ def describe_genic_range(args, chrm, beg, end, t, db, genes):
         if beg <= t.cds_end and end >= t.cds_end:
             reg.cross_end = True
 
-        for exon in enumerate(t.exons):
+        for exon in t.exons:
             if exon[0] <= end and exon[1] >= beg:
                 reg.cover_exon = True
         if reg.cover_exon and beg <= t.cds_end and end >= t.cds_beg:
@@ -306,11 +306,11 @@ def describe(args, q, db):
 
             if not hasattr(q,'pos'):
                 q.pos = q.beg
-                
+
             for t in tpts:
                 reg = describe_genic_site(args, q.tok, q.pos, t, db)
                 yield reg
-                
+
         elif are_all_transcripts_overlap(tpts): # short range, involving overlapping genes
             for t in tpts:
                 reg = describe_genic_range(args, q.tok, q.beg, q.end, t, db, genes=genes)
@@ -332,7 +332,7 @@ def describe(args, q, db):
                     yield reg
 
     else:        # purely intergenic
-        
+
         if hasattr(q, 'pos') or q.beg == q.end: # point
 
             if not hasattr(q,'pos'):
@@ -340,16 +340,16 @@ def describe(args, q, db):
 
             reg = RegAnno()
             reg.intergenic = describe_intergenic_site(args, db, q.tok, pos=q.pos)
-            
+
             itg = reg.intergenic
             if itg.e5 is not None and itg.e5_strand == '-':
                 dist2tss = -itg.e5_dist
                 site_set_promoter(args, reg, dist2tss, itg.e5)
-                
+
             if itg.e3 is not None and itg.e3_strand == '+':
                 dist2tss = -itg.e3_dist
                 site_set_promoter(args, reg, dist2tss, itg.e3)
-                
+
         else:                   # range
             reg = RegSpanAnno()
             reg.intergenic = describe_intergenic_site(args, db, q.tok, beg=q.beg, end=q.end)
@@ -360,12 +360,10 @@ def describe(args, q, db):
                 dist2tss1 = -itg.e5_dist-(q.end-q.beg)
                 dist2tss2 = -itg.e5_dist
                 reg_set_promoter(args, reg, dist2tss1, dist2tss2, itg.e5, q.end-q.beg+1)
-                
+
             if itg.e3 is not None and itg.e3_strand == '+':
                 dist2tss1 = -itg.e3_dist-(q.end-q.beg)
                 dist2tss2 = -itg.e3_dist
                 reg_set_promoter(args, reg, dist2tss1, dist2tss2, itg.e3, q.end-q.beg+1)
 
         yield reg
-
-
