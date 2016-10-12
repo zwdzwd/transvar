@@ -692,3 +692,62 @@ results in
       CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
       32,MIM:102630;aliases=XP_005249875;source=RefSeq
 
+Batch processing
+###################
+
+
+To Illustrate batch processing with the following small batch input
+
+.. code:: bash
+
+   $ cat data/small_batch_input
+
+::
+
+   chr3	178936091	G	A	CCDS43171
+   chr9	135782704	C	G	CCDS6956
+
+.. code:: bash
+
+   $ transvar ganno -l data/small_batch_input -g 1 -n 2 -r 3 -a 4 -t 5 --ccds
+
+::
+
+   chr3|178936091|G|A|CCDS43171	CCDS43171 (protein_coding)	PIK3CA	+
+      chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
+      CSQN=Missense;dbsnp=rs104886003(chr3:178936091G>A);codon_pos=178936091-178936
+      092-178936093;ref_codon_seq=GAG;source=CCDS
+   chr9|135782704|C|G|CCDS6956	CCDS6956 (protein_coding)	TSC1	-
+      chr9:g.135782704C>G/c.1317G>C/p.L439L	inside_[cds_in_exon_11]
+      CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
+      82705-135782706;ref_codon_seq=CTG;source=CCDS
+
+
+One can also make a HGVS-like input and call
+
+.. code:: bash
+
+   $ cat data/small_batch_hgvs
+
+::
+
+   CCDS43171	chr3:g.178936091G>A
+   CCDS6956	chr9:g.135782704C>G
+
+.. code:: bash
+
+   $ transvar ganno -l data/small_batch_hgvs -m 2 -t 1 --ccds
+
+::
+
+   CCDS43171|chr3:g.178936091G>A	CCDS43171 (protein_coding)	PIK3CA	+
+      chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
+      CSQN=Missense;dbsnp=rs104886003(chr3:178936091G>A);codon_pos=178936091-178936
+      092-178936093;ref_codon_seq=GAG;source=CCDS
+   CCDS6956|chr9:g.135782704C>G	CCDS6956 (protein_coding)	TSC1	-
+      chr9:g.135782704C>G/c.1317G>C/p.L439L	inside_[cds_in_exon_11]
+      CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
+      82705-135782706;ref_codon_seq=CTG;source=CCDS
+
+
+The first column for transcript ID restriction is optional.

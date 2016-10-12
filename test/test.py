@@ -34,14 +34,17 @@ def wrap(line):
 
     lw = 80
     fields = line.strip().split('\t')
-    yield '\t'.join(fields[:4])
-    yield ' '*3+'\t'.join(fields[4:6])
-    line = '\t'.join(fields[6:])
+    if len(line) < lw:
+        yield line.strip()
+    else:
+        yield '\t'.join(fields[:4])
+        yield ' '*3+'\t'.join(fields[4:6])
+        line = '\t'.join(fields[6:])
 
-    while len(line) > 0:
-        k = lw-3
-        yield ' '*3+line[:k]
-        line = line[k:]
+        while len(line) > 0:
+            k = lw-3
+            yield ' '*3+line[:k]
+            line = line[k:]
 
 indir = sys.argv[1]
 outdir = sys.argv[2]
@@ -133,7 +136,7 @@ for ifn in ifns:
                     print(oldfill)
                     print('\n+++ NEW +++')
                     print(newfill)
-                    input("Difference ...")
+                    raw_input("Difference ...")
                 else:
                     print("\nSame!\n")
 

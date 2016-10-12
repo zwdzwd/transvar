@@ -425,8 +425,7 @@ Example: to search alternative identifiers of CDKN2A.p.58 (without knowing refer
 
 ::
 
-   origin_id	alt_id	chrm	codon1
-      codon2	transcripts_choice
+   origin_id	alt_id	chrm	codon1	codon2	transcripts_choice
    CDKN2A:p.58	CDKN2A.p.73	chr9	21971184-21971185-21971186
       21971182-21971183-21971184	CCDS6510[CCDS]/CCDS6511[CCDS],CCDS56565[CCDS]/CCDS6511[CCDS]
    CDKN2A:p.58	CDKN2A.p.72	chr9	21971184-21971185-21971186
@@ -444,8 +443,7 @@ outputs
 
 ::
 
-   origin_id	alt_id	chrm	codon1
-      codon2	transcripts_choice
+   origin_id	alt_id	chrm	codon1	codon2	transcripts_choice
    DHODH:G152R	DHODH.p.G16	chr16	72050942-72050943-72050944
       72050942-72050943-72050944	NM_001361[RefSeq]/XM_005255828[RefSeq]
    DHODH:G152R	DHODH.p.G9	chr16	72050942-72050943-72050944
@@ -465,8 +463,7 @@ Example input table
 
 ::
 
-   origin_id	alt_id	chrm	codon1
-      codon2	transcripts_choice
+   origin_id	alt_id	chrm	codon1	codon2	transcripts_choice
    CDKN2A:p.61	CDKN2A.p.76	chr9	21971175-21971176-21971177
       21971173-21971174-21971175	CCDS6510[CCDS]/CCDS6511[CCDS],CCDS56565[CCDS]/CCDS6511[CCDS]
    CDKN2A:p.61	CDKN2A.p.75	chr9	21971175-21971176-21971177
@@ -522,8 +519,7 @@ gives
 
 ::
 
-   origin_id	alt_id	chrm	codon1
-      codon2	transcripts_choice
+   origin_id	alt_id	chrm	codon1	codon2	transcripts_choice
    MET:p.1010	MET.p.562	chr7	116411989-116411990-116411991
       116411989-116411990-116411991	NM_001127500[RefSeq]/XM_005250354[RefSeq]
    MET:p.1010	MET.p.1029	chr7	116411989-116411990-116411991
