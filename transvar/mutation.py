@@ -321,7 +321,7 @@ def _list_parse_mutation(args, fields, indices, muttype):
         q.tok = fields[args.g-1].strip()
         q.pos = parse_pos(fields[args.p-1].strip())
         if args.r > 0: q.ref = fields[args.r-1].strip()
-        if args.v > 0: q.alt = fields[args.v-1].strip()
+        if args.a > 0: q.alt = fields[args.a-1].strip()
         if args.t > 0: q.tpt = fields[args.t-1].strip()
         q.is_codon = True
 
@@ -332,7 +332,7 @@ def _list_parse_mutation(args, fields, indices, muttype):
             q.tok = fields[args.g-1].strip()
             q.pos = int(fields[args.n-1].strip())
             if args.r > 0: q.ref = fields[args.r-1].strip()
-            if args.v > 0: q.alt = fields[args.v-1].strip()
+            if args.a > 0: q.alt = fields[args.a-1].strip()
             if args.t > 0: q.tpt = fields[args.t-1].strip()
             q.is_codon = False
         else:                   # cDNA
@@ -341,7 +341,7 @@ def _list_parse_mutation(args, fields, indices, muttype):
             q.tok = fields[args.g-1].strip()
             q.pos = parse_pos(fields[args.n-1].strip())
             if args.r > 0: q.ref = fields[args.r-1].strip()
-            if args.v > 0: q.alt = fields[args.v-1].strip()
+            if args.a > 0: q.alt = fields[args.a-1].strip()
             if args.t > 0: q.tpt = fields[args.t-1].strip()
             q.is_codon = False
 

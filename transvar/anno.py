@@ -131,7 +131,6 @@ def _main_(args, q, db, at):
 def main_list(args, db, at, mutation_parser):
     """ process a list of inputs """
     for q, line in mutation_parser:
-
         if q.tok is None:           # parsing error
             r = Record()
             r.append_info(q.msg)
