@@ -344,7 +344,7 @@ def annotate_snv_gdna(args, q, db):
         q.ref = gnuc_ref
 
     if gnuc_ref != q.ref:
-        wrap_exception(Exception("invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref)))
+        wrap_exception(Exception("invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref)), q.op, args)
 
     records = []
     for reg in describe(args, q, db):
