@@ -184,7 +184,6 @@ class TransVarDB():
     def get_by_gene(self, name):
 
         """ get by gene name """
-
         if name in self.gene_idx:
             pos = self.gene_idx[name]
             self.dbfh.seek(pos)
@@ -669,6 +668,8 @@ class RefSeqDB(TransVarDB):
         for line in gff_fh:
             if line.startswith('#'): continue
             fields = line.strip('\n').split('\t')
+            if (len(fields) < 9):
+                continue
             # print line.strip()
             info = dict([_.split('=') for _ in fields[8].split(';')])
             if fields[2] == 'region':
