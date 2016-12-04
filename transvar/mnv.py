@@ -32,7 +32,7 @@ from .record import *
 from .transcripts import *
 from .describe import *
 from .insertion import taa_set_ins, annotate_insertion_gdna
-from .deletion import taa_set_del, annotate_deletion_gdna
+from .deletion import taa_set_del, annotate_deletion_gdna, _annotate_deletion_cdna
 from .snv import annotate_snv_gdna
 from .proteinseqs import *
 
@@ -129,10 +129,41 @@ def annotate_mnv_protein(args, q, tpts, db):
                 cdd_altseq.append('/'.join(aa2codon(aa)))
             tnuc_altseq = ''.join(tnuc_altseq)
             gnuc_altseq = reverse_complement(tnuc_altseq) if t.strand == '-' else tnuc_altseq
-            r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
-            r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
-            r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
-            r.csqn.append("MultiAAMissense")
+
+            # when a deletion leads to protein mnv
+            match_deletion = False
+            if len(q.altseq) == 1 and q.end != q.beg:
+                if tnuc_beg != tnuc_end:
+                    beg_codon_beg = q.beg*3-2
+                    end_codon_end = q.end*3
+                    del_size = (q.end-q.beg)*3
+                    del_beg = beg_codon_beg
+                    del_end = del_beg + del_size
+                    for ci in xrange(3):
+                        new_codon_seq = t.seq[beg_codon_beg-1:del_beg+ci] + t.seq[del_end+ci:end_codon_end]
+                        if (codon2aa(new_codon_seq) == q.altseq):
+                            del_beg += ci
+                            del_end += ci
+                            match_deletion = True
+                            break
+
+                    if match_deletion:
+                        q1 = QueryDEL()
+                        q1.beg = Pos(del_beg+1)
+                        q1.end = Pos(del_end)
+                        _annotate_deletion_cdna(args, q1, r, t, db)
+                        # records.append(r)
+
+            if (not match_deletion):
+                r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
+                r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
+                r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
+                r.csqn.append("MultiAAMissense")
+                r.taa_range = '%s%s_%s%sdelins%s' % (
+                    aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq,
+                r.reg = RegCDSAnno(t)
+                r.reg.from_taa_range(q.beg, q.end)
+                
             if len(cdd_altseq) <= 2:
                 r.append_info('candidate_alternative_sequence=%s' % ('+'.join(cdd_altseq), ))
             else:
@@ -142,10 +173,6 @@ def annotate_mnv_protein(args, q, tpts, db):
             continue
         except SequenceRetrievalError:
             continue
-        r.taa_range = '%s%s_%s%sdelins%s' % (
-            aaf(q.beg_aa, args), str(q.beg), aaf(q.end_aa, args), str(q.end), aaf(q.altseq, args)) # q.refseq,
-        r.reg = RegCDSAnno(t)
-        r.reg.from_taa_range(q.beg, q.end)
 
         records.append(r)
 

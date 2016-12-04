@@ -554,6 +554,8 @@ class Transcript():
         return c
 
     def _init_codon2_(self, index):
+        """ initialize with seqs and locs """
+        
         c = self._init_codon_(index)
         self.ensure_position_array()
         c.seq = self.seq[index*3-3:index*3]

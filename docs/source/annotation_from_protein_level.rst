@@ -183,6 +183,22 @@ Block substitution
       chr17:g.48745254_48745259delinsAGGAGGAGG/c.1666_1671delinsAGGAGGAGG/p.Y556_V557delinsRRR	inside_[cds_in_exon_13]
       CSQN=MultiAAMissense;216_CandidatesOmitted;source=CCDS
 
+Sometimes block substitution comes from in-frame deletion on the nucleotide level.
+
+.. code:: bash
+
+   $ transvar panno -i 'MAP2K1:p.F53_Q58delinsL' --ensembl
+
+::
+
+   MAP2K1:p.F53_Q58delinsL	ENST00000307102 (protein_coding)	MAP2K1	+
+      chr15:g.66727443_66727457del15/c.159_173del15/p.F53_Q58delinsL	inside_[cds_in_exon_2]
+      CSQN=MultiAAMissense;left_align_gDNA=g.66727443_66727457del15;unaligned_gDNA=
+      g.66727443_66727457del15;left_align_cDNA=c.159_173del15;unalign_cDNA=c.159_17
+      3del15;candidate_alternative_sequence=CTT/CTG/CTA/CTC/TTA/TTG;aliases=ENSP000
+      00302486;source=Ensembl
+
+
 Frame-shift variants
 ^^^^^^^^^^^^^^^^^^^^^^^
 
