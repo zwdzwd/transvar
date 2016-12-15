@@ -193,7 +193,7 @@ def download_url(url, file_name):
     # return
     f = open(file_name, 'wb')
     meta = u.info()
-    raw_file_size = int(meta.getheaders("Content-Length")[0])
+    raw_file_size = int(meta.get_all("Content-Length")[0])
     file_size = raw_file_size / (1024.0 * 1024.0)
     # err_print("downloading %s (%1.1f MB)" % (file_name, file_size))
 
