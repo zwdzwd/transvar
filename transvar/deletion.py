@@ -200,7 +200,7 @@ def annotate_deletion_protein(args, q, tpts, db):
             r.gene = t.gene_name
             r.strand = t.strand
 
-            if q.end*3 > t.cdslen:
+            if q.end*3 > t.cdslen():
                 raise IncompatibleTranscriptError('codon nonexistent')
 
             if q.delseq and t.taa_range2aa_seq(q.beg, q.end) != q.delseq:
@@ -271,7 +271,7 @@ def annotate_deletion_gdna(args, q, db):
             r.tname = t.format()
             r.gene = t.gene_name
             r.strand = t.strand
-            
+
             # whole gene deletion
             if q.end > t.cds_end-2 and q.beg < t.cds_beg + 2:
                 r.append_info('whole_gene_deletion')
