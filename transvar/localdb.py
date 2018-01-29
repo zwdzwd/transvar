@@ -34,7 +34,7 @@ from .utils import *
 from .transcripts import *
 from pickle import load, dump
 from . import faidx
-import tabix
+from . import tabix
 import subprocess
 
 tabix_path = '%s/tabix' % os.path.abspath(os.path.dirname(__file__))
@@ -221,7 +221,7 @@ class TransVarDB():
 
         """ read a gene by alias of transcripts """
         if self.alias_idx is None and os.path.exists(self.dbfn+'.alias_idx'):
-            self.alias_idx = load(open(self.dbfn+'.alias_idx'))
+            self.alias_idx = load(open(self.dbfn+'.alias_idx', 'rb'))
 
         if self.alias_idx is not None and alias in self.alias_idx:
             poses = self.alias_idx[alias]

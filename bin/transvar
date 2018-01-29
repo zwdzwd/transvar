@@ -33,4 +33,7 @@ if __name__ == '__main__':
     add_parser_current(subparsers)
 
     args = parser.parse_args()
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        print(parser.parse_args(['--help']))

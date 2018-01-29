@@ -57,7 +57,6 @@ def gunzip(fn):
     f_out.close()
     os.remove(fn)
 
-    
 cfg_fns = [
     os.path.expanduser(os.getenv('TRANSVAR_CFG', 
                                  os.path.join(os.path.dirname(__file__), 'transvar.cfg'))),
@@ -413,6 +412,15 @@ def main_current(args):
 
     config = configparser.RawConfigParser()
     config.read(cfg_fns)
+
+    print("Configuration files to search:")
+    for cfg_fn in cfg_fns:
+        print(cfg_fn)
+
+    print('\nDownload path:')
+    for downloaddir in downloaddirs:
+        print(downloaddir)
+    
     if args.refversion != 'DEFAULT':
         rv = args.refversion
     elif 'refversion' in config.defaults():
