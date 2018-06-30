@@ -73,7 +73,7 @@ class AnnoDB():
             self.dbs.append(TransVarDB(args.kg, source='KnownGene'))
 
         if args.uniprot:
-            idmap = load(open(args.uniprot))
+            idmap = load(open(args.uniprot, 'rb'))
             for db in self.dbs:
                 db.idmap = idmap
         self.config = config
