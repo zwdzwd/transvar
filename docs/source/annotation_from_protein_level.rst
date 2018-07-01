@@ -282,10 +282,10 @@ would return more than 80 underlying variants. In this case the argument `--max-
    WT1:p.A170Cfs*70	CCDS55751 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insTTGGGGCA/c.507_508insTGCCCCAA/p.A170Cfs*70	inside_[cds_in_exons_[7,8,9]]
       CSQN=Frameshift;left_align_cDNA=c.507_508insTGCCCCAA;left_align_gDNA=g.324179
-      08_32417909insTTGGGGCA;candidates=g.32417908_32417909insAAANNNCA/c.507_508ins
-      TGNNNTTT/g.32417908_32417909insAAANNNCA/c.507_508insTGNNNTTT,g.32417908_32417
-      909insAAGNNNCA/c.507_508insTGNNNCTT/g.32417908_32417909insAAGNNNCA/c.507_508i
-      nsTGNNNCTT;80_CandidatesOmitted;source=CCDS
+      08_32417909insTTGGGGCA;candidates=g.32417908_32417909insTTGNNNCA/c.507_508ins
+      TGNNNCAA/g.32417908_32417909insTTGNNNCA/c.507_508insTGNNNCAA,g.32417908_32417
+      909insGTGNNNCA/c.507_508insTGNNNCAC/g.32417908_32417909insGTGNNNCA/c.507_508i
+      nsTGNNNCAC;80_CandidatesOmitted;source=CCDS
 
 Sometimes the alternative amino acid can be missing
 
@@ -298,15 +298,15 @@ Sometimes the alternative amino acid can be missing
    ADAMTSL1:p.I396fs*30	CCDS6485 (protein_coding)	ADAMTSL1	+
       chr9:g.18680360_18680361insG/c.1187_1188insG/p.I396fs*30	inside_[cds_in_exon_11]
       CSQN=Frameshift;left_align_cDNA=c.1187_1188insG;left_align_gDNA=g.18680360_18
-      680361insG;candidates=g.18680354_18680355insA/c.1181_1182insA/g.18680354_1868
-      0355insA/c.1181_1182insA,g.18680354_18680355insC/c.1181_1182insC/g.18680354_1
-      8680355insC/c.1181_1182insC;11_CandidatesOmitted;source=CCDS
+      680361insG;candidates=g.18680359dupA/c.1186dupA/g.18680358_18680359insA/c.118
+      5_1186insA,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360insC/c.
+      1186_1187insC;11_CandidatesOmitted;source=CCDS
    ADAMTSL1:p.I396fs*30	CCDS47954 (protein_coding)	ADAMTSL1	+
       chr9:g.18680360_18680361insG/c.1187_1188insG/p.I396fs*30	inside_[cds_in_exon_11]
       CSQN=Frameshift;left_align_cDNA=c.1187_1188insG;left_align_gDNA=g.18680360_18
-      680361insG;candidates=g.18680354_18680355insA/c.1181_1182insA/g.18680354_1868
-      0355insA/c.1181_1182insA,g.18680354_18680355insC/c.1181_1182insC/g.18680354_1
-      8680355insC/c.1181_1182insC;11_CandidatesOmitted;source=CCDS
+      680361insG;candidates=g.18680359dupA/c.1186dupA/g.18680358_18680359insA/c.118
+      5_1186insA,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360insC/c.
+      1186_1187insC;11_CandidatesOmitted;source=CCDS
 
 
 TransVar can also take protein identifiers such as  as input. For example,
@@ -337,8 +337,8 @@ Similar applies when the underlying mutation is an insertion. TransVar can infer
    AASS:p.I355Mfs*10	CCDS5783 (protein_coding)	AASS	-
       chr7:g.121753753_121753754insTC/c.1064_1065insGA/p.I355Mfs*10	inside_[cds_in_exon_9]
       CSQN=Frameshift;left_align_cDNA=c.1064_1065insGA;left_align_gDNA=g.121753753_
-      121753754insTC;candidates=g.121753753_121753754insCC/c.1064_1065insGG/g.12175
-      3753_121753754insCC/c.1064_1065insGG;3_CandidatesOmitted;source=CCDS
+      121753754insTC;candidates=g.121753753_121753754insGC/c.1064_1065insGC/g.12175
+      3753_121753754insGC/c.1064_1065insGC;3_CandidatesOmitted;source=CCDS
 
 When the alternative becomes a stop codon, frameshift mutation becomes a nonsense mutation:
 
