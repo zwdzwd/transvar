@@ -114,11 +114,11 @@ Without specifying the refversion, user will be prompted a collection of options
 Know Current configuration
 ###########################
 
-One can read the transvar.cfg file for the information. Alternatively one may run
+To show the location and the content of currently used transvar.cfg, one may also run
 
 .. code:: bash
 
-   transvar current
+   transvar config
 
 which returns information about the setup regarding to the current reference selection, including the location of the reference file and database file.
 
@@ -132,6 +132,23 @@ which returns information about the setup regarding to the current reference sel
    ensembl: /home/wzhou/tools/transvar/transvar/transvar.download/mm10.ensembl.gtf.gz
 
 specifying ``--refversion`` displays the information under that reference version (without changing the default reference version setup).
+
+Set default reference builds
+################################
+
+To switch reference build
+
+.. code:: bash
+
+    transvar config --switch_build mm10
+
+switches the default reference build to mm10. This is equivalent to
+
+.. code:: bash
+
+    transvar config -k refversion -v mm10
+
+which sets the refversion slot explicitly.
 
 Use Additional Resources
 ##################################

@@ -31,6 +31,7 @@ import configparser
 import subprocess
 import os, sys
 from .err import *
+from builtins import input
 
 from future.standard_library import install_aliases
 install_aliases()
@@ -361,8 +362,10 @@ def main(args):
 
     config = configparser.RawConfigParser()
     config.read(cfg_fns)
+    config_altered = False
 
     if args.k and args.v:
+        config_altered = True
         if args.k == 'refversion':
             sec = 'DEFAULT'
         else:
@@ -371,55 +374,91 @@ def main(args):
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
+    if args.switch_build is not None:
+        if config.has_section(args.switch_build):
+            config_altered = True
+            config.set('DEFAULT', 'refversion', args.switch_build)
+        else:
+            err_die("""Build %s is not locally available. Consider
+$ tranvar config --download_anno %s""" % (args.switch_build, args.switch_build))
+
     if args.download_ref:
+        config_altered = True
         download_topic(args, config, 'reference')
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
     if args.download_anno:
+        config_altered = True
         download_topic(args, config, 'anno')
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
+        # check to make sure reference is also there.
+        rv = getrv(args, config)
+        if (not (config.has_section(rv) and config.has_option(rv, 'reference'))):
+            fa_path = input("Please specify fa-indexed fasta of reference (Enter to skip): ")
+            fa_path = os.path.expanduser(fa_path)
+            if fa_path == '': 
+                print("""
+Need fa-indexed fasta of reference. You can either download reference through:
+$ transvar config --download_ref
+or specify through
+$ transvar config -k reference -v [path_to_fa] --refversion [build_name]
+""")
+            else:
+                if not os.path.exists(fa_path):
+                    err_die("Path %s is non-existent." % fa_path)
+                config.set(rv, 'reference', fa_path)
+
     if args.download_ensembl:
+        config_altered = True
         download_anno_topic_ensembl(args, config)
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
     if args.download_raw:
+        config_altered = True
         download_topic(args, config, 'raw')
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
             
     if args.download_dbsnp:
+        config_altered = True
         download_topic(args, config, 'dbsnp')
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
         
     if args.download_idmap:
+        config_altered = True
         download_idmap(config)
         if args.refversion != 'DEFAULT':
             config.set('DEFAULT', 'refversion', args.refversion)
 
-    for cfg_fn in cfg_fns:
-        try:
-            config.write(open(cfg_fn,'w'))
-            break
-        except IOError as e:
-            pass
+    if config_altered:
+        for cfg_fn in cfg_fns:
+            try:
+                config.write(open(cfg_fn,'w'))
+                break
+            except IOError as e:
+                pass
+    else:
+        print_current(args)
 
-def main_current(args):
+def print_current(args):
 
     config = configparser.RawConfigParser()
     config.read(cfg_fns)
 
     print("Configuration files to search:")
     for cfg_fn in cfg_fns:
-        print(cfg_fn)
+        print(' - %s' % cfg_fn)
+    print('')
 
-    print('\nDownload path:')
+    print('Download path:')
     for downloaddir in downloaddirs:
-        print(downloaddir)
+        print(' - %s' % downloaddir)
+    print('')
     
     if args.refversion != 'DEFAULT':
         rv = args.refversion
@@ -428,13 +467,15 @@ def main_current(args):
     else:
         err_die("no default reference version set.")
 
-    print("reference version: %s" % rv)
+    print("Reference version: %s" % rv)
     if 'reference' in config.options(rv):
-        print('reference: %s' % config.get(rv, 'reference'))
+        print('Reference: %s' % config.get(rv, 'reference'))
+    print('')
+
     print("Available databases: ")
     for op in config.options(rv):
         if op not in ['refversion', 'reference']:
-            print('%s: %s' % (op, config.get(rv, op)))
+            print(' - %s: %s' % (op, config.get(rv, op)))
 
     return
 
@@ -446,6 +487,7 @@ def add_parser_config(subparsers):
     parser.add_argument('-v', default=None, help='set value')
     parser.add_argument('--refversion', default='DEFAULT',
                         help='reference version, options: hg18, hg19, hg38, mm9, mm10, see transvar config --download_ensembl for others.')
+    parser.add_argument('--switch_build', default=None, help='switch to specified genome build.')
     parser.add_argument('--download_anno', action='store_true', help='download annotations')
     parser.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
     parser.add_argument('--download_ref', action='store_true', help='download reference')
@@ -454,8 +496,4 @@ def add_parser_config(subparsers):
     parser.add_argument('--download_raw', action='store_true', help='download annotation raw file')
     parser.set_defaults(func=main)
 
-def add_parser_current(subparsers):
 
-    parser = subparsers.add_parser('current', help="view current config")
-    parser.add_argument('--refversion', default='DEFAULT', help='reference version')
-    parser.set_defaults(func=main_current)

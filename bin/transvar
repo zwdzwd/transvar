@@ -10,7 +10,7 @@ from itertools import chain
 
 from transvar.anno import add_parser_anno
 from transvar.codonsearch import add_parser_codonsearch
-from transvar.config import add_parser_config, read_config, add_parser_current
+from transvar.config import add_parser_config, read_config
 from transvar.localdb import add_parser_index
 
 if __name__ == '__main__':
@@ -30,7 +30,6 @@ if __name__ == '__main__':
 
     add_parser_index(subparsers)
     add_parser_config(subparsers)
-    add_parser_current(subparsers)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):

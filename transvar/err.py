@@ -54,7 +54,8 @@ class WrongReferenceError(Exception):
 
 def err_die(msg):
     fn = inspect.stack()[1][3]
-    sys.stderr.write('[%s] %s\n' % (fn, msg))
+    for line in msg.splitlines():
+        sys.stderr.write('[%s] %s\n' % (fn, line))
     sys.stderr.write('[%s] abort\n' % fn)
     sys.exit(1)
 
