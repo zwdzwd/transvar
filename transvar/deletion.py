@@ -271,7 +271,7 @@ def annotate_deletion_gdna(args, q, db):
             r.tname = t.format()
             r.gene = t.gene_name
             r.strand = t.strand
-            
+
             # whole gene deletion
             if q.end > t.cds_end-2 and q.beg < t.cds_beg + 2:
                 r.append_info('whole_gene_deletion')
