@@ -200,7 +200,7 @@ def annotate_deletion_protein(args, q, tpts, db):
             r.gene = t.gene_name
             r.strand = t.strand
 
-            if q.end*3 > t.cdslen:
+            if q.end*3 > t.cdslen():
                 raise IncompatibleTranscriptError('codon nonexistent')
 
             if q.delseq and t.taa_range2aa_seq(q.beg, q.end) != q.delseq:

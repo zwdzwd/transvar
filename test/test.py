@@ -29,6 +29,7 @@ SOFTWARE.
 import os, sys, re
 
 from subprocess import Popen, PIPE
+from builtins import input
 
 def wrap(line):
 
@@ -98,7 +99,7 @@ for ifn in ifns:
 
             p = Popen(B, stdin=PIPE, stdout=PIPE, stderr=PIPE)
             result, err = p.communicate()
-            result = result.strip()
+            result = result.strip().decode('ascii')
 
             print('\n')
             print('======'+line+'======')
@@ -136,7 +137,7 @@ for ifn in ifns:
                     print(oldfill)
                     print('\n+++ NEW +++')
                     print(newfill)
-                    raw_input("Difference ...")
+                    input("Difference ...")
                 else:
                     print("\nSame!\n")
 

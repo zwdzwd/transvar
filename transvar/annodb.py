@@ -99,7 +99,7 @@ class AnnoDB():
         """ init features and other annotation resources """
         for rname in ['dbsnp']:
             if self.config.has_option(self.rv, 'dbsnp'):
-                import tabix
+                from . import tabix
                 self.resources['dbsnp'] = tabix.open(self.config.get(self.rv, 'dbsnp'))
 
         self.features = []

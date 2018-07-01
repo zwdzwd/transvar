@@ -139,7 +139,7 @@ def annotate_mnv_protein(args, q, tpts, db):
                     del_size = (q.end-q.beg)*3
                     del_beg = beg_codon_beg
                     del_end = del_beg + del_size
-                    for ci in xrange(3):
+                    for ci in range(3):
                         new_codon_seq = t.seq[beg_codon_beg-1:del_beg+ci] + t.seq[del_end+ci:end_codon_end]
                         if (codon2aa(new_codon_seq) == q.altseq):
                             del_beg += ci

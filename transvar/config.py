@@ -468,6 +468,10 @@ def print_current(args):
         err_die("no default reference version set.")
 
     print("Reference version: %s" % rv)
+    if (not config.has_section(rv)):
+        print("There is no reference and database set for %s." % rv)
+        return
+
     if 'reference' in config.options(rv):
         print('Reference: %s' % config.get(rv, 'reference'))
     print('')
