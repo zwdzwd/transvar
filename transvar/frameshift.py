@@ -306,6 +306,7 @@ def _annotate_frameshift(args, q, t):
 
         # output other candidates if they exist until args.nc
         if len(matches) > 1:
+            matches = sorted(matches, key=lambda k: (k.edit_length, k.gnuc_r))
 
             cands = []
             for k in range(0,min(args.nc,len(matches))):
