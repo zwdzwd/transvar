@@ -382,14 +382,14 @@ def parse_pos(posstr):
         p.tpos = 0
         return p
 
-    m = re.match(r'(\d+)([+-]\d+)', posstr)
+    m = re.match(r'(\d+)([+\-0-9]+)', posstr)
     if m:
         p = Pos()
         p.pos = int(m.group(1))
-        p.tpos = int(m.group(2))
+        p.tpos = eval(m.group(2))
         return p
 
-    m = re.match(r'([*+-]\d+)', posstr)
+    m = re.match(r'([*+\-0-9]+)', posstr)
     if m:
         p = Pos()
         if m.group(1)[0] == '-':
@@ -399,7 +399,7 @@ def parse_pos(posstr):
         tpos = m.group(1)
         if tpos[0] == '*':      # strip '*'
             tpos = tpos[1:]
-        p.tpos = int(tpos)
+        p.tpos = eval(tpos)
         return p
 
     raise InvalidInputError('invalid_position_string_%s' % posstr)
