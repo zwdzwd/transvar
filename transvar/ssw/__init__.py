@@ -1,6 +1,7 @@
 import ctypes, os
 _DIRNAME=os.path.abspath(os.path.dirname(__file__))
-ssw=ctypes.CDLL(os.path.join(_DIRNAME, '_sswlib.so'))
+so_file = [f for f in os.listdir(_DIRNAME) if f.startswith('_sswlib') and f.endswith('.so')][0]
+ssw=ctypes.CDLL(os.path.join(_DIRNAME, so_file))
 
 class SSWAlign(ctypes.Structure):
     _fields_ = [('score', ctypes.c_uint32),
