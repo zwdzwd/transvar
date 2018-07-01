@@ -44,8 +44,8 @@ mv outdocs/*.rst ../docs/source/
 
 ## 2. upload github
 modify transvar/version.py
-git commit -am "version 2.3.4.20161215"
-git tag -a v2.3.4.20161215 -m "version 2.3.4.20161215"
+git commit -am "version 2.4.0.20180701"
+git tag -a v2.4.0.20180701 -m "version 2.4.0.20180701"
 git push
 git push --tags
 ## manually draft a release
