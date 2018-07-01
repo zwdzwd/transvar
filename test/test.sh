@@ -60,6 +60,9 @@ git push --tags
 python setup.py sdist upload -r https://pypi.python.org/pypi
 pip install -i https://pypi.python.org/pypi transvar
 
+## UPDATE, the current repo is https://upload.pypi.org/legacy/
+## 
+/primary/home/wanding.zhou/.local/bin/twine  upload dist/*
 # ~/.pypirc
 # [distutils]
 # index-servers =

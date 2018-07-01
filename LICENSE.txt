@@ -1,5 +1,8 @@
 The MIT License (MIT)
 
+Copyright (c) 2017-2018
+Wanding Zhou (zhouwanding@gmail.com)
+
 Copyright (c) 2015,2016
 The University of Texas MD Anderson Cancer Center
 Wanding Zhou, Tenghui Chen, Ken Chen (kchen3@mdanderson.org)
