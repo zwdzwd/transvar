@@ -310,7 +310,7 @@ def download_anno_topic_ensembl(args, config):
     ftp = FTP(eshost)
     ftp.login()
 
-    esroot = 'pub/release-%d/' % args.ensembl_release
+    esroot = 'pub/release-%s/' % args.ensembl_release
     if args.refversion == 'DEFAULT':
         species = [os.path.basename(o) for o in ftp.nlst("%s/gtf/" % esroot)]
         for i, sp in enumerate(species):
