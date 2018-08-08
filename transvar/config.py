@@ -51,8 +51,8 @@ def gunzip(fn):
         err_die('Target file %s not ends with .gz' % fn)
 
     import gzip
-    f_out = open(fn[:-3], 'w')
-    f_in = gzip.open(fn)
+    f_out = open(fn[:-3], 'wt')
+    f_in = gzip.open(fn, 'rt')
     f_out.writelines(f_in)
     f_in.close()
     f_out.close()
