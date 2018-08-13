@@ -56,7 +56,7 @@ class TransVarDB():
         if dbfn is None: return
 
         self.dbfn = dbfn
-        self.dbfh = open(self.dbfn)
+        self.dbfh = open(self.dbfn, 'rt')
 
         idxfn = dbfn+'.gene_idx'
         self.gene_idx = load(open(idxfn, 'rb'))
@@ -308,7 +308,7 @@ class TransVarDB():
         ## .transvardb
         names = sorted(self.name2gene.keys())
         dbfn = raw_fns[0]+'.transvardb'
-        dbfh = open(dbfn, 'w')
+        dbfh = open(dbfn, 'wt')
         gene_idx = {}
         trnx_idx = {}
         alias_idx = {}
@@ -339,16 +339,16 @@ class TransVarDB():
 
         ## .gene_idx - index gene name
         idxfn = dbfn+'.gene_idx'
-        dump(gene_idx, open(idxfn, 'w'), 2)
+        dump(gene_idx, open(idxfn, 'wb'), 2)
 
         ## .trxn_idx - index transcript name
         idxfn = dbfn+'.trxn_idx'
-        dump(trnx_idx, open(idxfn, 'w'), 2)
+        dump(trnx_idx, open(idxfn, 'wb'), 2)
 
         ## .alias_idx - index alias name
         if len(alias_idx) > 0:
             idxfn = dbfn+'.alias_idx'
-            dump(alias_idx, open(idxfn, 'w'), 2)
+            dump(alias_idx, open(idxfn, 'wb'), 2)
 
         ## .loc_idx - tab-index genomic locations
         idxfn = dbfn+'.loc_idx'
@@ -360,9 +360,9 @@ class TransVarDB():
                 t.strand, t.cds_beg, t.cds_end, t.exons, ';'.join(t.aliases), t.gene.dbxref)
 
         ## call external tabix
-        with open(idxfn,'w') as fh:
+        with open(idxfn, 'wb') as fh:
             p = subprocess.Popen(bgzip_path, stdout=fh, stdin=subprocess.PIPE)
-            p.communicate(input=s)
+            p.communicate(input=s.encode('utf-8'))
         subprocess.check_call([tabix_path, '-p', 'bed', idxfn])
 
 class FeatureDB():
@@ -373,7 +373,7 @@ class FeatureDB():
         the annotation is the fourth column
         """
         bed_fh = opengz(bed_fn)
-        with open(db_fn+'.presort', "w") as outfile:
+        with open(db_fn+'.presort', 'wt') as outfile:
             for line in bed_fh:
                 fields = line.strip('\n').split('\t')
                 if len(fields) < 4:
@@ -387,7 +387,7 @@ class FeatureDB():
         indexing made a bed file with seqname, start, end, feature
         """
         gff_fh = opengz(gff_fn)
-        with open(db_fn+'.presort', 'w') as outfile:
+        with open(db_fn+'.presort', 'wt') as outfile:
             for line in gff_fh:
                 fields = line.strip('\n').split('\t')
                 if len(fields) < 4:
@@ -400,7 +400,7 @@ class FeatureDB():
         """ VCF: #CHROM, POS, ID, REF, ALT, QUAL, FILTER, INF,
         indexing made a bed file with CHROM, POS, POS+len(REF), ID|REF|ALT """
         vcf_fh = opengz(vcf_fn)
-        with open(db_fn+'.presort', 'w') as outfile:
+        with open(db_fn+'.presort', 'wt') as outfile:
             for line in vcf_fh:
                 if line.startswith('#'):
                     continue
@@ -425,10 +425,10 @@ class FeatureDB():
         if is_sorted:
             subprocess.check_call(['mv', db_fn+'.presort', db_fn+'.sort'])
         else:
-            with open(db_fn+'.sort', "w") as outfile:
+            with open(db_fn+'.sort', 'wt') as outfile:
                 subprocess.check_call(['sort', '-T', os.path.dirname(os.path.abspath(db_fn)),
                                        '-k', '1,1', '-k', '2,2n', db_fn+'.presort'], stdout=outfile)
-        with open(db_fn, 'w') as outfile:
+        with open(db_fn, 'wt') as outfile:
             subprocess.check_call([bgzip_path, '-c', db_fn+'.sort'], stdout=outfile)
         subprocess.check_call([tabix_path, '-p', 'bed', db_fn])
 
@@ -616,7 +616,7 @@ class CCDSDB(TransVarDB):
 
     def parse_raw(self, ccds_fn):
 
-        ccds_fh = open(ccds_fn)
+        ccds_fh = open(ccds_fn, 'rt')
         ccds_fh.readline()
         cnt = 0
         for line in ccds_fh:
@@ -1085,7 +1085,7 @@ def main_index(args):
     # aliases
     if args.uniprot:
         tid2uniprot = parser.parse_uniprot_mapping(args.uniprot)
-        dump(tid2uniprot, open(args.uniprot+'.idx','w'), 2)
+        dump(tid2uniprot, open(args.uniprot+'.idx','wb'), 2)
 
     # references
     if args.reference and args.reference != "_DEF_":

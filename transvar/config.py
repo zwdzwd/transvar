@@ -51,8 +51,8 @@ def gunzip(fn):
         err_die('Target file %s not ends with .gz' % fn)
 
     import gzip
-    f_out = open(fn[:-3], 'w')
-    f_in = gzip.open(fn)
+    f_out = open(fn[:-3], 'wt')
+    f_in = gzip.open(fn, 'rt')
     f_out.writelines(f_in)
     f_in.close()
     f_out.close()
@@ -306,12 +306,11 @@ def download_anno_topic_ensembl(args, config):
 
     from ftplib import FTP
     rv = getrv(args, config)
-    args.ensembl_release = 80
     eshost = 'ftp.ensembl.org'
     ftp = FTP(eshost)
     ftp.login()
 
-    esroot = 'pub/release-%d/' % args.ensembl_release
+    esroot = 'pub/release-%s/' % args.ensembl_release
     if args.refversion == 'DEFAULT':
         species = [os.path.basename(o) for o in ftp.nlst("%s/gtf/" % esroot)]
         for i, sp in enumerate(species):
@@ -494,6 +493,7 @@ def add_parser_config(subparsers):
     parser.add_argument('--switch_build', default=None, help='switch to specified genome build.')
     parser.add_argument('--download_anno', action='store_true', help='download annotations')
     parser.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
+    parser.add_argument('--ensembl_release', default='80', help='Ensembl release version')
     parser.add_argument('--download_ref', action='store_true', help='download reference')
     parser.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
     parser.add_argument('--download_idmap', action='store_true', help='download id map')
