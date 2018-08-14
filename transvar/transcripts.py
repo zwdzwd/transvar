@@ -272,6 +272,9 @@ class Transcript():
         self.version = 255
         self.source = ''
 
+    def __lt__(self, other):
+        return self.name < other.name
+
     # Note that this is ambiguous based on whether there is seq which is coding
     # def __len__(self):
 

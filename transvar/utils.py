@@ -392,9 +392,9 @@ def opengz(fn):
 
     if fn.endswith('.gz'):
         import gzip
-        fh = gzip.open(fn)
+        fh = gzip.open(fn, 'rt')
     else:
-        fh = open(fn)
+        fh = open(fn, 'rt')
 
     return fh
 
