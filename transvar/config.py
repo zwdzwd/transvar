@@ -73,17 +73,21 @@ dwroot = 'http://transvar.info/transvar_user/annotations/'
 
 fns = {}
 
+##########################
+## raw transcript tables
+##########################
+
 # download link updates:
 # 03/06/2016: ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz
 fns[('hg19', 'raw')] = [
-    ('refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
-    ('ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
-    ('ensembl', 'hg19.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'),
-    ('gencode', 'hg19.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz'),
-    ('ucsc', 'hg19.ucsc.txt.gz', '%s/hg19.ucsc.refgene.txt.gz' % dwroot),
+    ('raw_refseq', 'hg19.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.105/GFF/ref_GRCh37.p13_top_level.gff3.gz'),
+    ('raw_ccds', 'hg19.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs37.3/CCDS.current.txt'),
+    ('raw_ensembl', 'hg19.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz'),
+    ('raw_gencode', 'hg19.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz'),
+    ('raw_ucsc', 'hg19.ucsc.txt.gz', '%s/hg19.ucsc.refgene.txt.gz' % dwroot),
     # ('custom', 'hg19.custom.txt', 'https://dl.dropboxusercontent.com/u/6647241/annotations/hg19.map?dl=1'),
-    ('aceview', 'hg19.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_37_Aug10.human.genes/AceView.ncbi_37.genes_gff.gff.gz'),
-    ('known_gene', 'hg19.knowngene.gz', '%s/UCSC_knownGene_hg19.gz?dl=1' % dwroot),
+    ('raw_aceview', 'hg19.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_37_Aug10.human.genes/AceView.ncbi_37.genes_gff.gff.gz'),
+    ('raw_known_gene', 'hg19.knowngene.gz', '%s/UCSC_knownGene_hg19.gz?dl=1' % dwroot),
     (None, 'hg19.knowngene_alias.gz', '%s/UCSC_kgAlias.gz?dl=1' % dwroot),
 ]
 
@@ -95,13 +99,13 @@ fns[('hg19', 'dbsnp')] = [
 ]
 
 fns[('hg18', 'raw')] = [
-    ('refseq', 'hg18.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/GFF/ref_NCBI36_top_level.gff3.gz'),
-    ('ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
+    ('raw_refseq', 'hg18.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/BUILD.36.3/GFF/ref_NCBI36_top_level.gff3.gz'),
+    ('raw_ccds', 'hg18.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Hs36.3/CCDS.20090327.txt'),
     # the AceView hg18 version is deprecated.
     # ('aceview', 'hg18.aceview.gff.gz', 'ftp://ftp.ncbi.nih.gov/repository/acedb/ncbi_36_Apr07.human.genes/AceView.ncbi_36.genes_gff.tar.gz'),
-    ('gencode', 'hg18.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_3c/gencode.v3c.annotation.NCBI36.gtf.gz'),
-    ('ucsc', 'hg18.ucsc.txt.gz', '%s/hg18.ucsc.refgene.txt.gz?dl=1' % dwroot),
-    ('ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
+    ('raw_gencode', 'hg18.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_3c/gencode.v3c.annotation.NCBI36.gtf.gz'),
+    ('raw_ucsc', 'hg18.ucsc.txt.gz', '%s/hg18.ucsc.refgene.txt.gz?dl=1' % dwroot),
+    ('raw_ensembl', 'hg18.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-54/gtf/homo_sapiens/Homo_sapiens.NCBI36.54.gtf.gz'),
 ]
 
 for rv in ['hg18', 'hg19', 'hg38', 'mm9', 'mm10']:
@@ -117,34 +121,30 @@ for rv in ['hg18', 'hg19', 'hg38', 'mm9', 'mm10']:
 # 06/27/2016: ensembl: ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz
 # 06/27/2016: gencode: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz
 fns[('hg38', 'raw')] = [
-    ('refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p7_top_level.gff3.gz'),
-    ('ccds', 'hg38.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human/CCDS.current.txt'),
-    ('ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz'),
-    ('gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_24/gencode.v24.annotation.gtf.gz'),
-    ('ucsc', 'hg38.ucsc.txt.gz', '%s/hg38.ucsc.refgene.txt.gz?dl=1' % dwroot),
+    ('raw_refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p7_top_level.gff3.gz'),
+    ('raw_ccds', 'hg38.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human/CCDS.current.txt'),
+    ('raw_ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz'),
+    ('raw_gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_24/gencode.v24.annotation.gtf.gz'),
+    ('raw_ucsc', 'hg38.ucsc.txt.gz', '%s/hg38.ucsc.refgene.txt.gz?dl=1' % dwroot),
 ]
 
 fns[('mm9', 'raw')] = [
-    ('ensembl', 'mm9.ensembl.gtf.gz',
-     'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
-    ('ccds', 'mm9.ccds.txt',
-     'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
-    ('gencode', 'mm9.gencode.gtf.gz',
-     'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
+    ('raw_ensembl', 'mm9.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
+    ('raw_ccds', 'mm9.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
+    ('raw_gencode', 'mm9.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
 ]
 
 fns[('mm10', 'raw')] = [
-    ('refseq', 'mm10.refseq.gff.gz',
-     'ftp://ftp.ncbi.nlm.nih.gov/genomes/M_musculus/GFF/ref_GRCm38.p3_top_level.gff3.gz'),
-    ('ccds', 'mm10.ccds.txt',
-     'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm38.1/CCDS.current.txt'),
-    ('ensembl', 'mm10.ensembl.gtf.gz',
-     'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz'),
-    ('gencode', 'mm10.gencode.gtf.gz',
-     'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
+    ('raw_refseq', 'mm10.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/M_musculus/GFF/ref_GRCm38.p3_top_level.gff3.gz'),
+    ('raw_ccds', 'mm10.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm38.1/CCDS.current.txt'),
+    ('raw_ensembl', 'mm10.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-79/gtf/mus_musculus/Mus_musculus.GRCm38.79.gtf.gz'),
+    ('raw_gencode', 'mm10.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M4/gencode.vM4.annotation.gtf.gz'), # GRCm38.p3 genome
 ]
 
-# build anno topics
+##############################
+## indexed transcript tables
+##############################
+# every (refversion, raw) should have a (refversion, anno)
 fns2 = []
 for (refv, topic), vs in fns.items():
     if topic == 'raw':          # convert all the raw files
@@ -152,6 +152,7 @@ for (refv, topic), vs in fns.items():
         for k, fn, url in vs:
             if k is None:
                 continue
+            k = k.replace("raw_","")
             afn = fn+'.transvardb'
             vs2.append((k, afn, dwroot+afn))
             afn = fn+'.transvardb.gene_idx'
@@ -170,14 +171,6 @@ for (refv, topic), vs in fns.items():
 
 for k, v in fns2:
     fns[k] = v
-
-# def download_hg19_reference(config):
-#     fns = [('reference', 'hg19.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
-#     _download_(config, 'hg38', fns)
-
-# def download_hg38_reference(config):
-#     fns = [('reference', 'hg38.fa.gz', 'http://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz')]
-#     _download_(config, 'hg38', fns)
 
 def download_url(url, file_name):
 
