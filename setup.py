@@ -54,22 +54,6 @@ class TransVarBuild(build):
         # run original build code
         build.run(self)
 
-        # build samtools
-        build_path = os.path.abspath(self.build_temp)
-        
-        cmd = ['make', '-C', 'external/samtools']
-
-        def compile():
-            subprocess.check_call(cmd)
-
-        self.execute(compile, [], 'Compile samtools')
-
-        def compile_htslib():
-            subprocess.check_call(['./configure'], cwd='external/samtools/htslib-1.2.1')
-            subprocess.check_call(['make'], cwd='external/samtools/htslib-1.2.1')
-
-        self.execute(compile_htslib, [], 'Compile htslib')
-
 class TransVarInstall(install):
 
     def run(self):
@@ -94,16 +78,7 @@ if havesetuptools:
     class TransVarDevelop(develop):
 
         def run(self):
-
-            subprocess.check_call(['make', '-C', 'external/samtools'])
-            subprocess.check_call(['./configure'], cwd='external/samtools/htslib-1.2.1')
-            subprocess.check_call(['make'], cwd='external/samtools/htslib-1.2.1')
-            
             develop.run(self)
-            import shutil
-            shutil.copy2('external/samtools/samtools', 'transvar/')
-            shutil.copy2('external/samtools/htslib-1.2.1/tabix', 'transvar/')
-            shutil.copy2('external/samtools/htslib-1.2.1/bgzip', 'transvar/')
 
     cmdclass['develop'] = TransVarDevelop
 

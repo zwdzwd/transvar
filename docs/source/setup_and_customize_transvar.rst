@@ -44,14 +44,17 @@ See ``transvar config -h`` for all choices of ``[reference name]``).
 Manual download and index
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For other genome assemblies, one could manually download the genome and index it manually by, 
+For other genome assemblies, one could manually download the genome as one file and index it manually by, 
 
 .. code:: bash
 
-   transvar index --reference [fasta]
+   samtools faidx [fasta]
 
-Under the hood, TransVar uses the "samtools faidx". So one could use any existing faidx indices without a glitch.
 Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome.
+
+.. code:: bash
+
+  transvar ganno chr1:g.300000_300001 --reference [fasta]
 
 To set the default location of genome file for a reference version, say, to ./hg19.fa,
 
