@@ -9,9 +9,11 @@ python test.py ../docs/source/ outdocs
 mv outdocs/*.rst ../docs/source/
 
 ## 2. upload github
+version="2.4.1.20180815"
+modify ../docs/source/conf.py
 modify transvar/version.py
-git commit -am "version 2.4.0.20180701"
-git tag -a v2.4.0.20180701 -m "version 2.4.0.20180701"
+git commit -am "version $version"
+git tag -a v$version -m "version $version"
 git push
 git push --tags
 ## manually draft a release

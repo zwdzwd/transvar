@@ -38,11 +38,11 @@ install_aliases()
 from urllib.request import urlopen
 # import urllib.request, urllib.error, urllib.parse
 
-samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
-
 def samtools_faidx(fn):
-    
+    ## samtools_path='%s/samtools' % os.path.abspath(os.path.dirname(__file__))
+    samtools_path = 'samtools'
     err_print("Faidx indexing")
+    ## requires samtools here
     subprocess.check_call([samtools_path, 'faidx', fn])
 
 def gunzip(fn):
@@ -69,7 +69,8 @@ downloaddirs = [
     os.path.expanduser('~/.transvar.download')]
 
 # dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
-dwroot = 'http://transvar.info/transvar_user/annotations/'
+# dwroot = 'http://transvar.info/transvar_user/annotations/'
+dwroot = 'http://zwdzwd.io/transvar_user/annotations/'
 
 fns = {}
 

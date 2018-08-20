@@ -2,8 +2,8 @@
 
 # The MIT License
 #
-# Copyright (c) 2016
-# Wanding Zhou
+# Copyright (c) 2016-2018
+# Wanding Zhou zhouwanding@gmail.com
 # 
 # Copyright (c) 2014, 2015 The University of Texas MD Anderson Cancer Center
 # Wanding Zhou, Tenghui Chen and Ken Chen
@@ -75,13 +75,15 @@ class TransVarInstall(install):
     def run(self):
 
         install.run(self)
-        import shutil
-        shutil.copy2('external/samtools/samtools',
-                     os.path.join(self.install_lib, 'transvar'))
-        shutil.copy2('external/samtools/htslib-1.2.1/tabix',
-                     os.path.join(self.install_lib, 'transvar'))
-        shutil.copy2('external/samtools/htslib-1.2.1/bgzip',
-                     os.path.join(self.install_lib, 'transvar'))
+        ## now samtools, tabix and bgzips are dependencies, they are needed only when
+        ## there is need to build one's own transcripts.
+        #  import shutil
+        #  shutil.copy2('external/samtools/samtools',
+        #               os.path.join(self.install_lib, 'transvar'))
+        #  shutil.copy2('external/samtools/htslib-1.2.1/tabix',
+        #               os.path.join(self.install_lib, 'transvar'))
+        #  shutil.copy2('external/samtools/htslib-1.2.1/bgzip',
+        #               os.path.join(self.install_lib, 'transvar'))
 
 cmdclass = {
     'build': TransVarBuild,

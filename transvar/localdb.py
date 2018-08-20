@@ -37,8 +37,11 @@ from . import faidx
 from . import tabix
 import subprocess
 
-tabix_path = '%s/tabix' % os.path.abspath(os.path.dirname(__file__))
-bgzip_path = '%s/bgzip' % os.path.abspath(os.path.dirname(__file__))
+## tabix and bgzip is now a dependency, but only when featuredb and indexing is used
+# tabix_path = '%s/tabix' % os.path.abspath(os.path.dirname(__file__))
+tabix_path = 'tabix'
+# bgzip_path = '%s/bgzip' % os.path.abspath(os.path.dirname(__file__))
+bgzip_path = 'bgzip'
 
 p_trxn_version=re.compile(r'(.*)\.(\d+)$')
 class TransVarDB():
@@ -363,6 +366,7 @@ class TransVarDB():
         with open(idxfn, 'wb') as fh:
             p = subprocess.Popen(bgzip_path, stdout=fh, stdin=subprocess.PIPE)
             p.communicate(input=s.encode('utf-8'))
+
         subprocess.check_call([tabix_path, '-p', 'bed', idxfn])
 
 class FeatureDB():
