@@ -68,9 +68,12 @@ downloaddirs = [
                                  os.path.join(os.path.dirname(__file__), 'transvar.download'))),
     os.path.expanduser('~/.transvar.download')]
 
-# dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
-# dwroot = 'http://transvar.info/transvar_user/annotations/'
 dwroot = 'http://zwdzwd.io/transvar_user/annotations/'
+## the following is obsolete
+# dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
+
+## the following will become obsolete in a year
+# dwroot = 'http://transvar.info/transvar_user/annotations/'
 
 fns = {}
 
