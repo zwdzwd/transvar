@@ -11,7 +11,7 @@ mv outdocs/*.rst ../docs/source/
 ## 2. upload github
 version="2.4.1.20180815"
 modify ../docs/source/conf.py
-modify transvar/version.py
+modify ../transvar/version.py
 git commit -am "version $version"
 git tag -a v$version -m "version $version"
 git push
