@@ -50,13 +50,13 @@ For other genome assemblies, one could manually download the genome as one file 
 
    samtools faidx [fasta]
 
-Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome.
+Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome or "--refversion" followed by the short version id.
 
 .. code:: bash
 
-  transvar ganno chr1:g.300000_300001 --reference [fasta]
+  transvar ganno -i chr1:g.30000000_30000001 --gencode --reference [fasta]
 
-To set the default location of genome file for a reference version, say, to ./hg19.fa,
+One can store the location in `transvar.cfg` file. To set the default location of genome file for a reference version, say, to ./hg19.fa,
 
 .. code:: bash
 
