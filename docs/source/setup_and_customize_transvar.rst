@@ -50,17 +50,23 @@ For other genome assemblies, one could manually download the genome as one file 
 
    samtools faidx [fasta]
 
-Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome or "--refversion" followed by the short version id.
+Once downloaded and indexed, the genome can be used through the "--reference" option followed by path to the genome:
 
 .. code:: bash
 
-  transvar ganno -i chr1:g.30000000_30000001 --gencode --reference [fasta]
+  transvar ganno -i "chr1:g.30000000_30000001" --gencode --reference path_to_hg19.fa
 
-One can store the location in `transvar.cfg` file. To set the default location of genome file for a reference version, say, to ./hg19.fa,
+or "--refversion" followed by the short version id.
 
 .. code:: bash
 
-   transvar config -k reference -v ./hg19.fa --refversion hg19
+  transvar ganno -i "chr1:g.30000000_30000001" --gencode --refversion hg19
+
+One can store the location in `transvar.cfg` file. To set the default location of genome file for a reference version, say, to path_to_hg19.fa,
+
+.. code:: bash
+
+   transvar config -k reference -v path_to_hg19.fa --refversion hg19
 
 will create in transvar.cfg an entry
 
@@ -216,7 +222,7 @@ outputs
       g.101347000_101347023del24;left_align_cDNA=c.4074+29_4074+52del24;unalign_cDN
       A=c.4074+29_4074+52del24;aliases=ENSP00000435342;source=Ensembl
 
-where the deletion sequence is reduced to its length (`del24`). The `--seqmax` option changes the length threshold (default:10) when this behavior occur. When `--seqmax` is given a negative number, the threshold is lifted such that the reference sequence is always reported regardless of its length, i.e.,
+where the deletion sequence is reduced to its length (`del24`). The `--seqmax` option changes the length threshold (default:10) when this behavior occur. When `--seqmax` is negative, the threshold is lifted such that the reference sequence is always reported regardless of its length, i.e.,
 
 .. code:: bash
 
