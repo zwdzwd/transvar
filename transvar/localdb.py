@@ -79,6 +79,7 @@ class TransVarDB():
     def parse_trnx(self, gname=None):
 
         """ parse name-indexed transcript file
+        .transvardb file
         parsing starts from dbfh current location
         """
         for line in self.dbfh:
@@ -108,6 +109,7 @@ class TransVarDB():
     def parse_trnx_loc(self, fields):
 
         """ parse location-indexed transcript file
+        .transvardb.loc_idx file
         return only 1 line
         """
         t = Transcript()
@@ -130,7 +132,8 @@ class TransVarDB():
 
     def parse_all(self, name2gene, name2trnx):
 
-        """ parse the whole transcript file
+        """ parse the whole location-indexed transcript file
+        .transvardb.loc_idx file
         this is for in-memory processing
         """
 
@@ -155,7 +158,13 @@ class TransVarDB():
 
     def get(self, name, lvl=1):
 
-        """ get by either gene name or transcript name """
+        """ get by either gene name or transcript name
+        use the following order:
+        1) gene name
+        2) trnx name
+        3) trxn name with version info
+        4) alias from idmap
+        """
 
         nohit = True
         for g in self.get_by_gene(name):
@@ -1043,7 +1052,6 @@ def main_index(args):
     3) reference;
     4) alias to gene/transcripts
     """
-
     # gene / transcripts
     if args.ensembl:
         db = EnsemblDB()
@@ -1095,16 +1103,6 @@ def main_index(args):
     if args.reference and args.reference != "_DEF_":
         from . import config
         config.samtools_faidx(args.reference)
-
-def add_parser_index(subparsers):
-
-    p = subparsers.add_parser('index', help="index custom data base")
-    parser.parser_add_annotation(p)
-    p.add_argument('--gff', nargs='?', default=None, const='_DEF_', help='Index a feature in GFF format')
-    p.add_argument('--vcf', nargs='?', default=None, const='_DEF_', help='Index a feature in VCF format')
-    p.add_argument('--bed', nargs='?', default=None, const='_DEF_', help='Index a feature in BED format')
-    p.add_argument('--sorted', action='store_true', help='feature is sorted, no need to redo sorting')
-    p.set_defaults(func=main_index)
 
 def main():
 

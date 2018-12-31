@@ -30,12 +30,11 @@ SOFTWARE.
 import sys, argparse, re
 from .annodb import AnnoDB
 # from transcripts import *
-from .parser import parser_add_annotation
 # import parser
 from .record import *
 from .err import *
 from .config import read_config
-from .mutation import parse_tok_mutation_str, list_parse_mutation, vcf_parse_mutation, parser_add_mutation
+from .mutation import parse_tok_mutation_str, list_parse_mutation, vcf_parse_mutation
 
 from .mnv import annotate_mnv_gdna, annotate_mnv_protein, annotate_mnv_cdna
 from .snv import annotate_snv_gdna, annotate_snv_protein, annotate_snv_cdna
@@ -46,6 +45,17 @@ from .frameshift import annotate_frameshift
 from functools import partial
 
 def _main_core_(args, q, db, at):
+
+    """
+    Dispatch inputs
+    args: 
+
+
+    Parameters:
+    -----------
+    args: 
+
+    """
 
     if at == 'c':
 
@@ -119,7 +129,7 @@ def _main_(args, q, db, at):
     """ process 1 input """
 
     if args.verbose > 1:
-        _main_core_(args,q,db,at)
+        _main_core_(args, q, db, at)
     else:
         try:
             return _main_core_(args,q,db,at)
@@ -191,7 +201,7 @@ def main_one(args, db, at):
             wrap_exception(Exception('invalid_gene_%s' % q.tok), q.op, args)
             # err_die('gene %s not recognized. make sure the right (if any) transcript database is used.' % q.tok)
 
-def main(args, at):
+def main_anno(args, at):
 
     config = read_config()
     db = AnnoDB(args, config)
@@ -210,33 +220,4 @@ def main(args, at):
     if args.i:
         main_one(args, db, at)
 
-def parser_add_general(parser):
-
-    parser.add_argument('--suspend', 
-                        action='store_true', 
-                        help='suspend execution upon error, rather than append to the info field')
-    parser.add_argument('-v', '--verbose',
-                        default=0,
-                        type=int,
-                        help="verbose level, higher output more debugging information [0]")
-
-def add_parser_anno(subparsers, config):
-
-    parser = subparsers.add_parser('ganno', help='annotate gDNA element')
-    parser_add_annotation(parser)
-    parser_add_mutation(parser)
-    parser_add_general(parser)
-    parser.set_defaults(func=partial(main, at='g'))
-
-    parser = subparsers.add_parser("canno", help='annotate cDNA elements')
-    parser_add_annotation(parser)
-    parser_add_mutation(parser)
-    parser_add_general(parser)
-    parser.set_defaults(func=partial(main, at='c'))
-
-    parser = subparsers.add_parser("panno", help='annotate protein element')
-    parser_add_annotation(parser)
-    parser_add_mutation(parser)
-    parser_add_general(parser)
-    parser.set_defaults(func=partial(main, at='p'))
 

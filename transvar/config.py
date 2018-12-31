@@ -354,7 +354,46 @@ def read_config():
     config.read(cfg_fns)
     return config
 
-def main(args):
+def print_current(args):
+
+    config = configparser.RawConfigParser()
+    config.read(cfg_fns)
+
+    print("Configuration files to search:")
+    for cfg_fn in cfg_fns:
+        print(' - %s' % cfg_fn)
+    print('')
+
+    print('Download path:')
+    for downloaddir in downloaddirs:
+        print(' - %s' % downloaddir)
+    print('')
+    
+    if args.refversion != 'DEFAULT':
+        rv = args.refversion
+    elif 'refversion' in config.defaults():
+        rv = config.get('DEFAULT', 'refversion')
+    else:
+        err_die("no default reference version set.")
+
+    print("Reference version: %s" % rv)
+    if (not config.has_section(rv)):
+        print("There is no reference and database set for %s." % rv)
+        return
+
+    if 'reference' in config.options(rv):
+        print('Reference: %s' % config.get(rv, 'reference'))
+    print('')
+
+    print("Available databases: ")
+    for op in config.options(rv):
+        if op not in ['refversion', 'reference']:
+            print(' - %s: %s' % (op, config.get(rv, op)))
+
+    return
+
+def main_config(args):
+
 
     config = configparser.RawConfigParser()
     config.read(cfg_fns)
@@ -441,60 +480,5 @@ $ transvar config -k reference -v [path_to_fa] --refversion [build_name]
     else:
         print_current(args)
 
-def print_current(args):
-
-    config = configparser.RawConfigParser()
-    config.read(cfg_fns)
-
-    print("Configuration files to search:")
-    for cfg_fn in cfg_fns:
-        print(' - %s' % cfg_fn)
-    print('')
-
-    print('Download path:')
-    for downloaddir in downloaddirs:
-        print(' - %s' % downloaddir)
-    print('')
-    
-    if args.refversion != 'DEFAULT':
-        rv = args.refversion
-    elif 'refversion' in config.defaults():
-        rv = config.get('DEFAULT', 'refversion')
-    else:
-        err_die("no default reference version set.")
-
-    print("Reference version: %s" % rv)
-    if (not config.has_section(rv)):
-        print("There is no reference and database set for %s." % rv)
-        return
-
-    if 'reference' in config.options(rv):
-        print('Reference: %s' % config.get(rv, 'reference'))
-    print('')
-
-    print("Available databases: ")
-    for op in config.options(rv):
-        if op not in ['refversion', 'reference']:
-            print(' - %s: %s' % (op, config.get(rv, op)))
-
-    return
-
-
-def add_parser_config(subparsers):
-
-    parser = subparsers.add_parser('config', help="show configurations")
-    parser.add_argument('-k', default=None, help='key')
-    parser.add_argument('-v', default=None, help='set value')
-    parser.add_argument('--refversion', default='DEFAULT',
-                        help='reference version, options: hg18, hg19, hg38, mm9, mm10, see transvar config --download_ensembl for others.')
-    parser.add_argument('--switch_build', default=None, help='switch to specified genome build.')
-    parser.add_argument('--download_anno', action='store_true', help='download annotations')
-    parser.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
-    parser.add_argument('--ensembl_release', default='80', help='Ensembl release version')
-    parser.add_argument('--download_ref', action='store_true', help='download reference')
-    parser.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
-    parser.add_argument('--download_idmap', action='store_true', help='download id map')
-    parser.add_argument('--download_raw', action='store_true', help='download annotation raw file')
-    parser.set_defaults(func=main)
 
 

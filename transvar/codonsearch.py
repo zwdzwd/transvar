@@ -27,8 +27,7 @@ SOFTWARE.
 
 """
 import sys, re, argparse
-from .mutation import parser_add_mutation, parse_tok_mutation_str, list_parse_mutation
-from .parser import parser_add_annotation
+from .mutation import parse_tok_mutation_str, list_parse_mutation
 from .annodb import AnnoDB
 from .transcripts import *
 from .err import *
@@ -113,7 +112,7 @@ def main_one(args, db): #name2gene, thash):
         err_die('gene %s is not recognized.' % q.tok)
         return
 
-def main(args):
+def main_codonsearch(args):
 
     config = read_config()
     db = AnnoDB(args, config)
@@ -124,9 +123,3 @@ def main(args):
     if args.i:
         main_one(args, db) #name2gene, thash)
 
-def add_parser_codonsearch(subparsers, config):
-
-    parser = subparsers.add_parser('codonsearch', help="search equivalent codon representations")
-    parser_add_mutation(parser)
-    parser_add_annotation(parser)
-    parser.set_defaults(func=main)

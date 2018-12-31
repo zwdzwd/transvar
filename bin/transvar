@@ -8,31 +8,173 @@ except ImportError:
 from itertools import chain
 """ TransVar (annotator for Transcript-dependent Variants) """
 
-from transvar.anno import add_parser_anno
-from transvar.codonsearch import add_parser_codonsearch
-from transvar.config import add_parser_config, read_config
-from transvar.localdb import add_parser_index
+from transvar.anno import main_anno
+from transvar.codonsearch import main_codonsearch
+from transvar.config import main_config
+from transvar.localdb import main_index
+from functools import partial
+
+def parser_add_general(parser):
+
+    parser.add_argument('--suspend',
+                        action='store_true',
+                        help='suspend execution upon error, rather than append to the info field')
+    parser.add_argument('-v', '--verbose',
+                        default=0,
+                        type=int,
+                        help="verbose level, higher output more debugging information [0]")
+
+def parser_add_annotation(parser):
+
+    parser.add_argument("--longest", action="store_true",
+                        help="consider only longest transcript")
+    parser.add_argument("--longestcoding", action="store_true",
+                        help="consider only protein-coding transcript with longest cds")
+    parser.add_argument('--refversion', nargs='?', default=None,
+                        help='reference version (hg18, hg19, hg38 etc) (config key: refversion)')
+    parser.add_argument('--reference', nargs='?', default='_DEF_',
+                        help='indexed reference fasta (with .fai) (config key: reference)')
+    parser.add_argument('--ensembl', nargs='?', default=None, const='_DEF_',
+                        help='Ensembl GTF transcript annotation (config key: ensembl)')
+    parser.add_argument('--gencode', nargs='?', default=None, const='_DEF_',
+                        help='GENCODE GTF transcript annotation (config key: gencode)')
+    parser.add_argument('--kg', nargs='?', default=None, const='_DEF_',
+                        help='UCSC knownGene transcript annotation (config key: known_gene)')
+    parser.add_argument('--alias', nargs='?', default=None, const='_DEF_',
+                        help="""UCSC knownGene aliases (without providing aliases, only the
+                        knownGene id can be searched (config key: known_gene_alias)""")
+    parser.add_argument('--ucsc', nargs='?', default=None, const='_DEF_',
+                        help='UCSC transcript annotation table (config key: ucsc')
+    parser.add_argument('--refseq', nargs='?', default=None, const='_DEF_',
+                        help='RefSeq transcript annotation (config key: refseq)')
+    parser.add_argument('--ccds', nargs='?', default=None, const='_DEF_',
+                        help='CCDS transcript annotation table (config key: ccds)')
+    parser.add_argument('--aceview', nargs='?', default=None, const='_DEF_',
+                        help='AceView GFF transcript annotation (config key: aceview)')
+    # parser.add_argument
+    # parser.add_argument('--custom', nargs='?', default=None, const='_DEF_',
+    #                     help='A customized transcript table with sequence (config key: custom)')
+    parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
+                        help='use uniprot ID rather than gene id (config key: uniprot)')
+    parser.add_argument('--mem', action='store_true',
+                        help='for processing large input, preload indices')
+    parser.add_argument('--sql', action='store_true',
+                        help='SQL mode')
+    parser.add_argument('--prombeg', type=int, default=1000, 
+                        help='promoter starts from n1 bases upstream of transcription start site (default: n1=1000)')
+    parser.add_argument('--promend', type=int, default=0,
+                        help='promoter ends extends to n2 bases downstream of transcription start site (default: n2=0)')
+
+
+def parser_add_mutation(parser):
+
+    parser.add_argument('--noheader', action='store_true', help='repress header print')
+    parser.add_argument('-i', default=None,
+                        help='<gene/chrm>:<mutation>, E.g., MET:1010, PIK3CA:E545K, PIK3CA:c.1633G>A, chr12:25398285')
+    parser.add_argument('-l', default=None, type = argparse.FileType('r'), help = 'mutation list file')
+    parser.add_argument('--vcf', default=None, help = 'vcf input file')
+    parser.add_argument('-d', default="\t",
+                        help="table delimiter [\\t], use 's' for space.")
+    parser.add_argument('-g', type=int,
+                        default=-1, help='column for gene/chromosome (1-based)')
+    parser.add_argument('-p', type=int, default=-1,
+                        help='column for amino acid position (1-based)')
+    parser.add_argument('-n', type=int, default=-1,
+                        help='column for nucleotide position (1-based)')
+    parser.add_argument('-r', type=int, default=-1,
+                        help='column for reference base/amino acid (1-based)')
+    parser.add_argument('-a', type=int, default=-1,
+                        help='column for variant base/amino acid (1-based)')
+    parser.add_argument('-t', type=int, default=-1,
+                        help='columns for preferred transcript (1-based)')
+    parser.add_argument('-m', type=int, default=1,
+                        help='column for <gene/chrm>:<mutation> (1-based)')
+    parser.add_argument('-o', default='-', 
+                        help='columns to be printed in output (1-based), e.g., 3,4,5-10')
+    parser.add_argument('--skipheader', action='store_true',
+                        help='skip header')
+    parser.add_argument('--seqmax', type=int, default=10, help='maximum reference sequence to output (10), use -1 for infinity')
+    parser.add_argument('--max-candidates', type=int, dest='nc', default=10, help='maximum candidate output for fuzzy search') 
+    parser.add_argument('--oneline', action='store_true', help='output one line for each query')
+    parser.add_argument('--aa3', action='store_true', help='use 3 letter code for protein output')
+    parser.add_argument('--aacontext', type=int, default=0, help='output amino acid context')
+    parser.add_argument('--haplotype', action='store_true', help='use haplotype mode for mnv')
+    parser.add_argument('--print-protein', dest='pp', action='store_true', help='print protein sequence')
+    parser.add_argument('--print-protein-pretty', dest='ppp', action='store_true', help='print protein sequence in a human-readable format')
+
 
 if __name__ == '__main__':
 
+    ##===============
+    ## print versions
+    ##===============
     import sys
     if len([a for a in sys.argv if a in ['-version', '--version']]) > 0:
         import transvar
         sys.stderr.write("TransVar Version %s\n" % transvar.__version__)
         sys.exit(1)
 
+    ##==============
+    ## build parsers
+    ##==============
     parser = argparse.ArgumentParser(description=__doc__)
-
-    config = read_config()
     subparsers = parser.add_subparsers()
-    add_parser_anno(subparsers, config)
-    add_parser_codonsearch(subparsers, config)
 
-    add_parser_index(subparsers)
-    add_parser_config(subparsers)
+    p = subparsers.add_parser('ganno', help='annotate gDNA element')
+    parser_add_annotation(p)
+    parser_add_mutation(p)
+    parser_add_general(p)
+    p.set_defaults(func=partial(main_anno, at='g'))
 
+    p = subparsers.add_parser("canno", help='annotate cDNA elements')
+    parser_add_annotation(p)
+    parser_add_mutation(p)
+    parser_add_general(p)
+    p.set_defaults(func=partial(main_anno, at='c'))
+
+    p = subparsers.add_parser("panno", help='annotate protein element')
+    parser_add_annotation(p)
+    parser_add_mutation(p)
+    parser_add_general(p)
+    p.set_defaults(func=partial(main_anno, at='p'))
+
+    p = subparsers.add_parser('codonsearch', help="search equivalent codon representations")
+    parser_add_mutation(p)
+    parser_add_annotation(p)
+    p.set_defaults(func=main_codonsearch)
+
+    p = subparsers.add_parser('config', help="show configurations")
+    p.add_argument('-k', default=None, help='key')
+    p.add_argument('-v', default=None, help='set value')
+    p.add_argument('--refversion', default='DEFAULT',
+                        help='reference version, options: hg18, hg19, hg38, mm9, mm10, see transvar config --download_ensembl for others.')
+    p.add_argument('--switch_build', default=None, help='switch to specified genome build.')
+    p.add_argument('--download_anno', action='store_true', help='download annotations')
+    p.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
+    p.add_argument('--ensembl_release', default='80', help='Ensembl release version')
+    p.add_argument('--download_ref', action='store_true', help='download reference')
+    p.add_argument('--download_dbsnp', action='store_true', help='download dbsnp')
+    p.add_argument('--download_idmap', action='store_true', help='download id map')
+    p.add_argument('--download_raw', action='store_true', help='download annotation raw file')
+    p.set_defaults(func=main_config)
+
+    p = subparsers.add_parser('index', help="index custom data base")
+    parser_add_annotation(p)
+    p.add_argument('--gff', nargs='?', default=None, const='_DEF_', help='Index a feature in GFF format')
+    p.add_argument('--vcf', nargs='?', default=None, const='_DEF_', help='Index a feature in VCF format')
+    p.add_argument('--bed', nargs='?', default=None, const='_DEF_', help='Index a feature in BED format')
+    p.add_argument('--sorted', action='store_true', help='feature is sorted, no need to redo sorting')
+    p.set_defaults(func=main_index)
+
+
+    ##===========
+    ## executions
+    ##===========
     args = parser.parse_args()
     if hasattr(args, 'func'):
         args.func(args)
     else:
         print(parser.parse_args(['--help']))
+
+
+

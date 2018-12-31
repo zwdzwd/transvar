@@ -270,7 +270,7 @@ def annotate_mnv_gdna(args, q, db):
     else:                       # make sure q.refseq exists
         q.refseq = gnuc_refseq
 
-    if args.haplotype:
+    if args.haplotype: # decompose a haplotype into a set of single mutations
         from . import anno
         for qq in decompose_mut(q):
             qq.op = q.op
@@ -478,10 +478,15 @@ def tnuc_mnv_coding(t, beg, end, altseq, r, args):
 
 def nuc_set_mnv(beg, end, refseq, altseq):
 
-    if beg == end:
+    if beg == end: # one base is replaced
         if len(altseq) == 1:
             return '%s%s>%s' % (beg, refseq, altseq)
         else:
             return '%sdelins%s' % (beg, altseq)
-    else:
+    else: # multiple bases are replaced
         return '%s_%sdelins%s' % (beg, end, altseq)
+
+
+
+
+

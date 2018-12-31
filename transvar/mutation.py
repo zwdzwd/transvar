@@ -454,38 +454,5 @@ def list_parse_mutation(args, muttype):
 
         yield q, line
 
-def parser_add_mutation(parser):
 
-    parser.add_argument('--noheader', action='store_true', help='repress header print')
-    parser.add_argument('-i', default=None,
-                        help='<gene/chrm>:<mutation>, E.g., MET:1010, PIK3CA:E545K, PIK3CA:c.1633G>A, chr12:25398285')
-    parser.add_argument('-l', default=None, type = argparse.FileType('r'), help = 'mutation list file')
-    parser.add_argument('--vcf', default=None, help = 'vcf input file')
-    parser.add_argument('-d', default="\t",
-                        help="table delimiter [\\t], use 's' for space.")
-    parser.add_argument('-g', type=int,
-                        default=-1, help='column for gene/chromosome (1-based)')
-    parser.add_argument('-p', type=int, default=-1,
-                        help='column for amino acid position (1-based)')
-    parser.add_argument('-n', type=int, default=-1,
-                        help='column for nucleotide position (1-based)')
-    parser.add_argument('-r', type=int, default=-1,
-                        help='column for reference base/amino acid (1-based)')
-    parser.add_argument('-a', type=int, default=-1,
-                        help='column for variant base/amino acid (1-based)')
-    parser.add_argument('-t', type=int, default=-1,
-                        help='columns for preferred transcript (1-based)')
-    parser.add_argument('-m', type=int, default=1,
-                        help='column for <gene/chrm>:<mutation> (1-based)')
-    parser.add_argument('-o', default='-', 
-                        help='columns to be printed in output (1-based), e.g., 3,4,5-10')
-    parser.add_argument('--skipheader', action='store_true',
-                        help='skip header')
-    parser.add_argument('--seqmax', type=int, default=10, help='maximum reference sequence to output (10), use -1 for infinity')
-    parser.add_argument('--max-candidates', type=int, dest='nc', default=10, help='maximum candidate output for fuzzy search') 
-    parser.add_argument('--oneline', action='store_true', help='output one line for each query')
-    parser.add_argument('--aa3', action='store_true', help='use 3 letter code for protein output')
-    parser.add_argument('--aacontext', type=int, default=0, help='output amino acid context')
-    parser.add_argument('--haplotype', action='store_true', help='use haplotype mode for mnv')
-    parser.add_argument('--print-protein', dest='pp', action='store_true', help='print protein sequence')
-    parser.add_argument('--print-protein-pretty', dest='ppp', action='store_true', help='print protein sequence in a human-readable format')
+
