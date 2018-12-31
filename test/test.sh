@@ -25,12 +25,17 @@ git push --tags
 
 ## 3. upload pypi
 ## python setup.py register -r https://pypi.python.org/pypi
-python setup.py sdist upload -r https://pypi.python.org/pypi
-pip install -i https://pypi.python.org/pypi transvar
+## python setup.py sdist upload -r https://pypi.python.org/pypi
+## pip install -i https://pypi.python.org/pypi transvar
 
 ## UPDATE, the current repo is https://upload.pypi.org/legacy/
-## 
-/primary/home/wanding.zhou/.local/bin/twine upload dist/*
+## /primary/home/wanding.zhou/.local/bin/twine upload dist/*
+
+python setup.py build # build the .tar.gz file
+/primary/home/wanding.zhou/.local/bin/twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-2.4.1.20180815.tar.gz
+
+## 4. Update release note on github
+
 # ~/.pypirc
 # [distutils]
 # index-servers =
