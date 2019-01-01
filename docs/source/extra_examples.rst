@@ -34,11 +34,14 @@ Point mutation
 ^^^^^^^^^^^^^^^
 
 .. code:: bash
-	$ transvar ganno --ccds -i 'chr3:g.178936091G>A' --gseq
+   $ transvar ganno --ccds -i 'chr3:g.178936091G>A' --gseq
 
 :: 
 
-	df
+   chr3:g.178936091G>A	CCDS43171 (protein_coding)	PIK3CA	+
+      chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
+      CSQN=Missense;dbsnp=rs104886003(chr3:178936091G>A);codon_pos=178936091-178936
+      092-178936093;ref_codon_seq=GAG;source=CCDS	chr3	178936091	178936091	G	A
 
 
 .. code:: bash
