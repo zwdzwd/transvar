@@ -70,6 +70,12 @@ def annotate_mnv_cdna(args, q, tpts, db):
             r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
             r.tnuc_range = nuc_set_mnv(q.beg, q.end, tnuc_refseq, q.altseq)
 
+            # optional output with --gseq
+            r.gnuc_beg = gnuc_beg
+            r.gnuc_end = gnuc_end
+            r.gnuc_ref = gnuc_refseq
+            r.gnuc_alt = gnuc_altseq
+
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
             if (not r.set_splice('lost', 'BlockSubstitution')):
                 if t.transcript_type == 'protein_coding' and r.reg.entirely_in_cds():
@@ -157,6 +163,13 @@ def annotate_mnv_protein(args, q, tpts, db):
             if (not match_deletion):
                 r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
                 r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
+
+                # optional output with --gseq
+                r.gnuc_beg = gnuc_beg
+                r.gnuc_end = gnuc_end
+                r.gnuc_ref = gnuc_refseq
+                r.gnuc_alt = gnuc_altseq
+
                 r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
                 r.csqn.append("MultiAAMissense")
                 r.taa_range = '%s%s_%s%sdelins%s' % (
@@ -311,6 +324,12 @@ def annotate_mnv_gdna(args, q, db):
         r.chrm = q.tok
         r.pos = '%d-%d' % (q.beg, q.end)
         r.gnuc_range = nuc_set_mnv(q.beg, q.end, gnuc_refseq, gnuc_altseq)
+
+        # optional output under --gseq
+        r.gnuc_beg = q.beg
+        r.gnuc_end = q.end
+        r.gnuc_ref = gnuc_refseq
+        r.gnuc_alt = gnuc_altseq
 
         db.query_dbsnp_range(r, q.beg, q.end, gnuc_altseq)
         if hasattr(reg, 't'):

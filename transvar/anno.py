@@ -42,7 +42,6 @@ from .insertion import annotate_insertion_gdna, annotate_insertion_protein, anno
 from .deletion import annotate_deletion_gdna, annotate_deletion_protein, annotate_deletion_cdna
 from .region import annotate_region_gdna, annotate_region_protein, annotate_region_cdna, annotate_gene
 from .frameshift import annotate_frameshift
-from functools import partial
 
 def _main_core_(args, q, db, at):
 
@@ -128,11 +127,11 @@ def _main_core_(args, q, db, at):
 def _main_(args, q, db, at):
     """ process 1 input """
 
-    if args.verbose > 1:
+    if args.verbose > 1: # let exception be released without being caught
         _main_core_(args, q, db, at)
-    else:
+    else: # try to catch any exception
         try:
-            return _main_core_(args,q,db,at)
+            return _main_core_(args, q, db, at)
         except Exception as e:
             wrap_exception(e, q.op, args)
 

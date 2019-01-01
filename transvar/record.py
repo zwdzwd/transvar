@@ -676,7 +676,7 @@ class Record():
 
         """ format in chr1:A12345T """
         s = self.chrm+':g.'
-        if hasattr(self, 'gnuc_range') and self.gnuc_range:
+        if hasattr(self, 'gnuc_range') and self.gnuc_range: # gnuc_range always have priority of output
             s += self.gnuc_range
         else:
             if hasattr(self, 'gnuc_pos') and self.gnuc_pos: s += str(self.gnuc_pos)
@@ -701,17 +701,18 @@ class Record():
     def format_id(self):
         return '%s/%s/%s' % (self.gnuc(), self.tnuc(), self.taa())
 
-    def format(self, op):
+    def format(self, op, args = None):
+        """ This is where all the formatting actually happens """
 
         s = op+'\t' if op else ''
-        s += self.formats()
+        s += self.formats(args)
 
         try:
             print(s)
         except IOError:
             sys.exit(1)
 
-    def formats(self):
+    def formats(self, args): # format string
 
         if self.is_var:
             if len(self.csqn) == 0:
@@ -729,40 +730,51 @@ class Record():
             if self.reg.t.source:
                 self.append_info('source=%s' % self.reg.t.source)
 
-        return template.format(r=self, reg=self.reg.format(),
-                               gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
+        s = template.format(r=self, reg=self.reg.format(),
+                gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
+
+        if args is not None and args.gseq:
+            s += '\t%s\t%s\t%s\t%s\t%s' % (self.chrm,
+                str(self.gnuc_beg) if hasattr(self, 'gnuc_beg') and self.gnuc_beg else '.',
+                str(self.gnuc_end) if hasattr(self, 'gnuc_end') and self.gnuc_end else '.',
+                str(self.gnuc_ref) if hasattr(self, 'gnuc_ref') and self.gnuc_ref else '.',
+                str(self.gnuc_alt) if hasattr(self, 'gnuc_alt') and self.gnuc_alt else '.')
+
+        return s
 
 def format_one(r, rs, qop, args):
     if not args.oneline:
-        r.format(qop)
+        r.format(qop, args)
     else:
-        rs.append(r.formats())
+        rs.append(r.formats(args))
 
 def format_records(records, qop, args):
 
-    """Print records"""
+    """Print records
+    This is the function all annotation will return.
+    """
 
     if len(records) > 0:
         if args.oneline:
             s = qop+'\t' if qop else ''
-            s += '\t|||\t'.join([r.formats() for r in records])
+            s += '\t|||\t'.join([r.formats(args) for r in records])
             try:
                 print(s)
             except IOError:
                 sys.exit(1)
         else:
             for r in records:
-                r.format(qop)
+                r.format(qop, args)
     else:
         r = Record()
         r.append_info('no_valid_transcript_found')
-        r.format(qop)
+        r.format(qop, args)
 
 def wrap_exception(e, op, args):
     r = Record()
     r.append_info("Error_"+str(e))
     err_warn(str(e))
-    r.format(op)
+    r.format(op, args)
     if args.suspend:
         raise e
 

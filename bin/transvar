@@ -16,11 +16,13 @@ from functools import partial
 
 def parser_add_general(parser):
 
+    parser.add_argument('--gseq', action='store_true',
+                        help="append genomic sequence of reference and alternative as extra column")
     parser.add_argument('--suspend',
                         action='store_true',
                         help='suspend execution upon error, rather than append to the info field')
     parser.add_argument('-v', '--verbose',
-                        default=0,
+                        default=0, # when >1, output all the exception
                         type=int,
                         help="verbose level, higher output more debugging information [0]")
 
@@ -93,14 +95,22 @@ def parser_add_mutation(parser):
                         help='columns to be printed in output (1-based), e.g., 3,4,5-10')
     parser.add_argument('--skipheader', action='store_true',
                         help='skip header')
-    parser.add_argument('--seqmax', type=int, default=10, help='maximum reference sequence to output (10), use -1 for infinity')
-    parser.add_argument('--max-candidates', type=int, dest='nc', default=10, help='maximum candidate output for fuzzy search') 
-    parser.add_argument('--oneline', action='store_true', help='output one line for each query')
-    parser.add_argument('--aa3', action='store_true', help='use 3 letter code for protein output')
-    parser.add_argument('--aacontext', type=int, default=0, help='output amino acid context')
-    parser.add_argument('--haplotype', action='store_true', help='use haplotype mode for mnv')
-    parser.add_argument('--print-protein', dest='pp', action='store_true', help='print protein sequence')
-    parser.add_argument('--print-protein-pretty', dest='ppp', action='store_true', help='print protein sequence in a human-readable format')
+    parser.add_argument('--seqmax', type=int, default=10, 
+                        help='maximum reference sequence to output (10), use -1 for infinity')
+    parser.add_argument('--max-candidates', type=int, dest='nc', default=10,
+                        help='maximum candidate output for fuzzy search') 
+    parser.add_argument('--oneline', action='store_true',
+                        help='output one line for each query')
+    parser.add_argument('--aa3', action='store_true', 
+                        help='use 3 letter code for protein output')
+    parser.add_argument('--aacontext', type=int, default=0,
+                        help='output amino acid context')
+    parser.add_argument('--haplotype', action='store_true', 
+                        help='use haplotype mode for mnv')
+    parser.add_argument('--print-protein', dest='pp', action='store_true',
+                        help='print protein sequence')
+    parser.add_argument('--print-protein-pretty', dest='ppp', action='store_true', 
+                        help='print protein sequence in a human-readable format')
 
 
 if __name__ == '__main__':

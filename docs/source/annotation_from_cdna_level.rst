@@ -349,6 +349,33 @@ When block substitution occurs **across splice site**, TransVar put a tag in the
       CSQN=SpliceDonorBlockSubstitution;C2=donor_splice_site_on_exon_9_at_chr10:525
       70799_lost;source=CCDS
 
+
+With `--gseq` transvar appends genomic sequence information as additional columns
+
+.. code:: bash
+
+   $ transvar canno -i 'MRE11A:c.592_593delGTinsTA' --ensembl --gseq
+
+::
+
+   MRE11A:c.592_593delGTinsTA	ENST00000323929 (protein_coding)	MRE11A	-
+      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
+      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000325863;source=Ensembl	c
+      hr11	94209521	94209522	AC	TA
+   MRE11A:c.592_593delGTinsTA	ENST00000323977 (protein_coding)	MRE11A	-
+      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
+      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000326094;source=Ensembl	c
+      hr11	94209521	94209522	AC	TA
+   MRE11A:c.592_593delGTinsTA	ENST00000393241 (protein_coding)	MRE11A	-
+      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
+      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000376933;source=Ensembl	c
+      hr11	94209521	94209522	AC	TA
+   MRE11A:c.592_593delGTinsTA	ENST00000540013 (protein_coding)	MRE11A	-
+      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
+      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000440986;source=Ensembl	c
+      hr11	94209521	94209522	AC	TA
+
+
 duplication
 ^^^^^^^^^^^^^^^
 
@@ -398,4 +425,5 @@ Example: to annotate a duplication in intronic region,
       CSQN=IntronicInsertion;left_align_gDNA=g.61693553_61693554insCTC;unalign_gDNA
       =g.61693554_61693556dupCTC;left_align_cDNA=c.1666-6_1666-5insCTC;unalign_cDNA
       =c.1666-5_1666-3dupCTC;source=CCDS
+
 
