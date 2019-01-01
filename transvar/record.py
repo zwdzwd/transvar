@@ -734,6 +734,13 @@ class Record():
                 gnuc=self.gnuc(), tnuc = self.tnuc(), taa = self.taa())
 
         if args is not None and args.gseq:
+
+            if ((not hasattr(self, 'gnuc_beg')) and 
+                (not hasattr(self, 'gnuc_end')) and 
+                hasattr(self, 'gnuc_pos')):
+                self.gnuc_beg = self.gnuc_pos
+                self.gnuc_end = self.gnuc_pos
+
             s += '\t%s\t%s\t%s\t%s\t%s' % (self.chrm,
                 str(self.gnuc_beg) if hasattr(self, 'gnuc_beg') and self.gnuc_beg else '.',
                 str(self.gnuc_end) if hasattr(self, 'gnuc_end') and self.gnuc_end else '.',

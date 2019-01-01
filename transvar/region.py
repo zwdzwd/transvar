@@ -190,6 +190,9 @@ def annotate_region_protein_transcript1(args, q, t, db):
     # g-syntax
     r.gnuc_beg, r.gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
     r.gnuc_range = '%d_%d' % (r.gnuc_beg, r.gnuc_end)
+    # optional output
+    if args.gseq:
+        r.gnuc_ref = refrefseq
 
     # c-syntax
     r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
@@ -256,6 +259,12 @@ def annotate_region_gdna_intergenic_point(args, q, reg):
 
     r.gnuc_pos = q.pos if hasattr(q,'pos') else q.beg
     r.pos = r.gnuc_pos
+    
+    # optional output
+    if args.gseq:
+        r.gnuc_beg = r.gnuc_pos
+        r.gnuc_end = r.gnuc_pos
+        r.gnuc_ref = faidx.refgenome.fetch_sequence(r.chrm, r.gnuc_pos, r.gnuc_pos)
 
     # # # annotate extra noncoding features
     # if 'GENCODE' in args.ffhs:
@@ -306,6 +315,12 @@ def annotate_region_gdna_genic_point(args, q, reg):
     r.gnuc_pos = q.pos
     r.pos = q.pos
     r.gnuc_ref = faidx.refgenome.fetch_sequence(q.tok, q.pos, q.pos)
+    
+    # optional output
+    if args.gseq:
+        r.gnuc_beg = r.gnuc_pos
+        r.gnuc_end = r.gnuc_pos
+
     r.tnuc_pos = p
     r.tnuc_ref = r.gnuc_ref if c.strand == '+' else complement(r.gnuc_ref)
     r.append_info('codon_pos=%s' % ('-'.join(map(str, c.locs)),))
@@ -335,6 +350,13 @@ def annotate_region_gdna_genic_span(args, q, reg):
     r.strand = reg.t.strand
 
     r.gnuc_range = '%d_%d' % (q.beg, q.end)
+
+    # optional output
+    if args.gseq:
+        r.gnuc_beg = q.beg
+        r.gnuc_end = q.end
+        if r.gnuc_end - r.gnuc_beg < args.seqmax:
+            r.gnuc_ref = faidx.refgenome.fetch_sequence(r.chrm, r.gnuc_beg, r.gnuc_end)
 
     r.set_splice('included')
 
@@ -372,8 +394,7 @@ def annotate_region_gdna_genic_span(args, q, reg):
 
 def annotate_region_gdna_intergenic_span(args, q, reg):
 
-    """annotate gDNA intergenic span
-    Print or return records
+    """annotate gDNA region with an intergenic span
 
     Args:
         args ((argparse.Namespace): command line arguments
@@ -388,6 +409,14 @@ def annotate_region_gdna_intergenic_span(args, q, reg):
     r.chrm = q.tok
     r.set_promoter()
     r.gnuc_range = '%d_%d' % (q.beg, q.end)
+
+    # optional output
+    if args.gseq:
+        r.gnuc_beg = q.beg
+        r.gnuc_end = q.end
+        if r.gnuc_end - r.gnuc_beg < args.seqmax:
+            r.gnuc_ref = faidx.refgenome.fetch_sequence(r.chrm, r.gnuc_beg, r.gnuc_end)
+
     # r.pos = '%d-%d' % (q.beg, q.end)
     r.set_splice('included')
 
@@ -413,8 +442,7 @@ def annotate_region_gdna_intergenic_span(args, q, reg):
 
 def annotate_region_gdna(args, q, db):
 
-    """Annotate gDNA region
-    Print or return records
+    """Annotate when input is gDNA
 
     Args:
         args (argparse.Namespace): command line arguments
@@ -458,7 +486,13 @@ def annotate_region_gdna(args, q, db):
 
 def annotate_gene(args, q, tpts, db):
 
-    """annotate gene
+    """annotate when the input is just a single gene name
+
+    Args:
+        args: (argparse.Namespace): command line arguments
+        q (record.QueryREG): query of region
+        tpts (lists of transcript.Transcript): transcripts
+        db (annodb.AnnoDB): annotation database
     """
 
     records = []
@@ -467,6 +501,13 @@ def annotate_gene(args, q, tpts, db):
         r.chrm = t.chrm
         r.gene = q.gene.name
         r.gnuc_range = '%d_%d' % (t.beg, t.end)
+
+        # optional output
+        if args.gseq:
+            r.gnuc_beg = t.beg
+            r.gnuc_end = t.end
+            r.gnuc_ref = t.refseq()
+
         r.tnuc_range = '%d_%d' % (1, t.cdslen())
         if t.strand == '+':
             tss_tes = (t.chrm, t.beg-args.prombeg, t.beg+args.promend)

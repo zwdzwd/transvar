@@ -98,6 +98,14 @@ class GNucDeletion():
         r.pos = '%d-%d' % (self.gnuc_beg_r, self.gnuc_end_r)
 
         r.gnuc_range = gnuc_del_id(self.chrm, self.gnuc_beg_r, self.gnuc_end_r, args)
+
+        # optional output
+        if args.gseq:
+            r.gnuc_beg = self.gnuc_beg
+            r.gnuc_end = self.gnuc_end
+            if self.gnuc_end - self.gnuc_beg < args.seqmax and args.seqmax >= 0:
+                r.gnuc_ref = self.gnuc_delseq
+
         r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(
             self.chrm, self.gnuc_beg_l, self.gnuc_end_l, args))
         r.append_info('unaligned_gDNA=g.%s' % gnuc_del_id(

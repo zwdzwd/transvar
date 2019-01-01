@@ -123,3 +123,6 @@ APC:p.I1557Efs	CCDS4107 (protein_coding)	APC	+
    chr5:g.(112175959_112175960)/c.(4669_4668)/p.I1557Efs	inside_[cds_in_exon_15]
    CSQN=Frameshift;imprecise;source=CCDS
 ```
+
+```Shell
+transvar ganno --ccds -i 'chr3:g.178936091G>A' --gseq

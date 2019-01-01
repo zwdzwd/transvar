@@ -522,19 +522,5 @@ gives
 Since MET.p.992 is in the list, the two identifiers might be due to the same genomic mutation.
 
 
-The optional `--gseq` append genomic sequence as extra columns (chromosome, begin, end, reference sequence and alternative sequence).
-
-.. code:: bash
-
-   $ transvar panno -i 'ABCC3:p.Y556_556delinsR' --ensembl --gseq
-
-gives
-
-:: 
-
-   ABCC3:p.Y556_556delinsR	ENST00000285238 (protein_coding)	ABCC3	+
-      chr17:g.48745254_48745256delinsAGG/c.1666_1668delinsAGG/p.Y556_556delinsR	inside_[cds_in_exon_13]
-      CSQN=MultiAAMissense;candidate_alternative_sequence=AGG/AGA/CGA/CGC/CGG/CGT;a
-      liases=ENSP00000285238;source=Ensembl	chr17	48745254	48745256	TAC	AGG
 
 

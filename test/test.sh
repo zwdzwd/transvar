@@ -9,7 +9,7 @@ python test.py ../docs/source/ outdocs
 mv outdocs/*.rst ../docs/source/
 
 ## 2. upload github
-version="2.4.2.20181231"
+version="2.4.3.20181231"
 modify ../docs/source/conf.py
 modify ../transvar/version.py
 git commit -am "version $version"
@@ -31,8 +31,8 @@ git push --tags
 ## UPDATE, the current repo is https://upload.pypi.org/legacy/
 ## /primary/home/wanding.zhou/.local/bin/twine upload dist/*
 
-python setup.py build # build the .tar.gz file
-/primary/home/wanding.zhou/.local/bin/twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-2.4.1.20180815.tar.gz
+python setup.py bdist # build the .tar.gz file
+/primary/home/wanding.zhou/.local/bin/twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-2.4.2.20181231.tar.gz
 
 ## 4. Update release note on github
 

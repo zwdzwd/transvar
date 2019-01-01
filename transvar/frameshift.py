@@ -28,6 +28,7 @@ SOFTWARE.
 """
 from __future__ import division
 from .transcripts import *
+from .insertion import *
 from .utils import *
 from .record import *
 from .err import *
@@ -39,6 +40,7 @@ alphabets = 'ACGT'
 class MatchedIndel:
 
     def __init__(self):
+        # TODO: one should allow the actual sequence be stored here.
 
         self.gnuc_r = '.'       # right aligned gDNA id
         self.gnuc_l = '.'
@@ -301,6 +303,14 @@ def _annotate_frameshift(args, q, t):
 
         r.gnuc_range = chosen.gnuc_r
         r.tnuc_range = chosen.tnuc_r
+
+        # optional output - TODO: this is not supported for frameshift yet.
+        # if args.gseq:
+        #     r.gnuc_beg = chosen.gnuc_beg_r
+        #     r.gnuc_end = chosen.gnuc_end_r
+        #     r.gnuc_ref = chosen.gnuc_ref
+        #     r.gnuc_ref = chosen.gnuc_alt
+
         r.append_info('left_align_cDNA=c.%s' % chosen.tnuc_l)
         r.append_info('left_align_gDNA=g.%s' % chosen.gnuc_l)
 
@@ -341,7 +351,6 @@ def _annotate_frameshift(args, q, t):
 
     return r
 
-
 def annotate_frameshift(args, q, tpts, db):
 
     if q.alt == '*':
@@ -371,7 +380,6 @@ def annotate_frameshift(args, q, tpts, db):
     #     r.append_info('no_valid_transcript_found_(from_%s_candidates)' % len(tpts))
     #     r.format(q.op)
     return records
-
 
 def format_fs(q, args):
 

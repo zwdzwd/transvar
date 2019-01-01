@@ -33,6 +33,207 @@ from .record import *
 from .describe import *
 from .proteinseqs import *
 
+class NucInsertion():
+
+    def __init__(self):
+        pass
+
+    def unalign(self):
+
+        n = len(self.insseq)
+        if self.flank5 == self.insseq:
+            if len(self.flank5) == 1:
+                return '%sdup%s' % (self.flank5_beg, self.insseq)
+            else:
+                return '%s_%sdup%s' % (self.flank5_beg, self.flank5_end, self.insseq)
+        else:
+            return '%s_%sins%s' % (self.beg, self.end, self.insseq)
+
+    def right_align(self):
+
+        n = len(self.insseq_r)
+        if self.flank5_r == self.insseq_r:
+            if len(self.flank5_r) == 1:
+                return '%sdup%s' % (self.flank5_beg_r, self.insseq_r)
+            else:
+                return '%s_%sdup%s' % (self.flank5_beg_r, self.flank5_end_r, self.insseq_r)
+        else:
+            return '%s_%sins%s' % (self.beg_r, self.end_r, self.insseq_r)
+
+    def left_align(self):
+
+        n = len(self.insseq_l)
+        if self.flank5_l == self.insseq_l:
+            if len(self.flank5_l) == 1:
+                return '%sdup%s' % (self.flank5_beg_l, self.insseq_l)
+            else:
+                return '%s_%sdup%s' % (self.flank5_beg_l, self.flank5_end_l, self.insseq_l)
+        else:
+            return '%s_%sins%s' % (self.beg_l, self.end_l, self.insseq_l)
+
+def gnuc_set_ins_core(chrm, beg, insseq):
+
+    i = NucInsertion()
+    i.chrm = chrm
+    i.beg = beg
+    i.end = beg + 1
+    i.insseq = insseq
+    n = len(i.insseq)
+    i.flank5_beg = i.beg-n+1
+    i.flank5_end = i.beg
+    i.flank5 = faidx.getseq(chrm, i.flank5_beg, i.flank5_end)
+    i.flank3_beg = i.end
+    i.flank3_end = i.end+n-1
+    i.flank3 = faidx.getseq(chrm, i.flank3_beg, i.flank3_end)
+
+    # right align
+    i.beg_r, i.insseq_r = gnuc_roll_right_ins(chrm, i.beg, i.insseq)
+    i.end_r = i.beg_r + 1
+    i.flank5_beg_r = i.beg_r-n+1
+    i.flank5_end_r = i.beg_r
+    i.flank5_r = faidx.getseq(chrm, i.flank5_beg_r, i.flank5_end_r)
+    i.flank3_beg_r = i.end_r
+    i.flank3_end_r = i.end_r+n-1
+    i.flank3_r = faidx.getseq(chrm, i.flank3_beg_r, i.flank3_end_r)
+
+    # left align
+    i.beg_l, i.insseq_l = gnuc_roll_left_ins(chrm, i.beg, i.insseq)
+    i.end_l = i.beg_l + 1
+    i.flank5_beg_l = i.beg_l-n+1
+    i.flank5_end_l = i.beg_l
+    i.flank5_l = faidx.getseq(chrm, i.flank5_beg_l, i.flank5_end_l)
+    i.flank3_beg_l = i.end_l
+    i.flank3_end_l = i.end_l+n-1
+    i.flank3_l = faidx.getseq(chrm, i.flank3_beg_l, i.flank3_end_l)
+
+    return i
+
+def gnuc_set_ins(chrm, beg, insseq, r):
+
+    i = gnuc_set_ins_core(chrm, beg, insseq)
+    r.gnuc_range = i.right_align()
+    r.append_info('left_align_gDNA=g.%s' % i.left_align())
+    r.append_info('unalign_gDNA=g.%s' % i.unalign())
+    # r.append_info('insertion_gDNA='+i.insseq_r)
+
+    return i
+
+def tnuc_set_ins_core(gi, t, beg=None, end=None, insseq=None):
+
+    i = NucInsertion()
+    i.chrm = gi.chrm
+    if beg is None:
+        if t.strand == '+':
+            _, i.beg = t.gpos2codon(gi.beg)
+        else:
+            _, i.beg = t.gpos2codon(gi.end)
+    else:
+        i.beg = beg
+
+    if end is None:
+        if t.strand == '+':
+            _, i.end = t.gpos2codon(gi.end)
+        else:
+            _, i.end = t.gpos2codon(gi.beg)
+    else:
+        i.end = end
+
+    if t.strand == '+':
+        _, i.flank5_beg = t.gpos2codon(gi.flank5_beg)
+        _, i.flank5_end = t.gpos2codon(gi.flank5_end)
+        _, i.flank3_beg = t.gpos2codon(gi.flank3_beg)
+        _, i.flank3_end = t.gpos2codon(gi.flank3_end)
+    else:
+        _, i.flank5_beg = t.gpos2codon(gi.flank3_end)
+        _, i.flank5_end = t.gpos2codon(gi.flank3_beg)
+        _, i.flank3_beg = t.gpos2codon(gi.flank5_end)
+        _, i.flank3_end = t.gpos2codon(gi.flank5_beg)
+
+    if insseq is None:
+        if t.strand == '+':
+            i.insseq = gi.insseq
+        else:
+            i.insseq = reverse_complement(gi.insseq)
+    else:
+        i.insseq = insseq
+
+    if t.strand == '+':
+        i.flank5 = gi.flank5
+        i.flank3 = gi.flank3
+
+        _, i.beg_l = t.gpos2codon(gi.beg_l)
+        _, i.end_l = t.gpos2codon(gi.end_l)
+        i.insseq_l = gi.insseq_l
+        i.flank5_l = gi.flank5_l
+        i.flank3_l = gi.flank3_l
+        _, i.flank5_beg_l = t.gpos2codon(gi.flank5_beg_l)
+        _, i.flank5_end_l = t.gpos2codon(gi.flank5_end_l)
+        _, i.flank3_beg_l = t.gpos2codon(gi.flank3_beg_l)
+        _, i.flank3_end_l = t.gpos2codon(gi.flank3_end_l)
+
+
+        _, i.beg_r = t.gpos2codon(gi.beg_r)
+        _, i.end_r = t.gpos2codon(gi.end_r)
+        i.insseq_r = gi.insseq_r
+        i.flank5_r = gi.flank5_r
+        i.flank3_r = gi.flank3_r
+        _, i.flank5_beg_r = t.gpos2codon(gi.flank5_beg_r)
+        _, i.flank5_end_r = t.gpos2codon(gi.flank5_end_r)
+        _, i.flank3_beg_r = t.gpos2codon(gi.flank3_beg_r)
+        _, i.flank3_end_r = t.gpos2codon(gi.flank3_end_r)
+
+
+    else:
+        i.flank5 = reverse_complement(gi.flank3)
+        i.flank3 = reverse_complement(gi.flank5)
+
+        _, i.beg_l = t.gpos2codon(gi.end_r)
+        _, i.end_l = t.gpos2codon(gi.beg_r)
+        i.insseq_l = reverse_complement(gi.insseq_r)
+        i.flank5_l = reverse_complement(gi.flank3_r)
+        i.flank3_l = reverse_complement(gi.flank5_r)
+        _, i.flank5_beg_l = t.gpos2codon(gi.flank3_end_r)
+        _, i.flank5_end_l = t.gpos2codon(gi.flank3_beg_r)
+        _, i.flank3_beg_l = t.gpos2codon(gi.flank5_end_r)
+        _, i.flank3_end_l = t.gpos2codon(gi.flank5_beg_r)
+
+        _, i.beg_r = t.gpos2codon(gi.end_l)
+        _, i.end_r = t.gpos2codon(gi.beg_l)
+        i.insseq_r = reverse_complement(gi.insseq_l)
+        i.flank5_r = reverse_complement(gi.flank3_l)
+        i.flank3_r = reverse_complement(gi.flank5_l)
+        _, i.flank5_beg_r = t.gpos2codon(gi.flank3_end_l)
+        _, i.flank5_end_r = t.gpos2codon(gi.flank3_beg_l)
+        _, i.flank3_beg_r = t.gpos2codon(gi.flank5_end_l)
+        _, i.flank3_end_r = t.gpos2codon(gi.flank5_beg_l)
+
+    return i
+
+def tnuc_set_ins(gi, t, r, beg=None, end=None, insseq=None):
+
+    """ copy a gDNA insertion to a cDNA insertion """
+
+    i = tnuc_set_ins_core(gi, t, beg, end, insseq)
+    r.tnuc_range = i.right_align()
+    r.append_info('left_align_cDNA=c.%s' % i.left_align())
+    r.append_info('unalign_cDNA=c.%s' % i.unalign())
+    # r.append_info('insertion_cDNA='+i.insseq_r)
+
+    return i
+
+def _old_tnuc_set_ins(r, t, p, tnuc_insseq):
+
+    # OBSOLETE !!!
+    if p.tpos == 0:
+        p1 = p.pos
+        # note that intronic indel are NOT re-aligned,
+        # because they are anchored with respect to exon boundaries.
+        p1r, tnuc_insseq_r = t.tnuc_roll_right_ins(p1, tnuc_insseq)
+        r.tnuc_range = '%d_%dins%s' % (p1r, p1r+1, tnuc_insseq_r)
+        p1l, tnuc_insseq_l = t.tnuc_roll_left_ins(p1, tnuc_insseq)
+        r.append_info('left_align_cDNA=c.%d_%dins%s' % (p1l, p1l+1, tnuc_insseq_l))
+        r.append_info('unalign_cDNA=c.%s_%sins%s' % (p1, p1+1, tnuc_insseq))
+
 def tnuc_coding_ins_frameshift(args, tnuc_ins, t, r):
 
     insseq = tnuc_ins.insseq
@@ -154,6 +355,11 @@ def annotate_insertion_cdna(args, q, tpts, db):
                 c, tnuc_end = t.gpos2codon(gnuc_beg)
                 gnuc_insseq = reverse_complement(q.insseq)
 
+            # optional output
+            if args.gseq:
+                r.gnuc_beg = gnuc_beg
+                r.gnuc_alt = gnuc_insseq
+
             r.pos = gnuc_beg
             gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg, gnuc_insseq, r)
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
@@ -177,7 +383,6 @@ def annotate_insertion_cdna(args, q, tpts, db):
     #     wrap_exception(Exception('no_valid_transcript_found_(from_%s_candidates)' % len(tpts)), q.op, args)
 
     return records
-
 
 def codon_mutation_ins(args, q, t, db):
 
@@ -258,6 +463,11 @@ def annotate_insertion_gdna(args, q, db):
         gnuc_ins = gnuc_set_ins(q.tok, q.pos, q.insseq, r)
         # TODO check q.insseq exists
 
+        # optional output
+        if args.gseq:
+            r.gnuc_beg = gnuc_ins.beg
+            r.gnuc_alt = gnuc_ins.insseq
+
         if hasattr(reg, 't'):
 
             t = reg.t
@@ -295,7 +505,6 @@ def annotate_insertion_gdna(args, q, db):
 
     format_records(records, q.op, args)
     return records
-
 
 def annotate_duplication_cdna(args, q, tpts, db):
 
@@ -337,7 +546,17 @@ def annotate_duplication_cdna(args, q, tpts, db):
             _gnuc_end = t.tnuc2gnuc(q.end)
             gnuc_beg = min(_gnuc_beg, _gnuc_end)
             gnuc_end = max(_gnuc_beg, _gnuc_end)
-            gnuc_dupseq = faidx.getseq(t.chrm, gnuc_beg, gnuc_end)
+            if gnuc_end - gnuc_beg < args.seqmax and args.seqmax >= 0:
+                gnuc_dupseq = faidx.getseq(t.chrm, gnuc_beg, gnuc_end)
+            else:
+                gnuc_dupseq = ''
+
+            # optional output
+            if args.gseq:
+                r.gnuc_beg = gnuc_beg
+                r.gnuc_end = gnuc_end
+                r.gnuc_alt = gnuc_dupseq
+
             tnuc_dupseq = gnuc_dupseq if t.strand == '+' else reverse_complement(gnuc_dupseq)
             if q.dupseq and tnuc_dupseq != q.dupseq:
                 raise IncompatibleTranscriptError('unmatched reference')
@@ -391,6 +610,7 @@ def taa_ins_id(t, index, taa_insseq, args):
     return s
 
 def taa_set_ins(r, t, index, taa_insseq, args):
+
     i1r, taa_insseq_r = t.taa_roll_right_ins(index, taa_insseq)
     try:
         r.taa_range = taa_ins_id(t, i1r, taa_insseq_r, args)
@@ -402,3 +622,5 @@ def taa_set_ins(r, t, index, taa_insseq, args):
         variant_protein_seq_ins(r, t, args, i1r, taa_insseq_r)
     except IncompatibleTranscriptError:
         r.append_info("truncated_refseq_at_boundary")
+
+
