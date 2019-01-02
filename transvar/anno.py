@@ -152,7 +152,7 @@ def main_list(args, db, at, mutation_parser):
         else:
             q.tok = q.tok.upper()
             genefound = False
-            for q.gene in db.get_gene(q.tok):
+            for q.gene in db.get_gene(q.tok, args.strictversion):
                 _main_(args, q, db, at)
                 genefound = True
 
@@ -192,7 +192,7 @@ def main_one(args, db, at):
     else:                       # cDNA or protein
         q.tok = q.tok.upper()
         genefound = False
-        for q.gene in db.get_gene(q.tok):
+        for q.gene in db.get_gene(q.tok, args.strictversion):
             _main_(args, q, db, at)
             genefound = True
 

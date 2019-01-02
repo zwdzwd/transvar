@@ -78,14 +78,14 @@ leads to 2 snv and one insertion
 
 ::
 
-   chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
+   chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006.1 (protein_coding)	SCRT2	-
       chr20:g.645098G>T/c.141C>A/p.A47A	inside_[cds_in_exon_2]
       CSQN=Synonymous;codon_pos=645098-645099-645100;ref_codon_seq=GCC;source=CCDS
-   chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
+   chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006.1 (protein_coding)	SCRT2	-
       chr20:g.645101_645102insA/c.137_138insT/p.A47Rfs*350	inside_[cds_in_exon_2]
       CSQN=Frameshift;left_align_gDNA=g.645101_645102insA;unalign_gDNA=g.645101_645
       102insA;left_align_cDNA=c.137_138insT;unalign_cDNA=c.137_138insT;source=CCDS
-   chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006 (protein_coding)	SCRT2	-
+   chr20:g.645097_645111delinsGTGCGATACCCAGGAG	CCDS13006.1 (protein_coding)	SCRT2	-
       chr20:g.645107T>A/c.134-2A>T/.	inside_[intron_between_exon_1_and_2]
       CSQN=SpliceAcceptorSNV;C2=SpliceAcceptorOfExon1_At_chr20:645106;source=CCDS
 
@@ -103,7 +103,7 @@ For example,
 
 ::
 
-   PIK3CA:p.Glu545Lys	CCDS43171 (protein_coding)	PIK3CA	+
+   PIK3CA:p.Glu545Lys	CCDS43171.1 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.Glu545Lys	inside_[cds_in_exon_9]
       CSQN=Missense;reference_codon=GAG;candidate_codons=AAG,AAA;candidate_mnv_vari
       ants=chr3:g.178936091_178936093delGAGinsAAA;dbsnp=rs104886003(chr3:178936091G
@@ -120,15 +120,15 @@ The option ``--aacontext 5`` output +/- 5bp protein sequence context.
 
 ::
 
-   chr17:7577124	CCDS11118 (protein_coding)	TP53	-
+   chr17:7577124	CCDS11118.1 (protein_coding)	TP53	-
       chr17:g.7577124C>/c.814G>/p.V272	inside_[cds_in_exon_7]
       is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
       =CCDS
-   chr17:7577124	CCDS45605 (protein_coding)	TP53	-
+   chr17:7577124	CCDS45605.1 (protein_coding)	TP53	-
       chr17:g.7577124C>/c.814G>/p.V272	inside_[cds_in_exon_7]
       is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
       =CCDS
-   chr17:7577124	CCDS45606 (protein_coding)	TP53	-
+   chr17:7577124	CCDS45606.1 (protein_coding)	TP53	-
       chr17:g.7577124C>/c.814G>/p.V272	inside_[cds_in_exon_7]
       is_gene_body;aacontext=RNSFE[V]RVCAC;codon_pos=7577122-7577123-7577124;source
       =CCDS
@@ -156,10 +156,10 @@ Yes, but only in input. For example, **c.508_509CC>TT**
 
 ::
 
-   A1CF:c.508_509CC>TT	CCDS7241 (protein_coding)	A1CF	-
+   A1CF:c.508_509CC>TT	CCDS7241.1 (protein_coding)	A1CF	-
       chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
-   A1CF:c.508_509CC>TT	CCDS7242 (protein_coding)	A1CF	-
+   A1CF:c.508_509CC>TT	CCDS7242.1 (protein_coding)	A1CF	-
       chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
 

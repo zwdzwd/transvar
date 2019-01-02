@@ -66,6 +66,8 @@ def parser_add_annotation(parser):
                         help='promoter starts from n1 bases upstream of transcription start site (default: n1=1000)')
     parser.add_argument('--promend', type=int, default=0,
                         help='promoter ends extends to n2 bases downstream of transcription start site (default: n2=0)')
+    parser.add_argument('--strictversion', action='store_true',
+                        help='require version number be the same while searching transcript')
 
 
 def parser_add_mutation(parser):

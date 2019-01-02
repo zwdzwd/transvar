@@ -84,7 +84,7 @@ def main_list(args, db): #name2gene, thash):
     for q, line in list_parse_mutation(args, 'p'):
 
         genefound = False
-        for q.gene in db.get_gene(q.tok):
+        for q.gene in db.get_gene(q.tok, args.strictversion):
             genefound = True
             try:
                 _main_core_(args, q, db)
@@ -103,7 +103,7 @@ def main_one(args, db): #name2gene, thash):
     q = parse_tok_mutation_str(args.i, 'p')
     q.op = args.i
     genefound = False
-    for q.gene in db.get_gene(q.tok):
+    for q.gene in db.get_gene(q.tok, args.strictversion):
         genefound = True
         q.op = args.i
         _main_core_(args, q, db)

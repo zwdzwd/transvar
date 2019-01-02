@@ -415,6 +415,7 @@ class Query(object):
         self.is_codon = True
         self.gn_name = None
         self.tpt = ''
+        self.tpt_version = None
         self.msg = ''
         self.tok = None         # by default, is a failed query
 

@@ -27,7 +27,7 @@ Missense substitution
 
 ::
 
-   chr3:g.178936091G>A	CCDS43171 (protein_coding)	PIK3CA	+
+   chr3:g.178936091G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
       CSQN=Missense;dbsnp=rs104886003(chr3:178936091G>A);variant_protein_seq=MPPRPS
       SGELWGIHLMPPRILVECLLPNGMIVTLECLREATLITIKHELFKEARKYPLHQLLQDESSYIFVSVTQEAEREEFF
@@ -77,7 +77,7 @@ Deletion
 
 ::
 
-   CCDS8856:c.769_771delGGG	CCDS8856 (protein_coding)	AAAS	-
+   CCDS8856:c.769_771delGGG	CCDS8856.1 (protein_coding)	AAAS	-
       chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.G257delG	inside_[cds_in_exon_8]
       CSQN=InFrameDeletion;left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA
       =g.53703424_53703426delCCC;left_align_cDNA=c.766_768delGGG;unalign_cDNA=c.769
@@ -100,7 +100,7 @@ Insertion
 
 ::
 
-   chr2:g.69741762_69741763insTGC	CCDS1893 (protein_coding)	AAK1	-
+   chr2:g.69741762_69741763insTGC	CCDS1893.2 (protein_coding)	AAK1	-
       chr2:g.69741780_69741782dupCTG/c.1614_1616dupGCA/p.Q546dupQ	inside_[cds_in_exon_12]
       CSQN=InFrameInsertion;left_align_gDNA=g.69741762_69741763insTGC;unalign_gDNA=
       g.69741762_69741763insTGC;left_align_cDNA=c.1596_1597insCAG;unalign_cDNA=c.16
@@ -129,7 +129,7 @@ Block substitution
 
 ::
 
-   chr2:g.234183372_234183383del	CCDS2502 (protein_coding)	ATG16L1	+
+   chr2:g.234183372_234183383del	CCDS2502.2 (protein_coding)	ATG16L1	+
       chr2:g.234183372_234183383del12/c.845_856del12/p.H282_G286delinsR	inside_[cds_in_exon_8]
       CSQN=MultiAAMissense;left_align_gDNA=g.234183372_234183383del12;unaligned_gDN
       A=g.234183372_234183383del12;left_align_cDNA=c.845_856del12;unalign_cDNA=c.84
@@ -142,7 +142,7 @@ Block substitution
       IKTVFAGSSCNDIVCTEQCVMSGHFDKKIRFWDIRSESIVREMELLGKITALDLNPERTELLSCSRDDLLKVIDLRT
       NAIKQTFSAPGFKCGSDWTRVVFSPDGSYVAAGSAEGSLYIWSVLTGKVEKVLSKQHSSSINAVAWSPSGSHVVSVD
       KGCKAVLWAQY*;source=CCDS
-   chr2:g.234183372_234183383del	CCDS2503 (protein_coding)	ATG16L1	+
+   chr2:g.234183372_234183383del	CCDS2503.2 (protein_coding)	ATG16L1	+
       chr2:g.234183372_234183383del12/c.902_913del12/p.H301_G305delinsR	inside_[cds_in_exon_9]
       CSQN=MultiAAMissense;left_align_gDNA=g.234183372_234183383del12;unaligned_gDN
       A=g.234183372_234183383del12;left_align_cDNA=c.902_913del12;unalign_cDNA=c.90
@@ -155,7 +155,7 @@ Block substitution
       VSGSHDRTLKLWDLRSKVCIKTVFAGSSCNDIVCTEQCVMSGHFDKKIRFWDIRSESIVREMELLGKITALDLNPER
       TELLSCSRDDLLKVIDLRTNAIKQTFSAPGFKCGSDWTRVVFSPDGSYVAAGSAEGSLYIWSVLTGKVEKVLSKQHS
       SSINAVAWSPSGSHVVSVDKGCKAVLWAQY*;source=CCDS
-   chr2:g.234183372_234183383del	CCDS54438 (protein_coding)	ATG16L1	+
+   chr2:g.234183372_234183383del	CCDS54438.1 (protein_coding)	ATG16L1	+
       chr2:g.234183372_234183383del12/c.413_424del12/p.H138_G142delinsR	inside_[cds_in_exon_5]
       CSQN=MultiAAMissense;left_align_gDNA=g.234183372_234183383del12;unaligned_gDN
       A=g.234183372_234183383del12;left_align_cDNA=c.413_424del12;unalign_cDNA=c.41
@@ -178,7 +178,7 @@ Frameshift sequence
 
 ::
 
-   CCDS8856:c.769_770delGG	CCDS8856 (protein_coding)	AAAS	-
+   CCDS8856:c.769_770delGG	CCDS8856.1 (protein_coding)	AAAS	-
       chr12:g.53703428_53703429delCC/c.770_771delGG/p.G257Afs*65	inside_[cds_in_exon_8]
       CSQN=Frameshift;left_align_gDNA=g.53703424_53703425delCC;unaligned_gDNA=g.537
       03425_53703426delCC;left_align_cDNA=c.766_767delGG;unalign_cDNA=c.769_770delG
@@ -199,7 +199,7 @@ Frameshift sequence
 
 ::
 
-   CCDS54438:c.409_421del	CCDS54438 (protein_coding)	ATG16L1	+
+   CCDS54438:c.409_421del	CCDS54438.1 (protein_coding)	ATG16L1	+
       chr2:g.234183368_234183380del13/c.409_421del13/p.T137Lfs*5	inside_[cds_in_exon_5]
       CSQN=Frameshift;left_align_gDNA=g.234183367_234183379del13;unaligned_gDNA=g.2
       34183368_234183380del13;left_align_cDNA=c.408_420del13;unalign_cDNA=c.409_421

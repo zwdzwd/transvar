@@ -156,7 +156,7 @@ class TransVarDB():
     # retrieve transcripts by gene name or transcript name #
     ########################################################
 
-    def get(self, name, lvl=1):
+    def get(self, name, lvl=1, strictversion = False):
 
         """ get by either gene name or transcript name
         use the following order:
@@ -172,7 +172,7 @@ class TransVarDB():
             yield g
 
         if nohit:
-            g = self.get_by_trnx(name)
+            g = self.get_by_trnx(name, strictversion)
             if g is not None:
                 nohit = False
                 yield g
@@ -204,7 +204,7 @@ class TransVarDB():
                 g.link_t(t)
             yield g
 
-    def get_by_trnx(self, name, version=None):
+    def get_by_trnx(self, name, strictversion = False):
 
         """ read a gene by transcript name, the gene has only one
         transcript (if the transcript ID is unique in the database, which usually is) """
@@ -212,6 +212,9 @@ class TransVarDB():
         if m:
             name = m.group(1)
             version = int(m.group(2))
+        else:
+            version = None # no version info
+
         if name not in self.trnx_idx:
             return None
 
@@ -220,11 +223,17 @@ class TransVarDB():
         for pos in poses:
             self.dbfh.seek(pos)
             t = next(self.parse_trnx(), None)
+
             if t is None:
                 return None
             elif g is None:
                 g = Gene(t.gene_name)
             t.gene = g
+            
+            if (strictversion and 
+                version is not None and 
+                t.version != version):
+                continue
             g.tpts.append(t)
 
         return g

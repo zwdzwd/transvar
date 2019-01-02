@@ -161,6 +161,8 @@ def annotate_deletion_cdna(args, q, tpts, db):
     for t in tpts:
         if q.tpt and t.name != q.tpt:
             raise IncompatibleTranscriptError("Transcript name unmatched")
+        # if args.strictversion and t.version != q.tpt.version:
+        #     raise IncompatibleTranscriptError("Transcript name unmatched")
 
         r = Record(is_var=True)
         r.chrm = t.chrm

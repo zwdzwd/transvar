@@ -64,6 +64,9 @@ def annotate_snv_cdna(args, q, tpts, db):
             if q.tpt and t.name != q.tpt:
                 raise IncompatibleTranscriptError(
                     'transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
+            # if args.strictversion and q.tpt.version != t.version:
+            #     raise IncompatibleTranscriptError(
+            #         'transcript_version_unmatched_%s;expect_%s' % (q.version, t.version))
             t.ensure_seq()
 
             if (qpos.pos <= 0 or qpos.pos > t.cdslen()):

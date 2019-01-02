@@ -23,7 +23,7 @@ Then one could use protein id instead of gene name by applying the `--uniprot` o
 
 ::
 
-   Q5VUM1:47	CCDS4972 (protein_coding)	C6ORF57	+
+   Q5VUM1:47	CCDS4972.1 (protein_coding)	C6ORF57	+
       chr6:g.71289191_71289193/c.139_141/p.47S	inside_[cds_in_exon_2]
       protein_sequence=S;cDNA_sequence=TCC;gDNA_sequence=TCC;source=CCDS
 
@@ -40,7 +40,7 @@ For example, one can find the genomic location of a DRY motif in protein P28222 
 
 ::
 
-   P28222:p.146_148refDRY	CCDS4986 (protein_coding)	HTR1B	-
+   P28222:p.146_148refDRY	CCDS4986.1 (protein_coding)	HTR1B	-
       chr6:g.78172677_78172685/c.436_444/p.D146_Y148	inside_[cds_in_exon_1]
       protein_sequence=DRY;cDNA_sequence=GACCGCTAC;gDNA_sequence=GTAGCGGTC;source=C
       CDS
@@ -53,7 +53,7 @@ One can also use wildcard `x` (lowercase) in the motif.
 
 ::
 
-   HTR1B:p.365_369refNPxxY	CCDS4986 (protein_coding)	HTR1B	-
+   HTR1B:p.365_369refNPxxY	CCDS4986.1 (protein_coding)	HTR1B	-
       chr6:g.78172014_78172028/c.1093_1107/p.N365_Y369	inside_[cds_in_exon_1]
       protein_sequence=NPIIY;cDNA_sequence=AACCCCATAATCTAT;gDNA_sequence=ATAGATTATG
       GGGTT;source=CCDS
@@ -70,7 +70,7 @@ outputs
 
 ::
 
-   ABCB11:p.200_400	CCDS46444 (protein_coding)	ABCB11	-
+   ABCB11:p.200_400	CCDS46444.1 (protein_coding)	ABCB11	-
       chr2:g.169833195_169851872/c.598_1200/p.T200_K400	inside_[cds_in_exons_[6,7,8,9,10,11]]
       protein_sequence=TRF..DRK;cDNA_sequence=ACA..AAA;gDNA_sequence=TTT..TGT;sourc
       e=CCDS
@@ -109,7 +109,7 @@ outputs
 
 ::
 
-   ACSL4:p.R133R	CCDS14548 (protein_coding)	ACSL4	-
+   ACSL4:p.R133R	CCDS14548.1 (protein_coding)	ACSL4	-
       chrX:g.108926078G>T/c.399C>A/p.R133R	inside_[cds_in_exon_2]
       CSQN=Synonymous;reference_codon=CGC;candidate_codons=AGG,AGA,CGA,CGG,CGT;cand
       idate_snv_variants=chrX:g.108926078G>C,chrX:g.108926078G>A;candidate_mnv_vari
@@ -129,7 +129,7 @@ TransVar instantiates input of ambiguous amino acid code such as ('B', for "Asx"
 
 ::
 
-   APC:p.D326B	CCDS4107 (protein_coding)	APC	+
+   APC:p.D326B	CCDS4107.1 (protein_coding)	APC	+
       chr5:g.112154705G>A/c.976G>A/p.D326N	inside_[cds_in_exon_9]
       CSQN=Missense;reference_codon=GAT;candidate_codons=AAC,AAT,GAC;candidate_snv_
       variants=chr5:g.112154707T>C;candidate_mnv_variants=chr5:g.112154705_11215470
@@ -147,7 +147,7 @@ Insertion
 
 ::
 
-   AATK:p.P1331_A1332insTP	CCDS45807 (protein_coding)	AATK	-
+   AATK:p.P1331_A1332insTP	CCDS45807.1 (protein_coding)	AATK	-
       chr17:g.79093270_79093271insAGGTGT/c.3993_3994insACACCT/p.T1330_P1331dupTP	inside_[cds_in_exon_13]
       CSQN=InFrameInsertion;left_align_protein=p.A1326_P1327insPT;unalign_protein=p
       .T1330_P1331dupTP;left_align_gDNA=g.79093270_79093271insAGGTGT;unalign_gDNA=g
@@ -163,7 +163,7 @@ Deletion
 
 ::
 
-   AADACL4:p.W263_I267delWRDAI	CCDS30590 (protein_coding)	AADACL4	+
+   AADACL4:p.W263_I267delWRDAI	CCDS30590.1 (protein_coding)	AADACL4	+
       chr1:g.12726310_12726324del15/c.788_802del15/p.W263_I267delWRDAI	inside_[cds_in_exon_4]
       CSQN=InFrameDeletion;left_align_gDNA=g.12726308_12726322del15;unaligned_gDNA=
       g.12726309_12726323del15;left_align_cDNA=c.786_800del15;unalign_cDNA=c.787_80
@@ -179,7 +179,7 @@ Block substitution
 
 ::
 
-   ABCC3:p.Y556_V557delinsRRR	CCDS32681 (protein_coding)	ABCC3	+
+   ABCC3:p.Y556_V557delinsRRR	CCDS32681.1 (protein_coding)	ABCC3	+
       chr17:g.48745254_48745259delinsAGGAGGAGG/c.1666_1671delinsAGGAGGAGG/p.Y556_V557delinsRRR	inside_[cds_in_exon_13]
       CSQN=MultiAAMissense;216_CandidatesOmitted;source=CCDS
 
@@ -210,7 +210,7 @@ Frame-shift variants can be results of either insertion or deletion. In the case
 
 ::
 
-   PTEN:p.T319fs*1	NM_000314 (protein_coding)	PTEN	+
+   PTEN:p.T319fs*1	NM_000314.4 (protein_coding)	PTEN	+
       chr10:g.89720803_89720804insTA/c.954_955insTA/p.T319fs*1	inside_[cds_in_exon_8]
       CSQN=Frameshift;left_align_cDNA=c.954_955insTA;left_align_gDNA=g.89720803_897
       20804insTA;candidates=g.89720803_89720804insTG/c.954_955insTG/g.89720803_8972
@@ -228,7 +228,7 @@ The `candidates` field shows the right-aligned genomic, right-aligned cDNA, left
 
 ::
 
-   A1BG:p.G132fs*2	CCDS12976 (protein_coding)	A1BG	-
+   A1BG:p.G132fs*2	CCDS12976.1 (protein_coding)	A1BG	-
       chr19:g.58863868delC/c.395delG/p.G132fs*2	inside_[cds_in_exon_4]
       CSQN=Frameshift;left_align_cDNA=c.394delG;left_align_gDNA=g.58863867delC;cand
       idates=g.58863873delG/c.393delC/g.58863869delG/c.389delC;13_CandidatesOmitted
@@ -243,27 +243,27 @@ Suppose we have a relatively long insertion,
 
 ::
 
-   chr11:g.32417908_32417909insACCGTACA	CCDS55750 (protein_coding)	WT1	-
+   chr11:g.32417908_32417909insACCGTACA	CCDS55750.1 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.456_457insTGTACGGT/p.A153Cfs*70	inside_[cds_in_exon_6]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.456_457insTGTACGGT;unalign_cD
       NA=c.456_457insTGTACGGT;source=CCDS
-   chr11:g.32417908_32417909insACCGTACA	CCDS55751 (protein_coding)	WT1	-
+   chr11:g.32417908_32417909insACCGTACA	CCDS55751.1 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.507_508insTGTACGGT/p.A170Cfs*70	inside_[cds_in_exon_7]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.507_508insTGTACGGT;unalign_cD
       NA=c.507_508insTGTACGGT;source=CCDS
-   chr11:g.32417908_32417909insACCGTACA	CCDS7878 (protein_coding)	WT1	-
+   chr11:g.32417908_32417909insACCGTACA	CCDS7878.2 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.1143_1144insTGTACGGT/p.A382Cfs*70	inside_[cds_in_exon_7]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.1143_1144insTGTACGGT;unalign_
       cDNA=c.1143_1144insTGTACGGT;source=CCDS
-   chr11:g.32417908_32417909insACCGTACA	CCDS44561 (protein_coding)	WT1	-
+   chr11:g.32417908_32417909insACCGTACA	CCDS44561.1 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.1092_1093insTGTACGGT/p.A365Cfs*70	inside_[cds_in_exon_6]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.1092_1093insTGTACGGT;unalign_
       cDNA=c.1092_1093insTGTACGGT;source=CCDS
-   chr11:g.32417908_32417909insACCGTACA	CCDS44562 (protein_coding)	WT1	-
+   chr11:g.32417908_32417909insACCGTACA	CCDS44562.1 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.1143_1144insTGTACGGT/p.A382Cfs*70	inside_[cds_in_exon_7]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.1143_1144insTGTACGGT;unalign_
@@ -279,7 +279,7 @@ would return more than 80 underlying variants. In this case the argument `--max-
 
 ::
 
-   WT1:p.A170Cfs*70	CCDS55751 (protein_coding)	WT1	-
+   WT1:p.A170Cfs*70	CCDS55751.1 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insTTGGGGCA/c.507_508insTGCCCCAA/p.A170Cfs*70	inside_[cds_in_exons_[7,8,9]]
       CSQN=Frameshift;left_align_cDNA=c.507_508insTGCCCCAA;left_align_gDNA=g.324179
       08_32417909insTTGGGGCA;candidates=g.32417908_32417909insTTGNNNCA/c.507_508ins
@@ -295,13 +295,13 @@ Sometimes the alternative amino acid can be missing
 
 ::
 
-   ADAMTSL1:p.I396fs*30	CCDS6485 (protein_coding)	ADAMTSL1	+
+   ADAMTSL1:p.I396fs*30	CCDS6485.1 (protein_coding)	ADAMTSL1	+
       chr9:g.18680360_18680361insG/c.1187_1188insG/p.I396fs*30	inside_[cds_in_exon_11]
       CSQN=Frameshift;left_align_cDNA=c.1187_1188insG;left_align_gDNA=g.18680360_18
       680361insG;candidates=g.18680359dupA/c.1186dupA/g.18680358_18680359insA/c.118
       5_1186insA,g.18680359_18680360insC/c.1186_1187insC/g.18680359_18680360insC/c.
       1186_1187insC;11_CandidatesOmitted;source=CCDS
-   ADAMTSL1:p.I396fs*30	CCDS47954 (protein_coding)	ADAMTSL1	+
+   ADAMTSL1:p.I396fs*30	CCDS47954.1 (protein_coding)	ADAMTSL1	+
       chr9:g.18680360_18680361insG/c.1187_1188insG/p.I396fs*30	inside_[cds_in_exon_11]
       CSQN=Frameshift;left_align_cDNA=c.1187_1188insG;left_align_gDNA=g.18680360_18
       680361insG;candidates=g.18680359dupA/c.1186dupA/g.18680358_18680359insA/c.118
@@ -318,7 +318,7 @@ TransVar can also take protein identifiers such as  as input. For example,
 
 ::
 
-   NP_006266.2:p.G240Afs*50	NM_006275 (protein_coding)	SRSF6	+
+   NP_006266.2:p.G240Afs*50	NM_006275.5 (protein_coding)	SRSF6	+
       chr20:g.42089387delG/c.719delG/p.G240Afs*50	inside_[cds_in_exon_6]
       CSQN=Frameshift;left_align_cDNA=c.718delG;left_align_gDNA=g.42089386delG;cand
       idates=g.42089385delA/c.717delA/g.42089382delA/c.714delA;dbxref=GeneID:6431,H
@@ -334,7 +334,7 @@ Similar applies when the underlying mutation is an insertion. TransVar can infer
 
 ::
 
-   AASS:p.I355Mfs*10	CCDS5783 (protein_coding)	AASS	-
+   AASS:p.I355Mfs*10	CCDS5783.1 (protein_coding)	AASS	-
       chr7:g.121753753_121753754insTC/c.1064_1065insGA/p.I355Mfs*10	inside_[cds_in_exon_9]
       CSQN=Frameshift;left_align_cDNA=c.1064_1065insGA;left_align_gDNA=g.121753753_
       121753754insTC;candidates=g.121753753_121753754insGC/c.1064_1065insGC/g.12175
@@ -350,7 +350,7 @@ returns a nonsense mutation
 
 ::
 
-   APC:p.I1557*fs*3	CCDS4107 (protein_coding)	APC	+
+   APC:p.I1557*fs*3	CCDS4107.1 (protein_coding)	APC	+
       chr5:g.112175960_112175962delATTinsTAA/c.4669_4671delATTinsTAA/p.I1557*	inside_[cds_in_exon_15]
       CSQN=Nonsense;reference_codon=ATT;candidate_codons=TAA,TAG,TGA;candidate_mnv_
       variants=chr5:g.112175960_112175962delATTinsTAG,chr5:g.112175960_112175962del
@@ -370,25 +370,25 @@ outputs the basic information of transcripts of the protein, in an intuitive way
 
 ::
 
-   Dnmt3a	XM_005264176 (protein_coding)	DNMT3A	-
+   Dnmt3a	XM_005264176.1 (protein_coding)	DNMT3A	-
       chr2:g.25451421_25537541/c.1_2739/p.M1_*913	whole_transcript
       promoter=chr2:25537541_25538541;#exons=23;cds=chr2:25457148_25536853
-   Dnmt3a	XM_005264175 (protein_coding)	DNMT3A	-
+   Dnmt3a	XM_005264175.1 (protein_coding)	DNMT3A	-
       chr2:g.25451421_25537354/c.1_2739/p.M1_*913	whole_transcript
       promoter=chr2:25537354_25538354;#exons=23;cds=chr2:25457148_25536853
-   Dnmt3a	XM_005264177 (protein_coding)	DNMT3A	-
+   Dnmt3a	XM_005264177.1 (protein_coding)	DNMT3A	-
       chr2:g.25451421_25475145/c.1_2070/p.M1_*690	whole_transcript
       promoter=chr2:25475145_25476145;#exons=18;cds=chr2:25457148_25471091
-   Dnmt3a	NM_175629 (protein_coding)	DNMT3A	-
+   Dnmt3a	NM_175629.2 (protein_coding)	DNMT3A	-
       chr2:g.25455830_25565459/c.1_2739/p.M1_*913	whole_transcript
       promoter=chr2:25565459_25566459;#exons=23;cds=chr2:25457148_25536853
-   Dnmt3a	NM_022552 (protein_coding)	DNMT3A	-
+   Dnmt3a	NM_022552.4 (protein_coding)	DNMT3A	-
       chr2:g.25455830_25564784/c.1_2739/p.M1_*913	whole_transcript
       promoter=chr2:25564784_25565784;#exons=23;cds=chr2:25457148_25536853
-   Dnmt3a	NM_153759 (protein_coding)	DNMT3A	-
+   Dnmt3a	NM_153759.3 (protein_coding)	DNMT3A	-
       chr2:g.25455830_25475184/c.1_2172/p.M1_*724	whole_transcript
       promoter=chr2:25475184_25476184;#exons=19;cds=chr2:25457148_25475066
-   Dnmt3a	NM_175630 (protein_coding)	DNMT3A	-
+   Dnmt3a	NM_175630.1 (protein_coding)	DNMT3A	-
       chr2:g.25504321_25565459/c.1_501/p.M1_*167	whole_transcript
       promoter=chr2:25565459_25566459;#exons=4;cds=chr2:25505257_25536853
 

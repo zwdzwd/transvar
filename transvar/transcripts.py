@@ -305,7 +305,10 @@ class Transcript():
         return cdslen
 
     def format(self):
-        return '%s (%s)' % (self.name, self.transcript_type)
+        s = self.name
+        if self.version < 255 and self.version >= 0:
+            s += '.%d' % self.version
+        return '%s (%s)' % (s, self.transcript_type)
 
     def getseq(self, beg, end):
         self.ensure_seq()

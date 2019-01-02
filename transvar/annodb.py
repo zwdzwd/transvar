@@ -207,10 +207,11 @@ class AnnoDB():
         if dbsnps:
             r.append_info('dbsnp='+','.join(dbsnps))
 
-    def get_gene(self, name):
+    def get_gene(self, name, strictversion=False):
+        """ this gets both gene and transcripts """
 
         for db in self.dbs:
-            for g in db.get(name):
+            for g in db.get(name, strictversion=strictversion):
                 yield g
 
     def get_transcripts(self, chrm, beg, end=None, flanking=0):

@@ -16,7 +16,7 @@ outputs
 
 ::
 
-   ABCB11:c.1198-8_1202	CCDS46444 (protein_coding)	ABCB11	-
+   ABCB11:c.1198-8_1202	CCDS46444.1 (protein_coding)	ABCB11	-
       chr2:g.169833193_169833205GGTTTCTGGAGTG/c.1198-8_1202CACTCCAGAAACC/p.400_401KP	from_[cds_in_exon_11]_to_[intron_between_exon_10_and_11]
       C2=acceptor_splice_site_on_exon_11_at_chr2:169833198_included;source=CCDS
 
@@ -36,7 +36,7 @@ outputs
 
 ::
 
-   PIK3CA:c.1633G>A	CCDS43171 (protein_coding)	PIK3CA	+
+   PIK3CA:c.1633G>A	CCDS43171.1 (protein_coding)	PIK3CA	+
       chr3:g.178936091G>A/c.1633G>A/p.E545K	inside_[cds_in_exon_9]
       CSQN=Missense;dbsnp=rs104886003(chr3:178936091G>A);reference_codon=GAG;altern
       ative_codon=AAG;source=CCDS
@@ -51,7 +51,7 @@ outputs
 
 ::
 
-   ABCB11:c.1198-8C>A	CCDS46444 (protein_coding)	ABCB11	-
+   ABCB11:c.1198-8C>A	CCDS46444.1 (protein_coding)	ABCB11	-
       chr2:g.169833205G>T/c.1198-8C>A/.	inside_[intron_between_exon_10_and_11]
       CSQN=IntronicSNV;source=CCDS
 
@@ -76,15 +76,15 @@ Or in the 3'-UTR region, e.g.,
 
 ::
 
-   MSH2:c.*95C>T	NM_000251 (protein_coding)	MSH2	+
+   MSH2:c.*95C>T	NM_000251.2 (protein_coding)	MSH2	+
       chr2:g.47710183C>T/c.*95C>T/.	inside_[3-UTR;noncoding_exon_16]
       CSQN=3-UTRSNV;dbsnp=rs587779062(chr2:47710183C>T);dbxref=GeneID:4436,HGNC:732
       5,HPRD:00389,MIM:609309;aliases=NP_000242;source=RefSeq
-   MSH2:c.*95C>T	NM_001258281 (protein_coding)	MSH2	+
+   MSH2:c.*95C>T	NM_001258281.1 (protein_coding)	MSH2	+
       chr2:g.47710183C>T/c.*95C>T/.	inside_[3-UTR;noncoding_exon_17]
       CSQN=3-UTRSNV;dbsnp=rs587779062(chr2:47710183C>T);dbxref=GeneID:4436,HGNC:732
       5,HPRD:00389,MIM:609309;aliases=NP_001245210;source=RefSeq
-   MSH2:c.*95C>T	XM_005264333 (protein_coding)	MSH2	+
+   MSH2:c.*95C>T	XM_005264333.1 (protein_coding)	MSH2	+
       chr2:g.47710183C>T/c.*95C>T/.	inside_[3-UTR;noncoding_exon_15]
       CSQN=3-UTRSNV;dbsnp=rs587779062(chr2:47710183C>T);dbxref=GeneID:4436,HGNC:732
       5,HPRD:00389,MIM:609309;aliases=XP_005264390;source=RefSeq
@@ -103,19 +103,19 @@ Example: to annotate an **in-frame, in-phase insertion**,
 
 ::
 
-   ACIN1:c.1932_1933insATTCAC	CCDS9587 (protein_coding)	ACIN1	-
+   ACIN1:c.1932_1933insATTCAC	CCDS9587.1 (protein_coding)	ACIN1	-
       chr14:g.23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548785_23548786insGTGAAT;unalign_gD
       NA=g.23548785_23548786insGTGAAT;left_align_cDNA=c.1932_1933insATTCAC;unalign_
       cDNA=c.1932_1933insATTCAC;left_align_protein=p.R644_S645insIH;unalign_protein
       =p.R644_S645insIH;phase=0;source=CCDS
-   ACIN1:c.1932_1933insATTCAC	CCDS53889 (protein_coding)	ACIN1	-
+   ACIN1:c.1932_1933insATTCAC	CCDS53889.1 (protein_coding)	ACIN1	-
       chr14:g.23548157_23548158insGTGAAT/c.1932_1933insATTCAC/p.P644_V645insIH	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548157_23548158insGTGAAT;unalign_gD
       NA=g.23548157_23548158insGTGAAT;left_align_cDNA=c.1932_1933insATTCAC;unalign_
       cDNA=c.1932_1933insATTCAC;left_align_protein=p.P644_V645insIH;unalign_protein
       =p.P644_V645insIH;phase=0;source=CCDS
-   ACIN1:c.1932_1933insATTCAC	CCDS55905 (protein_coding)	ACIN1	-
+   ACIN1:c.1932_1933insATTCAC	CCDS55905.1 (protein_coding)	ACIN1	-
       chr14:g.23548785_23548786insGTGAAT/c.1932_1933insATTCAC/p.R644_S645insIH	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548785_23548786insGTGAAT;unalign_gD
       NA=g.23548785_23548786insGTGAAT;left_align_cDNA=c.1932_1933insATTCAC;unalign_
@@ -132,19 +132,19 @@ Example: to annotate an **out-of-phase, in-frame insertion**,
 
 ::
 
-   ACIN1:c.1930_1931insATTCAC	CCDS9587 (protein_coding)	ACIN1	-
+   ACIN1:c.1930_1931insATTCAC	CCDS9587.1 (protein_coding)	ACIN1	-
       chr14:g.23548792_23548793insTGTGAA/c.1930_1931insATTCAC/p.S643_R644insHS	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548787_23548788insGTGAAT;unalign_gD
       NA=g.23548787_23548788insGTGAAT;left_align_cDNA=c.1925_1926insTTCACA;unalign_
       cDNA=c.1930_1931insATTCAC;left_align_protein=p.R642_S643insSH;unalign_protein
       =p.S643_R644insHS;phase=1;source=CCDS
-   ACIN1:c.1930_1931insATTCAC	CCDS53889 (protein_coding)	ACIN1	-
+   ACIN1:c.1930_1931insATTCAC	CCDS53889.1 (protein_coding)	ACIN1	-
       chr14:g.23548162_23548163insAATGTG/c.1930_1931insATTCAC/p.P643_P644insHS	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548159_23548160insGTGAAT;unalign_gD
       NA=g.23548159_23548160insGTGAAT;left_align_cDNA=c.1927_1928insCACATT;unalign_
       cDNA=c.1930_1931insATTCAC;left_align_protein=p.P643_P644insHS;unalign_protein
       =p.P643_P644insHS;phase=1;source=CCDS
-   ACIN1:c.1930_1931insATTCAC	CCDS55905 (protein_coding)	ACIN1	-
+   ACIN1:c.1930_1931insATTCAC	CCDS55905.1 (protein_coding)	ACIN1	-
       chr14:g.23548792_23548793insTGTGAA/c.1930_1931insATTCAC/p.S643_R644insHS	inside_[cds_in_exon_6]
       CSQN=InFrameInsertion;left_align_gDNA=g.23548787_23548788insGTGAAT;unalign_gD
       NA=g.23548787_23548788insGTGAAT;left_align_cDNA=c.1925_1926insTTCACA;unalign_
@@ -161,7 +161,7 @@ results in
 
 ::
 
-   AATK:c.3976_3977insCGCCCA	CCDS45807 (protein_coding)	AATK	-
+   AATK:c.3976_3977insCGCCCA	CCDS45807.1 (protein_coding)	AATK	-
       chr17:g.79093282_79093287dupTGGGCG/c.3988_3993dupACGCCC/p.T1330_P1331dupTP	inside_[cds_in_exon_13]
       CSQN=InFrameInsertion;left_align_gDNA=g.79093270_79093271insGGGCGT;unalign_gD
       NA=g.79093282_79093287dupTGGGCG;left_align_cDNA=c.3976_3977insCGCCCA;unalign_
@@ -180,12 +180,12 @@ results in
 
 ::
 
-   AAAS:c.1225_1226insG	CCDS8856 (protein_coding)	AAAS	-
+   AAAS:c.1225_1226insG	CCDS8856.1 (protein_coding)	AAAS	-
       chr12:g.53702093dupC/c.1225dupG/p.E409Gfs*17	inside_[cds_in_exon_13]
       CSQN=Frameshift;left_align_gDNA=g.53702089_53702090insC;unalign_gDNA=g.537020
       89_53702090insC;left_align_cDNA=c.1221_1222insG;unalign_cDNA=c.1225dupG;sourc
       e=CCDS
-   AAAS:c.1225_1226insG	CCDS53797 (protein_coding)	AAAS	-
+   AAAS:c.1225_1226insG	CCDS53797.1 (protein_coding)	AAAS	-
       chr12:g.53701842_53701843insC/c.1225_1226insG/p.L409Rfs*54	inside_[cds_in_exon_13]
       CSQN=Frameshift;left_align_gDNA=g.53701842_53701843insC;unalign_gDNA=g.537018
       42_53701843insC;left_align_cDNA=c.1225_1226insG;unalign_cDNA=c.1225_1226insG;
@@ -201,7 +201,7 @@ outputs
 
 ::
 
-   ADAM33:c.991-3_991-2insC	CCDS13058 (protein_coding)	ADAM33	-
+   ADAM33:c.991-3_991-2insC	CCDS13058.1 (protein_coding)	ADAM33	-
       chr20:g.3654151dupG/c.991-3dupC/.	inside_[intron_between_exon_10_and_11]
       CSQN=IntronicInsertion;left_align_gDNA=g.3654145_3654146insG;unalign_gDNA=g.3
       654145_3654146insG;left_align_cDNA=c.991-9_991-8insC;unalign_cDNA=c.991-3dupC
@@ -219,7 +219,7 @@ results in
 
 ::
 
-   ADAM33:c.991_992insC	CCDS13058 (protein_coding)	ADAM33	-
+   ADAM33:c.991_992insC	CCDS13058.1 (protein_coding)	ADAM33	-
       chr20:g.3654142_3654143insG/c.991_992insC/.	inside_[cds_in_exon_11]
       CSQN=SpliceAcceptorInsertion;left_align_gDNA=g.3654142_3654143insG;unalign_gD
       NA=g.3654142_3654143insG;left_align_cDNA=c.991_992insC;unalign_cDNA=c.991_992
@@ -238,7 +238,7 @@ Example: to annotate an **in-frame deletion**,
 
 ::
 
-   A4GNT:c.694_696delTTG	CCDS3097 (protein_coding)	A4GNT	-
+   A4GNT:c.694_696delTTG	CCDS3097.1 (protein_coding)	A4GNT	-
       chr3:g.137843435_137843437delACA/c.694_696delTTG/p.L232delL	inside_[cds_in_exon_2]
       CSQN=InFrameDeletion;left_align_gDNA=g.137843433_137843435delCAA;unaligned_gD
       NA=g.137843433_137843435delCAA;left_align_cDNA=c.692_694delTGT;unalign_cDNA=c
@@ -253,7 +253,7 @@ Example: to annotate a **in-frame, out-of-phase deletion**,
 
 ::
 
-   ABHD15:c.431_433delGTG	CCDS32602 (protein_coding)	ABHD15	-
+   ABHD15:c.431_433delGTG	CCDS32602.1 (protein_coding)	ABHD15	-
       chr17:g.27893552_27893554delCAC/c.431_433delGTG/p.C144_V145delinsF	inside_[cds_in_exon_1]
       CSQN=MultiAAMissense;left_align_gDNA=g.27893552_27893554delCAC;unaligned_gDNA
       =g.27893552_27893554delCAC;left_align_cDNA=c.431_433delGTG;unalign_cDNA=c.431
@@ -267,7 +267,7 @@ Example: to annotate a **frame-shift deletion**,
 
 ::
 
-   AADACL3:c.374delG	CCDS41252 (protein_coding)	AADACL3	+
+   AADACL3:c.374delG	CCDS41252.1 (protein_coding)	AADACL3	+
       chr1:g.12785494delG/c.374delG/p.C125Ffs*17	inside_[cds_in_exon_3]
       CSQN=Frameshift;left_align_gDNA=g.12785494delG;unaligned_gDNA=g.12785494delG;
       left_align_cDNA=c.374delG;unalign_cDNA=c.374delG;source=CCDS
@@ -280,7 +280,7 @@ Example: to annotate a **deletion that span from intronic to coding region**, pr
 
 ::
 
-   ABCB11:c.1198-8_1199delcactccagAA	CCDS46444 (protein_coding)	ABCB11	-
+   ABCB11:c.1198-8_1199delcactccagAA	CCDS46444.1 (protein_coding)	ABCB11	-
       chr2:g.169833196_169833205delTTCTGGAGTG/c.1198-8_1199delCACTCCAGAA/.	from_[cds_in_exon_11]_to_[intron_between_exon_10_and_11]
       CSQN=SpliceAcceptorDeletion;left_align_gDNA=g.169833196_169833205delTTCTGGAGT
       G;unaligned_gDNA=g.169833196_169833205delTTCTGGAGTG;left_align_cDNA=c.1198-8_
@@ -299,13 +299,13 @@ Example: to annotate a block substitution in **coding region**,
 
 ::
 
-   A1CF:c.508_509delinsTT	CCDS7241 (protein_coding)	A1CF	-
+   A1CF:c.508_509delinsTT	CCDS7241.1 (protein_coding)	A1CF	-
       chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
-   A1CF:c.508_509delinsTT	CCDS7242 (protein_coding)	A1CF	-
+   A1CF:c.508_509delinsTT	CCDS7242.1 (protein_coding)	A1CF	-
       chr10:g.52595929_52595930delinsAA/c.508_509delinsTT/p.P170L	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
-   A1CF:c.508_509delinsTT	CCDS7243 (protein_coding)	A1CF	-
+   A1CF:c.508_509delinsTT	CCDS7243.1 (protein_coding)	A1CF	-
       chr10:g.52595953_52595954delinsAA/c.508_509delinsTT/p.G170F	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
 
@@ -317,7 +317,7 @@ Block substitution does not necessarily results in block substitution in amino a
 
 ::
 
-   CSRNP1:c.1212_1224delinsGGAGGAGGAA	CCDS2682 (protein_coding)	CSRNP1	-
+   CSRNP1:c.1212_1224delinsGGAGGAGGAA	CCDS2682.1 (protein_coding)	CSRNP1	-
       chr3:g.39185092_39185104delinsTTCCTCCTCC/c.1212_1224delinsGGAGGAGGAA/p.E411delE	inside_[cds_in_exon_4]
       CSQN=InFrameDeletion;begin_codon_cDNA=1210-1211-1212;end_codon_cDNA=1222-1223
       -1224;left_align_protein=p.E405delE;unalign_protein=p.E408delE;source=CCDS
@@ -331,7 +331,7 @@ Likewise, block substitution could occur to **intronic region**,
 
 ::
 
-   A1CF:c.1460+2_1460+3delinsCC	CCDS7241 (protein_coding)	A1CF	-
+   A1CF:c.1460+2_1460+3delinsCC	CCDS7241.1 (protein_coding)	A1CF	-
       chr10:g.52570797_52570798delinsGG/c.1460+2_1460+3delinsCC/.	inside_[intron_between_exon_9_and_10]
       CSQN=IntronicBlockSubstitution;source=CCDS
 
@@ -344,7 +344,7 @@ When block substitution occurs **across splice site**, TransVar put a tag in the
 
 ::
 
-   A1CF:c.1459_1460+3delinsCC	CCDS7241 (protein_coding)	A1CF	-
+   A1CF:c.1459_1460+3delinsCC	CCDS7241.1 (protein_coding)	A1CF	-
       chr10:g.52570797_52570801delinsGG/c.1459_1460+3delinsCC/.	from_[intron_between_exon_9_and_10]_to_[cds_in_exon_9]
       CSQN=SpliceDonorBlockSubstitution;C2=donor_splice_site_on_exon_9_at_chr10:525
       70799_lost;source=CCDS
@@ -390,7 +390,7 @@ Example: to annotate a duplication coding region,
 
 ::
 
-   CHD7:c.1669_1674dup	CCDS47865 (protein_coding)	CHD7	+
+   CHD7:c.1669_1674dup	CCDS47865.1 (protein_coding)	CHD7	+
       chr8:g.61693564_61693569dupCCCGTC/c.1669_1674dup/p.P558_S559dupPS	inside_[cds_in_exon_2]
       CSQN=InFrameInsertion;left_align_gDNA=g.61693561_61693562insTCCCCG;unalign_gD
       NA=g.61693562_61693567dupTCCCCG;left_align_cDNA=c.1668_1669insTCCCCG;unalign_
@@ -405,7 +405,7 @@ Example: a duplication on the nucleotide level may lead to frame-shift or block 
 
 ::
 
-   CHD7:c.1668_1669dup	CCDS47865 (protein_coding)	CHD7	+
+   CHD7:c.1668_1669dup	CCDS47865.1 (protein_coding)	CHD7	+
       chr8:g.61693561_61693562dupTT/c.1668_1669dup/p.S557Ffs*8	inside_[cds_in_exon_2]
       CSQN=Frameshift;left_align_gDNA=g.61693560_61693561insTT;unalign_gDNA=g.61693
       561_61693562dupTT;left_align_cDNA=c.1667_1668insTT;unalign_cDNA=c.1668_1669du
@@ -420,7 +420,7 @@ Example: to annotate a duplication in intronic region,
 
 ::
 
-   CHD7:c.1666-5_1666-3dup	CCDS47865 (protein_coding)	CHD7	+
+   CHD7:c.1666-5_1666-3dup	CCDS47865.1 (protein_coding)	CHD7	+
       chr8:g.61693554_61693556dupCTC/c.1666-5_1666-3dup/.	inside_[intron_between_exon_1_and_2]
       CSQN=IntronicInsertion;left_align_gDNA=g.61693553_61693554insCTC;unalign_gDNA
       =g.61693554_61693556dupCTC;left_align_cDNA=c.1666-6_1666-5insCTC;unalign_cDNA
