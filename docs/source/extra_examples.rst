@@ -34,6 +34,7 @@ Point mutation
 ^^^^^^^^^^^^^^^
 
 .. code:: bash
+
    $ transvar ganno --ccds -i 'chr3:g.178936091G>A' --gseq
 
 :: 
@@ -77,7 +78,7 @@ Deletion
 ^^^^^^^^^^^
 Note that `--gseq` is also constrained by `--seqmax`
 
-.. code::bash
+.. code:: bash
 
    $ transvar ganno -i "chr2:g.234183368_234183380del" --ccds --gseq --seqmax 20
 
@@ -103,7 +104,7 @@ Note that `--gseq` is also constrained by `--seqmax`
       234183380	ACTCATCCTGGTT	.
 
 
-.. code::bash
+.. code:: bash
 
    $ transvar ganno -i "chr2:g.234183368_234183379del" --ccds --gseq --seqmax 200
 
@@ -131,7 +132,7 @@ Note that `--gseq` is also constrained by `--seqmax`
       G140delTHPG;unalign_protein=p.T137_G140delTHPG;source=CCDS	chr2	234183368	234
       183379	ACTCATCCTGGT	.
 
-.. code::bash
+.. code:: bash
 
    $ transvar panno --ccds -i 'AADACL4:p.W263_I267delWRDAI' --gseq --seqmax 200
 
@@ -149,7 +150,7 @@ Note that `--gseq` is also constrained by `--seqmax`
 Insertions
 ^^^^^^^^^^^
 
-.. code::bash
+.. code:: bash
 
    $ transvar ganno -i 'chr7:g.121753754_121753755insCA' --ccds --gseq --seqmax 200
 

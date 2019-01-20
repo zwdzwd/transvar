@@ -21,6 +21,9 @@ def parser_add_general(parser):
     parser.add_argument('--suspend',
                         action='store_true',
                         help='suspend execution upon error, rather than append to the info field')
+    parser.add_argument('--ignore',
+                        action='store_true',
+                        help='ignore inconsistency between provided reference and true reference')
     parser.add_argument('-v', '--verbose',
                         default=0, # when >1, output all the exception
                         type=int,

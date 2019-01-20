@@ -780,11 +780,15 @@ def format_records(records, qop, args):
 
 def wrap_exception(e, op, args):
     r = Record()
-    r.append_info("Error_"+str(e))
-    err_warn(str(e))
-    r.format(op, args)
+    r.append_info("Error="+str(e))
+
+    if args.verbose > 1:
+        err_warn(str(e))
+        
+    # r.format(op, args)
     if args.suspend:
         raise e
+    return r
 
 
 

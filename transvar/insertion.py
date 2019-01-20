@@ -71,6 +71,14 @@ class NucInsertion():
         else:
             return '%s_%sins%s' % (self.beg_l, self.end_l, self.insseq_l)
 
+    def vcf_left_align(self):
+
+        """ This left-aligns following the VCF convention. """
+
+        last_base = self.flank5_l[-1]
+
+        return (self.beg_l, last_base, last_base+self.insseq_l)
+
 def gnuc_set_ins_core(chrm, beg, insseq):
 
     i = NucInsertion()
@@ -355,13 +363,13 @@ def annotate_insertion_cdna(args, q, tpts, db):
                 c, tnuc_end = t.gpos2codon(gnuc_beg)
                 gnuc_insseq = reverse_complement(q.insseq)
 
-            # optional output
-            if args.gseq:
-                r.gnuc_beg = gnuc_beg
-                r.gnuc_alt = gnuc_insseq
-
             r.pos = gnuc_beg
             gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg, gnuc_insseq, r)
+
+            # optional output
+            if args.gseq:
+                r.gnuc_beg, r.gnuc_ref, r.gnuc_alt = gnuc_ins.vcf_left_align()
+
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
             if not r.set_splice("affected", "Insertion"):

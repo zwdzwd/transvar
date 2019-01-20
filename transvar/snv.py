@@ -346,8 +346,13 @@ def annotate_snv_gdna(args, q, db):
     if not q.ref:
         q.ref = gnuc_ref
 
+    warning = ""
     if gnuc_ref != q.ref:
-        wrap_exception(Exception("invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref)), q.op, args)
+        warning = "invalid_reference_base_%s;expect_%s" % (q.ref, gnuc_ref)
+        records = [wrap_exception(Exception(warning), q.op, args)]
+        if not args.ignore:
+            format_records(records, q.op, args)
+            return records
 
     records = []
     for reg in describe(args, q, db):
@@ -369,6 +374,9 @@ def annotate_snv_gdna(args, q, db):
             r = annotate_snv_gdna_trannscript(reg, r, q, args)
         else:
             r.csqn.append(r.reg.csqn()+"SNV")
+
+        if warning != "":
+            r.append_info('Warning=%s' % warning)
 
         records.append(r)
 
