@@ -552,8 +552,11 @@ template = "{r.tname}\t{r.gene}\t{r.strand}\t{gnuc}/{tnuc}/{taa}\t{reg}\t{r.info
 def print_header_s():
     return 'transcript\tgene\tstrand\tcoordinates(gDNA/cDNA/protein)\tregion\tinfo'
 
-def print_header():
-    return 'input\t'+print_header_s()
+def print_header(args):
+    s = 'input\t'+print_header_s()
+    if args.gseq:
+        s += '\tCHROM\tPOS\tREF\tALT'
+    return s
 
 class Record():
 

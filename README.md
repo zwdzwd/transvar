@@ -20,4 +20,6 @@ To upgrade from previous installation, you can
 pip install -U transvar
 ```
 
+Pre-built docker images can be found [here](https://cloud.docker.com/repository/docker/zhouwanding/transvar/general)
+
 This is a continued TransVar implementation from what was hosted at [https://bitbucket.org/wanding/transvar](https://bitbucket.org/wanding/transvar).

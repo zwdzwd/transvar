@@ -206,7 +206,7 @@ def main_anno(args, at):
     db = AnnoDB(args, config)
 
     if (not args.vcf) and (not args.noheader):
-        print(print_header())
+        print(print_header(args))
 
     if args.l:
         main_list(args, db, at, list_parse_mutation(args, at))

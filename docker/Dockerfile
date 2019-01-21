@@ -20,7 +20,7 @@ RUN cd / && \
 
 VOLUME [ "/data" ]
 
-CMD ['/bin/bash']
+CMD ['transvar']
 
 ## this how to run this
 ## assuming the existence of ~/references/hg38/hg38.fa and ~/references/hg38/hg38.fa.fai
