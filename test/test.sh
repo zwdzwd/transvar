@@ -9,7 +9,7 @@ python test.py ../docs/source/ outdocs
 mv outdocs/*.rst ../docs/source/
 
 ## 2. upload github
-version="2.4.6.20190121"
+version="2.4.7.20190122"
 # modify ../docs/source/conf.py
 # modify ../transvar/version.py
 # modify ../docker/Dockerfile
@@ -39,7 +39,7 @@ python setup.py sdist # build the .tar.gz file
 # or installed from python3 -m pip install --user --upgrade twine
 twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-TRANSVARVERSION.tar.gz
 
-docker build -t zhouwanding/transvar:2.4.6 docker
+docker build -t zhouwanding/transvar:2.4.7 docker
 
 ## 4. Update release note on github
 

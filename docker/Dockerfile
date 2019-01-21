@@ -24,4 +24,4 @@ CMD ['transvar']
 
 ## this how to run this
 ## assuming the existence of ~/references/hg38/hg38.fa and ~/references/hg38/hg38.fa.fai
-## docker run -v ~/references/hg38:/data -ti zhouwanding/transvar:2.4.6 transvar panno -i PIK3CA:p.E545K --ensembl --reference /data/hg38.fa
+## docker run -v ~/references/hg38:/data -ti zhouwanding/transvar transvar panno -i PIK3CA:p.E545K --ensembl --reference /data/hg38.fa
