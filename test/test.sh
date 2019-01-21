@@ -34,8 +34,12 @@ git push --tags
 
 ###### ON HPC environment ####
 python setup.py sdist # build the .tar.gz file
-python setup.py bdist # build the .tar.gz file
-/primary/home/wanding.zhou/.local/bin/twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-TRANSVARVERSION.tar.gz
+# python setup.py bdist # build the .tar.gz file binary (will be platform-specific)
+# twine can be found at /primary/home/wanding.zhou/.local/bin/
+# or installed from python3 -m pip install --user --upgrade twine
+twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-TRANSVARVERSION.tar.gz
+
+docker build -t zhouwanding/transvar:2.4.6 docker
 
 ## 4. Update release note on github
 
@@ -86,6 +90,13 @@ colordiff testout/panno_tamborero golden/panno_tamborero
 transvar ganno --vcf data/tamborero_data/docm_variants_mar_2016.vcf --ensembl | tee testout/ganno_tamborero.vcf
 colordiff testout/ganno_tamborero.vcf
 transvar ganno -l data/tamborero_data/transvar_dna_input.txt --ensembl | tee testout/ganno_tamborero_output
+
+#####################
+## index annotation #
+#####################
+
+transvar config --download_raw # check the code for the actual transcript sourcd
+transvar index --ccds ~/transvar/Download/hg19.ccds.txt
 
 ##################################
 ## building feature database #####

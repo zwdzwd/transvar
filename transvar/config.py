@@ -124,9 +124,10 @@ for rv in ['hg18', 'hg19', 'hg38', 'mm9', 'mm10']:
 # 06/27/2016: refseq: ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p7_top_level.gff3.gz
 # 06/27/2016: ensembl: ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz
 # 06/27/2016: gencode: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_21/gencode.v21.annotation.gtf.gz
+# 01/21/2019: ccds: ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human/CCDS.current.txt
 fns[('hg38', 'raw')] = [
     ('raw_refseq', 'hg38.refseq.gff.gz', 'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p7_top_level.gff3.gz'),
-    ('raw_ccds', 'hg38.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_human/CCDS.current.txt'),
+    ('raw_ccds', 'hg38.ccds.txt', 'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/22/CCDS.20180614.txt'),
     ('raw_ensembl', 'hg38.ensembl.gtf.gz', 'ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz'),
     ('raw_gencode', 'hg38.gencode.gtf.gz', 'ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_24/gencode.v24.annotation.gtf.gz'),
     ('raw_ucsc', 'hg38.ucsc.txt.gz', '%s/hg38.ucsc.refgene.txt.gz?dl=1' % dwroot),
