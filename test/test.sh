@@ -13,10 +13,7 @@ version="2.4.8.20190122"
 # modify ../docs/source/conf.py
 # modify ../transvar/version.py
 # modify ../docker/Dockerfile
-git commit -am "version $version"
-git tag -a v$version -m "version $version"
-git push
-git push --tags
+
 ## manually draft a release
 
 ## register testpypi
@@ -39,7 +36,13 @@ python setup.py sdist # build the .tar.gz file
 # or installed from python3 -m pip install --user --upgrade twine
 twine upload --repository-url https://upload.pypi.org/legacy/ dist/TransVar-TRANSVARVERSION.tar.gz
 
-docker build -t zhouwanding/transvar:2.4.7 docker
+# you may want to consider building manually
+# docker build -t zhouwanding/transvar:2.4.7 docker
+
+git commit -am "version $version"
+git tag -a v$version -m "version $version"
+git push
+git push --tags
 
 ## 4. Update release note on github
 
