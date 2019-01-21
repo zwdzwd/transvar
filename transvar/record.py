@@ -752,10 +752,11 @@ class Record():
 
         if args is not None and args.gseq:
 
+            long_msg = '[LONG SEQUENCE, see --seqmax]'
             s += '\t%s\t%s\t%s\t%s' % (self.chrm,
                 str(self.vcf_pos) if hasattr(self, 'vcf_pos') and self.vcf_pos else '.',
-                str(self.vcf_ref) if hasattr(self, 'vcf_ref') and self.vcf_ref else '.',
-                str(self.vcf_alt) if hasattr(self, 'vcf_alt') and self.vcf_alt else '.')
+                str(self.vcf_ref) if hasattr(self, 'vcf_ref') and self.vcf_ref else long_msg,
+                str(self.vcf_alt) if hasattr(self, 'vcf_alt') and self.vcf_alt else long_msg)
 
         return s
 

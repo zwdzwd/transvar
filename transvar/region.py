@@ -194,6 +194,7 @@ def annotate_region_protein_transcript1(args, q, t, db):
     if args.gseq:
         r.vcf_pos = r.gnuc_beg
         r.vcf_ref = refrefseq
+        r.vcf_alt = '[NA]'
 
     # c-syntax
     r.tnuc_range = '%d_%d' % (tnuc_beg, tnuc_end)
