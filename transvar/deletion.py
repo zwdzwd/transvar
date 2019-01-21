@@ -136,7 +136,7 @@ def _annotate_deletion_cdna(args, q, r, t, db):
     gnd = GNucDeletion(t.chrm, gnuc_beg, gnuc_end)
     gnd.compute_tnuc(t, p1=q.beg, p2=q.end)
 
-    if q.delseq and q.delseq != gnd.tnuc_delseq:
+    if q.delseq and q.delseq != gnd.tnuc_delseq and not args.ignore:
         raise IncompatibleTranscriptError()
 
     gnd.set_record(r, args)
