@@ -165,6 +165,7 @@ if __name__ == '__main__':
                         help='reference version, options: hg18, hg19, hg38, mm9, mm10, see transvar config --download_ensembl for others.')
     p.add_argument('--switch_build', default=None, help='switch to specified genome build.')
     p.add_argument('--download_anno', action='store_true', help='download annotations')
+    p.add_argument('--skip_reference', action='store_true', help='skip reference prompt')
     p.add_argument('--download_ensembl', action='store_true', help='download ensembl raw annotations')
     p.add_argument('--ensembl_release', default='80', help='Ensembl release version')
     p.add_argument('--download_ref', action='store_true', help='download reference')

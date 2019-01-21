@@ -431,7 +431,7 @@ $ tranvar config --download_anno %s""" % (args.switch_build, args.switch_build))
 
         # check to make sure reference is also there.
         rv = getrv(args, config)
-        if (not (config.has_section(rv) and config.has_option(rv, 'reference'))):
+        if (not args.skip_reference) and (not (config.has_section(rv) and config.has_option(rv, 'reference'))):
             fa_path = input("Please specify fa-indexed fasta of reference (Enter to skip): ")
             fa_path = os.path.expanduser(fa_path)
             if fa_path == '': 
