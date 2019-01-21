@@ -9,7 +9,7 @@ python test.py ../docs/source/ outdocs
 mv outdocs/*.rst ../docs/source/
 
 ## 2. upload github
-version="2.4.7.20190122"
+version="2.4.8.20190122"
 # modify ../docs/source/conf.py
 # modify ../transvar/version.py
 # modify ../docker/Dockerfile
