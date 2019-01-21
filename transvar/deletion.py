@@ -50,7 +50,10 @@ class GNucDeletion():
 
         # left-aligned
         self.gnuc_beg_l, self.gnuc_end_l = gnuc_roll_left_del(chrm, gnuc_beg, gnuc_end)
-        self.gnuc_delseq_l = faidx.getseq(chrm, self.gnuc_beg_l, self.gnuc_end_l)
+        # TODO protect against self.gnuc_beg_l == 0
+        seq = faidx.getseq(chrm, self.gnuc_beg_l-1, self.gnuc_end_l)
+        self.gnuc_delseq_l = seq[1:]
+        self.gnuc_leftbase_l = seq[0] # this is important for VCF output
 
         self.tnuc = False
 
@@ -101,10 +104,9 @@ class GNucDeletion():
 
         # optional output
         if args.gseq:
-            r.gnuc_beg = self.gnuc_beg
-            r.gnuc_end = self.gnuc_end
-            if self.gnuc_end - self.gnuc_beg < args.seqmax and args.seqmax >= 0:
-                r.gnuc_ref = self.gnuc_delseq
+            r.vcf_pos = self.gnuc_beg_l - 1
+            r.vcf_ref = self.gnuc_leftbase_l + self.gnuc_delseq_l
+            r.vcf_alt = self.gnuc_leftbase_l
 
         r.append_info('left_align_gDNA=g.%s' % gnuc_del_id(
             self.chrm, self.gnuc_beg_l, self.gnuc_end_l, args))
@@ -153,6 +155,8 @@ def _annotate_deletion_cdna(args, q, r, t, db):
                 del_coding_frameshift(args, c1, c2, p1, p2, t, r)
     else:
         r.set_csqn_byreg("Deletion")
+
+    return r
 
 def annotate_deletion_cdna(args, q, tpts, db):
 

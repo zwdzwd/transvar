@@ -60,6 +60,22 @@ class Pos():
         else:
             return False
 
+    def add(self, inc):
+        """ doesn't check boundary, may overflow """
+
+        if self.tpos == 0:
+            self.pos += inc
+        else:
+            self.tpos += inc
+
+    def subtract(self, inc):
+        """ doesn't check boundary, may overflow """
+
+        if self.tpos == 0:
+            self.pos -= inc
+        else:
+            self.tpos -= inc
+
     def included_plus(self):
         if self.tpos > 0:
             return self.pos + 1
@@ -736,17 +752,10 @@ class Record():
 
         if args is not None and args.gseq:
 
-            if ((not hasattr(self, 'gnuc_beg')) and 
-                (not hasattr(self, 'gnuc_end')) and 
-                hasattr(self, 'gnuc_pos')):
-                self.gnuc_beg = self.gnuc_pos
-                self.gnuc_end = self.gnuc_pos
-
-            s += '\t%s\t%s\t%s\t%s\t%s' % (self.chrm,
-                str(self.gnuc_beg) if hasattr(self, 'gnuc_beg') and self.gnuc_beg else '.',
-                str(self.gnuc_end) if hasattr(self, 'gnuc_end') and self.gnuc_end else '.',
-                str(self.gnuc_ref) if hasattr(self, 'gnuc_ref') and self.gnuc_ref else '.',
-                str(self.gnuc_alt) if hasattr(self, 'gnuc_alt') and self.gnuc_alt else '.')
+            s += '\t%s\t%s\t%s\t%s' % (self.chrm,
+                str(self.vcf_pos) if hasattr(self, 'vcf_pos') and self.vcf_pos else '.',
+                str(self.vcf_ref) if hasattr(self, 'vcf_ref') and self.vcf_ref else '.',
+                str(self.vcf_alt) if hasattr(self, 'vcf_alt') and self.vcf_alt else '.')
 
         return s
 
@@ -784,7 +793,7 @@ def wrap_exception(e, op, args):
 
     if args.verbose > 1:
         err_warn(str(e))
-        
+
     # r.format(op, args)
     if args.suspend:
         raise e

@@ -113,6 +113,7 @@ def reflen(chrm):
 class SeqBuf():
 
     def __init__(self, chrm, p):
+        """ this construct saves 1kb flanking sequences """
 
         self.reset(chrm, p)
 

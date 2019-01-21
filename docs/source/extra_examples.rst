@@ -167,6 +167,15 @@ Block substitution
 
 .. code:: bash
 
+   $ transvar canno --ccds -i 'CSRNP1:c.1212_1224delinsCCCCC' --gseq --verbose 3
+
+gives
+
+
+Block substitution reduced to deletion.
+
+.. code:: bash
+
    $ transvar canno --ccds -i 'CSRNP1:c.1212_1224delinsGGAGGAGGAA' --gseq
 
 gives

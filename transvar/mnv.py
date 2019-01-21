@@ -31,17 +31,18 @@ from .err import *
 from .record import *
 from .transcripts import *
 from .describe import *
-from .insertion import taa_set_ins, annotate_insertion_gdna
+from .insertion import taa_set_ins, annotate_insertion_gdna, _annotate_insertion_cdna
 from .deletion import taa_set_del, annotate_deletion_gdna, _annotate_deletion_cdna
-from .snv import annotate_snv_gdna
+from .snv import annotate_snv_gdna, _annotate_snv_cdna
 from .proteinseqs import *
 
-def annotate_mnv_cdna(args, q, tpts, db):
+def annotate_mnv_cdna(args, q0, tpts, db):
 
     records = []
     for t in tpts:
         try:
 
+            q = q0
             if q.tpt and t.name != q.tpt:
                 raise IncompatibleTranscriptError("unmatched_transcript_name_%s;expect_%s" % (q.tpt, t.name))
             t.ensure_seq()
@@ -55,14 +56,55 @@ def annotate_mnv_cdna(args, q, tpts, db):
             t.check_exon_boundary(q.beg)
             t.check_exon_boundary(q.end)
 
+            ## TODO: need to check q.beg and q.end are in the same "region", i.e. same exon/intron or
+            ## neighboring exon and intron. Otherwise, the genomic substitution is unclear.
+
             _gnuc_beg = t.tnuc2gnuc(q.beg)
             _gnuc_end = t.tnuc2gnuc(q.end)
             gnuc_beg = min(_gnuc_beg, _gnuc_end)
             gnuc_end = max(_gnuc_beg, _gnuc_end)
-            r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
-
             gnuc_refseq = faidx.getseq(t.chrm, gnuc_beg, gnuc_end)
             tnuc_refseq = reverse_complement(gnuc_refseq) if t.strand == '-' else gnuc_refseq
+            tnuc_altseq = q.altseq
+
+            ## double trimming
+            tnuc_refseq, tnuc_altseq, head_trim, tail_trim = double_trim(tnuc_refseq, tnuc_altseq)
+            q.altseq = tnuc_altseq
+            q.beg.add(head_trim)
+            q.end.subtract(tail_trim)
+ 
+            ## reduction to SNV, insertion and deletion
+            if q.beg == q.end and len(tnuc_altseq) == 1:
+                q.pos = q.beg
+                q.ref = tnuc_refseq
+                q.alt = tnuc_altseq
+                records.append(_annotate_snv_cdna(args, q, r, t, db))
+                continue
+
+            if len(tnuc_refseq) == 0 and len(tnuc_altseq) > 0:
+                q.pos = q.beg-1
+                q.insseq = tnuc_altseq
+                records.append(_annotate_insertion_cdna(args, q, r, t, db))
+                continue
+
+            if len(tnuc_altseq) == 0 and len(tnuc_refseq) > 0:
+                q.delseq = tnuc_refseq
+                records.append(_annotate_deletion_cdna(args, q, r, t, db))
+                continue
+
+            ## update gdna coordinates
+            if t.strand == '+':
+                gnuc_beg += head_trim
+                gnuc_end -= tail_trim
+                gnuc_refseq = tnuc_refseq
+                gnuc_altseq = tnuc_altseq
+            else:
+                gnuc_beg += tail_trim
+                gnuc_end -= head_trim
+                gnuc_refseq = reverse_complement(tnuc_refseq)
+                gnuc_altseq = reverse_complement(tnuc_altseq)
+
+            r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
             gnuc_altseq = reverse_complement(q.altseq) if t.strand == '-' else q.altseq
             if q.refseq and tnuc_refseq != q.refseq:
                 raise IncompatibleTranscriptError('reference_unmatched_%s_expect_%s' % (q.refseq, tnuc_refseq))
@@ -71,10 +113,11 @@ def annotate_mnv_cdna(args, q, tpts, db):
             r.tnuc_range = nuc_set_mnv(q.beg, q.end, tnuc_refseq, q.altseq)
 
             # optional output with --gseq
-            r.gnuc_beg = gnuc_beg
-            r.gnuc_end = gnuc_end
-            r.gnuc_ref = gnuc_refseq
-            r.gnuc_alt = gnuc_altseq
+            if args.gseq:
+                r.vcf_pos = gnuc_beg - 1
+                base_before = faidx.refgenome.fetch_sequence(r.chrm, r.vcf_pos, r.vcf_pos)
+                r.vcf_ref = base_before+gnuc_refseq
+                r.vcf_alt = base_before+gnuc_altseq
 
             r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
             if (not r.set_splice('lost', 'BlockSubstitution')):
@@ -164,11 +207,12 @@ def annotate_mnv_protein(args, q, tpts, db):
                 r.tnuc_range = nuc_set_mnv(tnuc_beg, tnuc_end, tnuc_refseq, tnuc_altseq)
                 r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
 
-                # optional output with --gseq
-                r.gnuc_beg = gnuc_beg
-                r.gnuc_end = gnuc_end
-                r.gnuc_ref = gnuc_refseq
-                r.gnuc_alt = gnuc_altseq
+                # optional output under --gseq
+                if args.gseq:
+                    r.vcf_pos = gnuc_beg - 1
+                    base_before = faidx.refgenome.fetch_sequence(r.chrm, r.vcf_pos, r.vcf_pos)
+                    r.vcf_ref = base_before+gnuc_refseq
+                    r.vcf_alt = base_before+gnuc_altseq
 
                 r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
                 r.csqn.append("MultiAAMissense")
@@ -300,21 +344,18 @@ def annotate_mnv_gdna(args, q, db):
         q.pos = q.beg
         q.ref = gnuc_refseq
         q.alt = gnuc_altseq
-        annotate_snv_gdna(args, q, db)
-        return
+        return annotate_snv_gdna(args, q, db)
 
     if len(gnuc_refseq) == 0:
         if len(gnuc_altseq) > 0:
             q.pos = q.beg-1
             q.insseq = gnuc_altseq
-            annotate_insertion_gdna(args, q, db)
-            return
+            return annotate_insertion_gdna(args, q, db)
 
     if len(gnuc_altseq) == 0:
         if len(gnuc_refseq) > 0:
             q.delseq = gnuc_refseq
-            annotate_deletion_gdna(args, q, db)
-            return
+            return annotate_deletion_gdna(args, q, db)
 
     records = []
     for reg in describe(args, q, db):
@@ -326,6 +367,12 @@ def annotate_mnv_gdna(args, q, db):
         r.gnuc_range = nuc_set_mnv(q.beg, q.end, gnuc_refseq, gnuc_altseq)
 
         # optional output under --gseq
+        if args.gseq:
+            r.vcf_pos = q.beg - 1
+            base_before = faidx.refgenome.fetch_sequence(r.chrm, r.vcf_pos, r.vcf_pos)
+            r.vcf_ref = base_before+gnuc_refseq
+            r.vcf_alt = base_before+gnuc_altseq
+
         r.gnuc_beg = q.beg
         r.gnuc_end = q.end
         r.gnuc_ref = gnuc_refseq

@@ -41,6 +41,92 @@ from .proteinseqs import *
 ###### cDNA annotation ######
 #############################
 
+def _annotate_snv_cdna(args, q, r, t, db):
+
+    qpos = t.tnuc_resolve_pos(q.pos)
+    if q.tpt and t.name != q.tpt:
+        raise IncompatibleTranscriptError(
+            'transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
+    # if args.strictversion and q.tpt.version != t.version:
+    #     raise IncompatibleTranscriptError(
+    #         'transcript_version_unmatched_%s;expect_%s' % (q.version, t.version))
+    t.ensure_seq()
+
+    if (qpos.pos <= 0 or qpos.pos > t.cdslen()):
+        raise IncompatibleTranscriptError(
+            'invalid_cDNA_position_%d;expect_[0_%d]' % (qpos.pos, t.cdslen()))
+    codon = t.cpos2codon((qpos.pos+2)//3)
+    if not codon:
+        raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % qpos.pos)
+
+    r = Record(is_var=True)
+    r.chrm = t.chrm
+    r.tname = t.format()
+    r.gene = t.gene_name
+    gene_name = t.gene_name
+    r.strand = t.strand
+
+    r.gnuc_pos = t.tnuc2gnuc(qpos)
+    r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
+    if t.strand == '+':
+        if q.ref and r.gnuc_ref != q.ref:
+            raise IncompatibleTranscriptError(
+                'invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
+        r.gnuc_alt = q.alt if q.alt else ''
+    else:
+        if q.ref and r.gnuc_ref != complement(q.ref):
+            raise IncompatibleTranscriptError(
+                'invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
+        r.gnuc_alt = complement(q.alt) if q.alt else ''
+
+    # optional output
+    if args.gseq:
+        r.vcf_pos = r.gnuc_pos
+        r.vcf_ref = r.gnuc_ref
+        r.vcf_alt = r.gnuc_alt
+
+    r.tnuc_pos = q.pos
+    r.tnuc_ref = r.gnuc_ref if t.strand == '+' else complement(r.gnuc_ref)
+    r.tnuc_alt = q.alt
+
+    db.query_dbsnp(r, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
+    r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
+    # coding region
+    if qpos.tpos == 0 and t.transcript_type == 'protein_coding':
+
+        # Incompatible transcript
+        if (q.ref and q.ref != t.seq[qpos.pos-1]):
+            raise IncompatibleTranscriptError(
+                'invalid_reference_%s;expect_%s' % (q.ref, t.seq[qpos.pos-1]))
+
+        r.taa_ref = aaf(codon2aa(codon.seq), args)
+        r.taa_pos = codon.index
+        if not q.alt:
+            r.taa_alt = ''
+        else:
+            mut_seq = list(codon.seq[:])
+            mut_seq[(qpos.pos-1) % 3] = q.alt
+            r.taa_alt = aaf(codon2aa(''.join(mut_seq)), args)
+            if r.taa_ref != r.taa_alt:
+                if r.taa_alt == '*':
+                    r.csqn.append('Nonsense')
+                else:
+                    r.csqn.append('Missense')
+            elif r.taa_alt:
+                r.csqn.append('Synonymous')
+            r.append_info(
+                'reference_codon=%s;alternative_codon=%s' % (
+                    codon.seq, ''.join(mut_seq)))
+
+            variant_protein_seq_sub(
+                r, t, args, r.taa_pos, r.taa_pos, r.taa_alt)
+
+    else:  # coordinates are with respect to the exon boundary
+        r.csqn.append(r.reg.csqn()+"SNV")
+        t.check_exon_boundary(qpos)
+
+    return r
+
 def annotate_snv_cdna(args, q, tpts, db):
 
     """annotate cDNA SNV
@@ -59,83 +145,8 @@ def annotate_snv_cdna(args, q, tpts, db):
     records = []
     gene_name = ""
     for t in tpts:
-        qpos = t.tnuc_resolve_pos(q.pos)
         try:
-            if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError(
-                    'transcript_id_unmatched_%s;expect_%s' % (q.tpt, t.name))
-            # if args.strictversion and q.tpt.version != t.version:
-            #     raise IncompatibleTranscriptError(
-            #         'transcript_version_unmatched_%s;expect_%s' % (q.version, t.version))
-            t.ensure_seq()
-
-            if (qpos.pos <= 0 or qpos.pos > t.cdslen()):
-                raise IncompatibleTranscriptError(
-                    'invalid_cDNA_position_%d;expect_[0_%d]' % (qpos.pos, t.cdslen()))
-            codon = t.cpos2codon((qpos.pos+2)//3)
-            if not codon:
-                raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % qpos.pos)
-
-            r = Record(is_var=True)
-            r.chrm = t.chrm
-            r.tname = t.format()
-            r.gene = t.gene_name
-            gene_name = t.gene_name
-            r.strand = t.strand
-
-            r.gnuc_pos = t.tnuc2gnuc(qpos)
-            r.gnuc_ref = faidx.refgenome.fetch_sequence(t.chrm, r.gnuc_pos, r.gnuc_pos)
-            if t.strand == '+':
-                if q.ref and r.gnuc_ref != q.ref:
-                    raise IncompatibleTranscriptError(
-                        'invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
-                r.gnuc_alt = q.alt if q.alt else ''
-            else:
-                if q.ref and r.gnuc_ref != complement(q.ref):
-                    raise IncompatibleTranscriptError(
-                        'invalid_reference_%s;expect_%s' % (q.ref, r.gnuc_ref))
-                r.gnuc_alt = complement(q.alt) if q.alt else ''
-
-            r.tnuc_pos = q.pos
-            r.tnuc_ref = r.gnuc_ref if t.strand == '+' else complement(r.gnuc_ref)
-            r.tnuc_alt = q.alt
-
-            db.query_dbsnp(r, r.gnuc_pos, r.gnuc_ref, r.gnuc_alt)
-            r.reg = describe_genic_site(args, t.chrm, r.gnuc_pos, t, db)
-            # coding region
-            if qpos.tpos == 0 and t.transcript_type == 'protein_coding':
-
-                # Incompatible transcript
-                if (q.ref and q.ref != t.seq[qpos.pos-1]):
-                    raise IncompatibleTranscriptError(
-                        'invalid_reference_%s;expect_%s' % (q.ref, t.seq[qpos.pos-1]))
-
-                r.taa_ref = aaf(codon2aa(codon.seq), args)
-                r.taa_pos = codon.index
-                if not q.alt:
-                    r.taa_alt = ''
-                else:
-                    mut_seq = list(codon.seq[:])
-                    mut_seq[(qpos.pos-1) % 3] = q.alt
-                    r.taa_alt = aaf(codon2aa(''.join(mut_seq)), args)
-                    if r.taa_ref != r.taa_alt:
-                        if r.taa_alt == '*':
-                            r.csqn.append('Nonsense')
-                        else:
-                            r.csqn.append('Missense')
-                    elif r.taa_alt:
-                        r.csqn.append('Synonymous')
-                    r.append_info(
-                        'reference_codon=%s;alternative_codon=%s' % (
-                            codon.seq, ''.join(mut_seq)))
-
-                    variant_protein_seq_sub(
-                        r, t, args, r.taa_pos, r.taa_pos, r.taa_alt)
-
-            else:  # coordinates are with respect to the exon boundary
-                r.csqn.append(r.reg.csqn()+"SNV")
-                t.check_exon_boundary(qpos)
-
+            _annotate_snv_cdna(args, q, r, t, db)
         except IncompatibleTranscriptError as e:
             continue
         except SequenceRetrievalError as e:
@@ -248,6 +259,12 @@ def _annotate_snv_protein(args, q, t, db):
                 r.gnuc_ref = complement(nrefbase)
                 r.gnuc_alt = complement(naltbase)
                 r.gnuc_pos = codon.locs[2-gdiff[0]]
+
+            # optional output
+            if args.gseq:
+                r.vcf_pos = r.gnuc_pos
+                r.vcf_ref = r.gnuc_ref
+                r.vcf_alt = r.gnuc_alt
         else:
             tnuc_beg = (codon.index-1)*3 + 1 + gdiff[0]
             tnuc_end = (codon.index-1)*3 + 1 + gdiff[-1]
@@ -262,6 +279,9 @@ def _annotate_snv_protein(args, q, t, db):
                                                codon.locs[2-gdiff[0]],
                                                reverse_complement(tnuc_ref),
                                                reverse_complement(tnuc_alt))
+
+            ## TODO set VCF output r.vcf_pos etc for mnv
+
         # candidate mutations
         cdd_snv_muts = []
         cdd_mnv_muts = []
@@ -369,6 +389,12 @@ def annotate_snv_gdna(args, q, db):
         r.gnuc_ref = gnuc_ref
         r.gnuc_alt = q.alt if q.alt else ''
         db.query_dbsnp(r, q.pos, q.ref, q.alt if q.alt else None)
+
+        # optional output
+        if args.gseq:
+            r.vcf_pos = r.gnuc_pos
+            r.vcf_ref = r.gnuc_ref
+            r.vcf_alt = r.gnuc_alt
 
         if hasattr(reg, 't'):
             r = annotate_snv_gdna_trannscript(reg, r, q, args)

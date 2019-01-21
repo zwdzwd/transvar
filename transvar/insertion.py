@@ -73,7 +73,9 @@ class NucInsertion():
 
     def vcf_left_align(self):
 
-        """ This left-aligns following the VCF convention. """
+        """ This left-aligns following the VCF convention.
+        This outputs: pos, ref, alt
+        """
 
         last_base = self.flank5_l[-1]
 
@@ -335,14 +337,48 @@ def tnuc_coding_ins(args, tnuc_ins, t, r, db):
     else:                       # frameshift
         tnuc_coding_ins_frameshift(args, tnuc_ins, t, r)
 
+def _annotate_insertion_cdna(args, q, r, t, db):
+
+    if t.strand == '+':
+        gnuc_beg = t.tnuc2gnuc(q.pos)
+        gnuc_end = gnuc_beg+1
+        tnuc_beg = q.pos
+        c, tnuc_end = t.gpos2codon(gnuc_end)
+        gnuc_insseq = q.insseq
+    else:
+        gnuc_end = t.tnuc2gnuc(q.pos)
+        gnuc_beg = gnuc_end-1
+        tnuc_beg = q.pos
+        c, tnuc_end = t.gpos2codon(gnuc_beg)
+        gnuc_insseq = reverse_complement(q.insseq)
+
+    r.pos = gnuc_beg
+    gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg, gnuc_insseq, r)
+
+    # optional output
+    if args.gseq:
+        r.vcf_beg, r.vcf_ref, r.vcf_alt = gnuc_ins.vcf_left_align()
+
+    tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
+    r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
+    if not r.set_splice("affected", "Insertion"):
+        if r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
+            tnuc_coding_ins(args, tnuc_ins, t, r, db)
+        else:
+            r.set_csqn_byreg("Insertion")
+
+    return r
+    
 def annotate_insertion_cdna(args, q, tpts, db):
 
     records = []
     for t in tpts:
 
+        ## transcript name unmatched
+        if q.tpt and t.name != q.tpt:
+            continue
+
         try:
-            if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError("Transcript_name_unmatched")
             t.ensure_seq()
 
             r = Record(is_var=True)
@@ -350,33 +386,8 @@ def annotate_insertion_cdna(args, q, tpts, db):
             r.tname = t.format()
             r.gene = t.gene_name
             r.strand = t.strand
-            if t.strand == '+':
-                gnuc_beg = t.tnuc2gnuc(q.pos)
-                gnuc_end = gnuc_beg+1
-                tnuc_beg = q.pos
-                c, tnuc_end = t.gpos2codon(gnuc_end)
-                gnuc_insseq = q.insseq
-            else:
-                gnuc_end = t.tnuc2gnuc(q.pos)
-                gnuc_beg = gnuc_end-1
-                tnuc_beg = q.pos
-                c, tnuc_end = t.gpos2codon(gnuc_beg)
-                gnuc_insseq = reverse_complement(q.insseq)
+            _annotate_insertion_cdna(args, q, r, t, db)
 
-            r.pos = gnuc_beg
-            gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg, gnuc_insseq, r)
-
-            # optional output
-            if args.gseq:
-                r.gnuc_beg, r.gnuc_ref, r.gnuc_alt = gnuc_ins.vcf_left_align()
-
-            tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
-            r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)
-            if not r.set_splice("affected", "Insertion"):
-                if r.reg.entirely_in_cds() and t.transcript_type=='protein_coding':
-                    tnuc_coding_ins(args, tnuc_ins, t, r, db)
-                else:
-                    r.set_csqn_byreg("Insertion")
         except IncompatibleTranscriptError as e:
             continue
         except SequenceRetrievalError as e:
@@ -473,8 +484,7 @@ def annotate_insertion_gdna(args, q, db):
 
         # optional output
         if args.gseq:
-            r.gnuc_beg = gnuc_ins.beg
-            r.gnuc_alt = gnuc_ins.insseq
+            r.vcf_pos, r.vcf_ref, r.vcf_alt = gnuc_ins.vcf_left_align()
 
         if hasattr(reg, 't'):
 
@@ -559,12 +569,6 @@ def annotate_duplication_cdna(args, q, tpts, db):
             else:
                 gnuc_dupseq = ''
 
-            # optional output
-            if args.gseq:
-                r.gnuc_beg = gnuc_beg
-                r.gnuc_end = gnuc_end
-                r.gnuc_alt = gnuc_dupseq
-
             tnuc_dupseq = gnuc_dupseq if t.strand == '+' else reverse_complement(gnuc_dupseq)
             if q.dupseq and tnuc_dupseq != q.dupseq:
                 raise IncompatibleTranscriptError('unmatched reference')
@@ -573,6 +577,10 @@ def annotate_duplication_cdna(args, q, tpts, db):
                 gnuc_ins = gnuc_set_ins(t.chrm, gnuc_end, gnuc_dupseq, r)
             else:
                 gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg-1, gnuc_dupseq, r)
+
+            # optional output
+            if args.gseq:
+                r.vcf_pos, r.vcf_ref, r.vcf_alt = gnuc_ins.vcf_left_align()
 
             r.pos = gnuc_ins.beg_r
             tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)

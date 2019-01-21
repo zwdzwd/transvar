@@ -17,7 +17,7 @@ from functools import partial
 def parser_add_general(parser):
 
     parser.add_argument('--gseq', action='store_true',
-                        help="append genomic sequence of reference and alternative as extra column")
+                        help="append VCF-like reference and alternative as extra columns")
     parser.add_argument('--suspend',
                         action='store_true',
                         help='suspend execution upon error, rather than append to the info field')
