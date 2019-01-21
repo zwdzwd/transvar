@@ -70,6 +70,10 @@ def annotate_mnv_cdna(args, q0, tpts, db):
             tnuc_refseq = reverse_complement(gnuc_refseq) if t.strand == '-' else gnuc_refseq
             tnuc_altseq = q.altseq
 
+            if q.refseq and tnuc_refseq != q.refseq:
+                raise IncompatibleTranscriptError(
+                    'reference_unmatched_%s_expect_%s' % (q.refseq, tnuc_refseq))
+
             ## double trimming
             tnuc_refseq, tnuc_altseq, head_trim, tail_trim = double_trim(tnuc_refseq, tnuc_altseq)
             q.altseq = tnuc_altseq
@@ -109,8 +113,6 @@ def annotate_mnv_cdna(args, q0, tpts, db):
 
             r.pos = '%d-%d' % (gnuc_beg, gnuc_end)
             gnuc_altseq = reverse_complement(q.altseq) if t.strand == '-' else q.altseq
-            if q.refseq and tnuc_refseq != q.refseq:
-                raise IncompatibleTranscriptError('reference_unmatched_%s_expect_%s' % (q.refseq, tnuc_refseq))
 
             r.gnuc_range = nuc_set_mnv(gnuc_beg, gnuc_end, gnuc_refseq, gnuc_altseq)
             r.tnuc_range = nuc_set_mnv(q.beg, q.end, tnuc_refseq, q.altseq)

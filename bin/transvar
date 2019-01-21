@@ -16,8 +16,6 @@ from functools import partial
 
 def parser_add_general(parser):
 
-    parser.add_argument('--gseq', action='store_true',
-                        help="append VCF-like reference and alternative as extra columns")
     parser.add_argument('--suspend',
                         action='store_true',
                         help='suspend execution upon error, rather than append to the info field')
@@ -116,6 +114,8 @@ def parser_add_mutation(parser):
                         help='print protein sequence')
     parser.add_argument('--print-protein-pretty', dest='ppp', action='store_true', 
                         help='print protein sequence in a human-readable format')
+    parser.add_argument('--gseq', action='store_true',
+                        help="append VCF-like reference and alternative as extra columns")
 
 
 if __name__ == '__main__':

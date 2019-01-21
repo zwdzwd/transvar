@@ -59,7 +59,6 @@ def _annotate_snv_cdna(args, q, r, t, db):
     if not codon:
         raise IncompatibleTranscriptError('invalid_cDNA_position_%d' % qpos.pos)
 
-    r = Record(is_var=True)
     r.chrm = t.chrm
     r.tname = t.format()
     r.gene = t.gene_name
@@ -145,6 +144,7 @@ def annotate_snv_cdna(args, q, tpts, db):
     records = []
     gene_name = ""
     for t in tpts:
+        r = Record(is_var=True)
         try:
             _annotate_snv_cdna(args, q, r, t, db)
         except IncompatibleTranscriptError as e:

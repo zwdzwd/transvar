@@ -318,9 +318,11 @@ When performing annotation on block substitution, the reference and alternative 
 ::
 
    CSRNP1:c.1212_1224delinsGGAGGAGGAA	CCDS2682.1 (protein_coding)	CSRNP1	-
-      chr3:g.39185092_39185104delinsTTCCTCCTCC/c.1212_1224delinsGGAGGAGGAA/p.E411delE	inside_[cds_in_exon_4]
-      CSQN=InFrameDeletion;begin_codon_cDNA=1210-1211-1212;end_codon_cDNA=1222-1223
-      -1224;left_align_protein=p.E405delE;unalign_protein=p.E408delE;source=CCDS
+      chr3:g.39185102_39185104delTCC/c.1221_1223delGGA/p.E411delE	inside_[cds_in_exon_4]
+      CSQN=InFrameDeletion;left_align_gDNA=g.39185093_39185095delTCC;unaligned_gDNA
+      =g.39185093_39185095delTCC;left_align_cDNA=c.1212_1214delGGA;unalign_cDNA=c.1
+      221_1223delGGA;left_align_protein=p.E405delE;unalign_protein=p.E407delE;sourc
+      e=CCDS
 
 The following case reduces block substitution to SNV.
 
@@ -330,7 +332,10 @@ The following case reduces block substitution to SNV.
 
 ::
 
-   
+   CSRNP1:c.1230_1233delinsGCAA	CCDS2682.1 (protein_coding)	CSRNP1	-
+      chr3:g.39185085C>G/c.1231G>C/p.E411Q	inside_[cds_in_exon_4]
+      CSQN=Missense;reference_codon=GAA;alternative_codon=CAA;source=CCDS
+
 
 And the following case reduces block substitution to SNP
 
@@ -338,7 +343,14 @@ And the following case reduces block substitution to SNP
 
    $ transvar canno -i 'CSRNP1:c.1230_1233delinsGGCAA' --ccds --suspend --gseq
 
-   
+::
+
+   CSRNP1:c.1230_1233delinsGGCAA	CCDS2682.1 (protein_coding)	CSRNP1	-
+      chr3:g.39185084_39185085insG/c.1231_1232insC/p.E411Afs*17	inside_[cds_in_exon_4]
+      CSQN=Frameshift;left_align_gDNA=g.39185084_39185085insG;unalign_gDNA=g.391850
+      84_39185085insG;left_align_cDNA=c.1231_1232insC;unalign_cDNA=c.1231_1232insC;
+      source=CCDS	chr3	39185084	T	TG
+
 
 Likewise, block substitution could occur to **intronic region**,
 
@@ -366,32 +378,6 @@ When block substitution occurs **across splice site**, TransVar put a tag in the
       chr10:g.52570797_52570801delinsGG/c.1459_1460+3delinsCC/.	from_[intron_between_exon_9_and_10]_to_[cds_in_exon_9]
       CSQN=SpliceDonorBlockSubstitution;C2=donor_splice_site_on_exon_9_at_chr10:525
       70799_lost;source=CCDS
-
-
-With `--gseq` transvar appends genomic sequence information as additional columns
-
-.. code:: bash
-
-   $ transvar canno -i 'MRE11A:c.592_593delGTinsTA' --ensembl --gseq
-
-::
-
-   MRE11A:c.592_593delGTinsTA	ENST00000323929 (protein_coding)	MRE11A	-
-      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
-      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000325863;source=Ensembl	c
-      hr11	94209521	94209522	AC	TA
-   MRE11A:c.592_593delGTinsTA	ENST00000323977 (protein_coding)	MRE11A	-
-      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
-      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000326094;source=Ensembl	c
-      hr11	94209521	94209522	AC	TA
-   MRE11A:c.592_593delGTinsTA	ENST00000393241 (protein_coding)	MRE11A	-
-      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
-      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000376933;source=Ensembl	c
-      hr11	94209521	94209522	AC	TA
-   MRE11A:c.592_593delGTinsTA	ENST00000540013 (protein_coding)	MRE11A	-
-      chr11:g.94209521_94209522delinsTA/c.592_593delinsTA/p.V198*	inside_[cds_in_exon_7]
-      CSQN=Missense;codon_cDNA=592-593-594;aliases=ENSP00000440986;source=Ensembl	c
-      hr11	94209521	94209522	AC	TA
 
 
 duplication
