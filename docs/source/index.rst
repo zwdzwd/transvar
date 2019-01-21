@@ -22,6 +22,7 @@ Contents:
    output_options
    faq
    features
+   citation
    license
    help
 

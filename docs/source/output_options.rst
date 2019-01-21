@@ -1,8 +1,7 @@
 ******************************
-cDNA level annotation
+Output Options
 ******************************
 
-Annotation from cDNA level is handled by the `canno` subcommand.
 
 VCF-like output
 #################
