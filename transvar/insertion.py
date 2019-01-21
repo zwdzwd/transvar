@@ -357,7 +357,7 @@ def _annotate_insertion_cdna(args, q, r, t, db):
 
     # optional output
     if args.gseq:
-        r.vcf_beg, r.vcf_ref, r.vcf_alt = gnuc_ins.vcf_left_align()
+        r.vcf_pos, r.vcf_ref, r.vcf_alt = gnuc_ins.vcf_left_align()
 
     tnuc_ins = tnuc_set_ins(gnuc_ins, t, r, beg=tnuc_beg, end=tnuc_end, insseq=q.insseq)
     r.reg = describe_genic(args, t.chrm, gnuc_beg, gnuc_end, t, db)

@@ -35,16 +35,19 @@ from .insertion import taa_set_ins, annotate_insertion_gdna, _annotate_insertion
 from .deletion import taa_set_del, annotate_deletion_gdna, _annotate_deletion_cdna
 from .snv import annotate_snv_gdna, _annotate_snv_cdna
 from .proteinseqs import *
+from copy import copy
 
 def annotate_mnv_cdna(args, q0, tpts, db):
 
     records = []
     for t in tpts:
+
+        q = copy(q0)
+        if q.tpt and t.name != q.tpt:
+            continue
+            # raise IncompatibleTranscriptError("unmatched_transcript_name_%s;expect_%s" % (q.tpt, t.name))
         try:
 
-            q = q0
-            if q.tpt and t.name != q.tpt:
-                raise IncompatibleTranscriptError("unmatched_transcript_name_%s;expect_%s" % (q.tpt, t.name))
             t.ensure_seq()
 
             r = Record(is_var=True)
@@ -82,7 +85,7 @@ def annotate_mnv_cdna(args, q0, tpts, db):
                 continue
 
             if len(tnuc_refseq) == 0 and len(tnuc_altseq) > 0:
-                q.pos = q.beg-1
+                q.pos = copy(q.end)
                 q.insseq = tnuc_altseq
                 records.append(_annotate_insertion_cdna(args, q, r, t, db))
                 continue

@@ -309,7 +309,7 @@ Example: to annotate a block substitution in **coding region**,
       chr10:g.52595953_52595954delinsAA/c.508_509delinsTT/p.G170F	inside_[cds_in_exon_4]
       CSQN=Missense;codon_cDNA=508-509-510;source=CCDS
 
-Block substitution does not necessarily results in block substitution in amino acid. For example, the following substitution results in a deletion, where protein alternative alignment should be reported.
+When performing annotation on block substitution, the reference and alternative sequence are double trimmed so that only the minimum stretch of substitution gets annotated excluding flanking sequence that are identical between reference and alternatives. Hence block substitution does not necessarily results in block substitution annotation. For example, the following substitution results in a deletion, where protein alternative alignment should be reported.
 
 .. code:: bash
 
@@ -321,6 +321,24 @@ Block substitution does not necessarily results in block substitution in amino a
       chr3:g.39185092_39185104delinsTTCCTCCTCC/c.1212_1224delinsGGAGGAGGAA/p.E411delE	inside_[cds_in_exon_4]
       CSQN=InFrameDeletion;begin_codon_cDNA=1210-1211-1212;end_codon_cDNA=1222-1223
       -1224;left_align_protein=p.E405delE;unalign_protein=p.E408delE;source=CCDS
+
+The following case reduces block substitution to SNV.
+
+.. code:: bash
+
+   $ transvar canno -i 'CSRNP1:c.1230_1233delinsGCAA' --ccds
+
+::
+
+   
+
+And the following case reduces block substitution to SNP
+
+.. code:: bash
+
+   $ transvar canno -i 'CSRNP1:c.1230_1233delinsGGCAA' --ccds --suspend --gseq
+
+   
 
 Likewise, block substitution could occur to **intronic region**,
 
