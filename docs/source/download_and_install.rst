@@ -24,6 +24,16 @@ to upgrade from a previous version
 
    pip install -U transvar
 
+Try out the docker image
+#########################
+Also try out using the pre-built docker image
+Assuming the existence of `~/references/hg38/hg38.fa` and `~/references/hg38/hg38.fa.fai`
+
+.. code:: bash
+
+	docker pull zhouwanding/transvar:2.4.6
+	docker run -v ~/references/hg38:/data -ti zhouwanding/transvar:2.4.6 transvar panno -i PIK3CA:p.E545K --ensembl --reference /data/hg38.fa
+
 
 Download the program
 #######################
