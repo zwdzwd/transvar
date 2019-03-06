@@ -50,7 +50,8 @@ class RefGenome:
     def fetch_sequence(self, chrom, start, end):
 
         # Fetch a sequence from start to end in 1-based coordinates
-        seq=""
+        seq=[]
+        seq_len=0
 
         if chrom not in self.faidx:
             if chrom.startswith('chr') and chrom[3:] in self.faidx:
@@ -77,10 +78,13 @@ class RefGenome:
 
         self.fasta_handle.seek(offset+start//blen*bytelen+start%blen)
 
-        while len(seq)<end-start:
+        while seq_len<end-start:
             line=self.fasta_handle.readline().decode()
             line=line[:-1] #Remove newline symbols
-            seq=seq+line
+            seq_len=seq_len+len(line)
+            seq.append(line)
+
+        seq=''.join(seq)
 
         #chomp off extra bases
         return seq[:end-start].upper()
