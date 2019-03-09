@@ -410,7 +410,7 @@ def vcf_parse_mutation(args, at='g'):
                 q.tok = chrm
                 q.pos = pos
                 q.insseq = alt[1:]
-            elif len(ref) > 1 and len(alt) > 1:
+            elif len(ref) > 1 or len(alt) > 1:
                 q = QueryMNV()
                 q.tok = chrm
                 q.beg = pos
