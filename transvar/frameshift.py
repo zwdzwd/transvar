@@ -98,6 +98,10 @@ def fuzzy_match_deletion(gid2match, t, codon, q, args):
                         m.tnuc_r = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
                         m.tnuc_l = tnuc_del_id(p1l, p2l, args, tnuc_delseq_l)
                         m.edit_length = len(gnuc_delseq_l)
+                        ## FIXME: the following is a bit off the VCF convention.
+                        m.vcf_pos = gnuc_beg_l
+                        m.vcf_ref = gnuc_delseq_l
+                        m.vcf_alt = ''
                         gid2match[m.gnuc_r] = m
 
     return gid2match
@@ -185,6 +189,11 @@ def fs_insertion_format(t, insseq, tnuc_index):
     m.edit_length = len(insseq)
     m.o_insseq = insseq
     m.o_tnuc_index = tnuc_index
+
+    m.vcf_pos = gnuc_ins.beg_l
+    m.vcf_ref = gnuc_ins.flank5_l
+    m.vcf_alt = m.vcf_ref+gnuc_ins.insseq_l
+
     return m
 
 def fuzzy_match_insertion(gid2match, t, codon, q):
@@ -305,6 +314,11 @@ def _annotate_frameshift(args, q, t):
         r.tnuc_range = chosen.tnuc_r
 
         # optional output - TODO: this is not supported for frameshift yet.
+        if args.gseq:
+            r.vcf_pos = chosen.vcf_pos
+            r.vcf_ref = chosen.vcf_ref
+            r.vcf_alt = chosen.vcf_alt
+
         # if args.gseq:
         #     r.gnuc_beg = chosen.gnuc_beg_r
         #     r.gnuc_end = chosen.gnuc_end_r

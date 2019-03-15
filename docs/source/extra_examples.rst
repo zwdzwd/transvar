@@ -191,6 +191,28 @@ gives
       CSQN=MultiAAMissense;candidate_alternative_sequence=AGG/AGA/CGA/CGC/CGG/CGT;a
       liases=ENSP00000285238;source=Ensembl	chr17	48745253	GTAC	GAGG
 
+Frameshift
+^^^^^^^^^^^^
+
+.. code:: bash
+
+   $ transvar panno -i 'PTEN:N323Kfs*2' --ensembl --gseq --seqmax 1000
+
+gives
+
+::
+
+   PTEN:N323Kfs*2	ENST00000371953 (protein_coding)	PTEN	+
+      chr10:g.89720817dupA/c.968dupA/p.N323Kfs*2	inside_[cds_in_exon_8]
+      CSQN=Frameshift;left_align_cDNA=c.962_963insA;left_align_gDNA=g.89720811_8972
+      0812insA;candidates=g.89720817_89720818insG/c.968_969insG/g.89720817_89720818
+      insG/c.968_969insG,g.89720814_89720815insG/c.965_966insG/g.89720814_89720815i
+      nsG/c.965_966insG,g.89720811dupC/c.962dupC/g.89720810_89720811insC/c.961_962i
+      nsC,g.89720811_89720812insG/c.962_963insG/g.89720811_89720812insG/c.962_963in
+      sG,g.89720811_89720812insT/c.962_963insT/g.89720811_89720812insT/c.962_963ins
+      T;aliases=ENSP00000361021;source=Ensembl	chr10	89720811	C	CA
+
+
 Test --strictversion argument
 ###############################
 
