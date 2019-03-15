@@ -10,6 +10,7 @@ mv outdocs/*.rst ../docs/source/
 
 ## 2. upload github
 version="2.5.0.20190314"
+
 # modify ../docs/source/conf.py
 # modify ../transvar/version.py
 # modify ../docker/Dockerfile
