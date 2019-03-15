@@ -27,6 +27,7 @@ SOFTWARE.
 
 """
 
+import os
 from .transcripts import *
 from .localdb import TransVarDB
 from . import parser
@@ -72,10 +73,24 @@ class AnnoDB():
         if args.kg:
             self.dbs.append(TransVarDB(args.kg, source='KnownGene'))
 
-        if args.uniprot:
-            idmap = load(open(args.uniprot, 'rb'))
+        ## TODO: fix uniprot
+        # if args.uniprot:
+        #     idmap = load(open(args.uniprot, 'rb'))
+        #     for db in self.dbs:
+        #         db.idmap = idmap
+        if args.idmap:
             for db in self.dbs:
-                db.idmap = idmap
+                # import pdb; pdb.set_trace()
+                inferred_path = db.dbfn+'.'+args.idmap+'.idmap_idx'
+                if os.path.isfile(args.idmap):
+                    db.idmap = load(open(args.idmap, 'rb'))
+                elif os.path.isfile(inferred_path):
+                    db.idmap = load(open(inferred_path, 'rb'))
+                elif get_config(config, args.idmap, rv='idmap'):
+                    # try database-independent idmapping
+                    # import pdb; pdb.set_trace()
+                    db.idmap = load(open(get_config(config, args.idmap, rv='idmap'), 'rb'))
+                
         self.config = config
         self.args = args
         self.resources = {}

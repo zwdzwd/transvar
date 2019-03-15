@@ -35,6 +35,8 @@ def parser_add_annotation(parser):
                         help="consider only protein-coding transcript with longest cds")
     parser.add_argument('--refversion', nargs='?', default=None,
                         help='reference version (hg18, hg19, hg38 etc) (config key: refversion)')
+
+    ## __DEF__ means taking the default from the config files
     parser.add_argument('--reference', nargs='?', default='_DEF_',
                         help='indexed reference fasta (with .fai) (config key: reference)')
     parser.add_argument('--ensembl', nargs='?', default=None, const='_DEF_',
@@ -57,6 +59,8 @@ def parser_add_annotation(parser):
     # parser.add_argument
     # parser.add_argument('--custom', nargs='?', default=None, const='_DEF_',
     #                     help='A customized transcript table with sequence (config key: custom)')
+    parser.add_argument('--idmap', default=None,
+                        help='the optional mapping for transcript ID or gene name')
     parser.add_argument('--uniprot', nargs='?', default=None, const='_DEF_',
                         help='use uniprot ID rather than gene id (config key: uniprot)')
     parser.add_argument('--mem', action='store_true',

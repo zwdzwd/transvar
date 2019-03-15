@@ -13,12 +13,12 @@ To use uniprot id as protein name, one must first download the uniprot id map by
 
    transvar config --download_idmap
 
-Then one could use protein id instead of gene name by applying the `--uniprot` option to TransVar. For example,
+Then one could use protein id instead of gene name by applying the `--idmap uniprot` option to TransVar. For example,
 
 
 .. code:: bash
 
-   $ transvar panno --ccds -i 'Q5VUM1:47' --uniprot
+   $ transvar panno --ccds -i 'Q5VUM1:47' --idmap uniprot
 
 
 ::
@@ -36,7 +36,7 @@ For example, one can find the genomic location of a DRY motif in protein P28222 
 
 .. code:: bash
 
-   $ transvar panno -i 'P28222:p.146_148refDRY' --uniprot --ccds
+   $ transvar panno -i 'P28222:p.146_148refDRY' --ccds --idmap uniprot
 
 ::
 
@@ -253,17 +253,17 @@ Suppose we have a relatively long insertion,
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.507_508insTGTACGGT;unalign_cD
       NA=c.507_508insTGTACGGT;source=CCDS
-   chr11:g.32417908_32417909insACCGTACA	CCDS7878.2 (protein_coding)	WT1	-
-      chr11:g.32417908_32417909insACCGTACA/c.1143_1144insTGTACGGT/p.A382Cfs*70	inside_[cds_in_exon_7]
-      CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
-      .32417908_32417909insACCGTACA;left_align_cDNA=c.1143_1144insTGTACGGT;unalign_
-      cDNA=c.1143_1144insTGTACGGT;source=CCDS
    chr11:g.32417908_32417909insACCGTACA	CCDS44561.1 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.1092_1093insTGTACGGT/p.A365Cfs*70	inside_[cds_in_exon_6]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.1092_1093insTGTACGGT;unalign_
       cDNA=c.1092_1093insTGTACGGT;source=CCDS
    chr11:g.32417908_32417909insACCGTACA	CCDS44562.1 (protein_coding)	WT1	-
+      chr11:g.32417908_32417909insACCGTACA/c.1143_1144insTGTACGGT/p.A382Cfs*70	inside_[cds_in_exon_7]
+      CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
+      .32417908_32417909insACCGTACA;left_align_cDNA=c.1143_1144insTGTACGGT;unalign_
+      cDNA=c.1143_1144insTGTACGGT;source=CCDS
+   chr11:g.32417908_32417909insACCGTACA	CCDS7878.2 (protein_coding)	WT1	-
       chr11:g.32417908_32417909insACCGTACA/c.1143_1144insTGTACGGT/p.A382Cfs*70	inside_[cds_in_exon_7]
       CSQN=Frameshift;left_align_gDNA=g.32417908_32417909insACCGTACA;unalign_gDNA=g
       .32417908_32417909insACCGTACA;left_align_cDNA=c.1143_1144insTGTACGGT;unalign_
@@ -313,12 +313,11 @@ TransVar can also take protein identifiers such as  as input. For example,
 
 .. code:: bash
 
-   $ transvar panno --refseq -i 'NP_006266.2:p.G240Afs*50'
-
+   $ transvar panno --refseq -i 'NP_006266:p.G240Afs*50' --idmap protein_id
 
 ::
 
-   NP_006266.2:p.G240Afs*50	NM_006275.5 (protein_coding)	SRSF6	+
+   NP_006266:p.G240Afs*50	NM_006275.5 (protein_coding)	SRSF6	+
       chr20:g.42089387delG/c.719delG/p.G240Afs*50	inside_[cds_in_exon_6]
       CSQN=Frameshift;left_align_cDNA=c.718delG;left_align_gDNA=g.42089386delG;cand
       idates=g.42089385delA/c.717delA/g.42089382delA/c.714delA;dbxref=GeneID:6431,H
@@ -500,10 +499,10 @@ gives
 ::
 
    origin_id	alt_id	chrm	codon1	codon2	transcripts_choice
-   MET:p.1010	MET.p.991	chr7	116411932-116411933-116411934
-      116411932-116411933-116411934	XM_005250353[RefSeq]/NM_001127500[RefSeq]
    MET:p.1010	MET.p.973	chr7	116411932-116411933-116411934
       116411932-116411933-116411934	XM_005250353[RefSeq]/NM_000245[RefSeq]
+   MET:p.1010	MET.p.991	chr7	116411932-116411933-116411934
+      116411932-116411933-116411934	XM_005250353[RefSeq]/NM_001127500[RefSeq]
    MET:p.1010	MET.p.543	chr7	116411932-116411933-116411934
       116411932-116411933-116411934	XM_005250353[RefSeq]/XM_005250354[RefSeq]
    MET:p.1010	MET.p.1029	chr7	116411989-116411990-116411991

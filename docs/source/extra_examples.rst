@@ -51,12 +51,12 @@ Point mutation
 
 :: 
 
-   chr9:g.135782704C>G	CCDS6956.1 (protein_coding)	TSC1	-
-      chr9:g.135782704C>G/c.1317G>C/p.L439L	inside_[cds_in_exon_11]
-      CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
-      82705-135782706;ref_codon_seq=CTG;source=CCDS	chr9	135782704	C	G
    chr9:g.135782704C>G	CCDS55350.1 (protein_coding)	TSC1	-
       chr9:g.135782704C>G/c.1164G>C/p.L388L	inside_[cds_in_exon_10]
+      CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
+      82705-135782706;ref_codon_seq=CTG;source=CCDS	chr9	135782704	C	G
+   chr9:g.135782704C>G	CCDS6956.1 (protein_coding)	TSC1	-
+      chr9:g.135782704C>G/c.1317G>C/p.L439L	inside_[cds_in_exon_11]
       CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
       82705-135782706;ref_codon_seq=CTG;source=CCDS	chr9	135782704	C	G
 

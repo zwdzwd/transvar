@@ -26,6 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
+
 from . import argparse
 from . import parser
 import sys
@@ -56,6 +57,7 @@ class TransVarDB():
     def __init__(self, dbfn=None, source=None):
 
         self.name2gene = {}
+        self.idmap = {}
         if dbfn is None: return
 
         self.dbfn = dbfn
@@ -69,7 +71,6 @@ class TransVarDB():
 
         self.alias_idx = None
         self.loc_idx = None
-        self.idmap = None
         self.source = source
 
     ##########################
@@ -80,6 +81,11 @@ class TransVarDB():
 
         """ parse name-indexed transcript file
         .transvardb file
+
+        if gname is None, read one transcript
+        if gname is not None, read the number of transcripts with
+        the given gname
+
         parsing starts from dbfh current location
         """
         for line in self.dbfh:
@@ -156,7 +162,7 @@ class TransVarDB():
     # retrieve transcripts by gene name or transcript name #
     ########################################################
 
-    def get(self, name, lvl=1, strictversion = False):
+    def get(self, name, search_alias = True, strictversion = False):
 
         """ get by either gene name or transcript name
         use the following order:
@@ -166,31 +172,34 @@ class TransVarDB():
         4) alias from idmap
         """
 
-        nohit = True
+        no_hit = True
         for g in self.get_by_gene(name):
-            nohit = False
+            no_hit = False
             yield g
 
-        if nohit:
+        if no_hit:
             g = self.get_by_trnx(name, strictversion)
             if g is not None:
-                nohit = False
+                no_hit = False
                 yield g
 
-        if nohit and lvl>0:
-            _name = name
-            m = p_trxn_version.match(name)
-            if m:
-                _name = m.group(1)
+        ## deprecates alias_idx and uses idmap
+        # # try alias_idx
+        # if no_hit and self.alias_idx is not None and search_alias:
+        #     _name = name
+        #     m = p_trxn_version.match(name)
+        #     if m:
+        #         _name = m.group(1)
 
-            for g in self.get_by_alias(_name):
-                nohit = False
-                yield g
+        #     for g in self.get_by_alias(_name):
+        #         no_hit = False
+        #         yield g
 
-        if nohit and self.idmap is not None and lvl>0:
+        # try idmap
+        if no_hit and len(self.idmap) > 0 and search_alias:
             if name in self.idmap:
                 for name2 in self.idmap[name]:
-                    for g in self.get(name2, lvl=0):
+                    for g in self.get(name2, search_alias = False):
                         yield g
 
     def get_by_gene(self, name):
@@ -206,8 +215,9 @@ class TransVarDB():
 
     def get_by_trnx(self, name, strictversion = False):
 
-        """ read a gene by transcript name, the gene has only one
-        transcript (if the transcript ID is unique in the database, which usually is) """
+        """ read in a gene by transcript name 
+        the gene has only the transcript(s) with that transcript name
+        """
         m = p_trxn_version.match(name)
         if m:
             name = m.group(1)
@@ -323,6 +333,8 @@ class TransVarDB():
 
         # each class that subclassed TransVarDB should have parse_raw
         self.parse_raw(*raw_fns)
+        # results are stored in self.name2gene and self.idmap
+        
         # set cds_beg and cds_end
         set_cds_boundary(self.name2gene)
 
@@ -332,7 +344,7 @@ class TransVarDB():
         dbfh = open(dbfn, 'wt')
         gene_idx = {}
         trnx_idx = {}
-        alias_idx = {}
+        # alias_idx = {}          # hold transcript aliases
         tpts = []
         for name in names:
             g = self.name2gene[name]
@@ -348,30 +360,43 @@ class TransVarDB():
                 else:
                     trnx_idx[t.name] = [pos]
 
-                for alias in t.aliases:
-                    if alias in alias_idx:
-                        alias_idx[alias].append(pos)
-                    else:
-                        alias_idx[alias] = [pos]
+                # for alias in t.aliases:
+                #     if alias in alias_idx:
+                #         alias_idx[alias].append(pos)
+                #     else:
+                #         alias_idx[alias] = [pos]
 
                 dbfh.write('%s\t%s\t%d\t%s\t%d\t%d\t%s\t%s\t%d\t%d\t%s\t%s\t%s\n' %
                            (g.name, t.name, t.version, t.transcript_type, t.beg, t.end, t.chrm,
                             t.strand, t.cds_beg, t.cds_end, t.exons, ';'.join(t.aliases), g.dbxref))
 
+        ############################################
         ## .gene_idx - index gene name
+        ############################################
         idxfn = dbfn+'.gene_idx'
         dump(gene_idx, open(idxfn, 'wb'), 2)
 
+        ############################################
         ## .trxn_idx - index transcript name
+        ############################################
         idxfn = dbfn+'.trxn_idx'
         dump(trnx_idx, open(idxfn, 'wb'), 2)
 
-        ## .alias_idx - index alias name
-        if len(alias_idx) > 0:
-            idxfn = dbfn+'.alias_idx'
-            dump(alias_idx, open(idxfn, 'wb'), 2)
+        ############################################
+        ## .?.mapping_idx - mappings to gene names
+        ## or transcript IDs
+        ############################################
+        for map_name, mapping in self.idmap.items():
+            idxfn = dbfn + '.' + map_name + '.idmap_idx'
+            dump(mapping, open(idxfn, 'wb'), 2)
+        
+        # if len(alias_idx) > 0:
+        #     idxfn = dbfn+'.alias_idx'
+        #     dump(alias_idx, open(idxfn, 'wb'), 2)
 
+        ############################################
         ## .loc_idx - tab-index genomic locations
+        ############################################
         idxfn = dbfn+'.loc_idx'
         tpts.sort()
         s = ''
@@ -478,6 +503,14 @@ def set_cds_boundary(name2gene):
             if len(t.exons) == 0:
                 t.exons = t.cds[:]
 
+def mapping_append(m, k, v):
+
+    if k in m:
+        if v not in m[k]:
+            m[k].append(v)
+    else:
+        m[k] = {v}
+
 class EnsemblDB(TransVarDB):
 
     def __init__(self, dbfn=None):
@@ -490,21 +523,22 @@ class EnsemblDB(TransVarDB):
         The function does not handle hg18.
         gtf file is gffv2
         parser does not assume order in the GTF file
+        
+        The result is stored to self.name2gene
         """
 
         gtf_fh = opengz(gtf_fn)
         id2ent = {}
         cnt = 0
-        new_version = False
+        
+        ## id mappings
+        geneID_to_geneName = {}
+        proteinID_to_transcriptID = {}
+        
         for i, line in enumerate(gtf_fh):
-            if line.startswith('#'):
-                if i == 0:
-                    new_version = True
-                continue
-            if not new_version:
-                break
+            if line.startswith('#'): continue
             fields = line.strip('\n').split('\t')
-            info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+            info = dict(re.findall(r'\s*([^";]*) "([^"]*)";', fields[8]))
             # info = dict([_.split('=') for _ in fields[8].split(';')])
             if fields[2] == 'gene':
                 gene_id = info['gene_id']
@@ -515,7 +549,12 @@ class EnsemblDB(TransVarDB):
                     g.name = info['gene_name'].upper()
                 else:
                     g.name = gene_id
-                if g.name not in self.name2gene: self.name2gene[g.name] = g
+                if g.name not in self.name2gene:
+                    self.name2gene[g.name] = g
+
+                ## mapping from geneID to geneName
+                mapping_append(geneID_to_geneName, gene_id, g.name)
+                        
                 g.beg = int(fields[3])
                 g.end = int(fields[4])
 
@@ -556,80 +595,93 @@ class EnsemblDB(TransVarDB):
                 t = id2ent[tid]
                 t.cds.append((int(fields[3]), int(fields[4])))
                 if 'protein_id' in info:
+                    ## mapping from geneID to geneName
+                    mapping_append(proteinID_to_transcriptID, info['protein_id'], tid)
                     if info['protein_id'] not in t.aliases:
                         t.aliases.append(info['protein_id'])
 
-        if not new_version:
-            self.parse_raw0(gtf_fn)
-        else:
-            err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
+        self.idmap = {
+            'protein_id': proteinID_to_transcriptID,
+            'gene_id': geneID_to_geneName}
+
+        err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
 
         return
 
-    def parse_raw0(self, gtf_fn):
-        """
-        This parses the old ensembl GTF before or equal to hg18.
-        The function does not handle hg19 or later.
-        """
+    #################################################################
+    # TransVar stops supporting hg18 raw format by default any more
+    #################################################################
+    # def parse_raw0(self, gtf_fn):
+    #     """
+    #     This parses the old ensembl GTF before or equal to hg18.
+    #     The function does not handle hg19 or later.
+    #     """
 
-        gtf_fh = opengz(gtf_fn)
-        tid2transcript = {}
-        cnt = 0
-        for line in gtf_fh:
-            if line.startswith('#'):
-                continue
-            fields = line.strip().split('\t')
-            info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
-            if fields[2] == "exon":
-                if info['transcript_id'] in tid2transcript:
-                    t = tid2transcript[info['transcript_id']]
-                else:
-                    t = Transcript(transcript_type=fields[1])
-                    t.chrm = normalize_chrm(fields[0])
-                    t.strand = fields[6]
-                    t.name = info['transcript_id']
-                    tid2transcript[t.name] = t
-                    if info['gene_name'] in self.name2gene:
-                        g = self.name2gene[info['gene_name']]
-                    else:
-                        g = Gene()
-                        g.name = info['gene_name']
-                        self.name2gene[g.name] = g
-                    t.gene = g
-                    g.tpts.append(t)
-                    t.source = 'Ensembl'
-                    cnt += 1
-                t.exons.append((int(fields[3]), int(fields[4])))
-            elif fields[2] == 'CDS':
-                if info['transcript_id'] in tid2transcript:
-                    t = tid2transcript[info['transcript_id']]
-                else:
-                    t = Transcript(transcript_type=fields[1])
-                    t.chrm = normalize_chrm(fields[0])
-                    t.strand = fields[6]
-                    t.name = info['transcript_id']
-                    tid2transcript[t.name] = t
-                    if info['gene_name'] in self.name2gene:
-                        g = self.name2gene[info['gene_name']]
-                    else:
-                        g = Gene()
-                        g.name = info['gene_name']
-                        self.name2gene[g.name] = g
-                    t.gene = g
-                    g.tpts.append(t)
-                    t.source = 'Ensembl'
-                    cnt += 1
-                t.cds.append((int(fields[3]), int(fields[4])))
-                if 'protein_id' in info:
-                    if info['protein_id'] not in t.aliases:
-                        t.aliases.append(info['protein_id'])
+    #     gtf_fh = opengz(gtf_fn)
+    #     tid2transcript = {}
+    #     cnt = 0
+    #     proteinID_to_transcriptID = {}
+    #     for line in gtf_fh:
+    #         if line.startswith('#'):
+    #             continue
+    #         fields = line.strip().split('\t')
+    #         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+    #         if fields[2] == "exon":
+    #             if info['transcript_id'] in tid2transcript:
+    #                 t = tid2transcript[info['transcript_id']]
+    #             else:
+    #                 t = Transcript(transcript_type=fields[1])
+    #                 t.chrm = normalize_chrm(fields[0])
+    #                 t.strand = fields[6]
+    #                 t.name = info['transcript_id']
+    #                 tid2transcript[t.name] = t
+    #                 if info['gene_name'] in self.name2gene:
+    #                     g = self.name2gene[info['gene_name']]
+    #                 else:
+    #                     g = Gene()
+    #                     g.name = info['gene_name']
+    #                     self.name2gene[g.name] = g
+    #                 t.gene = g
+    #                 g.tpts.append(t)
+    #                 t.source = 'Ensembl'
+    #                 cnt += 1
+    #             t.exons.append((int(fields[3]), int(fields[4])))
+    #         elif fields[2] == 'CDS':
+    #             tid = info['transcript_id']
+    #             if tid in tid2transcript:
+    #                 t = tid2transcript[tid]
+    #             else:
+    #                 t = Transcript(transcript_type=fields[1])
+    #                 t.chrm = normalize_chrm(fields[0])
+    #                 t.strand = fields[6]
+    #                 t.name = tid
+    #                 tid2transcript[t.name] = t
+    #                 if info['gene_name'] in self.name2gene:
+    #                     g = self.name2gene[info['gene_name']]
+    #                 else:
+    #                     g = Gene()
+    #                     g.name = info['gene_name']
+    #                     self.name2gene[g.name] = g
+    #                 t.gene = g
+    #                 g.tpts.append(t)
+    #                 t.source = 'Ensembl'
+    #                 cnt += 1
+    #             t.cds.append((int(fields[3]), int(fields[4])))
+    #             if 'protein_id' in info:
+    #                 ## mapping from geneID to geneName
+    #                 mapping_append(proteinID_to_transcriptID, info['protein_id'], tid)
+    #                 if info['protein_id'] not in t.aliases:
+    #                     t.aliases.append(info['protein_id'])
 
-        for t in list(tid2transcript.values()):
-            t.exons.sort()
-            t.beg = t.exons[0][0]
-            t.end = t.exons[-1][1]
+    #     self.idmap = {
+    #         'protein_id': proteinID_to_transcriptID}
 
-        err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
+    #     for t in list(tid2transcript.values()):
+    #         t.exons.sort()
+    #         t.beg = t.exons[0][0]
+    #         t.end = t.exons[-1][1]
+
+    #     err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
 
 class CCDSDB(TransVarDB):
 
@@ -687,6 +739,13 @@ class RefSeqDB(TransVarDB):
         gff_fh = opengz(gff_fn)
         reg = None
         cnt = 0
+
+        ## id mappings
+        geneID_to_geneName = {}
+        HGNC_to_geneName = {}
+        proteinID_to_transcriptID = {}
+        # TODO: HRPD and MIM
+        
         for line in gff_fh:
             if line.startswith('#'): continue
             fields = line.strip('\n').split('\t')
@@ -713,7 +772,9 @@ class RefSeqDB(TransVarDB):
                 if gene_name in self.name2gene:
                     g = self.name2gene[gene_name]
                     if hasattr(g, '_gene_id') and g._gene_id != info['ID']:
-                        continue   # if a gene_name appears twice, then all the subsequent occurrences are all ignored.
+                        # if a gene_name appears twice, then all
+                        # the subsequent occurrences are all ignored.
+                        continue
                 else:
                     g = Gene(name=gene_name)
                     self.name2gene[gene_name] = g
@@ -723,6 +784,12 @@ class RefSeqDB(TransVarDB):
                 id2ent[info['ID']] = g
                 if 'Dbxref' in info:
                     g.dbxref = info['Dbxref']
+                    _dbxref = dict(re.findall(r'([^:,\s]*):([^;,\s]*)', g.dbxref))
+                    if 'GeneID' in _dbxref:
+                        mapping_append(geneID_to_geneName, _dbxref['GeneID'], gene_name)
+                    if 'HGNC' in _dbxref:
+                        # import pdb; pdb.set_trace()
+                        mapping_append(HGNC_to_geneName, _dbxref['HGNC'], gene_name)
 
             elif (fields[2] in ['mRNA', 'ncRNA', 'rRNA', 'tRNA']
                   and 'Parent' in info and info['Parent'] in id2ent):
@@ -799,6 +866,12 @@ class RefSeqDB(TransVarDB):
                         protein_version = int(m.group(2)) # TODO: don't discard this info
                     if protein_id not in t.aliases:
                         t.aliases.append(protein_id)
+                        mapping_append(proteinID_to_transcriptID, protein_id, t.name)
+
+        self.idmap = {
+            'GeneID': geneID_to_geneName,
+            'HGNC': HGNC_to_geneName,
+            'protein_id': proteinID_to_transcriptID}
 
         err_print("loaded %d transcripts from RefSeq GFF3 file." % cnt)
 
@@ -880,12 +953,12 @@ class GENCODEDB(TransVarDB):
         TransVarDB.__init__(self, dbfn)
 
     def parse_raw(self, gencode_fn):
+
+        gtf_fh = opengz(gencode_fn)
         id2ent = {}
-        gencode_fh = opengz(gencode_fn)
         cnt = 0
-        for line in gencode_fh:
-            # if cnt > 1000:
-            #     break
+        
+        for line in gtf_fh:
             if line.startswith('#'): continue
             fields = line.strip('\n').split('\t')
             info = dict(re.findall(r'\s*([^";]*) "([^"]*)";', fields[8]))
@@ -1014,6 +1087,9 @@ class UCSCKnownGeneDB(TransVarDB):
                     id2aliases[fields[0]] = [fields[1]]
         else:
             err_warn("No alias file provided")
+            
+        self.idmap = {
+            'gene_symbol': id2aliases}
 
         cnt = 0
         for line in kg_fh:
@@ -1103,10 +1179,15 @@ def main_index(args):
         db = FeatureDB()
         db.index(args.vcf, 'vcf', args.sorted)
 
-    # aliases
+    # TODO!!! let users define their own id mapping
+    # if args.mapid:              # custom id mapping
+    #     idxfn = args.ouptut
+
+    # make aliases through idmaps
     if args.uniprot:
-        tid2uniprot = parser.parse_uniprot_mapping(args.uniprot)
-        dump(tid2uniprot, open(args.uniprot+'.idx','wb'), 2)
+        # mapping from uniprot ID to multiple IDs
+        uniprot2multi_ids = parser.parse_uniprot_mapping(args.uniprot)
+        dump(uniprot2multi_ids, open(args.uniprot+'.idx','wb'), 2)
 
     # references
     if args.reference and args.reference != "_DEF_":

@@ -130,12 +130,12 @@ outputs
 
 ::
 
-   chr9:g.135782704C>G	CCDS6956.1 (protein_coding)	TSC1	-
-      chr9:g.135782704C>G/c.1317G>C/p.L439L	inside_[cds_in_exon_11]
-      CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
-      82705-135782706;ref_codon_seq=CTG;source=CCDS
    chr9:g.135782704C>G	CCDS55350.1 (protein_coding)	TSC1	-
       chr9:g.135782704C>G/c.1164G>C/p.L388L	inside_[cds_in_exon_10]
+      CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
+      82705-135782706;ref_codon_seq=CTG;source=CCDS
+   chr9:g.135782704C>G	CCDS6956.1 (protein_coding)	TSC1	-
+      chr9:g.135782704C>G/c.1317G>C/p.L439L	inside_[cds_in_exon_11]
       CSQN=Synonymous;dbsnp=rs770692313(chr9:135782704C>G);codon_pos=135782704-1357
       82705-135782706;ref_codon_seq=CTG;source=CCDS
 
@@ -226,17 +226,17 @@ outputs
 
 ::
 
-   chr12:g.53703425_53703427del	CCDS8856.1 (protein_coding)	AAAS	-
-      chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.G257delG	inside_[cds_in_exon_8]
-      CSQN=InFrameDeletion;left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA
-      =g.53703425_53703427delCCC;left_align_cDNA=c.766_768delGGG;unalign_cDNA=c.768
-      _770delGGG;left_align_protein=p.G256delG;unalign_protein=p.G256delG;source=CC
-      DS
    chr12:g.53703425_53703427del	CCDS53797.1 (protein_coding)	AAAS	-
       chr12:g.53703427_53703429delCCC/c.670_672delGGG/p.G224delG	inside_[cds_in_exon_7]
       CSQN=InFrameDeletion;left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA
       =g.53703425_53703427delCCC;left_align_cDNA=c.667_669delGGG;unalign_cDNA=c.669
       _671delGGG;left_align_protein=p.G223delG;unalign_protein=p.G223delG;source=CC
+      DS
+   chr12:g.53703425_53703427del	CCDS8856.1 (protein_coding)	AAAS	-
+      chr12:g.53703427_53703429delCCC/c.769_771delGGG/p.G257delG	inside_[cds_in_exon_8]
+      CSQN=InFrameDeletion;left_align_gDNA=g.53703424_53703426delCCC;unaligned_gDNA
+      =g.53703425_53703427delCCC;left_align_cDNA=c.766_768delGGG;unalign_cDNA=c.768
+      _770delGGG;left_align_protein=p.G256delG;unalign_protein=p.G256delG;source=CC
       DS
 
 Note the difference between left and right-aligned identifiers on both protein level and cDNA level.
@@ -541,10 +541,10 @@ results in
 
 ::
 
-   chr1:g.3985200_3985300	ENSMUST00000194643.1 (lincRNA)	RP23-333I7.1	-
+   chr1:g.3985200_3985300	ENSMUST00000194643.1 (lincRNA)	GM37381	-
       chr1:g.3985200_3985300/c.121_221/.	inside_[noncoding_exon_2]
       source=GENCODE
-   chr1:g.3985200_3985300	ENSMUST00000192427.1 (lincRNA)	RP23-333I7.1	-
+   chr1:g.3985200_3985300	ENSMUST00000192427.1 (lincRNA)	GM37381	-
       chr1:g.3985200_3985300/c.685_785/.	inside_[noncoding_exon_1]
       source=GENCODE
 
@@ -561,33 +561,27 @@ results in
    chr14:g.20568338_20569581	NR_033571.1 (lncRNA)	1810062O18RIK	+
       chr14:g.20568338_20569581/c.260-1532_260-289/.	inside_[intron_between_exon_4_and_5]
       dbxref=GeneID:75602,MGI:MGI:1922852;source=RefSeq
-   chr14:g.20568338_20569581	XM_011245228.1 (protein_coding)	USP54	-
-      chr14:g.20568338_20569581/c.1357+667_1357+1910/.	inside_[intron_between_exon_6_and_7]
-      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243530;source=RefSeq
-   chr14:g.20568338_20569581	XM_011245226.1 (protein_coding)	USP54	-
-      chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
-      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243528;source=RefSeq
    chr14:g.20568338_20569581	NM_030180.2 (protein_coding)	USP54	-
       chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
       dbxref=GeneID:78787,MGI:MGI:1926037;aliases=NP_084456;source=RefSeq
-   chr14:g.20568338_20569581	XM_011245225.1 (protein_coding)	USP54	-
-      chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243527;source=RefSeq
-   chr14:g.20568338_20569581	XM_006519705.2 (protein_coding)	USP54	-
-      chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
-      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519768;source=RefSeq
-   chr14:g.20568338_20569581	XM_006519703.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581	XM_006519703.3 (protein_coding)	USP54	-
       chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
       dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519766;source=RefSeq
-   chr14:g.20568338_20569581	XM_011245227.1 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581	XM_011245226.2 (protein_coding)	USP54	-
+      chr14:g.20568338_20569581/c.1972+667_1972+1910/.	inside_[intron_between_exon_13_and_14]
+      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243528;source=RefSeq
+   chr14:g.20568338_20569581	XM_011245225.2 (protein_coding)	USP54	-
+      chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
+      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243527;source=RefSeq
+   chr14:g.20568338_20569581	XM_006519705.3 (protein_coding)	USP54	-
+      chr14:g.20568338_20569581/c.2188+667_2188+1910/.	inside_[intron_between_exon_15_and_16]
+      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519768;source=RefSeq
+   chr14:g.20568338_20569581	XM_011245227.2 (protein_coding)	USP54	-
       chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
       dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_011243529;source=RefSeq
-   chr14:g.20568338_20569581	XM_006519709.2 (protein_coding)	USP54	-
+   chr14:g.20568338_20569581	XM_017316224.1 (protein_coding)	USP54	-
       chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519772;source=RefSeq
-   chr14:g.20568338_20569581	XM_006519708.2 (protein_coding)	USP54	-
-      chr14:g.20568338_20569581/c.2359+667_2359+1910/.	inside_[intron_between_exon_16_and_17]
-      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_006519771;source=RefSeq
+      dbxref=GeneID:78787,MGI:MGI:1926037;aliases=XP_017171713;source=RefSeq
 
 or using Ensembl
 
@@ -647,22 +641,22 @@ results in
 
 ::
 
-   chr7:g.5568911T>A	XM_005249819.1 (protein_coding)	ACTB	-
-      chr7:g.5568911T>A/c.1A>T/.	inside_[cds_in_exon_2]
-      CSQN=CdsStartSNV;C2=cds_start_at_chr7:5568911;dbxref=GeneID:60,HGNC:132,HPRD:
-      00032,MIM:102630;aliases=XP_005249876;source=RefSeq
    chr7:g.5568911T>A	NM_001101.3 (protein_coding)	ACTB	-
       chr7:g.5568911T>A/c.244A>T/p.M82L	inside_[cds_in_exon_3]
       CSQN=Missense;codon_pos=5568909-5568910-5568911;ref_codon_seq=ATG;dbxref=Gene
       ID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=NP_001092;source=RefSeq
-   chr7:g.5568911T>A	XM_005249820.1 (protein_coding)	ACTB	-
-      chr7:g.5568911T>A/c.1-564A>T/.	inside_[5-UTR;noncoding_exon_3]
-      CSQN=5-UTRSNV;dbxref=GeneID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=XP_0052
-      49877;source=RefSeq
    chr7:g.5568911T>A	XM_005249818.1 (protein_coding)	ACTB	-
       chr7:g.5568911T>A/c.244A>T/p.M82L	inside_[cds_in_exon_3]
       CSQN=Missense;codon_pos=5568909-5568910-5568911;ref_codon_seq=ATG;dbxref=Gene
       ID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=XP_005249875;source=RefSeq
+   chr7:g.5568911T>A	XM_005249819.1 (protein_coding)	ACTB	-
+      chr7:g.5568911T>A/c.1A>T/.	inside_[cds_in_exon_2]
+      CSQN=CdsStartSNV;C2=cds_start_at_chr7:5568911;dbxref=GeneID:60,HGNC:132,HPRD:
+      00032,MIM:102630;aliases=XP_005249876;source=RefSeq
+   chr7:g.5568911T>A	XM_005249820.1 (protein_coding)	ACTB	-
+      chr7:g.5568911T>A/c.1-564A>T/.	inside_[5-UTR;noncoding_exon_3]
+      CSQN=5-UTRSNV;dbxref=GeneID:60,HGNC:132,HPRD:00032,MIM:102630;aliases=XP_0052
+      49877;source=RefSeq
 
 
 Coding stop loss due to SNP
@@ -675,22 +669,22 @@ results in
 
 ::
 
-   chr7:g.5567379C>A	XM_005249819.1 (protein_coding)	ACTB	-
-      chr7:g.5567379C>A/c.885G>T/.	inside_[cds_in_exon_5]
-      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
-      32,MIM:102630;aliases=XP_005249876;source=RefSeq
    chr7:g.5567379C>A	NM_001101.3 (protein_coding)	ACTB	-
       chr7:g.5567379C>A/c.1128G>T/.	inside_[cds_in_exon_6]
       CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
       32,MIM:102630;aliases=NP_001092;source=RefSeq
-   chr7:g.5567379C>A	XM_005249820.1 (protein_coding)	ACTB	-
-      chr7:g.5567379C>A/c.762G>T/.	inside_[cds_in_exon_7]
-      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
-      32,MIM:102630;aliases=XP_005249877;source=RefSeq
    chr7:g.5567379C>A	XM_005249818.1 (protein_coding)	ACTB	-
       chr7:g.5567379C>A/c.1128G>T/.	inside_[cds_in_exon_6]
       CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
       32,MIM:102630;aliases=XP_005249875;source=RefSeq
+   chr7:g.5567379C>A	XM_005249819.1 (protein_coding)	ACTB	-
+      chr7:g.5567379C>A/c.885G>T/.	inside_[cds_in_exon_5]
+      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
+      32,MIM:102630;aliases=XP_005249876;source=RefSeq
+   chr7:g.5567379C>A	XM_005249820.1 (protein_coding)	ACTB	-
+      chr7:g.5567379C>A/c.762G>T/.	inside_[cds_in_exon_7]
+      CSQN=CdsStopSNV;C2=cds_end_at_chr7:5567379;dbxref=GeneID:60,HGNC:132,HPRD:000
+      32,MIM:102630;aliases=XP_005249877;source=RefSeq
 
 Batch processing
 ###################

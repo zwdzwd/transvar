@@ -341,6 +341,7 @@ def replace_defaults(args, config):
     args.refversion = rv
 
     def _set_arg_(argname, rv):
+        # replace __DEF__ by the actual default from config file
         if getattr(args, argname) == '_DEF_':
             setattr(args, argname, get_config(config, argname, rv))
 
@@ -349,8 +350,7 @@ def replace_defaults(args, config):
     for argname in argnames:
         _set_arg_(argname, rv)
 
-    _set_arg_('uniprot', 'idmap')
-
+    # _set_arg_('uniprot', 'idmap')
 
 class Indices:
 

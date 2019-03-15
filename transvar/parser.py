@@ -575,87 +575,87 @@ def parse_uniprot_mapping(fn):
     return tid2uniprot
 
 
-def parse_annotation(args):
+# def parse_annotation(args):
 
-    name2gene = {}
-    if args.ensembl:
-        if args.refversion in ['hg18']:
-            parse_ensembl_gtf_hg18(args.ensembl, name2gene)
-        else:
-            parse_ensembl_gtf(args.ensembl, name2gene)
+#     name2gene = {}
+#     if args.ensembl:
+#         if args.refversion in ['hg18']:
+#             parse_ensembl_gtf_hg18(args.ensembl, name2gene)
+#         else:
+#             parse_ensembl_gtf(args.ensembl, name2gene)
     
-    if args.refseq:
-        parse_refseq_gff(args.refseq, name2gene)
+#     if args.refseq:
+#         parse_refseq_gff(args.refseq, name2gene)
 
-    if args.ccds:
-        parse_ccds_table(args.ccds, name2gene)
+#     if args.ccds:
+#         parse_ccds_table(args.ccds, name2gene)
 
-    if args.gencode:
-        parse_gencode_gtf(args.gencode, name2gene)
-        # try:
-        #     import pysam
-        #     args.ffhs['GENCODE'] = pysam.Tabixfile(args.gencode)
-        # except:
-        #     err_print("Cannot import non-coding features (may need pysam).")
+#     if args.gencode:
+#         parse_gencode_gtf(args.gencode, name2gene)
+#         # try:
+#         #     import pysam
+#         #     args.ffhs['GENCODE'] = pysam.Tabixfile(args.gencode)
+#         # except:
+#         #     err_print("Cannot import non-coding features (may need pysam).")
 
-    if args.ucsc:
-        parse_ucsc_refgene(args.ucsc, name2gene)
+#     if args.ucsc:
+#         parse_ucsc_refgene(args.ucsc, name2gene)
 
-    # if args.custom:
-    #     parse_ucsc_refgene_customized(args.custom, name2gene)
+#     # if args.custom:
+#     #     parse_ucsc_refgene_customized(args.custom, name2gene)
 
-    if args.kg:
-        parse_ucsc_kg_table(args.kg, args.alias, name2gene)
+#     if args.kg:
+#         parse_ucsc_kg_table(args.kg, args.alias, name2gene)
 
-    if args.aceview:
-        parse_aceview_transcripts(args.aceview, name2gene)
+#     if args.aceview:
+#         parse_aceview_transcripts(args.aceview, name2gene)
 
-    # remove genes without transcripts
-    names_no_tpts = []
-    for name, gene in name2gene.items():
-        # print gene, len(gene.tpts)
-        if not gene.tpts:
-            names_no_tpts.append(name)
-    for name in names_no_tpts:
-        del name2gene[name]
-    err_print('loaded %d genes.' % len(name2gene))
+#     # remove genes without transcripts
+#     names_no_tpts = []
+#     for name, gene in name2gene.items():
+#         # print gene, len(gene.tpts)
+#         if not gene.tpts:
+#             names_no_tpts.append(name)
+#     for name in names_no_tpts:
+#         del name2gene[name]
+#     err_print('loaded %d genes.' % len(name2gene))
 
-    # index transcripts in a gene
-    thash = THash()
-    genes = set(name2gene.values())
-    for g in genes:
-        for t in g.tpts:
-            t.exons.sort()
-            if not (hasattr(t, 'cds_beg') and hasattr(t, 'cds_end')):
-                if t.cds:
-                    t.cds.sort()
-                    t.cds_beg = t.cds[0][0]
-                    t.cds_end = t.cds[-1][1]
-                elif hasattr(t,'beg') and hasattr(t,'end'):
-                    t.cds_beg = t.beg
-                    t.cds_end = t.end
-                else:
-                    t.cds_beg = t.exons[0][0]
-                    t.cds_end = t.exons[-1][1]
+#     # index transcripts in a gene
+#     thash = THash()
+#     genes = set(name2gene.values())
+#     for g in genes:
+#         for t in g.tpts:
+#             t.exons.sort()
+#             if not (hasattr(t, 'cds_beg') and hasattr(t, 'cds_end')):
+#                 if t.cds:
+#                     t.cds.sort()
+#                     t.cds_beg = t.cds[0][0]
+#                     t.cds_end = t.cds[-1][1]
+#                 elif hasattr(t,'beg') and hasattr(t,'end'):
+#                     t.cds_beg = t.beg
+#                     t.cds_end = t.end
+#                 else:
+#                     t.cds_beg = t.exons[0][0]
+#                     t.cds_end = t.exons[-1][1]
 
-            thash.insert(t)
-            if len(t.exons) == 0:     # if no exon, use cds
-                t.exons = t.cds[:]
+#             thash.insert(t)
+#             if len(t.exons) == 0:     # if no exon, use cds
+#                 t.exons = t.cds[:]
 
-        g.std_tpt = g.longest_tpt()
+#         g.std_tpt = g.longest_tpt()
 
-    if args.uniprot:
-        tid2uniprot = parse_uniprot_mapping(args.uniprot)
-        name2protein = {}
-        for name, gene in name2gene.items():
-            for tpt in gene.tpts:
-                if tpt.name in tid2uniprot:
-                    uniprot = tid2uniprot[tpt.name]
-                    if uniprot not in name2protein:
-                        name2protein[uniprot] = Gene(uniprot)
-                    prot = name2protein[uniprot]
-                    prot.tpts.append(tpt)
-        return name2protein, thash
-    else:
-        return name2gene, thash
+#     if args.uniprot:
+#         tid2uniprot = parse_uniprot_mapping(args.uniprot)
+#         name2protein = {}
+#         for name, gene in name2gene.items():
+#             for tpt in gene.tpts:
+#                 if tpt.name in tid2uniprot:
+#                     uniprot = tid2uniprot[tpt.name]
+#                     if uniprot not in name2protein:
+#                         name2protein[uniprot] = Gene(uniprot)
+#                     prot = name2protein[uniprot]
+#                     prot.tpts.append(tpt)
+#         return name2protein, thash
+#     else:
+#         return name2gene, thash
 

@@ -116,12 +116,15 @@ zcat MotifFeatures.gff.gz | awk '{match($9,/Name=([^;]*)/,a); gsub(":","|",a[1])
 transvar index --bed hg19_MotifFeatures_Ensembl75
 rm -f hg19_MotifFeatures_Ensembl75
 transvar config -k TFBS -v `pwd`/Ensembl75/hg19_MotifFeatures_Ensembl75.featuredb
+
 ### Feature database: Example, hg19 dbsnp
 transvar config -k dbsnp -v /Users/wandingzhou/Dropbox/Public/annotations/hg19/hg19_dbsnp.vcf.gz.featuredb
+
 ### Feature database: Example, hg38 ensembl regulation
 cd ~/Dropbox/Public/annotations/hg38/Ensembl85
 zcat AnnotatedFeatures.gff.gz | gawk -F"\t" -v OFS="\t" '{match($9,"epigenome=([^;]*)",a); gsub(" ","_",a[1]); print $1,$4,$5,$3"|"a[1];}' | sortbed >hg38_AnnotatedFeatures_Ensembl85
 transvar index --sorted --bed hg38_AnnotatedFeatures_Ensembl85
+
 ### Feature database: Example, hg38 Motif
 zcat MotifFeatures.gff.gz | awk '{match($9,/motif_feature_type=([^;]*)/,a); match($9, /binding_matrix=([^;]*)/,b); print $1,$4,$5,"TF_binding_sites|"a[1]"|"b[1];}' >hg38_MotifFeatures_Ensembl85
 transvar index --bed hg38_MotifFeatures_Ensembl85
