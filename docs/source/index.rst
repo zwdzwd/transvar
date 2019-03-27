@@ -19,6 +19,7 @@ Contents:
    annotation_from_cdna_level
    interpret_variant_consequence
    inspect_variants
+   id_mapping
    output_options
    faq
    features

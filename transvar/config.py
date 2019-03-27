@@ -322,6 +322,10 @@ def _download_(config, section, fns):
                 if k:
                     config_set(config, section, k, fnn)
             except:
+                # ID mapping is not essential and likely
+                # missing for many databases
+                if url.endswith('.idmap_idx'):
+                    continue
                 err_warn('file not available: %s or target directory not found' % url)
 
         break
@@ -444,6 +448,12 @@ def print_current(args):
     for op in config.options(rv):
         if op not in ['refversion', 'reference']:
             print(' - %s: %s' % (op, config.get(rv, op)))
+            import glob
+            idmap_fns = glob.glob(config.get(rv, op) + '*.idmap_idx')
+            for idmap_fn in idmap_fns:
+                idmap_name = os.path.splitext(idmap_fn.replace(
+                    '.idmap_idx',''))[1][1:]
+                print('     [idmap] %s - %s' % (idmap_name, idmap_fn))
 
     return
 

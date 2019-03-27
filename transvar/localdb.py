@@ -383,7 +383,7 @@ class TransVarDB():
         dump(trnx_idx, open(idxfn, 'wb'), 2)
 
         ############################################
-        ## .?.mapping_idx - mappings to gene names
+        ## .?.idmap_idx - mappings to gene names
         ## or transcript IDs
         ############################################
         for map_name, mapping in self.idmap.items():
@@ -510,6 +510,19 @@ def mapping_append(m, k, v):
             m[k].append(v)
     else:
         m[k] = {v}
+
+def index_idmap(idmap_fn, idx_fh):
+
+    fh = opengz(idmap_fn)
+    idmap = {}
+    for i, line in enumerate(fh):
+        if line.startswith('#'): continue
+        fields = line.strip('\n').split('\t')
+        mapping_append(idmap, fields[0], fields[1])
+
+    dump(idmap, idx_fh, 2)
+
+    return
 
 class EnsemblDB(TransVarDB):
 
@@ -1178,6 +1191,9 @@ def main_index(args):
     if args.vcf:
         db = FeatureDB()
         db.index(args.vcf, 'vcf', args.sorted)
+
+    if args.idmap:
+        index_idmap(args.idmap, args.output)
 
     # TODO!!! let users define their own id mapping
     # if args.mapid:              # custom id mapping
