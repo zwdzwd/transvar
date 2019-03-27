@@ -1193,6 +1193,9 @@ def main_index(args):
         db.index(args.vcf, 'vcf', args.sorted)
 
     if args.idmap:
+        if args.output is None:
+            err_die("Please provide output through -o.")
+            
         index_idmap(args.idmap, args.output)
 
     # TODO!!! let users define their own id mapping

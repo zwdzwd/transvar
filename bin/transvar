@@ -184,8 +184,8 @@ if __name__ == '__main__':
     p.add_argument('--vcf', nargs='?', default=None, const='_DEF_', help='Index a feature in VCF format')
     p.add_argument('--bed', nargs='?', default=None, const='_DEF_', help='Index a feature in BED format')
     p.add_argument('--sorted', action='store_true', help='feature is sorted, no need to redo sorting')
-    p.add_argument('-o', '--output', type = argparse.FileType('wb'), default = sys.stdout.buffer,
-                   help = 'output file (relevant to idmap)')
+    p.add_argument('-o', '--output', type = argparse.FileType('wb'),
+                   default = None, help = 'output file (relevant to idmap)')
     p.set_defaults(func=main_index)
 
 
