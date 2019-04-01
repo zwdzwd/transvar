@@ -272,15 +272,28 @@ def _annotate_snv_protein(args, q, t, db):
             tnuc_alt = gtgtcodonseq[gdiff[0]:gdiff[-1]+1]
             r.tnuc_range = '%d_%ddel%sins%s' % (tnuc_beg, tnuc_end, tnuc_ref, tnuc_alt)
             if codon.strand == '+':
-                r.gnuc_range = '%d_%ddel%sins%s' % (codon.locs[gdiff[0]], codon.locs[gdiff[-1]],
-                                                    tnuc_ref, tnuc_alt)
+                gnuc_beg = codon.locs[gdiff[0]]
+                gnuc_end = codon.locs[gdiff[-1]]
+                gnuc_ref = tnuc_ref
+                gnuc_alt = tnuc_alt
+
             else:
-                r.gnuc_range = '%d_%ddel%sins%s' % (codon.locs[2-gdiff[-1]],
-                                               codon.locs[2-gdiff[0]],
-                                               reverse_complement(tnuc_ref),
-                                               reverse_complement(tnuc_alt))
+                gnuc_beg = codon.locs[2-gdiff[-1]]
+                gnuc_end = codon.locs[2-gdiff[0]]
+                gnuc_ref = reverse_complement(tnuc_ref)
+                gnuc_alt = reverse_complement(tnuc_alt)
+
+            r.gnuc_range = '%d_%ddel%sins%s' % (
+                gnuc_beg, gnuc_end,
+                tnuc_ref, tnuc_alt)
 
             ## TODO set VCF output r.vcf_pos etc for mnv
+            if args.gseq:
+                r.vcf_pos = gnuc_beg - 1
+                base_before = faidx.refgenome.fetch_sequence(
+                    r.chrm, r.vcf_pos, r.vcf_pos)
+                r.vcf_ref = base_before+gnuc_ref
+                r.vcf_alt = base_before+gnuc_alt
 
         # candidate mutations
         cdd_snv_muts = []
