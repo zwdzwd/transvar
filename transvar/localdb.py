@@ -541,6 +541,11 @@ class EnsemblDB(TransVarDB):
         """
 
         gtf_fh = opengz(gtf_fn)
+
+        ## the following is a workaround
+        if (gtf_fn.startswith('Mus_musculus.NCBIM37')):
+            return self.parse_raw0(gtf_fn)
+        
         id2ent = {}
         cnt = 0
         
@@ -624,77 +629,77 @@ class EnsemblDB(TransVarDB):
     #################################################################
     # TransVar stops supporting hg18 raw format by default any more
     #################################################################
-    # def parse_raw0(self, gtf_fn):
-    #     """
-    #     This parses the old ensembl GTF before or equal to hg18.
-    #     The function does not handle hg19 or later.
-    #     """
+    def parse_raw0(self, gtf_fn):
+        """
+        This parses the old ensembl GTF before or equal to hg18.
+        The function does not handle hg19 or later.
+        """
 
-    #     gtf_fh = opengz(gtf_fn)
-    #     tid2transcript = {}
-    #     cnt = 0
-    #     proteinID_to_transcriptID = {}
-    #     for line in gtf_fh:
-    #         if line.startswith('#'):
-    #             continue
-    #         fields = line.strip().split('\t')
-    #         info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
-    #         if fields[2] == "exon":
-    #             if info['transcript_id'] in tid2transcript:
-    #                 t = tid2transcript[info['transcript_id']]
-    #             else:
-    #                 t = Transcript(transcript_type=fields[1])
-    #                 t.chrm = normalize_chrm(fields[0])
-    #                 t.strand = fields[6]
-    #                 t.name = info['transcript_id']
-    #                 tid2transcript[t.name] = t
-    #                 if info['gene_name'] in self.name2gene:
-    #                     g = self.name2gene[info['gene_name']]
-    #                 else:
-    #                     g = Gene()
-    #                     g.name = info['gene_name']
-    #                     self.name2gene[g.name] = g
-    #                 t.gene = g
-    #                 g.tpts.append(t)
-    #                 t.source = 'Ensembl'
-    #                 cnt += 1
-    #             t.exons.append((int(fields[3]), int(fields[4])))
-    #         elif fields[2] == 'CDS':
-    #             tid = info['transcript_id']
-    #             if tid in tid2transcript:
-    #                 t = tid2transcript[tid]
-    #             else:
-    #                 t = Transcript(transcript_type=fields[1])
-    #                 t.chrm = normalize_chrm(fields[0])
-    #                 t.strand = fields[6]
-    #                 t.name = tid
-    #                 tid2transcript[t.name] = t
-    #                 if info['gene_name'] in self.name2gene:
-    #                     g = self.name2gene[info['gene_name']]
-    #                 else:
-    #                     g = Gene()
-    #                     g.name = info['gene_name']
-    #                     self.name2gene[g.name] = g
-    #                 t.gene = g
-    #                 g.tpts.append(t)
-    #                 t.source = 'Ensembl'
-    #                 cnt += 1
-    #             t.cds.append((int(fields[3]), int(fields[4])))
-    #             if 'protein_id' in info:
-    #                 ## mapping from geneID to geneName
-    #                 mapping_append(proteinID_to_transcriptID, info['protein_id'], tid)
-    #                 if info['protein_id'] not in t.aliases:
-    #                     t.aliases.append(info['protein_id'])
+        gtf_fh = opengz(gtf_fn)
+        tid2transcript = {}
+        cnt = 0
+        proteinID_to_transcriptID = {}
+        for line in gtf_fh:
+            if line.startswith('#'):
+                continue
+            fields = line.strip().split('\t')
+            info = dict(re.findall(r'\s*([^"]*) "([^"]*)";', fields[8]))
+            if fields[2] == "exon":
+                if info['transcript_id'] in tid2transcript:
+                    t = tid2transcript[info['transcript_id']]
+                else:
+                    t = Transcript(transcript_type=fields[1])
+                    t.chrm = normalize_chrm(fields[0])
+                    t.strand = fields[6]
+                    t.name = info['transcript_id']
+                    tid2transcript[t.name] = t
+                    if info['gene_name'] in self.name2gene:
+                        g = self.name2gene[info['gene_name']]
+                    else:
+                        g = Gene()
+                        g.name = info['gene_name']
+                        self.name2gene[g.name] = g
+                    t.gene = g
+                    g.tpts.append(t)
+                    t.source = 'Ensembl'
+                    cnt += 1
+                t.exons.append((int(fields[3]), int(fields[4])))
+            elif fields[2] == 'CDS':
+                tid = info['transcript_id']
+                if tid in tid2transcript:
+                    t = tid2transcript[tid]
+                else:
+                    t = Transcript(transcript_type=fields[1])
+                    t.chrm = normalize_chrm(fields[0])
+                    t.strand = fields[6]
+                    t.name = tid
+                    tid2transcript[t.name] = t
+                    if info['gene_name'] in self.name2gene:
+                        g = self.name2gene[info['gene_name']]
+                    else:
+                        g = Gene()
+                        g.name = info['gene_name']
+                        self.name2gene[g.name] = g
+                    t.gene = g
+                    g.tpts.append(t)
+                    t.source = 'Ensembl'
+                    cnt += 1
+                t.cds.append((int(fields[3]), int(fields[4])))
+                if 'protein_id' in info:
+                    ## mapping from geneID to geneName
+                    mapping_append(proteinID_to_transcriptID, info['protein_id'], tid)
+                    if info['protein_id'] not in t.aliases:
+                        t.aliases.append(info['protein_id'])
 
-    #     self.idmap = {
-    #         'protein_id': proteinID_to_transcriptID}
+        self.idmap = {
+            'protein_id': proteinID_to_transcriptID}
 
-    #     for t in list(tid2transcript.values()):
-    #         t.exons.sort()
-    #         t.beg = t.exons[0][0]
-    #         t.end = t.exons[-1][1]
+        for t in list(tid2transcript.values()):
+            t.exons.sort()
+            t.beg = t.exons[0][0]
+            t.end = t.exons[-1][1]
 
-    #     err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
+        err_print("loaded %d transcripts from Ensembl GTF file." % cnt)
 
 class CCDSDB(TransVarDB):
 
