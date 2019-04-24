@@ -37,7 +37,8 @@ annotation.
 
 .. code:: bash
 
-	 docker run -v ~/references/hg38:/ref zhouwanding/transvar:latest transvar panno -i PIK3CA:p.E545K --ensembl --reference /ref/hg38.fa
+	 docker run -v ~/references/hg38:/ref zhouwanding/transvar:latest
+     transvar panno -i PIK3CA:p.E545K --ensembl --reference /ref/hg38.fa
 
 To use other genome build, one needs to download annotations. Here I
 am using `~/test` as an example of local path for storing the transvar
@@ -46,7 +47,8 @@ inside the docker image. This is done by (showing hg19)
 
 .. code:: bash
           
-   docker run -v ~/test:/anno zhouwanding/transvar:latest transvar config --download_anno --refversion hg19 --skip_reference
+   docker run -v ~/test:/anno zhouwanding/transvar:latest
+     transvar config --download_anno --refversion hg19 --skip_reference
 
 Now one can use hg19, but note again one needs to image the path of
 downloaded annotation to `/anno`. One also needs the fa-indexed
@@ -54,7 +56,9 @@ reference.
 
 .. code:: bash
           
-   docker run -v ~/test:/anno -v ~/references/hg19:/ref zhouwanding/transvar:latest transvar panno -i PIK3CA:p.E545K --ensembl --reference /ref/hg19.fa
+   docker run -v ~/test:/anno -v ~/references/hg19:/ref
+     zhouwanding/transvar:latest transvar panno -i PIK3CA:p.E545K
+     --ensembl --reference /ref/hg19.fa
 
 
 Download the program
