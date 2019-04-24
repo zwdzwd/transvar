@@ -36,7 +36,7 @@ Without downloading anything, the transvar docker has pre-built hg38
 annotation.
 
 .. code:: bash
-
+   
 	 docker run -v ~/references/hg38:/ref zhouwanding/transvar:latest
      transvar panno -i PIK3CA:p.E545K --ensembl --reference /ref/hg38.fa
 
