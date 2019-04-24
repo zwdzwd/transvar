@@ -1,7 +1,7 @@
 FROM python:3.7
 MAINTAINER Wanding Zhou <zhouwanding@gmail.com>
 
-ENV TRANSVAR_VERSION==2.5.2.20190401
+ENV TRANSVAR_VERSION==2.5.3.20190424
 RUN cd / && \
     wget "https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2" && \
     tar -jxvf samtools-1.3.1.tar.bz2 && \
@@ -20,7 +20,7 @@ RUN cd / && \
 
 VOLUME [ "/data" ]
 
-CMD ['transvar']
+CMD ["transvar"]
 
 ## this how to run this
 ## assuming the existence of ~/references/hg38/hg38.fa and ~/references/hg38/hg38.fa.fai
