@@ -24,15 +24,34 @@ to upgrade from a previous version
 
    pip install -U transvar
 
-Try out the docker image
+Use the docker images
 #########################
-Also try out using the pre-built docker image
-Assuming the existence of `~/references/hg38/hg38.fa` and `~/references/hg38/hg38.fa.fai`
+The pre-built docker image is easy to try out.
+The docker images can be found `here <https://cloud.docker.com/repository/docker/zhouwanding/transvar/general>`__
 
+Assuming the existence of `~/references/hg38/hg38.fa` and
+`~/references/hg38/hg38.fa.fai`. 
+
+Without downloading anything, the transvar docker has pre-built hg38
+annotation.
 .. code:: bash
 
-	docker pull zhouwanding/transvar:2.4.6
-	docker run -v ~/references/hg38:/data -ti zhouwanding/transvar:2.4.6 transvar panno -i PIK3CA:p.E545K --ensembl --reference /data/hg38.fa
+	docker run -v ~/references/hg38:/ref -ti zhouwanding/transvar:latest transvar panno -i PIK3CA:p.E545K --ensembl --reference /ref/hg38.fa
+
+To use other genome build, one needs to download annotations. Here I
+am using `~/test` as an example of local path for storing the transvar
+annotations. Note that this local path needs be imaged to `/anno`
+inside the docker image. This is done by (showing hg19)
+.. code:: bash
+          
+  docker run -v ~/test:/anno -ti zhouwanding/transvar:latest transvar config --download_anno --refversion hg19 --skip_reference
+
+Now one can use hg19, but note again one needs to image the path of
+downloaded annotation to `/anno`. One also needs the fa-indexed
+reference.
+.. code:: bash
+          
+  docker run -v ~/test:/anno -v ~/references/hg19:/ref -ti zhouwanding/transvar:latest transvar panno -i PIK3CA:p.E545K --ensembl --reference /ref/hg19.fa
 
 
 Download the program

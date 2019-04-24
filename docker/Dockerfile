@@ -1,7 +1,9 @@
 FROM python:3.7
 MAINTAINER Wanding Zhou <zhouwanding@gmail.com>
 
-ENV TRANSVAR_VERSION==2.5.3.20190424
+ENV TRANSVAR_VERSION==2.5.4.20190424
+ENV TRANSVAR_CFG=/anno/transvar.cfg
+ENV TRANSVAR_DOWNLOAD_DIR=/anno/
 RUN cd / && \
     wget "https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2" && \
     tar -jxvf samtools-1.3.1.tar.bz2 && \
