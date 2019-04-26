@@ -162,14 +162,14 @@ fns[('mm10', 'raw')] = [
 ## no more support for mm9
 # # download link update:
 # # 03/14/2019: gencode: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz
-# fns[('mm9', 'raw')] = [
-#     ('raw_ensembl', 'mm9.ensembl.gtf.gz',
-#      'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
-#     ('raw_ccds', 'mm9.ccds.txt',
-#      'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
-#     ('raw_gencode', 'mm9.gencode.gtf.gz',
-#      'ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
-# ]
+fns[('mm9', 'raw')] = [
+    ('raw_ensembl', 'mm9.ensembl.gtf.gz',
+     'ftp://ftp.ensembl.org/pub/release-67/gtf/mus_musculus/Mus_musculus.NCBIM37.67.gtf.gz'),
+    ('raw_ccds', 'mm9.ccds.txt',
+     'ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/archive/Mm37.1/CCDS.current.txt'),
+    ('raw_gencode', 'mm9.gencode.gtf.gz',
+     'ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M1/gencode.vM1.annotation.gtf.gz'),
+]
 
 ##############################
 ## "reference" section
