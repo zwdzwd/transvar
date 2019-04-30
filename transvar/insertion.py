@@ -428,6 +428,8 @@ def codon_mutation_ins(args, q, t, db):
 
     gnuc_ins = gnuc_set_ins(t.chrm, gnuc_beg+2, _gnuc_insseq, r)
     tnuc_ins = tnuc_set_ins(gnuc_ins, t, r)
+    if args.gseq:
+        r.vcf_pos, r.vcf_ref, r.vcf_alt = gnuc_ins.vcf_left_align()
 
     # r.gnuc_range = '%dins%s' % (gnuc_beg-1, tnuc_insseq)
     # c, p1 = t.gpos2codon(gnuc_beg-1)
