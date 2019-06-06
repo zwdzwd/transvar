@@ -74,7 +74,11 @@ def fuzzy_match_deletion(gid2match, t, codon, q, args):
                     if gnuc_id_r not in gid2match:
                         # compute gDNA id left aligned
                         gnuc_beg_l, gnuc_end_l = gnuc_roll_left_del(t.chrm, gnuc_beg, gnuc_end)
-                        gnuc_delseq_l = faidx.getseq(t.chrm, gnuc_beg_l, gnuc_end_l)
+
+                        _seq = faidx.getseq(t.chrm, gnuc_beg_l-1, gnuc_end_l)
+                        gnuc_delseq_l = _seq[1:]
+                        gnuc_leftbase_l = _seq[0]
+                        
                         # compute cDNA level id, left and right aligned
                         if t.strand == '+':
                             c1l, p1l = t.gpos2codon(gnuc_beg_l)
@@ -98,10 +102,10 @@ def fuzzy_match_deletion(gid2match, t, codon, q, args):
                         m.tnuc_r = tnuc_del_id(p1r, p2r, args, tnuc_delseq_r)
                         m.tnuc_l = tnuc_del_id(p1l, p2l, args, tnuc_delseq_l)
                         m.edit_length = len(gnuc_delseq_l)
-                        ## FIXME: the following is a bit off the VCF convention.
-                        m.vcf_pos = gnuc_beg_l
-                        m.vcf_ref = gnuc_delseq_l
-                        m.vcf_alt = ''
+                        m.vcf_pos = gnuc_beg_l - 1
+                        m.vcf_ref = gnuc_leftbase_l + gnuc_delseq_l
+                        m.vcf_alt = gnuc_leftbase_l
+                            
                         gid2match[m.gnuc_r] = m
 
     return gid2match
