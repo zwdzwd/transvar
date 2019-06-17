@@ -392,7 +392,10 @@ def vcf_parse_mutation(args, at='g'):
                 q.tok = chrm
                 m = re.match(r'.*END=(\d+)', fields[7])
                 q.beg = pos
-                q.end = int(m.group(1))
+                if (m is not None):
+                    q.end = int(m.group(1))
+                else:
+                    q.end = pos + len(ref)-1
             elif len(ref) == 1 and len(alt) == 1:
                 q = QuerySNV()
                 q.tok = chrm
