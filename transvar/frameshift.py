@@ -50,7 +50,7 @@ class MatchedIndel:
 
 def fuzzy_match_deletion(gid2match, t, codon, q, args):
 
-    for ds in [1,2,3,4]:        # probe deletion of length 1,2
+    for ds in [1,2,3,4]:        # try deletion of length 1,2
         i = codon.index*3
         for j in range(i, max(0, i-10), -1):
             jb = j//3*3
@@ -353,6 +353,7 @@ def _annotate_frameshift(args, q, t):
             r.append_info('candidates=%s' % ','.join(cands))
             if len(matches) > args.nc:
                 r.append_info('%d_CandidatesOmitted' % (len(matches)-args.nc))
+                
     else:                       # fuzzy match failed
 
         tnuc_beg = (codon.index-1)*3+1
@@ -365,6 +366,12 @@ def _annotate_frameshift(args, q, t):
         else:
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
         r.gnuc_range = '(%d_%d)' % (gnuc_beg, gnuc_end)
+        
+        if args.gseq:
+            r.vcf_pos = gnuc_beg
+            r.vcf_ref = "N"
+            r.vcf_alt = "N"
+            
         r.append_info('imprecise')
 
     return r
