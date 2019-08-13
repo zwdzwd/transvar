@@ -3,7 +3,7 @@ language:
   - c
 
 python:
-  - 2.6
+  - 2.7
   - 3.7
 
 script:
