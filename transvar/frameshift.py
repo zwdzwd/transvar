@@ -366,7 +366,8 @@ def _annotate_frameshift(args, q, t):
         else:
             gnuc_beg, gnuc_end = t.tnuc_range2gnuc_range(tnuc_beg, tnuc_end)
         r.gnuc_range = '(%d_%d)' % (gnuc_beg, gnuc_end)
-        
+
+        # another sign of imprecise inference
         if args.gseq:
             r.vcf_pos = gnuc_beg
             r.vcf_ref = "N"

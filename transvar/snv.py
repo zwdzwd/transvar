@@ -390,34 +390,40 @@ def annotate_snv_gdna(args, q, db):
     records = []
     for reg in describe(args, q, db):
 
-        # skip if transcript ID does not match
-        if q.tpt and hasattr(reg, 't') and reg.t.name != q.tpt:
+        try:
+            # skip if transcript ID does not match
+            if q.tpt and hasattr(reg, 't') and reg.t.name != q.tpt:
+                continue
+
+            r = Record(is_var=True)
+            r.reg = reg
+            r.chrm = q.tok
+            r.gnuc_pos = q.pos
+            r.pos = r.gnuc_pos
+            r.gnuc_ref = gnuc_ref
+            r.gnuc_alt = q.alt if q.alt else ''
+            db.query_dbsnp(r, q.pos, q.ref, q.alt if q.alt else None)
+
+            # optional output
+            if args.gseq:
+                r.vcf_pos = r.gnuc_pos
+                r.vcf_ref = r.gnuc_ref
+                r.vcf_alt = r.gnuc_alt
+
+            if hasattr(reg, 't'):
+                r = annotate_snv_gdna_trannscript(reg, r, q, args)
+            else:
+                r.csqn.append(r.reg.csqn()+"SNV")
+
+            if warning != "":
+                r.append_info('Warning=%s' % warning)
+
+            records.append(r)
+        except IncompatibleTranscriptError as e:
             continue
-
-        r = Record(is_var=True)
-        r.reg = reg
-        r.chrm = q.tok
-        r.gnuc_pos = q.pos
-        r.pos = r.gnuc_pos
-        r.gnuc_ref = gnuc_ref
-        r.gnuc_alt = q.alt if q.alt else ''
-        db.query_dbsnp(r, q.pos, q.ref, q.alt if q.alt else None)
-
-        # optional output
-        if args.gseq:
-            r.vcf_pos = r.gnuc_pos
-            r.vcf_ref = r.gnuc_ref
-            r.vcf_alt = r.gnuc_alt
-
-        if hasattr(reg, 't'):
-            r = annotate_snv_gdna_trannscript(reg, r, q, args)
-        else:
-            r.csqn.append(r.reg.csqn()+"SNV")
-
-        if warning != "":
-            r.append_info('Warning=%s' % warning)
-
-        records.append(r)
+        except SequenceRetrievalError as e:
+            err_warn(e)
+            continue
 
     format_records(records, q.op, args)
     return records
