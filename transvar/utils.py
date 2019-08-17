@@ -390,7 +390,9 @@ def parse_indices(indstr):
 
 def opengz(fn):
 
-    if fn.endswith('.gz'):
+    if fn == '-':
+        fh = sys.stdin
+    elif fn.endswith('.gz'):
         import gzip
         fh = gzip.open(fn, 'rt')
     else:

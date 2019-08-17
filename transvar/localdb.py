@@ -507,12 +507,11 @@ def mapping_append(m, k, v):
 
     if k in m:
         if v not in m[k]:
-            m[k].append(v)
+            m[k].add(v)
     else:
         m[k] = {v}
 
 def index_idmap(idmap_fn, idx_fh):
-
     fh = opengz(idmap_fn)
     idmap = {}
     for i, line in enumerate(fh):
@@ -1208,10 +1207,10 @@ def main_index(args):
     #     idxfn = args.ouptut
 
     # make aliases through idmaps
-    if args.uniprot:
-        # mapping from uniprot ID to multiple IDs
-        uniprot2multi_ids = parser.parse_uniprot_mapping(args.uniprot)
-        dump(uniprot2multi_ids, open(args.uniprot+'.idx','wb'), 2)
+    # if args.uniprot:
+    #     # mapping from uniprot ID to multiple IDs
+    #     uniprot2multi_ids = parser.parse_uniprot_mapping(args.uniprot)
+    #     dump(uniprot2multi_ids, open(args.uniprot+'.idx','wb'), 2)
 
     # references
     if args.reference and args.reference != "_DEF_":

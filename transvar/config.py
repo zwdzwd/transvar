@@ -333,6 +333,7 @@ def _download_(config, section, fns):
 
 def download_idmap(config):
     # 'https://dl.dropboxusercontent.com/u/6647241/annotations/HUMAN_9606_idmapping.dat.gz?dl=1'
+    # original ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/HUMAN_9606_idmapping.dat.gz
     fns = [('uniprot', 'uniprot.idmap_idx',
             '%s/uniprot.idmapping.txt.gz.idx' % dwroot)]
     _download_(config, 'idmap', fns)

@@ -4,6 +4,8 @@ for rv in hg19 hg38 mm10; do
   transvar config --download_raw --refversion $rv;
 done
 
+gzcat HUMAN_9606_idmapping.dat.gz | cut -f1,3 | transvar index --idmap - -o uniprot_idmap.idx
+
 cd transvar.download
 for f in *;do
   if [[ $f != *transvardb* ]]; then
