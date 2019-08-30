@@ -44,6 +44,14 @@ tabix_path = 'tabix'
 # bgzip_path = '%s/bgzip' % os.path.abspath(os.path.dirname(__file__))
 bgzip_path = 'bgzip'
 
+def recheck_resource(dbfn):
+
+    if ((not os.path.exists(dbfn)) and 
+        os.path.exists(os.path.join(os.getenv('TRANSVAR_DOWNLOAD_DIR'), dbfn))):
+        dbfn = os.path.join(os.getenv('TRANSVAR_DOWNLOAD_DIR'), dbfn)
+        
+    return dbfn
+
 p_trxn_version=re.compile(r'(.*)\.(\d+)$')
 class TransVarDB():
 
@@ -59,7 +67,8 @@ class TransVarDB():
         self.name2gene = {}
         self.idmap = {}
         if dbfn is None: return
-
+        dbfn = recheck_resource(dbfn)
+        
         self.dbfn = dbfn
         self.dbfh = open(self.dbfn, 'rt')
 

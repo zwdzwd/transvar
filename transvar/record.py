@@ -176,7 +176,7 @@ class RegAnno():
         return 'inside_[%s]' % self.format0(with_name)
 
 def format_group(d):
-    return locale.format('%d', d, grouping=True)
+    return locale.format('%d', d, grouping=False)
 
 class RegIntergenicAnno():
 

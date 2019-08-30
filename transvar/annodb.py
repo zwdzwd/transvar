@@ -29,7 +29,7 @@ SOFTWARE.
 
 import os
 from .transcripts import *
-from .localdb import TransVarDB
+from .localdb import TransVarDB, recheck_resource
 from . import parser
 from pickle import load
 
@@ -115,7 +115,9 @@ class AnnoDB():
         for rname in ['dbsnp']:
             if self.config.has_option(self.rv, 'dbsnp'):
                 from . import tabix
-                self.resources['dbsnp'] = tabix.open(self.config.get(self.rv, 'dbsnp'))
+                dbfn = self.config.get(self.rv, 'dbsnp')
+                dbfn = recheck_resource(dbfn)
+                self.resources['dbsnp'] = tabix.open(dbfn)
 
         self.features = []
         for rname in self.config.options(self.rv):
