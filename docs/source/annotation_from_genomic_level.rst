@@ -92,10 +92,10 @@ outputs
 ::
 
    9:g.133750356_1337503570	CCDS35165.1 (protein_coding),	ABL1,	+
-      chr9:g.133750356_141213431/./.	from_[cds_in_exon_7;ABL1]_to_[intergenic_between_EHMT1(484,026_bp_downstream)_and_3'-telomere(0_bp)]_spanning_[136_genes]
+      chr9:g.133750356_141213431/./.	from_[cds_in_exon_7;ABL1]_to_[intergenic_between_EHMT1(484026_bp_downstream)_and_3'-telomere(0_bp)]_spanning_[136_genes]
       .
    9:g.133750356_1337503570	CCDS35166.1 (protein_coding),	ABL1,	+
-      chr9:g.133750356_141213431/./.	from_[cds_in_exon_7;ABL1]_to_[intergenic_between_EHMT1(484,026_bp_downstream)_and_3'-telomere(0_bp)]_spanning_[136_genes]
+      chr9:g.133750356_141213431/./.	from_[cds_in_exon_7;ABL1]_to_[intergenic_between_EHMT1(484026_bp_downstream)_and_3'-telomere(0_bp)]_spanning_[136_genes]
       .
 
 Genomic variant

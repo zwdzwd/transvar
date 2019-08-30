@@ -1,7 +1,7 @@
 FROM python:3.7
 MAINTAINER Wanding Zhou <zhouwanding@gmail.com>
 
-ENV TRANSVAR_VERSION==2.5.8.20190813
+ENV TRANSVAR_VERSION==2.5.9.20190830
 ENV TRANSVAR_CFG=/anno/transvar.cfg
 ENV TRANSVAR_DOWNLOAD_DIR=/anno/
 RUN cd / && \

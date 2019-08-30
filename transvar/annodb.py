@@ -89,7 +89,7 @@ class AnnoDB():
                 elif get_config(config, args.idmap, rv='idmap'):
                     # try database-independent idmapping
                     # import pdb; pdb.set_trace()
-                    db.idmap = load(open(get_config(config, args.idmap, rv='idmap'), 'rb'))
+                    db.idmap = load(open(recheck_resource(get_config(config, args.idmap, rv='idmap')), 'rb'))
                 
         self.config = config
         self.args = args
