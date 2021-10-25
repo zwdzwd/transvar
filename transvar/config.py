@@ -68,9 +68,10 @@ downloaddirs = [
                                  os.path.join(os.path.dirname(__file__), 'transvar.download'))),
     os.path.expanduser('~/.transvar.download')]
 
-dwroot = 'http://zwdzwd.io/transvar_user/annotations/'
-## the following is obsolete
-# dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
+dwroot = 'https://zhouserver.research.chop.edu/TransVar/annotations/'
+## the following are obsolete
+## dwroot = 'http://zwdzwd.io/transvar_user/annotations/'
+## dwroot = 'https://dl.dropboxusercontent.com/u/6647241/annotations/'
 
 ## the following will become obsolete in a year
 # dwroot = 'http://transvar.info/transvar_user/annotations/'
@@ -113,6 +114,7 @@ fns[('hg19', 'raw')] = [
 # 03/14/2019: refseq: ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p12_top_level.gff3.gz
 # 03/14/2019: gencode: ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_24/gencode.v24.annotation.gtf.gz
 # 03/14/2019: ensembl: ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz
+# 12/04/2019: refseq: ftp://ftp.ncbi.nlm.nih.gov/genomes/Homo_sapiens/current/GCF_000001405.39_GRCh38.p13/GCF_000001405.39_GRCh38.p13_genomic.gff.gz
 fns[('hg38', 'raw')] = [
     ('raw_refseq', 'hg38.refseq.gff.gz',
     'ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/GFF/ref_GRCh38.p12_top_level.gff3.gz'),
