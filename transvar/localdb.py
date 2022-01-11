@@ -832,7 +832,7 @@ class RefSeqDB(TransVarDB):
                 t.strand = fields[6]
                 t.beg = int(fields[3])
                 t.end = int(fields[4])
-                t.name = info['Name'] if 'Name' in info else info['product']
+                t.name = info.get('Name') or info.get('product') or info.get('ID')
                 m = p_trxn_version.match(t.name)
                 if m:
                     t.name = m.group(1)
